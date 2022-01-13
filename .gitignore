@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# ROOT things
+*Dict.cc
+*.pcm
+
+# Mac things
+*~
+*.DS_Store
+
+# Directories
+bin/*
+lib/*

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "container:README.md">
+   </FileRef>
+   <FileRef
+      location = "group:../../cernbox/Research/Miniball/MiniballSort/Makefile">
+   </FileRef>
+   <FileRef
+      location = "group:../../cernbox/Research/Miniball/MiniballSort/mb_sort.cc">
+   </FileRef>
+   <Group
+      location = "container:"
+      name = "include">
+      <FileRef
+         location = "group:include/Calibration.hh">
+      </FileRef>
+      <FileRef
+         location = "group:include/CommandLineInterface.hh">
+      </FileRef>
+      <FileRef
+         location = "group:include/Converter.hh">
+      </FileRef>
+      <FileRef
+         location = "group:include/DataPackets.hh">
+      </FileRef>
+      <FileRef
+         location = "group:include/RootLinkDef.h">
+      </FileRef>
+      <FileRef
+         location = "group:include/Settings.hh">
+      </FileRef>
+      <FileRef
+         location = "group:include/TimeSorter.hh">
+      </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "src">
+      <FileRef
+         location = "group:src/Calibration.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/CommandLineInterface.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/Converter.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/DataPackets.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/Settings.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/TimeSorter.cc">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:../../cernbox/Research/Miniball/MiniballSort/reaction.dat">
+   </FileRef>
+   <FileRef
+      location = "group:../../cernbox/Research/Miniball/MiniballSort/settings.dat">
+   </FileRef>
+   <FileRef
+      location = "group:../../cernbox/Research/Miniball/MiniballSort/calibration.dat">
+   </FileRef>
+</Workspace>

@@ -1,0 +1,52 @@
+# Reaction file for ISSSort
+#
+# pass this file to iss_sort with the -r flag
+#
+# Liam Gaffney - July 2021
+# liam.gaffney@liverpool.ac.uk
+#
+# Below are the default parameters that can be changed by uncommenting
+# and passing this file to iss_sort during the histogramming stage.
+#
+# This file is not required to run iss_sort, but if you want meaningfull
+# physics histograms at the end, then you should change the parameters
+# here to match your experiment. One can have multiple versions of this
+# file to sort different runs or apply different recoil gates, etc.
+
+
+## Reaction definition
+#BeamA: 30		# mass number
+#BeamZ: 12		# atomic number
+#BeamE: 8500.	# the laboratory beam energy in keV/u (note, not the usual MeV/u)
+#TargetA: 2		#
+#TargetZ: 1		#  
+#EjectileA: 1	# in (d,p) the ejectile is the proton
+#EjectileZ: 1	# we keep this language even though we have inverse kinematics
+#RecoilA: 31.	# the recoil is the heavy ion
+#RecoilZ: 12	# not the target-like product as in normal kinematics
+
+
+## Magnetic field settings
+#Mfield: 2.0		# Magnetic field strength in Tesla 
+
+
+## Detector geometry
+#ArrayDistance: -100.0	# Target to array distance in mm (edge of first wafer; negative upstream; positive downstream)
+#TargetOffset.X: 0.0	# Beam spot offset with respect to the vertical in mm (positive is up wrt beam direction)
+#TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
+
+
+# EBIS windows
+#EBIS_On: 1.20e6		# slow extraction is about 1.2 ms
+#EBIS_Off: 2.52e7		# Off window is 20 times the On window
+
+
+## Recoil cut files
+#RecoilCut_0.File: NULL	# ROOT file containing the 2D recoil energy cut for sector 0
+#RecoilCut_0.Name: CUTG	# name of the TCutG object inside the ROOT file for sector 0
+#RecoilCut_1.File: NULL	# sector 1
+#RecoilCut_1.Name: CUTG	# sector 1
+#RecoilCut_2.File: NULL	# sector 2
+#RecoilCut_2.Name: CUTG	# sector 2
+#RecoilCut_3.File: NULL	# sector 3
+#RecoilCut_3.Name: CUTG	# sector 3
