@@ -5,10 +5,10 @@
       location = "container:README.md">
    </FileRef>
    <FileRef
-      location = "group:../../cernbox/Research/Miniball/MiniballSort/Makefile">
+      location = "group:Makefile">
    </FileRef>
    <FileRef
-      location = "group:../../cernbox/Research/Miniball/MiniballSort/mb_sort.cc">
+      location = "group:mb_sort.cc">
    </FileRef>
    <Group
       location = "container:"
@@ -58,12 +58,12 @@
       </FileRef>
    </Group>
    <FileRef
-      location = "group:../../cernbox/Research/Miniball/MiniballSort/reaction.dat">
+      location = "group:calibration.dat">
    </FileRef>
    <FileRef
-      location = "group:../../cernbox/Research/Miniball/MiniballSort/settings.dat">
+      location = "group:reaction.dat">
    </FileRef>
    <FileRef
-      location = "group:../../cernbox/Research/Miniball/MiniballSort/calibration.dat">
+      location = "group:settings.dat">
    </FileRef>
 </Workspace>

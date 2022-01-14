@@ -1,57 +1,42 @@
 ##########################################################
-# This file contains all the settings for the DAQ        #
-# including the geometry mapping for each detector       #
+# This file contains all the settings for the FEBEX DAQ  #
+# including the geometry mapping for each detector.      #
 # Parameters that are commented are the defaults values  #
-# If you want to change them, uncomment or make a copy   #
+# If you want to change them, uncomment or make a copy.  #
 #                                                        #
-# You pass this file to iss_sort with the -s if needed   #
+# Liam Gaffney - January 2022                            #
+# liam.gaffney@liverpool.ac.uk                           #
+#                                                        #
+# You pass this file to mb_sort with the -s if needed    #
 ##########################################################
 
 #--------------#
-# Array things #
+# FEBEX things #
 #--------------#
-#NumberOfArrayModules: 3
-#NumberOfArrayASICs: 6
-#NumberOfArrayChannels: 128
-#NumberOfArrayRows: 4
-#NumberOfArrayPstrips: 128
-#NumberOfArrayNstrips: 11
-
-
-#-------------#
-# CAEN things #
-#-------------#
-#NumberOfCAENModules: 2
-#NumberOfCAENChannels: 16
+#NumberOfFebexSfps: 3			# total number of SFPs delivering data
+#NumberOfFebexBoards: 10		# maximum number of boards per SFP
+#NumberOfFebexChannels: 16		# number of channels per FEBEX board = 16
 
 
 #------------------------#
 # Triggers, pulsers, etc #
 #------------------------#
-#ExternalTriggerCode: 14 
-#SyncCode: 4 
-#TimestampCode: 5
-#PulserModuleArray: 0
-#PulserAsicArray: 1
-#PulserChannelArray: 63
-#PulserCodeArray: 19
-#PulserModuleCAEN: 1
-#PulserChannelCAEN: 13
-#PulserCodeCAEN: 20
-#EBISModule: 1
+#PulserSfp: 1					# Location of the pulser in the DAQ
+#PulserBoard: 1
+#PulserChannel: 13
+#EBISSfp: 1						# Location of the EBIS signal in the DAQ
+#EBISBoard: 1
 #EBISChannel: 14
-#EBISCode: 21
-#T1Module: 1
+#T1Sfp: 1						# Location of the T1 signal in the DAQ
+#T1Board: 1
 #T1Channel: 15
-#T1Code: 22
 
 
 #-------------#
 # Data things #
 #-------------#
-#DataBlockSize: 0x10000 # 64 kB for ISS/CAEN data or 128 kB (0x20000) for CAEN only data
-#ASICDataOnly: false	# normally we have a mix of data in the file
-#CAENDataOnly: false	# prior to June 2021 we need these switches
+#DataBlockSize: 0x10000 		# 64 kB (0x10000) or 128 kB (0x20000) usually
+#FebexDataOnly: true			# pure FEBEX DAQ for now, but might expand in future
 
 
 #---------------#
@@ -61,67 +46,284 @@
 
 
 #-----------------#
-# Recoil Detector #
+# Miniball things #
 #-----------------#
-#NumberOfRecoilSectors: 4 # 4 quadrants for Si dE-E, or just 1 for the ionisation chamber
-#NumberOfRecoilLayers: 2 # 2 layers of Si in the dE-E, or 13 anodes for the ionisation chamber
-#RecoilEnergyLossDepth: 1	# Number of layers to summed for energy loss, others are E rest
-#Recoil_0_0.Module: 0	# R0-dE, sector 0, layer 0
-#Recoil_0_0.Channel: 0	# R0-dE, sector 0, layer 0
-#Recoil_0_1.Module: 0	# R0-E, sector 0, layer 1
-#Recoil_0_1.Channel: 1	# R0-E, sector 0, layer 1
-#Recoil_1_0.Module: 0	# R1-dE, sector 1, layer 0
-#Recoil_1_0.Channel: 2	# R1-dE, sector 1, layer 0
-#Recoil_1_1.Module: 0	# R1-E, sector 1, layer 1
-#Recoil_1_1.Channel: 3	# R1-E, sector 1, layer 1
-#Recoil_2_0.Module: 0	# R2-dE, sector 2, layer 0
-#Recoil_2_0.Channel: 4	# R2-dE, sector 2, layer 0
-#Recoil_2_1.Module: 0	# R2-E, sector 2, layer 1
-#Recoil_2_1.Channel: 5	# R2-E, sector 2, layer 1
-#Recoil_3_0.Module: 0	# R3-dE, sector 3, layer 0
-#Recoil_3_0.Channel: 6	# R3-dE, sector 3, layer 0
-#Recoil_3_1.Module: 0	# R3-E, sector 3, layer 1
-#Recoil_3_1.Channel: 7	# R3-E, sector 3, layer 1
+#NumberOfMiniballClusters: 8	# we usually have 8 clusters
+#NumberOfMiniballCrystals: 3	# triple clusters have 3 crystals
+#NumberOfMiniballSegments: 7	# this includes core as segment 0
 
-
-#---------------#
-# MWPC Detector #
-#---------------#
-#NumberOfMWPCAxes: 2	# x = 0 and y = 1
-#MWPC_0_0.Module: 1	# MWPC axis 0 TAC 0
-#MWPC_0_0.Channel: 8	#
-#MWPC_0_1.Module: 1	# MWPC axis 0 TAC 1
-#MWPC_0_1.Channel: 9	#
-#MWPC_1_0.Module: 1	# MWPC axis 1 TAC 0
-#MWPC_1_0.Channel: 10	#
-#MWPC_1_1.Module: 1	# MWPC axis 1 TAC 1
-#MWPC_1_1.Channel: 11	#
-
-
-#---------------#
-# ELUM Detector #
-#---------------#
-#NumberOfELUMSectors: 4	# 4 quadrants for S1 ELUM with Jim's FlexPCB (might be 6 in the future)
-#ELUM_0.Module: 1	# ELUM0, sector/quadrant 0 of the S1
-#ELUM_0.Channel: 0	# ELUM0, sector/quadrant 0 of the S1
-#ELUM_1.Module: 1	# ELUM1, sector/quadrant 1 of the S1
-#ELUM_1.Channel: 1	# ELUM1, sector/quadrant 1 of the S1
-#ELUM_2.Module: 1	# ELUM2, sector/quadrant 2 of the S1
-#ELUM_2.Channel: 2	# ELUM2, sector/quadrant 2 of the S1
-#ELUM_3.Module: 1	# ELUM3, sector/quadrant 3 of the S1
-#ELUM_3.Channel: 3	# ELUM3, sector/quadrant 3 of the S1
+#Miniball_0_0_0.Sfp: 0			# Location of Cluster 0, Crystal 0
+#Miniball_0_0_0.Board: 0		# Segment 0 (core) in the DAQ
+#Miniball_0_0_0.Channel: 0		#
+#Miniball_0_0_1.Sfp: 0			# Location of Cluster 0, Crystal 0
+#Miniball_0_0_1.Board: 0		# Segment 1 in the DAQ
+#Miniball_0_0_1.Channel: 1		#
+#Miniball_0_0_2.Sfp: 0			# Location of Cluster 0, Crystal 0
+#Miniball_0_0_2.Board: 0		# Segment 2 in the DAQ
+#Miniball_0_0_2.Channel: 2		#
+#Miniball_0_0_3.Sfp: 0			# Location of Cluster 0, Crystal 0
+#Miniball_0_0_3.Board: 0		# Segment 3 in the DAQ
+#Miniball_0_0_3.Channel: 3		#
+#Miniball_0_0_4.Sfp: 0			# Location of Cluster 0, Crystal 0
+#Miniball_0_0_4.Board: 0		# Segment 4 in the DAQ
+#Miniball_0_0_4.Channel: 4		#
+#Miniball_0_0_5.Sfp: 0			# Location of Cluster 0, Crystal 0
+#Miniball_0_0_5.Board: 0		# Segment 5 in the DAQ
+#Miniball_0_0_5.Channel: 5		#
+#Miniball_0_0_6.Sfp: 0			# Location of Cluster 0, Crystal 0
+#Miniball_0_0_6.Board: 0		# Segment 6 in the DAQ
+#Miniball_0_0_6.Channel: 6		#
+#Miniball_0_1_0.Sfp: 0			# Location of Cluster 0, Crystal 1
+#Miniball_0_1_0.Board: 0		# Segment 0 (core) in the DAQ
+#Miniball_0_1_0.Channel: 8		#
+#Miniball_0_1_1.Sfp: 0			# Location of Cluster 0, Crystal 1
+#Miniball_0_1_1.Board: 0		# Segment 1 in the DAQ
+#Miniball_0_1_1.Channel: 9		#
+#Miniball_0_1_2.Sfp: 0			# Location of Cluster 0, Crystal 1
+#Miniball_0_1_2.Board: 0		# Segment 2 in the DAQ
+#Miniball_0_1_2.Channel: 10		#
+#Miniball_0_1_3.Sfp: 0			# Location of Cluster 0, Crystal 1
+#Miniball_0_1_3.Board: 0		# Segment 3 in the DAQ
+#Miniball_0_1_3.Channel: 11		#
+#Miniball_0_1_4.Sfp: 0			# Location of Cluster 0, Crystal 1
+#Miniball_0_1_4.Board: 0		# Segment 4 in the DAQ
+#Miniball_0_1_4.Channel: 12		#
+#Miniball_0_1_5.Sfp: 0			# Location of Cluster 0, Crystal 1
+#Miniball_0_1_5.Board: 0		# Segment 5 in the DAQ
+#Miniball_0_1_5.Channel: 13		#
+#Miniball_0_1_6.Sfp: 0			# Location of Cluster 0, Crystal 1
+#Miniball_0_1_6.Board: 0		# Segment 6 in the DAQ
+#Miniball_0_1_6.Channel: 14		#
+#Miniball_0_2_0.Sfp: 0			# Location of Cluster 0, Crystal 2
+#Miniball_0_2_0.Board: 1		# Segment 0 (core) in the DAQ
+#Miniball_0_2_0.Channel: 0		#
+#Miniball_0_2_1.Sfp: 0			# Location of Cluster 0, Crystal 2
+#Miniball_0_2_1.Board: 1		# Segment 1 in the DAQ
+#Miniball_0_2_1.Channel: 1		#
+#Miniball_0_2_2.Sfp: 0			# Location of Cluster 0, Crystal 2
+#Miniball_0_2_2.Board: 1		# Segment 2 in the DAQ
+#Miniball_0_2_2.Channel: 2		#
+#Miniball_0_2_3.Sfp: 0			# Location of Cluster 0, Crystal 2
+#Miniball_0_2_3.Board: 1		# Segment 3 in the DAQ
+#Miniball_0_2_3.Channel: 3		#
+#Miniball_0_2_4.Sfp: 0			# Location of Cluster 0, Crystal 2
+#Miniball_0_2_4.Board: 1		# Segment 4 in the DAQ
+#Miniball_0_2_4.Channel: 4		#
+#Miniball_0_2_5.Sfp: 0			# Location of Cluster 0, Crystal 2
+#Miniball_0_2_5.Board: 1		# Segment 5 in the DAQ
+#Miniball_0_2_5.Channel: 5		#
+#Miniball_0_2_6.Sfp: 0			# Location of Cluster 0, Crystal 2
+#Miniball_0_2_6.Board: 1		# Segment 6 in the DAQ
+#Miniball_0_2_6.Channel: 6		#
+#Miniball_1_0_0.Sfp: 0			# Location of Cluster 1, Crystal 0
+#Miniball_1_0_0.Board: 1		# Segment 0 (core) in the DAQ
+#Miniball_1_0_0.Channel: 8		#
+#Miniball_1_0_1.Sfp: 0			# Location of Cluster 1, Crystal 0
+#Miniball_1_0_1.Board: 1		# Segment 1 in the DAQ
+#Miniball_1_0_1.Channel: 9		#
+#Miniball_1_0_2.Sfp: 0			# Location of Cluster 1, Crystal 0
+#Miniball_1_0_2.Board: 1		# Segment 2 in the DAQ
+#Miniball_1_0_2.Channel: 10		#
+#Miniball_1_0_3.Sfp: 0			# Location of Cluster 1, Crystal 0
+#Miniball_1_0_3.Board: 1		# Segment 3 in the DAQ
+#Miniball_1_0_3.Channel: 11		#
+#Miniball_1_0_4.Sfp: 0			# Location of Cluster 1, Crystal 0
+#Miniball_1_0_4.Board: 1		# Segment 4 in the DAQ
+#Miniball_1_0_4.Channel: 12		#
+#Miniball_1_0_5.Sfp: 0			# Location of Cluster 1, Crystal 0
+#Miniball_1_0_5.Board: 1		# Segment 5 in the DAQ
+#Miniball_1_0_5.Channel: 13		#
+#Miniball_1_0_6.Sfp: 0			# Location of Cluster 1, Crystal 0
+#Miniball_1_0_6.Board: 1		# Segment 6 in the DAQ
+#Miniball_1_0_6.Channel: 14		#
+# ...
+#Miniball_7_2_0.Sfp: 1			# Location of Cluster 7, Crystal 2
+#Miniball_7_2_0.Board: 5		# Segment 0 (core) in the DAQ
+#Miniball_7_2_0.Channel: 8		#
+#Miniball_7_2_1.Sfp: 1			# Location of Cluster 7, Crystal 2
+#Miniball_7_2_1.Board: 5		# Segment 1 in the DAQ
+#Miniball_7_2_1.Channel: 9		#
+#Miniball_7_2_2.Sfp: 1			# Location of Cluster 7, Crystal 2
+#Miniball_7_2_2.Board: 5		# Segment 2 in the DAQ
+#Miniball_7_2_2.Channel: 10		#
+#Miniball_7_2_3.Sfp: 1			# Location of Cluster 7, Crystal 2
+#Miniball_7_2_3.Board: 5		# Segment 3 in the DAQ
+#Miniball_7_2_3.Channel: 11		#
+#Miniball_7_2_4.Sfp: 1			# Location of Cluster 7, Crystal 2
+#Miniball_7_2_4.Board: 5		# Segment 4 in the DAQ
+#Miniball_7_2_4.Channel: 12		#
+#Miniball_7_2_5.Sfp: 1			# Location of Cluster 7, Crystal 2
+#Miniball_7_2_5.Board: 5		# Segment 5 in the DAQ
+#Miniball_7_2_5.Channel: 13		#
+#Miniball_7_2_6.Sfp: 1			# Location of Cluster 7, Crystal 2
+#Miniball_7_2_6.Board: 5		# Segment 6 in the DAQ
+#Miniball_7_2_6.Channel: 14		#
 
 
 #---------------------#
-# ZeroDegree Detector #
-#---------------------#
-#NumberOfZDLayers: 2	# This should always be 2, because it's a silicon dE-E
-#ZD_0.Module: 1		# ZeroDegree dE
-#ZD_0.Channel: 6		# ZeroDegree dE
-#ZD_1.Module: 1		# ZeroDegree E
-#ZD_1.Channel: 7		# ZeroDegree E
+# CD detector things #
+#--------------------#
+#NumberOfCDDetectors: 1			# 1 in Coulex mode, but option for backwards open
+#NumberOfCDSectors: 4			# otherwise known as quadrants, there's 4
+#NumberOfCDStrips.P: 16			# number of p-side strips = 16
+#NumberOfCDStrips.N: 12			# number of n-side strips = 12 with Edinburgh/RAL preamps
+
+#CD_0_0_0.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 0
+#CD_0_0_0.P.Board: 0			#
+#CD_0_0_0.P.Channel: 0			#
+#CD_0_0_1.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 1
+#CD_0_0_1.P.Board: 0			#
+#CD_0_0_1.P.Channel: 1			#
+#CD_0_0_2.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 2
+#CD_0_0_2.P.Board: 0			#
+#CD_0_0_2.P.Channel: 2			#
+#CD_0_0_3.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 3
+#CD_0_0_3.P.Board: 0			#
+#CD_0_0_3.P.Channel: 3			#
+#CD_0_0_4.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 4
+#CD_0_0_4.P.Board: 0			#
+#CD_0_0_4.P.Channel: 4			#
+#CD_0_0_5.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 5
+#CD_0_0_5.P.Board: 0			#
+#CD_0_0_5.P.Channel: 5			#
+#CD_0_0_6.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 6
+#CD_0_0_6.P.Board: 0			#
+#CD_0_0_6.P.Channel: 6			#
+#CD_0_0_7.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 7
+#CD_0_0_7.P.Board: 0			#
+#CD_0_0_7.P.Channel: 7			#
+#CD_0_0_8.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 8
+#CD_0_0_8.P.Board: 0			#
+#CD_0_0_8.P.Channel: 8			#
+#CD_0_0_9.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 9
+#CD_0_0_9.P.Board: 0			#
+#CD_0_0_9.P.Channel: 9			#
+#CD_0_0_10.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 10
+#CD_0_0_10.P.Board: 0			#
+#CD_0_0_10.P.Channel: 10		#
+#CD_0_0_11.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 11
+#CD_0_0_11.P.Board: 0			#
+#CD_0_0_11.P.Channel: 11		#
+#CD_0_0_12.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 12
+#CD_0_0_12.P.Board: 0			#
+#CD_0_0_12.P.Channel: 12		#
+#CD_0_0_13.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 13
+#CD_0_0_13.P.Board: 0			#
+#CD_0_0_13.P.Channel: 13		#
+#CD_0_0_14.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 14
+#CD_0_0_14.P.Board: 0			#
+#CD_0_0_14.P.Channel: 14		#
+#CD_0_0_15.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 15
+#CD_0_0_15.P.Board: 0			#
+#CD_0_0_15.P.Channel: 15		#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Board: 1			#
+#CD_0_0_0.N.Channel: 0			#
+#CD_0_0_1.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 1
+#CD_0_0_1.N.Board: 1			#
+#CD_0_0_1.N.Channel: 1			#
+#CD_0_0_2.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 2
+#CD_0_0_2.N.Board: 1			#
+#CD_0_0_2.N.Channel: 2			#
+#CD_0_0_3.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 3
+#CD_0_0_3.N.Board: 1			#
+#CD_0_0_3.N.Channel: 3			#
+#CD_0_0_4.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 4
+#CD_0_0_4.N.Board: 1			#
+#CD_0_0_4.N.Channel: 4			#
+#CD_0_0_5.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 5
+#CD_0_0_5.N.Board: 1			#
+#CD_0_0_5.N.Channel: 5			#
+#CD_0_0_6.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 6
+#CD_0_0_6.N.Board: 1			#
+#CD_0_0_6.N.Channel: 6			#
+#CD_0_0_7.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 7
+#CD_0_0_7.N.Board: 1			#
+#CD_0_0_7.N.Channel: 7			#
+#CD_0_0_8.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 8
+#CD_0_0_8.N.Board: 1			#
+#CD_0_0_8.N.Channel: 8			#
+#CD_0_0_9.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 9
+#CD_0_0_9.N.Board: 1			#
+#CD_0_0_9.N.Channel: 9			#
+#CD_0_0_10.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 10
+#CD_0_0_10.N.Board: 1			#
+#CD_0_0_10.N.Channel: 10		#
+#CD_0_0_11.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 11
+#CD_0_0_11.N.Board: 1			#
+#CD_0_0_11.N.Channel: 11		#
+# ...
+#CD_0_3_0.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 0
+#CD_0_3_0.N.Board: 7			#
+#CD_0_3_0.N.Channel: 0			#
+#CD_0_3_1.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 1
+#CD_0_3_1.N.Board: 7			#
+#CD_0_3_1.N.Channel: 1			#
+#CD_0_3_2.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 2
+#CD_0_3_2.N.Board: 7			#
+#CD_0_3_2.N.Channel: 2			#
+#CD_0_3_3.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 3
+#CD_0_3_3.N.Board: 7			#
+#CD_0_3_3.N.Channel: 3			#
+#CD_0_3_4.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 4
+#CD_0_3_4.N.Board: 7			#
+#CD_0_3_4.N.Channel: 4			#
+#CD_0_3_5.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 5
+#CD_0_3_5.N.Board: 7			#
+#CD_0_3_5.N.Channel: 5			#
+#CD_0_3_6.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 6
+#CD_0_3_6.N.Board: 7			#
+#CD_0_3_6.N.Channel: 6			#
+#CD_0_3_7.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 7
+#CD_0_3_7.N.Board: 7			#
+#CD_0_3_7.N.Channel: 7			#
+#CD_0_3_8.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 8
+#CD_0_3_8.N.Board: 7			#
+#CD_0_3_8.N.Channel: 8			#
+#CD_0_3_9.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 9
+#CD_0_3_9.N.Board: 7			#
+#CD_0_3_9.N.Channel: 9			#
+#CD_0_3_10.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 10
+#CD_0_3_10.N.Board: 7			#
+#CD_0_3_10.N.Channel: 10		#
+#CD_0_3_11.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 11
+#CD_0_3_11.N.Board: 7			#
+#CD_0_3_11.N.Channel: 11		#
 
 
 
+#---------------------------#
+# Beam dump detector things #
+#---------------------------#
+#NumberOfBeamDumpDetectors: 1	# HPGe detectors at the beam dump position
 
-
+#BeamDump_0.Sfp: 1				# Extra board on second SFP
+#BeamDump_0.Board: 6			# for beam dump detectors
+#BeamDump_0.Channel: 0			# and ionisation chamber, maybe?
