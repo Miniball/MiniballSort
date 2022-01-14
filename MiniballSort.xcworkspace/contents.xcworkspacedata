@@ -26,13 +26,19 @@
          location = "group:include/DataPackets.hh">
       </FileRef>
       <FileRef
-         location = "group:include/RootLinkDef.h">
+         location = "group:include/EventBuilder.hh">
+      </FileRef>
+      <FileRef
+         location = "group:include/MiniballEvts.hh">
       </FileRef>
       <FileRef
          location = "group:include/Settings.hh">
       </FileRef>
       <FileRef
          location = "group:include/TimeSorter.hh">
+      </FileRef>
+      <FileRef
+         location = "group:include/RootLinkDef.h">
       </FileRef>
    </Group>
    <Group
@@ -49,6 +55,12 @@
       </FileRef>
       <FileRef
          location = "group:src/DataPackets.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/EventBuilder.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/MiniballEvts.cc">
       </FileRef>
       <FileRef
          location = "group:src/Settings.cc">

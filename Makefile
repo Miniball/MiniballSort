@@ -50,15 +50,20 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 				$(SRC_DIR)/Converter.o \
 				$(SRC_DIR)/DataPackets.o \
 				$(SRC_DIR)/Settings.o \
-				$(SRC_DIR)/TimeSorter.o
- 
+				$(SRC_DIR)/TimeSorter.o \
+				$(SRC_DIR)/EventBuilder.o \
+				$(SRC_DIR)/MiniballEvts.o
+
 # The header files.
 DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/CommandLineInterface.hh \
 				$(INC_DIR)/Converter.hh \
 				$(INC_DIR)/DataPackets.hh \
 				$(INC_DIR)/Settings.hh \
-				$(INC_DIR)/TimeSorter.hh
+				$(INC_DIR)/TimeSorter.hh \
+				$(INC_DIR)/EventBuilder.hh \
+				$(INC_DIR)/MiniballEvts.hh
+
  
 .PHONY : all
 all: $(BIN_DIR)/mb_sort $(LIB_DIR)/libmb_sort.so

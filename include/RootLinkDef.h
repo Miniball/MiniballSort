@@ -7,9 +7,10 @@
 #pragma link C++ class CommandLineInterface+;
 #pragma link C++ class Converter+;
 #pragma link C++ class TimeSorter+;
-//#pragma link C++ class EventBuilder+;
-//#pragma link C++ class MiniballEvts+;
-//#pragma link C++ class GammaRayEvt+;
+#pragma link C++ class EventBuilder+;
+#pragma link C++ class MiniballEvts+;
+#pragma link C++ class GammaRayEvt+;
+#pragma link C++ class GammaRayAddbackEvt+;
 //#pragma link C++ class ParticleEvt+;
 #pragma link C++ class DataPackets+;
 #pragma link C++ class FebexData+;
