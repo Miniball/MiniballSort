@@ -38,6 +38,7 @@
 # Mac things
 *~
 *.DS_Store
+*.xcworkspace
 
 # Directories
 bin/*

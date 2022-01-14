@@ -31,29 +31,29 @@ void Settings::ReadSettings() {
 	n_cd_det		= config->GetValue( "NumberOfCDDetectors", 1 );
 	n_cd_sector		= config->GetValue( "NumberOfCDSectors", 4 );
 	n_cd_side		= 2; // always 2, you cannot change this!
-	n_cd_pstrip		= config->GetValue( "NumberOfCDPStrips", 16 );
-	n_cd_nstrip		= config->GetValue( "NumberOfCDNStrips", 12 );
+	n_cd_pstrip		= config->GetValue( "NumberOfCDStrips.P", 16 );
+	n_cd_nstrip		= config->GetValue( "NumberOfCDStrips.N", 12 );
 
 	// Beam dump initialisation
 	n_bd_det		= config->GetValue( "NumberOfBeamDumpDetectors", 1 );
 	
 	// Info code initialisation
-	sync_code		= config->GetValue( "SyncCode", 4 );
-	thsb_code		= config->GetValue( "TimestampCode", 5 );
-	pause_code		= config->GetValue( "PauseCode", 2 );
-	resume_code		= config->GetValue( "ResumeCode", 3 );
+	pause_code		= 2;
+	resume_code		= 3;
+	sync_code		= 4;
+	thsb_code		= 5;
 	pulser_sfp		= config->GetValue( "PulserSfp", 1 );
 	pulser_board	= config->GetValue( "PulserBoard", 1 );
 	pulser_ch		= config->GetValue( "PulserChannel", 13 );
-	pulser_code		= config->GetValue( "PulserCode", 20 );
+	pulser_code		= 20;
 	ebis_sfp		= config->GetValue( "EBISSfp", 1 );
 	ebis_board		= config->GetValue( "EBISBoard", 1 );
 	ebis_ch			= config->GetValue( "EBISChannel", 14 );
-	ebis_code		= config->GetValue( "EBISCode", 21 );
+	ebis_code		= 21;
 	t1_sfp			= config->GetValue( "T1Sfp", 1 );
 	t1_board		= config->GetValue( "T1Board", 1 );
 	t1_ch			= config->GetValue( "T1Channel", 15 );
-	t1_code			= config->GetValue( "T1Code", 22 );
+	t1_code			= 22;
 
 	
 	// Event builder
@@ -116,6 +116,7 @@ void Settings::ReadSettings() {
 	
 	
 	// Miniball array electronics mapping
+	int d, s, b, c;
 	mb_sfp.resize( n_mb_cluster );
 	mb_board.resize( n_mb_cluster );
 	mb_ch.resize( n_mb_cluster );
@@ -134,9 +135,13 @@ void Settings::ReadSettings() {
 
 			for( unsigned int k = 0; k < n_mb_segment; ++k ){
 
-				mb_sfp[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Sfp", i, j, k ), (int)(i/4) );
-				mb_board[i][j][k]	= config->GetValue( Form( "Miniball_%d_%d_%d.Board", i, j, k ),  (int)((j&0xFFFE)/2) );
-				mb_ch[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Channel", i, j, k ),  (int)(k+8*(k&0x1)) );
+				d = i*3 + j;			// Crystal ordering: 0-23
+				s = d/12;				// spread 24 crystals over 2 SFPs
+				b = (d&0xFFFE)/2 - s*6;	// 2 crystals per board
+				c = k + 8*(d&0x1);		// odd crystals starts at ch8
+				mb_sfp[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Sfp", i, j, k ), s );
+				mb_board[i][j][k]	= config->GetValue( Form( "Miniball_%d_%d_%d.Board", i, j, k ), b );
+				mb_ch[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Channel", i, j, k ), c );
 
 				if( mb_sfp[i][j][k] < n_febex_sfp &&
 					mb_board[i][j][k] < n_febex_board &&
@@ -151,7 +156,7 @@ void Settings::ReadSettings() {
 				else {
 					
 					std::cerr << "Dodgy Miniball settings: sfp = " << mb_sfp[i][j][k];
-					std::cerr << ", board = " << mb_board[i][j][k] << std::endl;
+					std::cerr << ", board = " << mb_board[i][j][k];
 					std::cerr << ", channel = " << mb_ch[i][j][k] << std::endl;
 
 				}
@@ -198,9 +203,12 @@ void Settings::ReadSettings() {
 
 				for( unsigned int l = 0; l < side_size; ++l ){
 					
-					cd_sfp[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Sfp", i, j, l, side_str.data() ), (int)3 );
-					cd_board[i][j][k][l]	= config->GetValue( Form( "CD_%d_%d_%d.%s.Board", i, j, l, side_str.data() ), (int)(j*2) );
-					cd_ch[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Ch", i, j, l, side_str.data() ), (int)k );
+					s = 2+i;
+					b = j*2;
+					c = k;
+					cd_sfp[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Sfp", i, j, l, side_str.data() ), s );
+					cd_board[i][j][k][l]	= config->GetValue( Form( "CD_%d_%d_%d.%s.Board", i, j, l, side_str.data() ), b );
+					cd_ch[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Channel", i, j, l, side_str.data() ), c );
 					
 					if( cd_sfp[i][j][k][l] < n_febex_sfp &&
 					   cd_board[i][j][k][l] < n_febex_board &&
@@ -216,7 +224,7 @@ void Settings::ReadSettings() {
 					else {
 						
 						std::cerr << "Dodgy CD settings: sfp = " << cd_sfp[i][j][k][l];
-						std::cerr << ", board = " << cd_board[i][j][k][l] << std::endl;
+						std::cerr << ", board = " << cd_board[i][j][k][l];
 						std::cerr << ", channel = " << cd_ch[i][j][k][l] << std::endl;
 						
 					}
@@ -228,6 +236,38 @@ void Settings::ReadSettings() {
 		} // j: cd sector
 		
 	} // i: cd detector
+	
+	
+	// Beam dump detector mapping
+	bd_sfp.resize( n_bd_det );
+	bd_board.resize( n_bd_det );
+	bd_ch.resize( n_bd_det );
+	
+	for( unsigned int i = 0; i < n_bd_det; ++i ){
+		
+		bd_sfp[i]		= config->GetValue( Form( "BeamDump_%d.Sfp", i ), 0 );
+		bd_board[i]		= config->GetValue( Form( "BeamDump_%d.Board", i ), 6 );
+		bd_ch[i]		= config->GetValue( Form( "BeamDump_%d.Channel", i ), (int)i );
+		
+		if( bd_sfp[i] < n_febex_sfp &&
+		    bd_board[i] < n_febex_board &&
+		    bd_ch[i] < n_febex_ch ){
+			
+			bd_det[bd_sfp[i]][bd_board[i]][bd_ch[i]] = i;
+			
+		}
+		
+		else {
+			
+			std::cerr << "Dodgy beam-dump settings: sfp = " << bd_sfp[i];
+			std::cerr << ", board = " << bd_board[i];
+			std::cerr << ", channel = " << bd_ch[i] << std::endl;
+			
+		}
+		
+		
+	} // i: beam dump detector
+	
 	
 	// Finished
 	delete config;
