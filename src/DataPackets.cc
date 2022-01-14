@@ -8,10 +8,10 @@ FebexData::FebexData(){}
 FebexData::~FebexData(){}
 FebexData::FebexData( unsigned long long t,
 				    std::vector<unsigned short> tr,
-					unsigned short ql, unsigned short qs,
+					unsigned short qi, Float16_t qh, float qf,
 					unsigned char s, unsigned char b, unsigned char c,
 				    bool th, bool v, bool f ) :
-					time(t), trace(tr), Qlong(ql), Qshort(qs), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f) {}
+					time(t), trace(tr), Qint(qi), Qhalf(qh), Qfloat(qf), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f) {}
 
 InfoData::InfoData(){}
 InfoData::~InfoData(){}
@@ -31,8 +31,9 @@ void DataPackets::SetData( FebexData *data ){
 	
 	fill_data.SetTime( data->GetTime() );
 	fill_data.SetTrace( data->GetTrace() );
-	fill_data.SetQlong( data->GetQlong() );
-	fill_data.SetQshort( data->GetQshort() );
+	fill_data.SetQint( data->GetQint() );
+	fill_data.SetQhalf( data->GetQhalf() );
+	fill_data.SetQfloat( data->GetQfloat() );
 	fill_data.SetSfp( data->GetSfp() );
 	fill_data.SetBoard( data->GetBoard() );
 	fill_data.SetChannel( data->GetChannel() );
@@ -97,8 +98,9 @@ void FebexData::ClearData(){
 	
 	time = 0;
 	trace.clear();
-	Qlong = 0;
-	Qshort = 0;
+	Qint = 0;
+	Qhalf = 0.;
+	Qfloat = 0.;
 	sfp = 255;
 	board = 255;
 	ch = 255;

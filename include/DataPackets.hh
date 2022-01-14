@@ -10,15 +10,16 @@ public:
 	FebexData();
 	FebexData( unsigned long long t,
 			  std::vector<unsigned short> tr,
-			  unsigned short ql, unsigned short qs,
+			  unsigned short qi, Float16_t qh, float qf,
 			  unsigned char s, unsigned char b, unsigned char c,
 			  bool th, bool v, bool f );
 	~FebexData();
 
 	inline unsigned long long	GetTime() { return time; };
 	inline unsigned short		GetTraceLength() { return trace.size(); };
-	inline unsigned short		GetQlong() { return Qlong; };
-	inline unsigned short		GetQshort() { return Qshort; };
+	inline unsigned short		GetQint() { return Qint; };
+	inline Float16_t			GetQhalf() { return Qhalf; };
+	inline float				GetQfloat() { return Qfloat; };
 	inline unsigned char		GetSfp() { return sfp; };
 	inline unsigned char		GetBoard() { return board; };
 	inline unsigned char		GetChannel() { return ch; };
@@ -35,8 +36,9 @@ public:
 	inline void	SetTime( unsigned long long t ) { time = t; };
 	inline void	SetTrace( std::vector<unsigned short> t ) { trace = t; };
 	inline void AddSample( unsigned short s ) { trace.push_back(s); };
-	inline void	SetQlong( unsigned short q ) { Qlong = q; };
-	inline void	SetQshort( unsigned short q ) { Qshort = q; };
+	inline void	SetQint( unsigned short q ) { Qint = q; };
+	inline void	SetQhalf( Float16_t q ) { Qhalf = q; };
+	inline void	SetQfloat( float q ) { Qfloat = q; };
 	inline void SetSfp( unsigned char s ){ sfp = s; };
 	inline void SetBoard( unsigned char b ){ board = b; };
 	inline void	SetChannel( unsigned char c ) { ch = c; };
@@ -52,8 +54,9 @@ protected:
 	
 	unsigned long long			time;
 	std::vector<unsigned short>	trace;
-	unsigned short				Qlong;
-	unsigned short				Qshort;
+	unsigned short				Qint;		///< Charge from firmware as 16-bit integer
+	Float16_t					Qhalf;		///< Charge from firmware as 16-bit float
+	float						Qfloat;		///< Charge from firmware as 32-bit float
 	unsigned char				sfp;		///< SFP ID of the event
 	unsigned char				board;		///< board ID of the event
 	unsigned char				ch;			///< channel ID of the event

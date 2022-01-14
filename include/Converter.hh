@@ -176,10 +176,13 @@ private:
 	unsigned long my_tm_stp_lsb;
 	unsigned long my_tm_stp_msb;
 	unsigned long my_tm_stp_hsb;
-	unsigned long my_info_field;
-	unsigned long my_info_code;
-	unsigned long my_type;
-	unsigned long my_adc_data;
+	unsigned int my_info_field;
+	unsigned char my_info_code;
+	unsigned char my_type;
+	unsigned short my_adc_data;
+	unsigned short my_adc_data_lsb;
+	unsigned short my_adc_data_hsb;
+	float my_adc_data_float;
 	unsigned char my_sfp_id;
 	unsigned char my_board_id;
 	unsigned char my_ch_id;

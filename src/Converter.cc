@@ -596,7 +596,7 @@ void Converter::ProcessFebexData(){
 		hfebex[my_sfp_id][my_board_id][my_ch_id]->Fill( my_adc_data );
 		hfebex_cal[my_sfp_id][my_board_id][my_ch_id]->Fill( my_energy );
 		
-		febex_data->SetQlong( my_adc_data );
+		febex_data->SetQint( my_adc_data );
 		febex_data->SetEnergy( my_energy );
 
 		// Check if it's over threshold
@@ -611,6 +611,7 @@ void Converter::ProcessFebexData(){
 	// 16-bit float
 	if( my_data_id == 1 ) {
 		
+		febex_data->SetQhalf( (Float16_t)(my_adc_data&0xFFFF) );
 		flag_febex_data1 = true;
 
 	}
@@ -618,6 +619,7 @@ void Converter::ProcessFebexData(){
 	// 32-bit float (low 16 bits)
 	if( my_data_id == 2 ) {
 		
+		my_adc_data_lsb = my_adc_data&0xFFFF;
 		flag_febex_data2 = true;
 
 	}
@@ -625,6 +627,7 @@ void Converter::ProcessFebexData(){
 	// 32-bit float (high 16 bits)
 	if( my_data_id == 3 ) {
 		
+		my_adc_data_hsb = my_adc_data&0xFFFF;
 		flag_febex_data3 = true;
 
 	}
@@ -647,6 +650,9 @@ void Converter::FinishFebexData(){
 		time_corr  = febex_data->GetTime();
 		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
+		// Combine the two halfs of the floating point ADC energy
+		my_adc_data_float = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
+		
 		// Check if this is actually just a timestamp or info like event
 		flag_febex_info = false;
 		if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
@@ -697,6 +703,7 @@ void Converter::FinishFebexData(){
 			// Set this data and fill event to tree
 			// Also add the time offset when we do this
 			febex_data->SetTime( time_corr );
+			febex_data->SetQfloat( my_adc_data_float );
 			data_packet->SetData( febex_data );
 			output_tree->Fill();
 			
@@ -708,10 +715,11 @@ void Converter::FinishFebexData(){
 	else if( my_tm_stp != febex_data->GetTime() ) {
 		
 		std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
-		std::cout << " Qlong       = " << flag_febex_data0 << std::endl;
-		std::cout << " Qshort      = " << flag_febex_data1 << std::endl;
-		std::cout << " fine timing = " << flag_febex_data3 << std::endl;
-		std::cout << " trace data  = " << flag_febex_trace << std::endl;
+		std::cout << " Qint          = " << flag_febex_data0 << std::endl;
+		std::cout << " Qhalf         = " << flag_febex_data1 << std::endl;
+		std::cout << " Qfloat (low)  = " << flag_febex_data2 << std::endl;
+		std::cout << " Qfloat (high) = " << flag_febex_data3 << std::endl;
+		std::cout << " trace data    = " << flag_febex_trace << std::endl;
 
 	}
 
