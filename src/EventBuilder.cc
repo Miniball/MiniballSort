@@ -720,10 +720,10 @@ void EventBuilder::ParticleFinder() {
 				particle_evt->SetEnergyN( cd_en_list.at( nindex[0] ) );
 				particle_evt->SetTimeP( cd_ts_list.at( pindex[0] ) );
 				particle_evt->SetTimeN( cd_ts_list.at( nindex[0] ) );
-				particle_evt->GetDetector( i );
-				particle_evt->GetSector( j );
-				particle_evt->GetStripP( cd_strip_list.at( pindex[0] ) );
-				particle_evt->GetStripN( cd_strip_list.at( nindex[0] ) );
+				particle_evt->SetDetector( i );
+				particle_evt->SetSector( j );
+				particle_evt->SetStripP( cd_strip_list.at( pindex[0] ) );
+				particle_evt->SetStripN( cd_strip_list.at( nindex[0] ) );
 				write_evts->AddEvt( particle_evt );
 				
 			} // 1 vs 1
