@@ -52,7 +52,8 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 				$(SRC_DIR)/Settings.o \
 				$(SRC_DIR)/TimeSorter.o \
 				$(SRC_DIR)/EventBuilder.o \
-				$(SRC_DIR)/MiniballEvts.o
+				$(SRC_DIR)/MiniballEvts.o \
+				$(SRC_DIR)/MiniballGeometry.o
 
 # The header files.
 DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
@@ -62,7 +63,8 @@ DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/Settings.hh \
 				$(INC_DIR)/TimeSorter.hh \
 				$(INC_DIR)/EventBuilder.hh \
-				$(INC_DIR)/MiniballEvts.hh
+				$(INC_DIR)/MiniballEvts.hh \
+				$(INC_DIR)/MiniballGeometry.hh
 
  
 .PHONY : all
