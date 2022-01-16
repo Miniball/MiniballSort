@@ -12,7 +12,7 @@
 #pragma link C++ class MiniballEvts+;
 #pragma link C++ class GammaRayEvt+;
 #pragma link C++ class GammaRayAddbackEvt+;
-//#pragma link C++ class ParticleEvt+;
+#pragma link C++ class ParticleEvt+;
 #pragma link C++ class DataPackets+;
 #pragma link C++ class FebexData+;
 #pragma link C++ class InfoData+;

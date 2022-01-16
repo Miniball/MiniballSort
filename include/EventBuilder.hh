@@ -86,7 +86,8 @@ private:
 	MiniballEvts *write_evts;
 	GammaRayEvt *gamma_evt;
 	GammaRayAddbackEvt *gamma_ab_evt;
-	
+	ParticleEvt *particle_evt;
+
 	// Do calibration
 	Calibration *cal;
 	bool overwrite_cal;
@@ -130,6 +131,14 @@ private:
 	std::vector<unsigned char>			mb_cry_list;	///< list of crystal IDs
 	std::vector<unsigned char>			mb_seg_list;	///< list of segment IDs
 
+	// CD detector specific variables
+	std::vector<float>					cd_en_list;		///< list of CD energies for ParticleFinder
+	std::vector<unsigned long long>		cd_ts_list;		///< list of CD timestamps for ParticleFinder
+	std::vector<unsigned char>			cd_det_list;	///< list of CD detector IDs
+	std::vector<unsigned char>			cd_sec_list;	///< list of CD sector IDs
+	std::vector<unsigned char>			cd_side_list;	///< list of CD side IDs; 0 = p, 1 = n
+	std::vector<unsigned char>			cd_strip_list;	///< list of CD strip IDs
+
 
 	// Counters
 	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr;
@@ -138,7 +147,7 @@ private:
 	std::vector<unsigned long>	n_sfp;
 	std::vector<std::vector<unsigned long>>	n_board;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
-	unsigned long				n_miniball;
+	unsigned long				n_miniball, n_cd;
 
 
 	// Timing histograms

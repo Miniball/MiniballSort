@@ -48,7 +48,8 @@ void EventBuilder::StartFile(){
 	n_t1			= 0;
 
 	n_miniball		= 0;
-	
+	n_cd			= 0;
+
 	gamma_ctr		= 0;
 	gamma_ab_ctr	= 0;
 	cd_ctr			= 0;
@@ -153,11 +154,30 @@ void EventBuilder::Initialise(){
 	hit_ctr = 0;
 	
 	mb_en_list.clear();
-	mb_en_list.clear();
 	mb_ts_list.clear();
 	mb_clu_list.clear();
 	mb_cry_list.clear();
 	mb_seg_list.clear();
+	
+	std::vector<float>().swap(mb_en_list);
+	std::vector<unsigned long long>().swap(mb_ts_list);
+	std::vector<unsigned char>().swap(mb_clu_list);
+	std::vector<unsigned char>().swap(mb_cry_list);
+	std::vector<unsigned char>().swap(mb_seg_list);
+	
+	cd_en_list.clear();
+	cd_ts_list.clear();
+	cd_det_list.clear();
+	cd_sec_list.clear();
+	cd_side_list.clear();
+	cd_strip_list.clear();
+	
+	std::vector<float>().swap(cd_en_list);
+	std::vector<unsigned long long>().swap(cd_ts_list);
+	std::vector<unsigned char>().swap(cd_det_list);
+	std::vector<unsigned char>().swap(cd_sec_list);
+	std::vector<unsigned char>().swap(cd_side_list);
+	std::vector<unsigned char>().swap(cd_strip_list);
 	
 	write_evts->ClearEvt();
 	
@@ -268,7 +288,6 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			// If it's below threshold do not use as window opener
 			if( !mythres ) noise_flag = true;
 
-
 			// Is it a gamma ray from Miniball?
 			else if( set->IsMiniball( mysfp, myboard, mych ) && mythres ) {
 				
@@ -278,11 +297,29 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 				
 				mb_en_list.push_back( myenergy );
 				mb_ts_list.push_back( mytime );
-				mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych) );
-				mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych) );
-				mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych) );
+				mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
+				mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
+				mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
 				
 			}
+			
+			// Is it a partile from the CD?
+			else if( set->IsCD( mysfp, myboard, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_cd++;
+				event_open = true;
+				
+				cd_en_list.push_back( myenergy );
+				cd_ts_list.push_back( mytime );
+				cd_det_list.push_back( set->GetCDDetector( mysfp, myboard, mych ) );
+				cd_sec_list.push_back( set->GetCDSector( mysfp, myboard, mych ) );
+				cd_side_list.push_back( set->GetCDSide( mysfp, myboard, mych ) );
+				cd_strip_list.push_back( set->GetCDStrip( mysfp, myboard, mych ) );
+				
+			}
+			
+
 			
 			// Is it the start event?
 			if( febex_time_start.at( mysfp ).at( myboard ) == 0 )
@@ -499,7 +536,8 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 	std::cout << "   Miniball events = " << n_miniball << std::endl;
 	std::cout << "    Gamma singles events = " << gamma_ctr << std::endl;
 	std::cout << "    Gamma addback events = " << gamma_ab_ctr << std::endl;
-	std::cout << "   Particle detector events = " << cd_ctr << std::endl;
+	std::cout << "   CD detector events = " << n_cd << std::endl;
+	std::cout << "    Particle events = " << cd_ctr << std::endl;
 	std::cout << "   Beam dump events = " << bd_ctr << std::endl;
 
 
@@ -571,6 +609,7 @@ void EventBuilder::GammaRayFinder() {
 		} // j: matching segments
 		
 		// Build the single crystal gamma-ray event
+		gamma_ctr++;
 		gamma_evt->SetEnergy( mb_en_list.at(i) );
 		gamma_evt->SetClu( mb_clu_list.at(i) );
 		gamma_evt->SetCry( mb_cry_list.at(i) );
@@ -630,6 +669,7 @@ void EventBuilder::GammaRayFinder() {
 		} // j: loop for matching addback
 
 		// Build the single crystal gamma-ray event
+		gamma_ab_ctr++;
 		gamma_ab_evt->SetEnergy( AbSumEnergy );
 		gamma_ab_evt->SetClu( write_evts->GetGammaRayEvt(i)->GetClu() );
 		gamma_ab_evt->SetCry( MaxCryId );
@@ -639,12 +679,60 @@ void EventBuilder::GammaRayFinder() {
 		
 	} // i: gamma-ray singles
 	
+	return;
+	
 }
 
 
 void EventBuilder::ParticleFinder() {
-	
 
+	// Variables for the finder algorithm
+	std::vector<unsigned char> pindex;
+	std::vector<unsigned char> nindex;
+
+	// Loop over each detector and sector
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ){
+
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ){
+			
+			// Reset variables for a new detector element
+			pindex.clear();
+			nindex.clear();
+			std::vector<unsigned char>().swap(pindex);
+			std::vector<unsigned char>().swap(nindex);
+			
+			// Calculate p/n side multiplicities and get indicies
+			for( unsigned int k = 0; k < cd_en_list.size(); ++k ){
+				
+				if( cd_side_list.at(k) == 0 ) pindex.push_back(k);
+				else if( cd_side_list.at(k) == 1 ) nindex.push_back(k);
+					
+			} // k: all CD events
+			
+			// ----------------------- //
+			// Particle reconstruction //
+			// ----------------------- //
+			// 1 vs 1 - easiest situation
+			if( pindex.size() == 1 && nindex.size() == 1 ) {
+
+				cd_ctr++;
+				particle_evt->SetEnergyP( cd_en_list.at( pindex[0] ) );
+				particle_evt->SetEnergyN( cd_en_list.at( nindex[0] ) );
+				particle_evt->SetTimeP( cd_ts_list.at( pindex[0] ) );
+				particle_evt->SetTimeN( cd_ts_list.at( nindex[0] ) );
+				particle_evt->GetDetector( i );
+				particle_evt->GetSector( j );
+				particle_evt->GetStripP( cd_strip_list.at( pindex[0] ) );
+				particle_evt->GetStripN( cd_strip_list.at( nindex[0] ) );
+				write_evts->AddEvt( particle_evt );
+				
+			} // 1 vs 1
+			
+		} // j: sector ID
+		
+	} // i: detector ID
+
+	return;
 	
 }
 
@@ -668,6 +756,8 @@ void EventBuilder::MakeEventHists(){
 	pulser_freq = new TProfile( "pulser_freq", "Frequency of pulser in FEBEX DAQ as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
+	
+	return;
 	
 }
 
