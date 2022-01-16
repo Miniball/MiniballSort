@@ -29,35 +29,24 @@ void MiniballEvts::AddEvt( GammaRayEvt *event ) {
 	GammaRayEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
 	fill_evt.SetTime( event->GetTime() );
-	fill_evt.SetTheta( event->GetTheta() );
-	fill_evt.SetPhi( event->GetPhi() );
+	fill_evt.SetClu( event->GetClu() );
+	fill_evt.SetCry( event->GetCry() );
+	fill_evt.SetSeg( event->GetSeg() );
 
 	gamma_event.push_back( fill_evt );
 	
 }
 
-// --------------- //
-// GammaRay events //
-// --------------- //
-
-void GammaRayEvt::CopyEvent( GammaRayEvt *in ){
+void MiniballEvts::AddEvt( GammaRayAddbackEvt *event ) {
 	
-	energy 	= in->GetEnergy();
-	time	= in->GetTime();
-	theta	= in->GetTheta();
-	phi		= in->GetPhi();
+	// Make a copy of the event and push it back
+	GammaRayAddbackEvt fill_evt;
+	fill_evt.SetEnergy( event->GetEnergy() );
+	fill_evt.SetTime( event->GetTime() );
+	fill_evt.SetClu( event->GetClu() );
+	fill_evt.SetCry( event->GetCry() );
+	fill_evt.SetSeg( event->GetSeg() );
 
-	return;
-	
-}
-
-TVector3 GammaRayEvt::GetUnitVector(){
-	
-	// Make a unit vector and rotate to correct angle
-	TVector3 pos( 1, 1, 1 );
-	pos.SetTheta( GetTheta() );
-	pos.SetPhi( GetPhi() );
-
-	return pos;
+	gamma_ab_event.push_back( fill_evt );
 	
 }

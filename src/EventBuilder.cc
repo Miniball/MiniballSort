@@ -50,6 +50,7 @@ void EventBuilder::StartFile(){
 	n_miniball		= 0;
 	
 	gamma_ctr		= 0;
+	gamma_ab_ctr	= 0;
 	cd_ctr			= 0;
 	bd_ctr			= 0;
 
@@ -495,9 +496,21 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 	std::cout << "   EBIS events = " << n_ebis << std::endl;
 	std::cout << "   T1 events = " << n_t1 << std::endl;
 	std::cout << "  Tree entries = " << output_tree->GetEntries() << std::endl;
+	std::cout << "   Miniball events = " << n_miniball << std::endl;
+	std::cout << "    Gamma singles events = " << gamma_ctr << std::endl;
+	std::cout << "    Gamma addback events = " << gamma_ab_ctr << std::endl;
+	std::cout << "   Particle detector events = " << cd_ctr << std::endl;
+	std::cout << "   Beam dump events = " << bd_ctr << std::endl;
+
 
 	output_file->Write( 0, TObject::kWriteDelete );
+
+
+
 	//output_file->Print();
+
+
+
 	//output_file->Close();
 	
 	std::cout << std::endl;
@@ -509,7 +522,123 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 
 void EventBuilder::GammaRayFinder() {
 	
+	// Temporary variables for addback
+	unsigned long long MaxTime; // time of event with maximum energy
+	unsigned char MaxSegId; // segment with maximum energy
+	unsigned char MaxCryId; // crystal with maximum energy
+	float MaxEnergy; // maximum segment energy
+	float SegSumEnergy; // add segment energies
+	float AbSumEnergy; // add core energies for addback
+	unsigned char seg_mul; // segment multiplicity
+	unsigned char ab_mul; // addback multiplicity
+	std::vector<unsigned char> ab_index; // index of addback already used
+	bool skip_event; // has this event been used already
+	
+	// Loop over all the events in Miniball detectors
+	for( unsigned int i = 0; i < mb_en_list.size(); ++i ) {
+	
+		// Check if it's a core event
+		if( mb_seg_list.at(i) != 0 ) continue;
+		
+		// Reset addback variables
+		MaxSegId = 0; // initialise as core (if no segment hit (dead), use core!)
+		MaxEnergy = 0.;
+		SegSumEnergy = 0.;
+		seg_mul = 0;
+		
+		// Loop again to find the matching segments
+		for( unsigned int j = 0; j < mb_en_list.size(); ++j ) {
 
+			// Skip if it's not the same crystal and cluster
+			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
+			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
+			
+			// Skip is it's the core again
+			if( i == j ) continue;
+			
+			// Increment the segment multiplicity and sum energy
+			seg_mul++;
+			SegSumEnergy += mb_en_list.at(j);
+			
+			// Is this bigger than the current maximum energy?
+			if( mb_en_list.at(j) > MaxEnergy ){
+				
+				MaxEnergy = mb_en_list.at(j);
+				MaxSegId = mb_seg_list.at(j);
+				
+			}
+			
+		} // j: matching segments
+		
+		// Build the single crystal gamma-ray event
+		gamma_evt->SetEnergy( mb_en_list.at(i) );
+		gamma_evt->SetClu( mb_clu_list.at(i) );
+		gamma_evt->SetCry( mb_cry_list.at(i) );
+		gamma_evt->SetSeg( MaxSegId );
+		gamma_evt->SetTime( mb_ts_list.at(i) );
+		write_evts->AddEvt( gamma_evt );
+
+	} // i: core events
+	
+	
+	// Loop over all the gamma-ray singles for addback
+	for( unsigned int i = 0; i < write_evts->GetGammaRayMultiplicity(); ++i ) {
+
+		// Reset addback variables
+		AbSumEnergy = write_evts->GetGammaRayEvt(i)->GetEnergy();
+		MaxCryId = write_evts->GetGammaRayEvt(i)->GetCry();
+		MaxSegId = write_evts->GetGammaRayEvt(i)->GetSeg();
+		MaxEnergy = AbSumEnergy;
+		MaxTime = write_evts->GetGammaRayEvt(i)->GetTime();
+		ab_mul = 1;	// this is already the first event
+		ab_index.clear();
+		std::vector<unsigned char>().swap( ab_index );
+		
+		// Loop to find a matching event for addback
+		for( unsigned int j = i+i; j < write_evts->GetGammaRayMultiplicity(); ++j ) {
+
+			// Make sure we are in the same cluster
+			// In the future we might consider a more intelligent
+			// algorithm, which uses the line-of-sight idea
+			if( write_evts->GetGammaRayEvt(i)->GetClu() !=
+				write_evts->GetGammaRayEvt(j)->GetClu() ) continue;
+			
+			// Check we haven't already used this event
+			skip_event = false;
+			for( unsigned int k = 0; k < ab_index.size(); ++k ) {
+			
+				if( ab_index.at(k) == j ) skip_event = true;
+			
+			}
+			if( skip_event ) continue;
+			
+			// Then we can add them back
+			ab_mul++;
+			AbSumEnergy += write_evts->GetGammaRayEvt(j)->GetEnergy();
+			
+			// Is this bigger than the current maximum energy?
+			if( write_evts->GetGammaRayEvt(j)->GetEnergy() > MaxEnergy ){
+				
+				MaxEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
+				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCry();
+				MaxSegId = write_evts->GetGammaRayEvt(j)->GetCry();
+				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
+
+			}
+
+			
+		} // j: loop for matching addback
+
+		// Build the single crystal gamma-ray event
+		gamma_ab_evt->SetEnergy( AbSumEnergy );
+		gamma_ab_evt->SetClu( write_evts->GetGammaRayEvt(i)->GetClu() );
+		gamma_ab_evt->SetCry( MaxCryId );
+		gamma_ab_evt->SetSeg( MaxSegId );
+		gamma_ab_evt->SetTime( MaxTime );
+		write_evts->AddEvt( gamma_ab_evt );
+
+		
+	} // i: gamma-ray singles
 	
 }
 

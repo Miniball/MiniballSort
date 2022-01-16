@@ -20,29 +20,35 @@ public:
 	// Event set functions
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetTime( unsigned long long t ){ time = t; };
-	inline void SetTheta( float th ){ theta = th; };
-	inline void SetPhi( float ph ){ phi = ph; };
-	
-	
-	// Copy event
-	void CopyEvent( GammaRayEvt *in );
+	inline void SetClu( unsigned char c ){ clu = c; };
+	inline void SetCry( unsigned char c ){ cry = c; };
+	inline void SetSeg( unsigned char s ){ seg = s; };
 	
 	// Return functions
 	inline float 				GetEnergy(){ return energy; };
 	inline unsigned long long	GetTime(){ return time; };
-	inline float				GetTheta(){ return theta; };
-	inline float				GetPhi(){ return phi; };
+	inline unsigned char		GetClu(){ return clu; };
+	inline unsigned char		GetCry(){ return cry; };
+	inline unsigned char		GetSeg(){ return seg; };
 
 	// Geometry functions
-	TVector3			GetUnitVector();
+	//inline float				GetTheta(){ return theta; };
+	//inline float				GetPhi(){ return phi; };
+	//TVector3					GetUnitVector(){
+	//	TVector3 pos( 1, 1, 1 );
+	//	pos.SetTheta( GetTheta() );
+	//	pos.SetPhi( GetPhi() );
+	//	return pos;
+	//};
 
 private:
 
 	// variables for gamma-ray event
 	float				energy;		///< energy in keV
 	unsigned long long	time;		///< timestamp of event
-	float				theta;		///< theta in the lab frame in radians
-	float				phi;		///< phi in the lab frame in radians
+	unsigned char		clu;		///< cluster ID
+	unsigned char		cry;		///< crystal ID
+	unsigned char		seg;		///< segment ID
 
 
 	ClassDef( GammaRayEvt, 1 )
@@ -81,6 +87,10 @@ public:
 
 	inline GammaRayEvt* GetGammaRayEvt( unsigned int i ){
 		if( i < gamma_event.size() ) return &gamma_event.at(i);
+		else return nullptr;
+	};
+	inline GammaRayAddbackEvt* GetGammaRayAddbackEvt( unsigned int i ){
+		if( i < gamma_ab_event.size() ) return &gamma_ab_event.at(i);
 		else return nullptr;
 	};
 
