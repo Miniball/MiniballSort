@@ -32,6 +32,9 @@
          location = "group:include/MiniballEvts.hh">
       </FileRef>
       <FileRef
+         location = "group:include/MiniballGeometry.hh">
+      </FileRef>
+      <FileRef
          location = "group:include/Settings.hh">
       </FileRef>
       <FileRef
@@ -61,6 +64,9 @@
       </FileRef>
       <FileRef
          location = "group:src/MiniballEvts.cc">
+      </FileRef>
+      <FileRef
+         location = "group:src/MiniballGeometry.cc">
       </FileRef>
       <FileRef
          location = "group:src/Settings.cc">
