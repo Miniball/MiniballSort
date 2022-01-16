@@ -78,12 +78,11 @@ int port_num = 8030;
 
 // Function to call the monitoring loop
 void* monitor_run( void* ptr ){
-//void monitor_run(){
 	
 	// This function is called to run when monitoring
 	Converter conv_mon( ((thptr*)ptr)->myset );
 	TimeSorter sort_mon;
-	//EventBuilder eb_mon( ((thptr*)ptr)->myset );
+	EventBuilder eb_mon( ((thptr*)ptr)->myset );
 	//Histogrammer hist_mon( ((thptr*)ptr)->myreact, ((thptr*)ptr)->myset );
 
 	// Data/Event counters
@@ -132,12 +131,12 @@ void* monitor_run( void* ptr ){
 		start_sort = nsort;
 
 		// Event builder
-//		if( bFirstRun ) {
-//			eb_mon.SetInputTree( sort_mon.GetTree() );
-//			eb_mon.SetOutput( "monitor_events.root" );
-//		}
-//		nbuild = eb_mon.BuildEvents( start_build );
-//		start_build = nbuild;
+		if( bFirstRun ) {
+			eb_mon.SetInputTree( sort_mon.GetTree() );
+			eb_mon.SetOutput( "monitor_events.root" );
+		}
+		nbuild = eb_mon.BuildEvents( start_build );
+		start_build = nbuild;
 		
 		// Histogrammer
 //		if( bFirstRun ) {
@@ -444,57 +443,57 @@ int main( int argc, char *argv[] ){
 	//-----------------------//
 	// Physics event builder //
 	//-----------------------//
-//	EventBuilder eb( myset );
-//	std::cout << "\n +++ Miniball Analysis:: processing EventBuilder +++" << std::endl;
-//
-//	// Update calibration file if given
-//	if( overwrite_cal ) eb.AddCalibration( mycal );
-//
-//	// Do event builder for each file individually
-//	for( unsigned int i = 0; i < input_names.size(); i++ ){
-//
-//		name_input_file = input_names.at(i) + "_sort.root";
-//		name_output_file = input_names.at(i) + "_events.root";
-//
-//		// We need to do event builder if we just converted it
-//		// specific request to do new event build with -e
-//		// this is useful if you need to add a new calibration
-//		if( flag_convert || force_convert.at(i) || flag_events )
-//			force_events = true;
-//
-//		// If it doesn't exist, we have to sort it anyway
-//		else {
-//
-//			ftest.open( name_output_file.data() );
-//			if( !ftest.is_open() ) force_events = true;
-//			else {
-//
-//				ftest.close();
-//				rtest = new TFile( name_output_file.data() );
-//				if( rtest->IsZombie() ) force_events = true;
-//				if( !force_events )
-//					std::cout << name_output_file << " already built" << std::endl;
-//				rtest->Close();
-//
-//			}
-//
-//		}
-//
-//		if( force_events ) {
-//
-//			std::cout << name_input_file << " --> ";
-//			std::cout << name_output_file << std::endl;
-//
-//			eb.SetInputFile( name_input_file );
-//			eb.SetOutput( name_output_file );
-//			eb.BuildEvents();
-//			eb.CloseOutput();
-//
-//			force_events = false;
-//
-//		}
-//
-//	}
+	EventBuilder eb( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing EventBuilder +++" << std::endl;
+
+	// Update calibration file if given
+	if( overwrite_cal ) eb.AddCalibration( mycal );
+
+	// Do event builder for each file individually
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+
+		name_input_file = input_names.at(i) + "_sort.root";
+		name_output_file = input_names.at(i) + "_events.root";
+
+		// We need to do event builder if we just converted it
+		// specific request to do new event build with -e
+		// this is useful if you need to add a new calibration
+		if( flag_convert || force_convert.at(i) || flag_events )
+			force_events = true;
+
+		// If it doesn't exist, we have to sort it anyway
+		else {
+
+			ftest.open( name_output_file.data() );
+			if( !ftest.is_open() ) force_events = true;
+			else {
+
+				ftest.close();
+				rtest = new TFile( name_output_file.data() );
+				if( rtest->IsZombie() ) force_events = true;
+				if( !force_events )
+					std::cout << name_output_file << " already built" << std::endl;
+				rtest->Close();
+
+			}
+
+		}
+
+		if( force_events ) {
+
+			std::cout << name_input_file << " --> ";
+			std::cout << name_output_file << std::endl;
+
+			eb.SetInputFile( name_input_file );
+			eb.SetOutput( name_output_file );
+			eb.BuildEvents();
+			eb.CloseOutput();
+
+			force_events = false;
+
+		}
+
+	}
 	
 	
 	//------------------------------//
