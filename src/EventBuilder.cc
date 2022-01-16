@@ -621,7 +621,7 @@ void EventBuilder::GammaRayFinder() {
 				
 				MaxEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
 				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCry();
-				MaxSegId = write_evts->GetGammaRayEvt(j)->GetCry();
+				MaxSegId = write_evts->GetGammaRayEvt(j)->GetSeg();
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
 
 			}
@@ -636,7 +636,6 @@ void EventBuilder::GammaRayFinder() {
 		gamma_ab_evt->SetSeg( MaxSegId );
 		gamma_ab_evt->SetTime( MaxTime );
 		write_evts->AddEvt( gamma_ab_evt );
-
 		
 	} // i: gamma-ray singles
 	
