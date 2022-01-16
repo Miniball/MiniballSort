@@ -16,6 +16,7 @@
 #pragma link C++ class DataPackets+;
 #pragma link C++ class FebexData+;
 #pragma link C++ class InfoData+;
-//#pragma link C++ class Reaction+;
-//#pragma link C++ class Particle+;
+#pragma link C++ class Reaction+;
+#pragma link C++ class Particle+;
+#pragma link C++ class Histogrammer+;
 #endif

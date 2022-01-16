@@ -4,8 +4,8 @@
 #include "Converter.hh"
 #include "TimeSorter.hh"
 #include "EventBuilder.hh"
-//#include "Reaction.hh"
-//#include "Histogrammer.hh"
+#include "Reaction.hh"
+#include "Histogrammer.hh"
 
 // ROOT include.
 #include <TTree.h>
@@ -58,14 +58,14 @@ Calibration *mycal;
 bool overwrite_cal = false;
 
 // Reaction file
-//Reaction *myreact;
+Reaction *myreact;
 
 // Struct for passing to the thread
 typedef struct thptr {
 	
 	Calibration *mycal;
 	Settings *myset;
-	//Reaction *myreact;
+	Reaction *myreact;
 	
 } thread_data;
 
@@ -83,7 +83,7 @@ void* monitor_run( void* ptr ){
 	Converter conv_mon( ((thptr*)ptr)->myset );
 	TimeSorter sort_mon;
 	EventBuilder eb_mon( ((thptr*)ptr)->myset );
-	//Histogrammer hist_mon( ((thptr*)ptr)->myreact, ((thptr*)ptr)->myset );
+	Histogrammer hist_mon( ((thptr*)ptr)->myreact, ((thptr*)ptr)->myset );
 
 	// Data/Event counters
 	int start_block = 0;
@@ -139,12 +139,12 @@ void* monitor_run( void* ptr ){
 		start_build = nbuild;
 		
 		// Histogrammer
-//		if( bFirstRun ) {
-//			hist_mon.SetInputTree( eb_mon.GetTree() );
-//			hist_mon.SetOutput( "monitor_hists.root" );
-//		}
-//		nfill = hist_mon.FillHists( start_fill );
-//		start_fill = nfill;
+		if( bFirstRun ) {
+			hist_mon.SetInputTree( eb_mon.GetTree() );
+			hist_mon.SetOutput( "monitor_hists.root" );
+		}
+		nfill = hist_mon.FillHists( start_fill );
+		start_fill = nfill;
 		
 		// If this was the first time we ran, do stuff?
 		if( bFirstRun ) {
@@ -161,8 +161,8 @@ void* monitor_run( void* ptr ){
 	
 	conv_mon.CloseOutput();
 	sort_mon.CloseOutput();
-	//eb_mon.CloseOutput();
-	//hist_mon.CloseOutput();
+	eb_mon.CloseOutput();
+	hist_mon.CloseOutput();
 
 	return 0;
 	
@@ -499,23 +499,23 @@ int main( int argc, char *argv[] ){
 	//------------------------------//
 	// Finally make some histograms //
 	//------------------------------//
-//	Histogrammer hist( myreact, myset );
-//	std::cout << "\n +++ Miniball Analysis:: processing Histogrammer +++" << std::endl;
-//
-//	hist.SetOutput( output_name );
-//	std::vector<std::string> name_hist_files;
-//
-//	// We are going to chain all the event files now
-//	for( unsigned int i = 0; i < input_names.size(); i++ ){
-//
-//		name_output_file = input_names.at(i) + "_events.root";
-//		name_hist_files.push_back( name_output_file );
-//
-//	}
-//
-//	hist.SetInputFile( name_hist_files );
-//	hist.FillHists();
-//	hist.CloseOutput();
+	Histogrammer hist( myreact, myset );
+	std::cout << "\n +++ Miniball Analysis:: processing Histogrammer +++" << std::endl;
+
+	hist.SetOutput( output_name );
+	std::vector<std::string> name_hist_files;
+
+	// We are going to chain all the event files now
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+
+		name_output_file = input_names.at(i) + "_events.root";
+		name_hist_files.push_back( name_output_file );
+
+	}
+
+	hist.SetInputFile( name_hist_files );
+	hist.FillHists();
+	hist.CloseOutput();
 	
 	std::cout << "\n\nFinished!\n";
 			
