@@ -7,11 +7,6 @@
 #include <TVector3.h>
 #include <TMath.h>
 
-// Settings header
-#ifndef __SETTINGS_HH
-# include "Settings.hh"
-#endif
-
 #define ROOTTHREEOVER2 0.8660254
 
 #define DIST_CORE_CORNER 34
@@ -31,9 +26,7 @@ class MiniballGeometry : public TObject {
 	public:
    
 	/// Constructor
-	MiniballGeometry( Settings *_myset ) {
-		myset = _myset;
-	};
+	MiniballGeometry() {};
 	
 	/// Destructor
 	~MiniballGeometry() {};
@@ -136,15 +129,16 @@ class MiniballGeometry : public TObject {
 	
 	private:
 	
+	// Segments etc
+	const unsigned char ncry = 3;
+	const unsigned char nseg = 6;
+
 	// Current values of theta, phi, alpha and r
 	double theta;	///< theta angle in deg
 	double phi;		///< phi angle in deg
 	double alpha;	///< alpha angle in deg
 	double r; 		///< distance from target to detector in mm
 	double z; 		///< distance from target to origin (beam direction is positive) in mm
-	
-	// 	Settings file
-	Settings *myset;
 	
 	// Geometry
 	TVector3 clu_offset;							///< vector for cluster centre

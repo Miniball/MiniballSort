@@ -160,6 +160,12 @@ public:
 	float	GetParticleTheta( unsigned char det, unsigned char sec, unsigned char strip );
 	float	GetParticleTheta( ParticleEvt *p );
 	float	GetParticlePhi( ParticleEvt *p );
+	float	GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg );
+	float	GetGammaTheta( GammaRayEvt *g );
+	float	GetGammaTheta( GammaRayAddbackEvt *g );
+	float	GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg );
+	float	GetGammaPhi( GammaRayEvt *g );
+	float	GetGammaPhi( GammaRayAddbackEvt *g );
 
 	// Reaction calculations
 	inline double GetQvalue(){
@@ -195,6 +201,7 @@ public:
 	// Target offsets
 	inline void SetOffsetX( double x ){ x_offset = x; };
 	inline void SetOffsetY( double y ){ y_offset = y; };
+	inline void SetOffsetZ( double z ){ z_offset = z; };
 
 	// Get cuts
 	inline TCutG* GetBeamCut(){ return beam_cut; };
@@ -221,12 +228,18 @@ private:
 	double EBIS_Off;	///< beam off max time in ns
 
 	// Target offsets
-	double x_offset;	///< horizontal offset of the target/beam position, with respect to the array in mm
-	double y_offset;	///< vertical offset of the target/beam position, with respect to the array in mm
-	
+	double x_offset;	///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
+	double y_offset;	///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
+	double z_offset;	///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
+
 	// CD detector things
 	float cd_dist;		///< distance from target to CD detector in mm
 	float cd_offset;	///< phi rotation of the CD in radians
+	
+	// Miniball detector things
+	std::vector<MiniballGeometry> mb_geo;
+	std::vector<float> mb_theta, mb_phi, mb_alpha, mb_r;
+
 	
 	// Cuts
 	std::string beamcutfile, beamcutname;

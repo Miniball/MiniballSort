@@ -92,10 +92,10 @@ void MiniballGeometry::SetupCluster( double user_theta, double user_phi, double 
 	if( phi > TMath::Pi() ) theta = TMath::Pi() - theta;
 
 	// Resize arrays
-	cry_offset.resize( myset->GetNumberOfMiniballCrystals() );
-	seg_offset.resize( myset->GetNumberOfMiniballCrystals() );
-	for( unsigned int i = 0; i < myset->GetNumberOfMiniballCrystals(); ++i )
-		seg_offset[i].resize( myset->GetNumberOfMiniballSegments()-1 );
+	cry_offset.resize( ncry );
+	seg_offset.resize( ncry );
+	for( unsigned int i = 0; i < ncry; ++i )
+		seg_offset[i].resize( nseg );
 
 	// Set individual values
 	SetupCluster();
@@ -169,8 +169,8 @@ void MiniballGeometry::SetupCluster() {
 	
    	// Add the segment offsets to the detector offsets, so now
    	// seg_offset has the offset from the centre of the cluster
-	for( unsigned char i = 0; i < myset->GetNumberOfMiniballCrystals(); i++ )
-		for( unsigned char j = 0; j < myset->GetNumberOfMiniballSegments()-1; j++ )
+	for( unsigned char i = 0; i < ncry; i++ )
+		for( unsigned char j = 0; j < nseg; j++ )
 			seg_offset[i][j] += cry_offset[i];
 
 	// Offsets
@@ -192,15 +192,15 @@ void MiniballGeometry::SetupCluster() {
 	clu_offset.RotateZ(mytheta);
 		
 	// Rotate crystal to appropriate angle
-	for( unsigned char i = 0; i < myset->GetNumberOfMiniballCrystals(); i++ ) {
+	for( unsigned char i = 0; i < ncry; i++ ) {
 		cry_offset[i].RotateY(myalpha);
 		cry_offset[i].RotateX(myphi);
 		cry_offset[i].RotateZ(mytheta);
 	}
 
 	// Rotate segments to appropriate angle
-	for( unsigned char i = 0; i < myset->GetNumberOfMiniballCrystals(); i++ ) {
-		for( unsigned char j = 0; j < myset->GetNumberOfMiniballSegments()-1; j++ ) {
+	for( unsigned char i = 0; i < ncry; i++ ) {
+		for( unsigned char j = 0; j < nseg; j++ ) {
 			seg_offset[i][j].RotateY(myalpha);
 			seg_offset[i][j].RotateX(myphi);
 			seg_offset[i][j].RotateZ(mytheta);
@@ -210,9 +210,9 @@ void MiniballGeometry::SetupCluster() {
 	// Shift Miniball so that target it as origin
 	mbzoffset.SetXYZ( -1.0*z, 0.0, 0.0 );
 	clu_offset += mbzoffset;
-	for( unsigned char i = 0; i < myset->GetNumberOfMiniballCrystals(); i++ ) {
+	for( unsigned char i = 0; i < ncry; i++ ) {
 		cry_offset[i] += mbzoffset;
-		for( unsigned char j = 0; j < myset->GetNumberOfMiniballSegments()-1; j++ ) {
+		for( unsigned char j = 0; j < nseg; j++ ) {
 			 seg_offset[i][j] += mbzoffset;
 		 }
 	 }

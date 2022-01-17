@@ -19,8 +19,7 @@ Reaction::Reaction( std::string filename, Settings *myset ){
 	set = myset;
 	SetFile( filename );
 	ReadReaction();
-	
-	
+		
 }
 
 void Reaction::AddBindingEnergy( short Ai, short Zi, TString ame_be_str ) {
@@ -117,9 +116,6 @@ void Reaction::ReadReaction() {
 	
 	std::string isotope_key;
 
-	// Detector to target distances
-	cd_dist = config->GetValue( "CDDistance", 32.0 );
-	
 	// Get particle properties
 	Beam.SetA( config->GetValue( "BeamA", 185 ) );
 	Beam.SetZ( config->GetValue( "BeamZ", 80 ) );
@@ -225,10 +221,31 @@ void Reaction::ReadReaction() {
 	EBIS_On = config->GetValue( "EBIS_On", 1.2e6 );		// normally 1.2 ms in slow extraction
 	EBIS_Off = config->GetValue( "EBIS_Off", 2.52e7 );	// this allows a off window 20 times bigger than on
 
+	// Detector to target distances
+	cd_dist = config->GetValue( "CDDistance", 32.0 );
+	
 	// Target offset
 	x_offset = config->GetValue( "TargetOffset.X", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, vertical
 	y_offset = config->GetValue( "TargetOffset.Y", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, horizontal
+	z_offset = config->GetValue( "TargetOffset.Z", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, horizontal
 
+	// Read in Miniball geometry
+	mb_geo.resize( set->GetNumberOfMiniballClusters() );
+	mb_theta.resize( set->GetNumberOfMiniballClusters() );
+	mb_phi.resize( set->GetNumberOfMiniballClusters() );
+	mb_alpha.resize( set->GetNumberOfMiniballClusters() );
+	mb_r.resize( set->GetNumberOfMiniballClusters() );
+	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
+	
+		mb_theta[i] = config->GetValue( Form( "MiniballCluster_%d.Theta", i ), 0. );
+		mb_phi[i] 	= config->GetValue( Form( "MiniballCluster_%d.Phi", i ), 0. );
+		mb_alpha[i] = config->GetValue( Form( "MiniballCluster_%d.Alpha", i ), 0. );
+		mb_r[i]	 	= config->GetValue( Form( "MiniballCluster_%d.R", i ), 0. );
+
+		mb_geo[i].SetupCluster( mb_theta[i], mb_phi[i], mb_alpha[i], mb_r[i], z_offset );
+	
+	}
+	
 	
 	// Some diagnostics and info
 	std::cout << std::endl << " +++  ";
@@ -271,3 +288,38 @@ float Reaction::GetParticleTheta( unsigned char det, unsigned char sec, unsigned
 
 }
 
+float Reaction::GetGammaTheta( GammaRayEvt *g ){
+	
+	return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	
+}
+
+float Reaction::GetGammaTheta( GammaRayAddbackEvt *g ){
+	
+	return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	
+}
+
+float Reaction::GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
+
+	return mb_geo[clu].GetSegTheta( cry, seg );
+	
+}
+
+float Reaction::GetGammaPhi( GammaRayEvt *g ){
+	
+	return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	
+}
+
+float Reaction::GetGammaPhi( GammaRayAddbackEvt *g ){
+	
+	return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	
+}
+
+float Reaction::GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
+
+	return mb_geo[clu].GetSegPhi( cry, seg );
+	
+}

@@ -1,5 +1,5 @@
-#ifndef _EVENTBUILDER_HH
-#define _EVENTBUILDER_HH
+#ifndef __EVENTBUILDER_HH
+#define __EVENTBUILDER_HH
 
 #include <fstream>
 #include <iostream>

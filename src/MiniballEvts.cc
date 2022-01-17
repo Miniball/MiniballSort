@@ -32,9 +32,9 @@ void MiniballEvts::AddEvt( GammaRayEvt *event ) {
 	GammaRayEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
 	fill_evt.SetTime( event->GetTime() );
-	fill_evt.SetClu( event->GetClu() );
-	fill_evt.SetCry( event->GetCry() );
-	fill_evt.SetSeg( event->GetSeg() );
+	fill_evt.SetCluster( event->GetCluster() );
+	fill_evt.SetCrystal( event->GetCrystal() );
+	fill_evt.SetSegment( event->GetSegment() );
 
 	gamma_event.push_back( fill_evt );
 	
@@ -46,9 +46,9 @@ void MiniballEvts::AddEvt( GammaRayAddbackEvt *event ) {
 	GammaRayAddbackEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
 	fill_evt.SetTime( event->GetTime() );
-	fill_evt.SetClu( event->GetClu() );
-	fill_evt.SetCry( event->GetCry() );
-	fill_evt.SetSeg( event->GetSeg() );
+	fill_evt.SetCluster( event->GetCluster() );
+	fill_evt.SetCrystal( event->GetCrystal() );
+	fill_evt.SetSegment( event->GetSegment() );
 
 	gamma_ab_event.push_back( fill_evt );
 	

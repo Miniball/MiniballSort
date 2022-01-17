@@ -167,7 +167,7 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 			if( BeamCut( particle_evt ) )
 				pE_theta_beam->Fill( react->GetParticleTheta( particle_evt ), particle_evt->GetEnergy() );
 				
-			else if( TargetCut( particle_evt ) )
+			if( TargetCut( particle_evt ) )
 				pE_theta_target->Fill( react->GetParticleTheta( particle_evt ), particle_evt->GetEnergy() );
 
 			

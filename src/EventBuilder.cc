@@ -611,9 +611,9 @@ void EventBuilder::GammaRayFinder() {
 		// Build the single crystal gamma-ray event
 		gamma_ctr++;
 		gamma_evt->SetEnergy( mb_en_list.at(i) );
-		gamma_evt->SetClu( mb_clu_list.at(i) );
-		gamma_evt->SetCry( mb_cry_list.at(i) );
-		gamma_evt->SetSeg( MaxSegId );
+		gamma_evt->SetCluster( mb_clu_list.at(i) );
+		gamma_evt->SetCrystal( mb_cry_list.at(i) );
+		gamma_evt->SetSegment( MaxSegId );
 		gamma_evt->SetTime( mb_ts_list.at(i) );
 		write_evts->AddEvt( gamma_evt );
 
@@ -625,8 +625,8 @@ void EventBuilder::GammaRayFinder() {
 
 		// Reset addback variables
 		AbSumEnergy = write_evts->GetGammaRayEvt(i)->GetEnergy();
-		MaxCryId = write_evts->GetGammaRayEvt(i)->GetCry();
-		MaxSegId = write_evts->GetGammaRayEvt(i)->GetSeg();
+		MaxCryId = write_evts->GetGammaRayEvt(i)->GetCrystal();
+		MaxSegId = write_evts->GetGammaRayEvt(i)->GetSegment();
 		MaxEnergy = AbSumEnergy;
 		MaxTime = write_evts->GetGammaRayEvt(i)->GetTime();
 		ab_mul = 1;	// this is already the first event
@@ -639,8 +639,8 @@ void EventBuilder::GammaRayFinder() {
 			// Make sure we are in the same cluster
 			// In the future we might consider a more intelligent
 			// algorithm, which uses the line-of-sight idea
-			if( write_evts->GetGammaRayEvt(i)->GetClu() !=
-				write_evts->GetGammaRayEvt(j)->GetClu() ) continue;
+			if( write_evts->GetGammaRayEvt(i)->GetCluster() !=
+				write_evts->GetGammaRayEvt(j)->GetCluster() ) continue;
 			
 			// Check we haven't already used this event
 			skip_event = false;
@@ -659,8 +659,8 @@ void EventBuilder::GammaRayFinder() {
 			if( write_evts->GetGammaRayEvt(j)->GetEnergy() > MaxEnergy ){
 				
 				MaxEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
-				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCry();
-				MaxSegId = write_evts->GetGammaRayEvt(j)->GetSeg();
+				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCrystal();
+				MaxSegId = write_evts->GetGammaRayEvt(j)->GetSegment();
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
 
 			}
@@ -671,9 +671,9 @@ void EventBuilder::GammaRayFinder() {
 		// Build the single crystal gamma-ray event
 		gamma_ab_ctr++;
 		gamma_ab_evt->SetEnergy( AbSumEnergy );
-		gamma_ab_evt->SetClu( write_evts->GetGammaRayEvt(i)->GetClu() );
-		gamma_ab_evt->SetCry( MaxCryId );
-		gamma_ab_evt->SetSeg( MaxSegId );
+		gamma_ab_evt->SetCluster( write_evts->GetGammaRayEvt(i)->GetCluster() );
+		gamma_ab_evt->SetCrystal( MaxCryId );
+		gamma_ab_evt->SetSegment( MaxSegId );
 		gamma_ab_evt->SetTime( MaxTime );
 		write_evts->AddEvt( gamma_ab_evt );
 		

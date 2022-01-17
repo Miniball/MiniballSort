@@ -21,7 +21,7 @@
 #include <sstream>
 
 // Command line interface
-#ifndef __COMMAND_LINE_INTERFACE
+#ifndef __COMMAND_LINE_INTERFACE_HH
 # include "CommandLineInterface.hh"
 #endif
 

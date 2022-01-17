@@ -20,16 +20,16 @@ public:
 	// Event set functions
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetTime( unsigned long long t ){ time = t; };
-	inline void SetClu( unsigned char c ){ clu = c; };
-	inline void SetCry( unsigned char c ){ cry = c; };
-	inline void SetSeg( unsigned char s ){ seg = s; };
+	inline void SetCluster( unsigned char c ){ clu = c; };
+	inline void SetCrystal( unsigned char c ){ cry = c; };
+	inline void SetSegment( unsigned char s ){ seg = s; };
 	
 	// Return functions
 	inline float 				GetEnergy(){ return energy; };
 	inline unsigned long long	GetTime(){ return time; };
-	inline unsigned char		GetClu(){ return clu; };
-	inline unsigned char		GetCry(){ return cry; };
-	inline unsigned char		GetSeg(){ return seg; };
+	inline unsigned char		GetCluster(){ return clu; };
+	inline unsigned char		GetCrystal(){ return cry; };
+	inline unsigned char		GetSegment(){ return seg; };
 
 	// Geometry functions
 	//inline float				GetTheta(){ return theta; };
