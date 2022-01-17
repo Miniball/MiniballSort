@@ -111,6 +111,12 @@ public:
 	bool IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetBeamDumpDetector( unsigned int sfp, unsigned int board, unsigned int ch );
 
+	
+	// SPEDE detector
+	inline unsigned int GetNumberOfSpedeSegments(){ return n_spede_seg; };
+	bool IsSpede( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch );
+
 
 private:
 
@@ -155,12 +161,21 @@ private:
 	unsigned int n_bd_det;		///< Number of beam dump detectors
 
 	// Beam dump electronics mapping
-	std::vector<unsigned int> bd_sfp;					///< A list of SFP numbers for each beam dump detector
-	std::vector<unsigned int> bd_board;					///< A list of board numbers for each beam dump detector
-	std::vector<unsigned int> bd_ch;					///< A list of channel numbers for each beam dump detector
-	std::vector<std::vector<std::vector<int>>> bd_det;	///< A channel map for the beam dump detectors (-1 if not a beam dump, otherwise detector number)
+	std::vector<unsigned int> bd_sfp;						///< A list of SFP numbers for each beam dump detector
+	std::vector<unsigned int> bd_board;						///< A list of board numbers for each beam dump detector
+	std::vector<unsigned int> bd_ch;						///< A list of channel numbers for each beam dump detector
+	std::vector<std::vector<std::vector<int>>> bd_det;		///< A channel map for the beam dump detectors (-1 if not a beam dump, otherwise detector number)
 
-	
+	// SPEDE settings
+	unsigned int n_spede_seg;								///< Number of SPEDE segments, usually 24
+
+	// SPEDE electronics mapping
+	std::vector<unsigned int> spede_sfp;					///< A list of SFP numbers for each SPEDE segment
+	std::vector<unsigned int> spede_board;					///< A list of board numbers for each SPEDE segment
+	std::vector<unsigned int> spede_ch;						///< A list of channel numbers for each SPEDE segment
+	std::vector<std::vector<std::vector<int>>> spede_seg;	///< A channel map for the SPEDE segments (-1 if not a SPEDE, otherwise segment number)
+
+
 	// Info code settings
 	unsigned int sync_code;				///< Medium significant bits of the timestamp are here
 	unsigned int thsb_code;				///< Highest significant bits of the timestamp are here

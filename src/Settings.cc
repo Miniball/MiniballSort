@@ -37,6 +37,9 @@ void Settings::ReadSettings() {
 	// Beam dump initialisation
 	n_bd_det		= config->GetValue( "NumberOfBeamDumpDetectors", 1 );
 	
+	// SPEDE initialisation
+	n_spede_seg		= config->GetValue( "NumberOfSpedeSegments", 1 );
+	
 	// Info code initialisation
 	pause_code		= 2;
 	resume_code		= 3;
@@ -74,7 +77,8 @@ void Settings::ReadSettings() {
 	cd_side.resize( n_febex_sfp );
 	cd_strip.resize( n_febex_sfp );
 	bd_det.resize( n_febex_sfp );
-	
+	spede_seg.resize( n_febex_sfp );
+
 	for( unsigned int i = 0; i < n_febex_sfp; ++i ){
 
 		mb_cluster[i].resize( n_febex_board );
@@ -85,6 +89,7 @@ void Settings::ReadSettings() {
 		cd_side[i].resize( n_febex_board );
 		cd_strip[i].resize( n_febex_board );
 		bd_det[i].resize( n_febex_board );
+		spede_seg[i].resize( n_febex_board );
 
 		for( unsigned int j = 0; j < n_febex_board; ++j ){
 
@@ -96,6 +101,7 @@ void Settings::ReadSettings() {
 			cd_side[i][j].resize( n_febex_ch );
 			cd_strip[i][j].resize( n_febex_ch );
 			bd_det[i][j].resize( n_febex_ch );
+			spede_seg[i][j].resize( n_febex_ch );
 
 			for( unsigned int k = 0; k < n_febex_ch; ++k ){
 
@@ -107,7 +113,8 @@ void Settings::ReadSettings() {
 				cd_side[i][j][k]	= -1;
 				cd_strip[i][j][k]	= -1;
 				bd_det[i][j][k]     = -1;
-				
+				spede_seg[i][j][k]     = -1;
+
 			} // k: febex ch
 			
 		} // j: febex board
@@ -269,6 +276,37 @@ void Settings::ReadSettings() {
 	} // i: beam dump detector
 	
 	
+	// SPEDE detector mapping
+	spede_sfp.resize( n_bd_det );
+	spede_board.resize( n_bd_det );
+	spede_ch.resize( n_bd_det );
+	
+	for( unsigned int i = 0; i < n_bd_det; ++i ){
+		
+		spede_sfp[i]	= config->GetValue( Form( "Spede_%d.Sfp", i ), 0 );
+		spede_board[i]	= config->GetValue( Form( "Spede_%d.Board", i ), 6 );
+		spede_ch[i]		= config->GetValue( Form( "Spede_%d.Channel", i ), (int)i );
+		
+		if( spede_sfp[i] < n_febex_sfp &&
+		    spede_board[i] < n_febex_board &&
+		    spede_ch[i] < n_febex_ch ){
+			
+			spede_seg[bd_sfp[i]][bd_board[i]][bd_ch[i]] = i;
+			
+		}
+		
+		else {
+			
+			std::cerr << "Dodgy SPEDE settings: sfp = " << spede_sfp[i];
+			std::cerr << ", board = " << spede_board[i];
+			std::cerr << ", channel = " << spede_ch[i] << std::endl;
+			
+		}
+		
+		
+	} // i: SPEDE detector
+	
+	
 	// Finished
 	delete config;
 	
@@ -345,6 +383,31 @@ int Settings::GetBeamDumpDetector( unsigned int sfp, unsigned int board, unsigne
 	else {
 		
 		std::cerr << "Bad beam dump event: sfp = " << sfp;
+		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", channel = " << ch << std::endl;
+		return -1;
+		
+	}
+	
+}
+
+bool Settings::IsSpede( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return true if this is a SPEDE event
+	if( spede_seg[sfp][board][ch] >= 0 ) return true;
+	else return false;
+	
+}
+
+int Settings::GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return the SPEDE segment ID by the FEBEX SFP, Board number and Channel number
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
+		return spede_seg[sfp][board][ch];
+	
+	else {
+		
+		std::cerr << "Bad SPEDE event: sfp = " << sfp;
 		std::cerr << ", board = " << board << std::endl;
 		std::cerr << ", channel = " << ch << std::endl;
 		return -1;
