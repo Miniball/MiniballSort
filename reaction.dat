@@ -30,8 +30,18 @@
 #RecoilZ: 80	# this ambiguity is needed to match the language of the users
 
 
+# Miniball Detector geometry
+#Miniball_0.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
+#Miniball_0.Phi:	0.0		# Phi of cluster 0 in Miniball frame of reference
+#Miniball_0.Alpha:	0.0		# Alpha of cluster 0 in Miniball frame of reference
+#Miniball_0.R:		0.0		# Distance from cluster 0 to origin, i.e. nominal target position
+#...
+#Miniball_7.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
+#Miniball_7.Phi:	0.0		# Phi of cluster 0 in Miniball frame of reference
+#Miniball_7.Alpha:	0.0		# Alpha of cluster 0 in Miniball frame of reference
+#Miniball_7.R:		0.0		# Distance from cluster 0 to origin, i.e. nominal target position
 
-## Detector geometry
+## CD Detector geometry
 #CD_0.Distance: 32.0	# Target to CD distance in mm (forwards CD = 32.0)
 #CD_1.Distance: -64.0	# Target to CD distance in mm (backwards CD = -64.0)
 #CD_0.PhiOffset: 0.0	# Phi rotation of CD with sector 0 strip 0 vertical, clockwise wrt beam direction
@@ -39,6 +49,11 @@
 #TargetOffset.X: 0.0	# Beam spot offset with respect to the vertical in mm (positive is up wrt beam direction)
 #TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
 #TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD distance)
+
+# SPEDE Detector geometry
+#Spede.Distance: -30.0	# Target to SPEDE distance in mm (backwards direction, so negative)
+#Spede.PhiOffset: 0.0	# Phi rotation of SPEDE, anit-clockwise wrt beam direction because theta > 90 deg
+
 
 
 # EBIS windows

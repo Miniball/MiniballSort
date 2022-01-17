@@ -229,8 +229,8 @@ void Reaction::ReadReaction() {
 	
 		if( i == 0 ) d_tmp = 32.0; // standard CD
 		else if( i == 1 ) d_tmp = -64.0; // TREX backwards CD
-		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );	// distance
-		cd_offset[i] = config->GetValue( Form( "CD_%d.PhiOffset", i ), 0.0 );	// phi offset
+		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );	// distance to target in mm
+		cd_offset[i] = config->GetValue( Form( "CD_%d.PhiOffset", i ), 0.0 );	// phi rotation in degrees
 
 	}
 	
@@ -255,6 +255,11 @@ void Reaction::ReadReaction() {
 		mb_geo[i].SetupCluster( mb_theta[i], mb_phi[i], mb_alpha[i], mb_r[i], z_offset );
 	
 	}
+	
+	// Read in SPEDE geometry
+	spede_dist = config->GetValue( "Spede.Distance", -30.0 );	// distance to target in mm, it's negative because it's in the backwards direction
+	spede_offset = config->GetValue( "Spede.PhiOffset", 0.0 );	// phi rotation in degrees
+	if( spede_dist > 0 ) std::cout << " !! WARNING !! Spede.Distance should be negative" << std::endl;
 	
 	
 	// Some diagnostics and info
@@ -315,3 +320,34 @@ TVector3 Reaction::GetParticleVector( unsigned char det, unsigned char sec, unsi
 
 }
 
+TVector3 Reaction::GetSpedeVector( unsigned char seg ){
+
+	// Calculate the vertical distance from axis
+	float x = 0.0;
+	if( seg < 8 ) x = 25.2;			// distance to centre of first ring
+	else if( seg < 16 ) x = 34.3;	// distance to centre of second ring
+	else if( seg < 24 ) x = 41.4;	// distance to centre of third ring
+
+	// Create a TVector3 to handle the angles
+	TVector3 vec( x, 0, spede_dist );
+
+	// Rotate appropriately
+	float phi = TMath::Pi() / 8.0;			// rotate by half of one slice
+	phi += (seg%8) * TMath::Pi() / 4.0;		// rotate every 8 slices
+	
+	return vec;
+	
+}
+
+TVector3 Reaction::GetElectronVector( unsigned char seg ){
+
+	// Create a TVector3 to handle the angles
+	TVector3 vec = GetSpedeVector( seg );
+
+	// Apply the X and Y offsets directly to the TVector3 input
+	// We move the CD opposite to the target, which replicates the same
+	// geometrical shift that is observed with respect to the beam
+	vec.SetX( vec.X() - x_offset );
+	vec.SetY( vec.Y() - y_offset );
+
+}

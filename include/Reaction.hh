@@ -164,46 +164,66 @@ public:
 				cd_angles.push_back( GetCDVector(i,0,j,0).Theta() * TMath::RadToDeg() );
 		return cd_angles.data();
 	};
-	TVector3	GetCDVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
-	TVector3	GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
-	float		GetParticleTheta( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	TVector3		GetCDVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
+	TVector3		GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
+	inline float	GetParticleTheta( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Theta();
 	};
-	float		GetParticlePhi( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	inline float	GetParticlePhi( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Phi();
 	};
-	TVector3	GetCDVector( ParticleEvt *p ){
+	inline TVector3	GetCDVector( ParticleEvt *p ){
 		return GetCDVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	TVector3	GetParticleVector( ParticleEvt *p ){
+	inline TVector3	GetParticleVector( ParticleEvt *p ){
 		return GetParticleVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	float		GetParticleTheta( ParticleEvt *p ){
+	inline float	GetParticleTheta( ParticleEvt *p ){
 		return GetParticleTheta( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	float		GetParticlePhi( ParticleEvt *p ){
+	inline float	GetParticlePhi( ParticleEvt *p ){
 		return GetParticlePhi( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
 
 	// Miniball geometry functions
-	float		GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
+	inline float	GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegTheta( cry, seg );
 	};
-	float		GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
+	inline float	GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegPhi( cry, seg );
 	};
-	float		GetGammaTheta( GammaRayEvt *g ){
+	inline float	GetGammaTheta( GammaRayEvt *g ){
 		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	float		GetGammaTheta( GammaRayAddbackEvt *g ){
+	inline float	GetGammaTheta( GammaRayAddbackEvt *g ){
 		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	float		GetGammaPhi( GammaRayEvt *g ){
+	inline float	GetGammaPhi( GammaRayEvt *g ){
 		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	float		GetGammaPhi( GammaRayAddbackEvt *g ){
+	inline float	GetGammaPhi( GammaRayAddbackEvt *g ){
 		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
+	
+	// SPEDE and electron geometry
+	inline float	GetSpedeDistance(){ return spede_dist; };
+	inline float	GetSpedePhiOffset(){ return spede_offset; };
+	TVector3		GetSpedeVector( unsigned char seg );
+	TVector3		GetElectronVector( unsigned char seg );
+	inline float	GetElectronTheta( unsigned char seg ){
+		return GetElectronVector(seg).Theta();
+	};
+	inline float	GetElectronTheta( SpedeEvt *s ){
+		return GetElectronTheta( s->GetSegment() );
+	};
+	inline float	GetElectronPhi( unsigned char seg ){
+		return GetElectronVector(seg).Phi();
+	};
+	inline float	GetElectronPhi( SpedeEvt *s ){
+		return GetElectronPhi( s->GetSegment() );
+	};
+
+	
 
 	// Reaction calculations
 	inline double GetQvalue(){
@@ -269,7 +289,10 @@ private:
 	std::vector<MiniballGeometry> mb_geo;
 	std::vector<float> mb_theta, mb_phi, mb_alpha, mb_r;
 
-	
+	// SPEDE things
+	float spede_dist;	///< distance from target to SPEDE detector
+	float spede_offset;	///< phi rotation of the SPEDE detector
+
 	// Cuts
 	std::string beamcutfile, beamcutname;
 	std::string targetcutfile, targetcutname;
