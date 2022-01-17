@@ -18,8 +18,8 @@ void Settings::ReadSettings() {
 	TEnv *config = new TEnv( fInputFile.data() );
 	
 	// FEBEX initialisation
-	n_febex_sfp		= config->GetValue( "NumberOfFebexSfps", 2 );
-	n_febex_board	= config->GetValue( "NumberOfFebexBoards", 10 );
+	n_febex_sfp		= config->GetValue( "NumberOfFebexSfps", 4 );
+	n_febex_board	= config->GetValue( "NumberOfFebexBoards", 16 );
 	n_febex_ch		= config->GetValue( "NumberOfFebexChannels", 32 );
 	
 	// Miniball array initialisation

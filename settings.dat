@@ -13,8 +13,8 @@
 #--------------#
 # FEBEX things #
 #--------------#
-#NumberOfFebexSfps: 3			# total number of SFPs delivering data
-#NumberOfFebexBoards: 10		# maximum number of boards per SFP
+#NumberOfFebexSfps: 4			# total number of SFPs delivering data
+#NumberOfFebexBoards: 16		# maximum number of boards per SFP
 #NumberOfFebexChannels: 16		# number of channels per FEBEX board = 16
 
 
