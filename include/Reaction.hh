@@ -146,7 +146,14 @@ public:
 	}
 	
 	// Get values for geometry
-	inline double			GetCDDistance(){ return cd_dist; };
+	inline float			GetCDDistance( unsigned char det ){
+		if( det < cd_dist.size() ) return cd_dist.at(det);
+		else return 0.0;
+	};
+	inline float			GetCDPhiOffset( unsigned char det ){
+		if( det < cd_offset.size() ) return cd_offset.at(det);
+		else return 0.0;
+	};
 	inline unsigned int		GetNumberOfParticleThetas() {
 		return set->GetNumberOfCDPStrips() * set->GetNumberOfCDDetectors();
 	};
@@ -154,18 +161,49 @@ public:
 		std::vector<double> cd_angles;
 		for( unsigned char i = 0; i < set->GetNumberOfCDDetectors(); i++ )
 			for( unsigned char j = 0; j < set->GetNumberOfCDPStrips(); j++ )
-				cd_angles.push_back( GetParticleTheta(i,0,j) * TMath::RadToDeg() );
+				cd_angles.push_back( GetCDVector(i,0,j,0).Theta() * TMath::RadToDeg() );
 		return cd_angles.data();
 	};
-	float	GetParticleTheta( unsigned char det, unsigned char sec, unsigned char strip );
-	float	GetParticleTheta( ParticleEvt *p );
-	float	GetParticlePhi( ParticleEvt *p );
-	float	GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg );
-	float	GetGammaTheta( GammaRayEvt *g );
-	float	GetGammaTheta( GammaRayAddbackEvt *g );
-	float	GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg );
-	float	GetGammaPhi( GammaRayEvt *g );
-	float	GetGammaPhi( GammaRayAddbackEvt *g );
+	TVector3	GetCDVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
+	TVector3	GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
+	float		GetParticleTheta( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+		return GetParticleVector( det, sec, pid, nid ).Theta();
+	};
+	float		GetParticlePhi( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+		return GetParticleVector( det, sec, pid, nid ).Phi();
+	};
+	TVector3	GetCDVector( ParticleEvt *p ){
+		return GetCDVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
+	};
+	TVector3	GetParticleVector( ParticleEvt *p ){
+		return GetParticleVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
+	};
+	float		GetParticleTheta( ParticleEvt *p ){
+		return GetParticleTheta( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
+	};
+	float		GetParticlePhi( ParticleEvt *p ){
+		return GetParticlePhi( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
+	};
+
+	// Miniball geometry functions
+	float		GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
+		return mb_geo[clu].GetSegTheta( cry, seg );
+	};
+	float		GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
+		return mb_geo[clu].GetSegPhi( cry, seg );
+	};
+	float		GetGammaTheta( GammaRayEvt *g ){
+		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	};
+	float		GetGammaTheta( GammaRayAddbackEvt *g ){
+		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	};
+	float		GetGammaPhi( GammaRayEvt *g ){
+		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	};
+	float		GetGammaPhi( GammaRayAddbackEvt *g ){
+		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	};
 
 	// Reaction calculations
 	inline double GetQvalue(){
@@ -194,15 +232,6 @@ public:
 	inline double GetEBISOffTime(){ return EBIS_Off; };
 	inline double GetEBISRatio(){ return EBIS_On / ( EBIS_Off - EBIS_On ); };
 
-	// Set values for CD
-	inline void	SetCDDistance( double d ){ cd_dist = d; };
-	inline void	SetCDPhiOffset( double o ){ cd_offset = o; };
-
-	// Target offsets
-	inline void SetOffsetX( double x ){ x_offset = x; };
-	inline void SetOffsetY( double y ){ y_offset = y; };
-	inline void SetOffsetZ( double z ){ z_offset = z; };
-
 	// Get cuts
 	inline TCutG* GetBeamCut(){ return beam_cut; };
 	inline TCutG* GetTargetCut(){ return target_cut; };
@@ -228,13 +257,13 @@ private:
 	double EBIS_Off;	///< beam off max time in ns
 
 	// Target offsets
-	double x_offset;	///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
-	double y_offset;	///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
-	double z_offset;	///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
+	float x_offset;	///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
+	float y_offset;	///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
+	float z_offset;	///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
 
 	// CD detector things
-	float cd_dist;		///< distance from target to CD detector in mm
-	float cd_offset;	///< phi rotation of the CD in radians
+	std::vector<float> cd_dist;		///< distance from target to CD detector in mm
+	std::vector<float> cd_offset;	///< phi rotation of the CD in radians
 	
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;

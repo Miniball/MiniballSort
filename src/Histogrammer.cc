@@ -13,12 +13,23 @@ Histogrammer::~Histogrammer(){}
 void Histogrammer::MakeHists() {
 
 	std::string hname, htitle;
+	std::string dirname;
 
 	// EBIS time windows
+	dirname = "EBIS";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
 	ebis_td_gamma = new TH1F( "ebis_td_gamma", "Gamma-ray time with respect to EBIS;#Deltat;Counts per 20 #mus", 5e3, 0, 1e8  );
 	ebis_td_particle = new TH1F( "ebis_td_particle", "Particle time with respect to EBIS;#Deltat;Counts per 20 #mus", 5e3, 0, 1e8  );
 
 	// Gamma-ray singles histograms
+	dirname = "GammaRaySingles";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
 	hname = "gE_singles";
 	htitle = "Gamma-ray energy singles;Energy [keV];Counts 0.5 keV";
 	gE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
@@ -35,7 +46,32 @@ void Histogrammer::MakeHists() {
 	htitle = "Gamma-ray energy singles EBIS off;Energy [keV];Counts 0.5 keV";
 	gE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 
+	// Gamma-ray coincidence histograms
+	dirname = "GammaRayMatrices";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
+	hname = "gamma_gamma_td";
+	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat;Counts";
+	gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
+				1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+
+	hname = "gE_gE";
+	htitle = "Gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts 0.5 keV";
+	gE_gE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "gE_gE_ebis_on";
+	htitle = "Gamma-ray coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts 0.5 keV";
+	gE_gE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	
 	// CD singles histograms
+	dirname = "ParticleSingles";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
 	hname = "pE_theta";
 	htitle = "Particle energy singles;Angle [deg];Energy [keV];Counts 0.5 keV";
 	pE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas(), PBIN, PMIN, PMAX );
@@ -53,12 +89,46 @@ void Histogrammer::MakeHists() {
 	pE_theta_target = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas(), PBIN, PMIN, PMAX );
 
 	// Gamma-particle coincidences
+	dirname = "GammaRayParticleCoincidences";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
 	hname = "gamma_particle_td";
 	htitle = "Gamma-ray - Particle time difference;#Deltat;Counts";
 	gamma_particle_td = new TH1F( hname.data(), htitle.data(),
 				1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
 
 	
+	// Beam dump histograms
+	dirname = "BeamDump";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
+	hname = "bdE_singles";
+	htitle = "Beam-dump gamma-ray energy singles;Energy [keV];Counts 0.5 keV";
+	bdE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+ 
+	hname = "bd_bd_td";
+	htitle = "Beam-dump - Beam-dump time difference;#Deltat;Counts";
+	bd_bd_td = new TH1F( hname.data(), htitle.data(),
+				1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+
+	hname = "bdE_bdE";
+	htitle = "Beam-dump gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts 0.5 keV";
+	bdE_bdE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	bdE_singles_det.resize( set->GetNumberOfBeamDumpDetectors() );
+	for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i ){
+		
+		hname = "bdE_singles_det" + std::to_string(i);
+		htitle  = "Beam-dump gamma-ray energy singles in detector ";
+		htitle += std::to_string(i);
+		htitle += ";Energy [keV];Counts 0.5 keV";
+		bdE_singles_det[i] = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		
+	}
 	
 	return;
 
@@ -144,7 +214,37 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 					
 				} // if prompt
 
-			} // k: recoils
+			} // k: particles
+			
+			// Loop over other gamma events
+			for( unsigned int k = j+1; k < read_evts->GetGammaRayMultiplicity(); ++k ){
+
+				// Get gamma-ray event
+				gamma_evt2 = read_evts->GetGammaRayEvt(k);
+
+				// Time differences - symmetrise
+				gamma_gamma_td->Fill( (double)gamma_evt->GetTime() - (double)gamma_evt2->GetTime() );
+				gamma_gamma_td->Fill( (double)gamma_evt2->GetTime() - (double)gamma_evt->GetTime() );
+
+				// Check for prompt gamma-gamma coincidences
+				if( PromptCoincidence( gamma_evt, gamma_evt2 ) ) {
+					
+					// Fill and symmetrise
+					gE_gE->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
+					gE_gE->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+
+					// Apply EBIS condition
+					if( OnBeam( gamma_evt ) && OnBeam( gamma_evt2 ) ) {
+						
+						// Fill and symmetrise
+						gE_gE_ebis_on->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
+						gE_gE_ebis_on->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+
+					} // On Beam
+					
+				} // if prompt
+				
+			} // k: second gamma-ray
 
 		} // j: gamma ray
 				
@@ -154,8 +254,8 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 		// ------------------------- //
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 
-			// Get recoil event
-			particle_evt = read_evts->GetParticleEvt(i);
+			// Get particle event
+			particle_evt = read_evts->GetParticleEvt(j);
 			
 			// EBIS time
 			ebis_td_particle->Fill( (double)particle_evt->GetTime() - (double)read_evts->GetEBIS() );
@@ -189,6 +289,42 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 			
 		} // j: particles
 
+		
+		// -------------------------- //
+		// Loop over beam dump events //
+		// -------------------------- //
+		for( unsigned int j = 0; j < read_evts->GetBeamDumpMultiplicity(); ++j ){
+
+			// Get beam dump event
+			bd_evt = read_evts->GetBeamDumpEvt(j);
+			
+			// Singles spectra
+			bdE_singles->Fill( bd_evt->GetEnergy() );
+			bdE_singles_det[bd_evt->GetDetector()]->Fill( bd_evt->GetEnergy() );
+
+			// Check for coincidences in case we have multiple beam dump detectors
+			for( unsigned int k = j+1; k < read_evts->GetBeamDumpMultiplicity(); ++k ){
+
+				// Get second beam dump event
+				bd_evt2 = read_evts->GetBeamDumpEvt(k);
+				
+				// Fill time differences symmetrically
+				bd_bd_td->Fill( (double)bd_evt->GetTime() - (double)bd_evt2->GetTime() );
+				bd_bd_td->Fill( (double)bd_evt2->GetTime() - (double)bd_evt->GetTime() );
+
+				// Check for prompt coincidence
+				if( PromptCoincidence( bd_evt, bd_evt2 ) ) {
+					
+					// Fill energies symmetrically
+					bdE_bdE->Fill( bd_evt->GetEnergy(), bd_evt2->GetEnergy() );
+					bdE_bdE->Fill( bd_evt2->GetEnergy(), bd_evt->GetEnergy() );
+				
+				} // if prompt
+				
+			} // k: second beam dump
+			
+		} // j: beam dump
+		
 		
 		// Progress bar
 		if( i % 10000 == 0 || i+1 == n_entries ) {

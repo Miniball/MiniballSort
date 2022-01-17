@@ -56,7 +56,7 @@ public:
 
 	inline TFile* GetFile(){ return output_file; };
 	
-	// Coincidence conditions (to be put in settings file eventually)
+	// Coincidence conditions (to be put in settings file eventually?)
 	inline bool	PromptCoincidence( GammaRayEvt *g, ParticleEvt *p ){
 		if( (double)g->GetTime() - (double)p->GetTime() > -350 &&
 			(double)g->GetTime() - (double)p->GetTime() < 250 ) return true;
@@ -75,6 +75,31 @@ public:
 	inline bool	RandomCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
 		if( (double)g->GetTime() - (double)p->GetTime() > 600 &&
 			(double)g->GetTime() - (double)p->GetTime() < 1200 ) return true;
+		else return false;
+	};
+	inline bool	PromptCoincidence( GammaRayEvt *g1, GammaRayEvt *g2 ){
+		if( (double)g1->GetTime() - (double)g2->GetTime() > -250 &&
+			(double)g1->GetTime() - (double)g2->GetTime() < 250 ) return true;
+		else return false;
+	};
+	inline bool	RandomCoincidence( GammaRayEvt *g1, GammaRayEvt *g2 ){
+		if( (double)g1->GetTime() - (double)g2->GetTime() > 500 &&
+			(double)g1->GetTime() - (double)g2->GetTime() < 1000 ) return true;
+		else return false;
+	};
+	inline bool	PromptCoincidence( GammaRayAddbackEvt *g1, GammaRayAddbackEvt *g2 ){
+		if( (double)g1->GetTime() - (double)g2->GetTime() > -250 &&
+			(double)g1->GetTime() - (double)g2->GetTime() < 250 ) return true;
+		else return false;
+	};
+	inline bool	RandomCoincidence( GammaRayAddbackEvt *g1, GammaRayAddbackEvt *g2 ){
+		if( (double)g1->GetTime() - (double)g2->GetTime() > 500 &&
+			(double)g1->GetTime() - (double)g2->GetTime() < 1000 ) return true;
+		else return false;
+	};
+	inline bool	PromptCoincidence( BeamDumpEvt *g1, BeamDumpEvt *g2 ){
+		if( (double)g1->GetTime() - (double)g2->GetTime() > -250 &&
+			(double)g1->GetTime() - (double)g2->GetTime() < 250 ) return true;
 		else return false;
 	};
 	inline bool	OnBeam( GammaRayEvt *g ){
@@ -131,10 +156,11 @@ private:
 	/// Input tree
 	TChain *input_tree;
 	MiniballEvts *read_evts;
-	GammaRayEvt *gamma_evt;
-	GammaRayAddbackEvt *gamma_ab_evt;
-	ParticleEvt *particle_evt;
-	
+	GammaRayEvt *gamma_evt, *gamma_evt2;
+	GammaRayAddbackEvt *gamma_ab_evt, *gamma_ab_evt2;
+	ParticleEvt *particle_evt, *particle_evt2;
+	BeamDumpEvt *bd_evt, *bd_evt2;
+
 	/// Output file
 	TFile *output_file;
 	
@@ -154,17 +180,28 @@ private:
 	const float PMIN = 0.0;				// lower limit of energy in particle spectra
 	const float PMAX = 1.2;				// upper limit of energy in particle spectra
 
-	// Timing
+	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;
-	TH1F *gamma_particle_td;
 	
 	// Gamma-rays
 	TH1F *gE_singles, *gE_singles_ebis, *gE_singles_ebis_on, *gE_singles_ebis_off;
 
+	// Gamma-ray coincidence matrices
+	TH2F *gE_gE, *gE_gE_ebis_on;
+	TH1F *gamma_gamma_td;
+
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_beam, *pE_theta_target;
 
+	// Particle-gamma coincidences
+	TH1F *gamma_particle_td;
 	
+	// Beam-dump histograms
+	TH1F *bdE_singles;
+	std::vector<TH1F*> bdE_singles_det;
+	TH1F *bd_bd_td;
+	TH2F *bdE_bdE;
+
 };
 
 #endif

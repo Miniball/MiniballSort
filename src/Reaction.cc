@@ -222,12 +222,22 @@ void Reaction::ReadReaction() {
 	EBIS_Off = config->GetValue( "EBIS_Off", 2.52e7 );	// this allows a off window 20 times bigger than on
 
 	// Detector to target distances
-	cd_dist = config->GetValue( "CDDistance", 32.0 );
+	cd_dist.resize( set->GetNumberOfCDDetectors() );
+	cd_offset.resize( set->GetNumberOfCDDetectors() );
+	float d_tmp;
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
+	
+		if( i == 0 ) d_tmp = 32.0; // standard CD
+		else if( i == 1 ) d_tmp = -64.0; // TREX backwards CD
+		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );	// distance
+		cd_offset[i] = config->GetValue( Form( "CD_%d.PhiOffset", i ), 0.0 );	// phi offset
+
+	}
 	
 	// Target offset
 	x_offset = config->GetValue( "TargetOffset.X", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, vertical
 	y_offset = config->GetValue( "TargetOffset.Y", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, horizontal
-	z_offset = config->GetValue( "TargetOffset.Z", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, horizontal
+	z_offset = config->GetValue( "TargetOffset.Z", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, lateral
 
 	// Read in Miniball geometry
 	mb_geo.resize( set->GetNumberOfMiniballClusters() );
@@ -260,23 +270,40 @@ void Reaction::ReadReaction() {
 
 }
 
-float Reaction::GetParticleTheta( ParticleEvt *p ){
-	
-	return GetParticleTheta( p->GetDetector(), p->GetSector(), p->GetStripP() );
-	
-}
-
-float Reaction::GetParticleTheta( unsigned char det, unsigned char sec, unsigned char strip ){
+TVector3 Reaction::GetCDVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 	
 	// Create a TVector3 to handle the angles
-	float x = 9.0 + ( 15.5 - strip ) * 2.0;
-	TVector3 vec( x, 0, cd_dist );
-	if( det == 1 ) vec.SetZ( -1.0 * cd_dist ); // backwards CD
+	float x = 9.0;
+	if( set->GetNumberOfCDNStrips() == 12 ) 		// standard CD
+		x += ( 15.5 - pid ) * 2.0;
+	else if( set->GetNumberOfCDNStrips() == 16 )	// CREX and TREX
+		x += ( pid + 0.5 ) * 2.0;
+
+	TVector3 vec( x, 0, cd_dist[det] );
 	
 	// Rotate by the phi angle
-	float phi = TMath::PiOver2() * sec;
-	phi += cd_offset * TMath::DegToRad();
-	vec.RotateZ( phi );
+	float phi = 90.0 * sec;
+	phi += cd_offset[det];
+	if( set->GetNumberOfCDNStrips() == 12 )				// standard CD
+		phi += nid * 7.0;
+	else if( set->GetNumberOfCDNStrips() == 16 ) {		// CREX and TREX
+		
+		phi += 1.75; // centre of first strip
+		if( nid < 4 ) phi += nid * 3.5; // first 4 strips singles (=4 nid)
+		else if( nid < 12 ) phi += 14. + ( nid - 4 ) * 7.0; // middle 16 strips doubles (=8 nids)
+		else phi += 70. + ( nid - 12 ) * 3.5; // last 4 strips singles (=4 nid)
+	
+	}
+	vec.RotateZ( phi * TMath::DegToRad() );
+	
+	return vec;
+
+}
+
+TVector3 Reaction::GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	
+	// Create a TVector3 to handle the angles
+	TVector3 vec = GetCDVector( det, sec, pid, nid );
 	
 	// Apply the X and Y offsets directly to the TVector3 input
 	// We move the CD opposite to the target, which replicates the same
@@ -284,42 +311,7 @@ float Reaction::GetParticleTheta( unsigned char det, unsigned char sec, unsigned
 	vec.SetX( vec.X() - x_offset );
 	vec.SetY( vec.Y() - y_offset );
 
-	return vec.Theta();
+	return vec;
 
 }
 
-float Reaction::GetGammaTheta( GammaRayEvt *g ){
-	
-	return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
-	
-}
-
-float Reaction::GetGammaTheta( GammaRayAddbackEvt *g ){
-	
-	return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
-	
-}
-
-float Reaction::GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
-
-	return mb_geo[clu].GetSegTheta( cry, seg );
-	
-}
-
-float Reaction::GetGammaPhi( GammaRayEvt *g ){
-	
-	return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
-	
-}
-
-float Reaction::GetGammaPhi( GammaRayAddbackEvt *g ){
-	
-	return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
-	
-}
-
-float Reaction::GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
-
-	return mb_geo[clu].GetSegPhi( cry, seg );
-	
-}

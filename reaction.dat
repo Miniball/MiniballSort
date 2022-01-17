@@ -32,9 +32,13 @@
 
 
 ## Detector geometry
-#CDDistance: 32.0		# Target to CD distance in mm
+#CD_0.Distance: 32.0	# Target to CD distance in mm (forwards CD = 32.0)
+#CD_1.Distance: -64.0	# Target to CD distance in mm (backwards CD = -64.0)
+#CD_0.PhiOffset: 0.0	# Phi rotation of CD with sector 0 strip 0 vertical, clockwise wrt beam direction
+#CD_1.PhiOffset: 0.0	# Phi rotation of CD with sector 0 strip 0 vertical, anit-clockwise wrt beam direction because theta > 90 deg
 #TargetOffset.X: 0.0	# Beam spot offset with respect to the vertical in mm (positive is up wrt beam direction)
 #TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
+#TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD distance)
 
 
 # EBIS windows

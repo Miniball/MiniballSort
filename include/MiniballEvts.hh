@@ -31,16 +31,6 @@ public:
 	inline unsigned char		GetCrystal(){ return cry; };
 	inline unsigned char		GetSegment(){ return seg; };
 
-	// Geometry functions
-	//inline float				GetTheta(){ return theta; };
-	//inline float				GetPhi(){ return phi; };
-	//TVector3					GetUnitVector(){
-	//	TVector3 pos( 1, 1, 1 );
-	//	pos.SetTheta( GetTheta() );
-	//	pos.SetPhi( GetPhi() );
-	//	return pos;
-	//};
-
 private:
 
 	// variables for gamma-ray event
@@ -117,6 +107,68 @@ private:
 
 };
 
+class BeamDumpEvt : public TObject {
+
+public:
+	
+	// setup functions
+	BeamDumpEvt() {};
+	~BeamDumpEvt() {};
+
+	// Event set functions
+	inline void SetEnergy( float e ){ energy = e; };
+	inline void SetTime( unsigned long long t ){ time = t; };
+	inline void SetDetector( unsigned char d ){ det = d; };
+	
+	// Return functions
+	inline float 				GetEnergy(){ return energy; };
+	inline unsigned long long	GetTime(){ return time; };
+	inline unsigned char		GetDetector(){ return det; };
+
+private:
+
+	// variables for beam-dump event
+	float				energy;		///< energy in keV
+	unsigned long long	time;		///< timestamp of event
+	unsigned char		det;		///< detector ID
+
+
+	ClassDef( BeamDumpEvt, 1 )
+
+};
+
+
+class SpedeEvt : public TObject {
+
+public:
+	
+	// setup functions
+	SpedeEvt() {};
+	~SpedeEvt() {};
+
+	// Event set functions
+	inline void SetEnergy( float e ){ energy = e; };
+	inline void SetTime( unsigned long long t ){ time = t; };
+	inline void SetSegment( unsigned char s ){ seg = s; };
+	
+	// Return functions
+	inline float 				GetEnergy(){ return energy; };
+	inline unsigned long long	GetTime(){ return time; };
+	inline unsigned char		GetSegment(){ return seg; };
+
+private:
+
+	// variables for Spede event
+	float				energy;		///< energy in keV
+	unsigned long long	time;		///< timestamp of event
+	unsigned char		seg;		///< segment ID within SPEDE
+
+
+	ClassDef( SpedeEvt, 1 )
+
+};
+
+
 class MiniballEvts : public TObject {
 
 public:
@@ -128,10 +180,14 @@ public:
 	void AddEvt( GammaRayEvt *event );
 	void AddEvt( GammaRayAddbackEvt *event );
 	void AddEvt( ParticleEvt *event );
+	void AddEvt( BeamDumpEvt *event );
+	void AddEvt( SpedeEvt *event );
 
 	inline unsigned int GetGammaRayMultiplicity(){ return gamma_event.size(); };
 	inline unsigned int GetGammaRayAddbackMultiplicity(){ return gamma_ab_event.size(); };
 	inline unsigned int GetParticleMultiplicity(){ return particle_event.size(); };
+	inline unsigned int GetBeamDumpMultiplicity(){ return bd_event.size(); };
+	inline unsigned int GetSpedeMultiplicity(){ return spede_event.size(); };
 
 	inline GammaRayEvt* GetGammaRayEvt( unsigned int i ){
 		if( i < gamma_event.size() ) return &gamma_event.at(i);
@@ -143,6 +199,14 @@ public:
 	};
 	inline ParticleEvt* GetParticleEvt( unsigned int i ){
 		if( i < particle_event.size() ) return &particle_event.at(i);
+		else return nullptr;
+	};
+	inline BeamDumpEvt* GetBeamDumpEvt( unsigned int i ){
+		if( i < bd_event.size() ) return &bd_event.at(i);
+		else return nullptr;
+	};
+	inline SpedeEvt* GetSpedeEvt( unsigned int i ){
+		if( i < spede_event.size() ) return &spede_event.at(i);
 		else return nullptr;
 	};
 
@@ -165,6 +229,8 @@ private:
 	std::vector<GammaRayEvt> gamma_event;
 	std::vector<GammaRayAddbackEvt> gamma_ab_event;
 	std::vector<ParticleEvt> particle_event;
+	std::vector<BeamDumpEvt> bd_event;
+	std::vector<SpedeEvt> spede_event;
 
 	ClassDef( MiniballEvts, 1 )
 	
