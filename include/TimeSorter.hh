@@ -1,5 +1,5 @@
-#ifndef _TimeSorter_hh
-#define _TimeSorter_hh
+#ifndef _TIMESORTER_HH
+#define _TIMESORTER_HH
 
 #include <bitset>
 #include <fstream>

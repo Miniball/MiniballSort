@@ -1,5 +1,5 @@
-#ifndef __MINIBALLGEOMETRY_HH__
-#define __MINIBALLGEOMETRY_HH__
+#ifndef __MINIBALLGEOMETRY_HH
+#define __MINIBALLGEOMETRY_HH
 
 #include <vector>
 

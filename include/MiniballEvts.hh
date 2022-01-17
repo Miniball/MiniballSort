@@ -1,5 +1,5 @@
-#ifndef __MINIBALLEVTS_HH__
-#define __MINIBALLEVTS_HH__
+#ifndef __MINIBALLEVTS_HH
+#define __MINIBALLEVTS_HH
 
 #include <iostream>
 #include <vector>

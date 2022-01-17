@@ -1,5 +1,5 @@
-#ifndef __REACTION_HH__
-#define __REACTION_HH__
+#ifndef __REACTION_HH
+#define __REACTION_HH
 
 #include <iostream>
 #include <vector>
@@ -27,10 +27,15 @@
 # include "MiniballEvts.hh"
 #endif
 
-#define p_mass 938272.08816f;	///< mass of the proton in keV/c^2
-#define n_mass 939565.42052f;	///< mass of the neutron in keV/c^2
-#define u_mass 931494.10242f;	///< atomic mass unit in keV/c^2
-#define kg_mm_s 299.792458f;	/// 1 keV/c in kg•mm/s
+// Header for geometry calibration
+#ifndef __MINIBALLGEOMETRY_HH
+# include "MiniballGeometry.hh"
+#endif
+
+
+const double p_mass = 938272.08816;	///< mass of the proton in keV/c^2
+const double n_mass = 939565.42052;	///< mass of the neutron in keV/c^2
+const double u_mass = 931494.10242;	///< atomic mass unit in keV/c^2
 
 // Element names
 const std::vector<std::string> gElName = {

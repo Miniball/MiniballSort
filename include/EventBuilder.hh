@@ -1,5 +1,5 @@
-#ifndef _EventBuilder_hh
-#define _EventBuilder_hh
+#ifndef _EVENTBUILDER_HH
+#define _EVENTBUILDER_HH
 
 #include <fstream>
 #include <iostream>
@@ -27,7 +27,7 @@
 #endif
 
 // Data packets header
-#ifndef __DATAPACKETS_hh
+#ifndef __DATAPACKETS_HH
 # include "DataPackets.hh"
 #endif
 
