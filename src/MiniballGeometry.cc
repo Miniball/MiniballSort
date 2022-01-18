@@ -66,6 +66,23 @@ double MiniballGeometry::GetSegPhi( unsigned char cry, unsigned char seg ) {
 	
 }
 
+TVector3 MiniballGeometry::GetSegVector( unsigned char cry, unsigned char seg ) {
+	
+	// Return a unit vector pointing to the segment
+	TVector3 vec( 1, 0, 0 );
+	
+	if( seg == 0 ) {
+		vec.SetTheta( TruePhi( cry_offset[cry] ) );
+		vec.SetPhi( TruePhi( cry_offset[cry] ) );
+	}
+	else {
+		vec.SetTheta( TruePhi( seg_offset[cry][seg-1] ) );
+		vec.SetPhi( TruePhi( seg_offset[cry][seg-1] ) );
+	}
+	return vec;
+	
+}
+
 double MiniballGeometry::GetCryTheta( unsigned char cry ) {
 	
 	// Return theta from segment offset
@@ -78,6 +95,18 @@ double MiniballGeometry::GetCryPhi( unsigned char cry ) {
 	// Return phi from segment offset
 	return TruePhi( cry_offset[cry] );
 
+}
+
+TVector3 MiniballGeometry::GetCryVector( unsigned char cry ) {
+	
+	// Return a unit vector pointing to the segment
+	TVector3 vec( 1, 0, 0 );
+	
+	vec.SetTheta( TruePhi( cry_offset[cry] ) );
+	vec.SetPhi( TruePhi( cry_offset[cry] ) );
+
+	return vec;
+	
 }
 
 void MiniballGeometry::SetupCluster( double user_theta, double user_phi, double user_alpha, double user_r, double user_z ) {

@@ -46,23 +46,42 @@
 #CD_1.Distance: -64.0	# Target to CD distance in mm (backwards CD = -64.0)
 #CD_0.PhiOffset: 0.0	# Phi rotation of CD with sector 0 strip 0 vertical, clockwise wrt beam direction
 #CD_1.PhiOffset: 0.0	# Phi rotation of CD with sector 0 strip 0 vertical, anit-clockwise wrt beam direction because theta > 90 deg
-#TargetOffset.X: 0.0	# Beam spot offset with respect to the vertical in mm (positive is up wrt beam direction)
-#TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
-#TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD distance)
 
 # SPEDE Detector geometry
 #Spede.Distance: -30.0	# Target to SPEDE distance in mm (backwards direction, so negative)
 #Spede.PhiOffset: 0.0	# Phi rotation of SPEDE, anit-clockwise wrt beam direction because theta > 90 deg
 
 
+# Target offsets
+#TargetOffset.X: 0.0	# Beam spot offset with respect to the vertical in mm (positive is up wrt beam direction)
+#TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
+#TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD or SPEDE distance)
 
-# EBIS windows
-#EBIS_On: 1.20e6		# slow extraction is about 1.2 ms
-#EBIS_Off: 2.52e7		# Off window is 20 times the On window
+
+# EBIS time windows
+#EBIS.On: 1.20e6		# slow extraction is about 1.2 ms
+#EBIS.Off: 2.52e7		# Off window is 20 times the On window
+
+# Particle and Gamma coincidence time windows
+#ParticleGamma_Prompt.Min: -300		# lower limit of particle-gamma prompt window
+#ParticleGamma_Prompt.Max: 300		# upper limit of particle-gamma prompt window
+#ParticleGamma_Random.Min: 600		# lower limit of particle-gamma random window
+#ParticleGamma_Random.Max: 1200		# upper limit of particle-gamma random window
+#ParticleGamma_FillRatio: 1.0		# ratio of prompt and random events for subtraction (default: time window ratio)
+#GammaGamma_Prompt.Min: -250		# lower limit of gamma-gamma prompt window
+#GammaGamma_Prompt.Max: 250			# upper limit of gamma-gamma prompt window
+#GammaGamma_Random.Min: 500			# lower limit of gamma-gamma random window
+#GammaGamma_Random.Max: 1000		# upper limit of gamma-gamma random window
+#GammaGamma_FillRatio: 1.0			# ratio of prompt and random events for subtraction (default: time window ratio)
+#ParticleParticle_Prompt.Min: -200	# lower limit of particle-particle prompt window
+#ParticleParticle_Prompt.Max: 200	# upper limit of particle-particle prompt window
+#ParticleParticle_Random.Min: 400	# lower limit of particle-particle random window
+#ParticleParticle_Random.Max: 800	# upper limit of particle-particle random window
+#ParticleParticle_FillRatio: 1.0	# ratio of prompt and random events for subtraction (default: time window ratio)
 
 
 ## Particle cut files
-#BeamCut_0.File: NULL		# ROOT file containing the beam-like energy vs angle cut in Coulex
-#BeamCut_0.Name: CUTG		# name of the TCutG object inside the ROOT file
-#TargetCut_0.File: NULL		# ROOT file containing the target-like energy vs angle cut in Coulex
-#TargetCut_0.Name: CUTG		# name of the TCutG object inside the ROOT file
+#EjectileCut_0.File: NULL		# ROOT file containing the ejectile-(beam-)like energy vs angle cut in Coulex
+#EjectileCut_0.Name: CUTG		# name of the TCutG object inside the ROOT file
+#RecoilCut_0.File: NULL			# ROOT file containing the recoil-(target-)like energy vs angle cut in Coulex
+#RecoilCut_0.Name: CUTG			# name of the TCutG object inside the ROOT file

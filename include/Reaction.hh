@@ -80,33 +80,38 @@ public:
 		return std::to_string( GetA() ) + gElName.at( GetZ() );
 	};
 	inline double		GetBindingEnergy(){ return bindingE; };
-	inline double		GetEnergyLab(){ return Elab; };
-	inline double		GetEnergyTotLab(){
-		return GetMass() + GetEnergyLab();
-	};
-	inline double		GetEnergyTotCM(){ return Ecm_tot; };
-	inline double		GetMomentumLab(){
-		return TMath::Sqrt( TMath::Power( GetEnergyTotLab(), 2.0 ) - TMath::Power( GetMass(), 2.0 ) );
-	};
-	inline double		GetMomentumCM(){
-		return TMath::Sqrt( TMath::Power( GetEnergyTotCM(), 2.0 ) - TMath::Power( GetMass(), 2.0 ) );
+	inline double		GetEnergyTot(){ return GetEnergy() + GetMass(); };
+	inline double		GetBeta(){
+		double beta2 = 0.25 * GetMass() + 1.5 * GetEnergy();
+		beta2  = TMath::Sqrt( beta2 * GetMass() );
+		beta2 -= 0.5 * GetMass();
+		return TMath::Sqrt( beta2 / 0.75 * GetMass() );
 	};
 	inline double		GetGamma(){
-		return GetEnergyTotLab() / GetMass();
+		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
 	};
-	inline double		GetThetaCM(){ return ThetaCM; };
-	inline double		GetThetaLab(){ return ThetaLab; };
+	inline double		GetEnergy(){ return Elab; };
 	inline double		GetEx(){ return Ex; };
+	inline double		GetTheta(){ return Theta; };
+	inline double		GetThetaCoM(){ return ThetaCoM; };
+	inline double		GetPhi(){ return Phi; };
+	inline TVector3		GetVector(){
+		TVector3 vec(1,0,0);
+		vec.SetTheta( GetTheta() );
+		vec.SetPhi( GetPhi() );
+		return vec;
+	};
+
 
 	// Set properties
 	inline void		SetA( int myA ){ A = myA; };
 	inline void		SetZ( int myZ ){ Z = myZ; };
 	inline void		SetBindingEnergy( double myBE ){ bindingE = myBE; };
-	inline void		SetEnergyLab( double myElab ){ Elab = myElab; };
-	inline void		SetEnergyTotCM( double myEcm ){ Ecm_tot = myEcm; };
-	inline void		SetThetaCM( double mytheta ){ ThetaCM = mytheta; };
-	inline void		SetThetaLab( double mytheta ){ ThetaLab = mytheta; };
+	inline void		SetEnergy( double myElab ){ Elab = myElab; };
 	inline void		SetEx( double myEx ){ Ex = myEx; };
+	inline void		SetTheta( double mytheta ){ Theta = mytheta; };
+	inline void		SetThetaCoM( double mytheta ){ ThetaCoM = mytheta; };
+	inline void		SetPhi( double myphi ){ Phi = myphi; };
 
 
 private:
@@ -115,11 +120,11 @@ private:
 	int		A;			///< mass number, A of the particle, obviously
 	int		Z; 			///< The Z of the particle, obviously
 	double	bindingE;	///< binding energy per nucleon in keV/c^2
-	double	Ecm_tot;	///< total  energy in the centre of mass frame
 	double	Elab;		///< energy in the laboratory system
-	double	ThetaCM;	///< theta in the centre of mass frame in radians
-	double	ThetaLab;	///< theta in the laboratory system in radians
-	double	Ex;			///< Excitation energy in keV
+	double	Ex;			///< excitation energy of the nucleus
+	double	Theta;		///< theta in the laboratory system in radians
+	double	ThetaCoM;	///< theta in the centre-of-mass system in radians
+	double	Phi;		///< phi in the laboratory system in radians
 
 	
 	ClassDef( Particle, 1 )
@@ -224,6 +229,12 @@ public:
 	};
 
 	
+	// Identify the ejectile and recoil and calculate
+	void	IdentifyEjectile( ParticleEvt *p, bool kinflag = false );
+	void	IdentifyRecoil( ParticleEvt *p, bool kinflag = false );
+	void	CalculateEjectile();
+	void	CalculateRecoil();
+
 
 	// Reaction calculations
 	inline double GetQvalue(){
@@ -231,30 +242,104 @@ public:
 			Ejectile.GetMass() - Recoil.GetMass();
 	};
 	inline double GetEnergyTotLab(){
-		return Beam.GetEnergyTotLab() + Target.GetEnergyTotLab();
+		return Beam.GetEnergyTot() + Target.GetEnergyTot();
 	};
 	inline double GetEnergyTotCM(){
 		double etot = TMath::Power( Beam.GetMass(), 2.0 );
 		etot += TMath::Power( Target.GetMass(), 2.0 );
-		etot += 2.0 * Beam.GetEnergyTotLab() * Target.GetMass();
+		etot += 2.0 * Beam.GetEnergyTot() * Target.GetMass();
 		etot = TMath::Sqrt( etot );
 		return etot;
 	};
 	inline double GetBeta(){
-		return TMath::Sqrt( 2.0 * Beam.GetEnergyLab() / Beam.GetMass() );
+		return TMath::Sqrt( 2.0 * Beam.GetEnergy() / Beam.GetMass() );
 	};
 	inline double GetGamma(){
 		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
 	};
+	inline double GetTau(){
+		return Beam.GetMass() / Target.GetMass();
+	};
+	inline double GetEnergyPrime(){
+		return Beam.GetEnergy() - ( Ejectile.GetEx() + Recoil.GetEx() ) * ( 1 + GetTau() );
+	};
+	inline double GetEpsilon(){
+		return TMath::Sqrt( Beam.GetEnergy() / GetEnergyPrime() );
+	};
+
+	
+	
+	// Doppler correction
+	double DopplerCorrection( GammaRayEvt *g, bool ejectile );
+	double CosTheta( GammaRayEvt *g, bool ejectile );
+
 
 	// Get EBIS times
 	inline double GetEBISOnTime(){ return EBIS_On; };
 	inline double GetEBISOffTime(){ return EBIS_Off; };
 	inline double GetEBISRatio(){ return EBIS_On / ( EBIS_Off - EBIS_On ); };
 
+	// Get particle gamma coincidence times
+	inline double GetParticleGammaPromptTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return pg_prompt[i];
+		else return 0;
+	};
+	inline double GetParticleGammaRandomTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return pg_random[i];
+		else return 0;
+	};
+	inline double GetParticleGammaTimeRatio(){
+		return ( pg_prompt[1] - pg_prompt[1] ) / ( pg_random[1] - pg_random[1] );
+	};
+	inline double GetParticleGammaFillRatio(){
+		return pg_ratio;
+	};
+	inline double GetGammaGammaPromptTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return gg_prompt[i];
+		else return 0;
+	};
+	inline double GetGammaGammaRandomTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return gg_random[i];
+		else return 0;
+	};
+	inline double GetGammaGammaTimeRatio(){
+		return ( gg_prompt[1] - gg_prompt[1] ) / ( gg_random[1] - gg_random[1] );
+	};
+	inline double GetGammaGammaFillRatio(){
+		return gg_ratio;
+	};
+	inline double GetParticleParticlePromptTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return pg_prompt[i];
+		else return 0;
+	};
+	inline double GetParticleParticleRandomTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return pp_random[i];
+		else return 0;
+	};
+	inline double GetParticleParticleTimeRatio(){
+		return ( pp_prompt[1] - pp_prompt[1] ) / ( pp_random[1] - pp_random[1] );
+	};
+	inline double GetParticleParticleFillRatio(){
+		return pp_ratio;
+	};
+
+	
 	// Get cuts
-	inline TCutG* GetBeamCut(){ return beam_cut; };
-	inline TCutG* GetTargetCut(){ return target_cut; };
+	inline TCutG* GetEjectileCut(){ return ejectile_cut; };
+	inline TCutG* GetRecoilCut(){ return recoil_cut; };
+	
+	// Get particles
+	inline Particle* GetBeam(){ return &Beam; };
+	inline Particle* GetTarget(){ return &Target; };
+	inline Particle* GetEjectile(){ return &Ejectile; };
+	inline Particle* GetRecoil(){ return &Recoil; };
+
 
 private:
 
@@ -275,6 +360,15 @@ private:
 	// EBIS time windows
 	double EBIS_On;		///< beam on max time in ns
 	double EBIS_Off;	///< beam off max time in ns
+	
+	// Particle and Gamma coincidences windows
+	int pg_prompt[2];	// particle-gamma prompt
+	int pg_random[2];	// particle-gamma random
+	int gg_prompt[2];	// gamma-gamma prompt
+	int gg_random[2];	// gamma-gamma random
+	int pp_prompt[2];	// particle-particle prompt
+	int pp_random[2];	// particle-particle random
+	float pg_ratio, gg_ratio, pp_ratio; // fill ratios
 
 	// Target offsets
 	float x_offset;	///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
@@ -294,10 +388,10 @@ private:
 	float spede_offset;	///< phi rotation of the SPEDE detector
 
 	// Cuts
-	std::string beamcutfile, beamcutname;
-	std::string targetcutfile, targetcutname;
+	std::string ejectilecutfile, ejectilecutname;
+	std::string recoilcutfile, recoilcutname;
 	TFile *cut_file;
-	TCutG *beam_cut, *target_cut;
+	TCutG *ejectile_cut, *recoil_cut;
 	
 };
 

@@ -130,11 +130,11 @@ void Reaction::ReadReaction() {
 
 	Eb = config->GetValue( "BeamE", 4500.0 ); // in keV per nucleon
 	Eb *= Beam.GetA(); // keV
-	Beam.SetEnergyLab( Eb ); // keV
+	Beam.SetEnergy( Eb ); // keV
 	
 	Target.SetA( config->GetValue( "TargetA", 120 ) );
 	Target.SetZ( config->GetValue( "TargetZ", 50 ) );
-	Target.SetEnergyLab( 0.0 );
+	Target.SetEnergy( 0.0 );
 	if( Target.GetZ() < 0 || Target.GetZ() >= (int)gElName.size() ){
 		
 		std::cout << "Not a recognised element with Z = ";
@@ -167,24 +167,24 @@ void Reaction::ReadReaction() {
 	Recoil.SetBindingEnergy( ame_be.at( Recoil.GetIsotope() ) );
 	
 	// Get particle energy cut
-	beamcutfile = config->GetValue( "BeamCut.File", "NULL" );
-	beamcutname = config->GetValue( "BeamCut.Name", "NULL" );
-	targetcutfile = config->GetValue( "TargetCut.File", "NULL" );
-	targetcutname = config->GetValue( "TargetCut.Name", "NULL" );
+	ejectilecutfile = config->GetValue( "EjectileCut.File", "NULL" );
+	ejectilecutname = config->GetValue( "EjectileCut.Name", "NULL" );
+	recoilcutfile = config->GetValue( "RecoilCut.File", "NULL" );
+	recoilcutname = config->GetValue( "RecoilCut.Name", "NULL" );
 
 	// Check if beam cut is given by the user
-	if( beamcutfile != "NULL" ) {
+	if( ejectilecutfile != "NULL" ) {
 	
-		cut_file = new TFile( beamcutfile.data(), "READ" );
+		cut_file = new TFile( ejectilecutfile.data(), "READ" );
 		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << beamcutfile << " correctly" << std::endl;
+			std::cout << "Couldn't open " << ejectilecutfile << " correctly" << std::endl;
 			
 		else {
 		
-			if( !cut_file->GetListOfKeys()->Contains( beamcutname.data() ) )
-				std::cout << "Couldn't find " << beamcutname << " in " << beamcutfile << std::endl;
+			if( !cut_file->GetListOfKeys()->Contains( ejectilecutname.data() ) )
+				std::cout << "Couldn't find " << ejectilecutname << " in " << ejectilecutfile << std::endl;
 			else
-				beam_cut = (TCutG*)cut_file->Get( beamcutname.data() )->Clone();
+				ejectile_cut = (TCutG*)cut_file->Get( ejectilecutname.data() )->Clone();
 
 		}
 		
@@ -193,18 +193,18 @@ void Reaction::ReadReaction() {
 	}
 
 	// Check if target cut is given by the user
-	if( targetcutfile != "NULL" ) {
+	if( recoilcutfile != "NULL" ) {
 	
-		cut_file = new TFile( targetcutfile.data(), "READ" );
+		cut_file = new TFile( recoilcutfile.data(), "READ" );
 		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << targetcutfile << " correctly" << std::endl;
+			std::cout << "Couldn't open " << recoilcutfile << " correctly" << std::endl;
 			
 		else {
 		
-			if( !cut_file->GetListOfKeys()->Contains( targetcutname.data() ) )
-				std::cout << "Couldn't find " << targetcutname << " in " << targetcutfile << std::endl;
+			if( !cut_file->GetListOfKeys()->Contains( recoilcutname.data() ) )
+				std::cout << "Couldn't find " << recoilcutname << " in " << recoilcutfile << std::endl;
 			else
-				target_cut = (TCutG*)cut_file->Get( targetcutname.data() )->Clone();
+				recoil_cut = (TCutG*)cut_file->Get( recoilcutname.data() )->Clone();
 
 		}
 		
@@ -213,13 +213,32 @@ void Reaction::ReadReaction() {
 	}
 
 	// Assign an empty cut file if none is given, so the code doesn't crash
-	if( !beam_cut ) beam_cut = new TCutG();
-	if( !target_cut ) target_cut = new TCutG();
+	if( !ejectile_cut ) ejectile_cut = new TCutG();
+	if( !recoil_cut ) recoil_cut = new TCutG();
 
 	
 	// EBIS time window
-	EBIS_On = config->GetValue( "EBIS_On", 1.2e6 );		// normally 1.2 ms in slow extraction
-	EBIS_Off = config->GetValue( "EBIS_Off", 2.52e7 );	// this allows a off window 20 times bigger than on
+	EBIS_On = config->GetValue( "EBIS.On", 1.2e6 );		// normally 1.2 ms in slow extraction
+	EBIS_Off = config->GetValue( "EBIS.Off", 2.52e7 );	// this allows a off window 20 times bigger than on
+
+	// Particle-Gamma time windows
+	pg_prompt[0] = config->GetValue( "ParticleGamma_PromptTime.Min", -300 );	// lower limit for particle-gamma prompt time difference
+	pg_prompt[1] = config->GetValue( "ParticleGamma_PromptTime.Max", 300 );		// upper limit for particle-gamma prompt time difference
+	pg_random[0] = config->GetValue( "ParticleGamma_RandomTime.Min", 600 );		// lower limit for particle-gamma random time difference
+	pg_random[1] = config->GetValue( "ParticleGamma_RandomTime.Max", 1200 );	// upper limit for particle-gamma random time difference
+	gg_prompt[0] = config->GetValue( "GammaGamma_PromptTime.Min", -250 );		// lower limit for gamma-gamma prompt time difference
+	gg_prompt[1] = config->GetValue( "GammaGamma_PromptTime.Max", 250 );		// upper limit for gamma-gamma prompt time difference
+	gg_random[0] = config->GetValue( "GammaGamma_RandomTime.Min", 500 );		// lower limit for gamma-gamma random time difference
+	gg_random[1] = config->GetValue( "GammaGamma_RandomTime.Max", 1000 );		// upper limit for gamma-gamma random time difference
+	pp_prompt[0] = config->GetValue( "ParticleParticle_PromptTime.Min", -200 );	// lower limit for particle-particle prompt time difference
+	pp_prompt[1] = config->GetValue( "ParticleParticle_PromptTime.Max", 200 );	// upper limit for particle-particle prompt time difference
+	pp_random[0] = config->GetValue( "ParticleParticle_RandomTime.Min", 400 );	// lower limit for particle-particle random time difference
+	pp_random[1] = config->GetValue( "ParticleParticle_RandomTime.Max", 800 );	// upper limit for particle-particle random time difference
+
+	// Particle-Gamma fill ratios
+	pg_ratio = config->GetValue( "ParticleGamma_RandomTime.Max", GetParticleGammaTimeRatio() );
+	gg_ratio = config->GetValue( "GammaGamma_RandomTime.Max", GetGammaGammaTimeRatio() );
+	pp_ratio = config->GetValue( "ParticleParticle_RandomTime.Max", GetParticleParticleTimeRatio() );
 
 	// Detector to target distances
 	cd_dist.resize( set->GetNumberOfCDDetectors() );
@@ -267,7 +286,7 @@ void Reaction::ReadReaction() {
 	std::cout << Beam.GetIsotope() << "(" << Target.GetIsotope() << ",";
 	std::cout << Ejectile.GetIsotope() << ")" << Recoil.GetIsotope();
 	std::cout << "  +++" << std::endl << "Beam energy = ";
-	std::cout << Beam.GetEnergyLab()*0.001 << " MeV" << std::endl;
+	std::cout << Beam.GetEnergy()*0.001 << " MeV" << std::endl;
 	std::cout << "Q-value = " << GetQvalue()*0.001 << " MeV" << std::endl;
 
 	// Finished
@@ -349,5 +368,135 @@ TVector3 Reaction::GetElectronVector( unsigned char seg ){
 	// geometrical shift that is observed with respect to the beam
 	vec.SetX( vec.X() - x_offset );
 	vec.SetY( vec.Y() - y_offset );
+
+}
+
+double Reaction::CosTheta( GammaRayEvt *g, bool ejectile ) {
+
+	/// Returns the CosTheta angle between particle and gamma ray.
+	/// @param ejectile true for and to the ejectile or false for recoil
+	Particle *p;
+	if( ejectile ) p = &Ejectile;
+	else p = &Recoil;
+
+	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
+
+	return gvec.Cross( p->GetVector() ).CosTheta();
+	
+}
+
+double Reaction::DopplerCorrection( GammaRayEvt *g, bool ejectile ) {
+
+	/// Returns Doppler corrected gamma-ray energy for given particle and gamma combination.
+	/// @param ejectile true for ejectile Doppler correction or false for recoil
+	Particle *p;
+	if( ejectile ) p = &Ejectile;
+	else p = &Recoil;
+	
+	double corr = 1. - p->GetBeta() * CosTheta( g, ejectile );
+	corr *= p->GetGamma();
+	
+	return corr * g->GetEnergy();
+	
+}
+
+void Reaction::IdentifyEjectile( ParticleEvt *p, bool kinflag ){
+	
+	/// Set the ejectile particle and calculate the centre of mass angle too
+	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
+	Ejectile.SetEnergy( p->GetEnergy() );
+	Ejectile.SetTheta( GetParticleTheta(p) );
+	Ejectile.SetPhi( GetParticlePhi(p) );
+
+	// Calculate the centre of mass angle
+	float maxang = TMath::ASin( 1. / ( GetTau() * GetEpsilon() ) );
+	float y = GetEpsilon() * GetTau();
+	if( GetTau() * GetEpsilon() > 1 && GetParticleTheta(p) > maxang )
+		y *= TMath::Sin( maxang );
+	else
+		y *= TMath::Sin( GetParticleTheta(p) );
+
+	// Only one solution for the beam in normal kinematics, kinflag = false
+	if( kinflag && GetTau() * GetEpsilon() < 1 ) kinflag = false;
+
+	if( kinflag ) y = TMath::ASin( -y );
+	else y = TMath::ASin( y );
+
+	Ejectile.SetThetaCoM( GetParticleTheta(p) + y );
+
+}
+
+void Reaction::IdentifyRecoil( ParticleEvt *p, bool kinflag ){
+	
+	/// Set the recoil particle and calculate the centre of mass angle too
+	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
+	Recoil.SetEnergy( p->GetEnergy() );
+	Recoil.SetTheta( GetParticleTheta(p) );
+	Recoil.SetPhi( GetParticlePhi(p) );
+
+	// Calculate the centre of mass angle
+	float maxang = TMath::ASin( 1. / GetEpsilon() );
+	float y = GetEpsilon();
+	if( GetParticleTheta(p) > maxang )
+		y *= TMath::Sin( maxang );
+	else
+		y *= TMath::Sin( GetParticleTheta(p) );
+	
+	if( kinflag ) y = TMath::ASin( -y );
+	else y = TMath::ASin( y );
+
+	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
+
+}
+
+void Reaction::CalculateEjectile(){
+
+	/// Set the ejectile properties using the recoil data
+	// Assume that the centre of mass angle is defined by the recoil
+	Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
+	
+	// Energy of the ejectile from the centre of mass angle
+	float En = TMath::Power( GetTau() * GetEpsilon(), 2.0 ) + 1.0;
+	En += 2.0 * GetTau() * GetEpsilon() * TMath::Cos( Ejectile.GetThetaCoM() );
+	En *= TMath::Power( Target.GetMass() / ( Target.GetMass() + Beam.GetMass() ), 2.0 );
+	En *= GetEnergyPrime();
+	
+	Ejectile.SetEnergy( En );
+	
+	// Angle from the centre of mass angle
+	// y = tan(theta_lab)
+	float y = TMath::Sin( Ejectile.GetThetaCoM() );
+	y /= TMath::Cos( Ejectile.GetThetaCoM() ) + GetTau() * GetEpsilon();
+	
+	float Th = TMath::ATan(y);
+	if( Th < 0. ) Th += TMath::Pi();
+	
+	Ejectile.SetTheta( Th );
+
+}
+
+void Reaction::CalculateRecoil(){
+
+	/// Set the recoil properties using the ejectile data
+	// Assume that the centre of mass angle is defined by the ejectile
+	Recoil.SetThetaCoM( TMath::Pi() - Ejectile.GetThetaCoM() );
+
+	// Energy of the recoil from the centre of mass angle
+	float En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
+	En += 2.0 * GetEpsilon() * TMath::Cos( Recoil.GetThetaCoM() );
+	En *= Target.GetMass() * Beam.GetMass() / TMath::Power( Target.GetMass() + Beam.GetMass(), 2.0 );
+	En *= GetEnergyPrime();
+	
+	Recoil.SetEnergy( En );
+
+	// Angle from the centre of mass angle
+	// y = tan(theta_lab)
+	float y = TMath::Sin( Recoil.GetThetaCoM() );
+	y /= TMath::Cos( Recoil.GetThetaCoM() ) + GetEpsilon();
+	
+	float Th = TMath::ATan(y);
+	if( Th < 0. ) Th += TMath::Pi();
+
+	Recoil.SetTheta( Th );
 
 }

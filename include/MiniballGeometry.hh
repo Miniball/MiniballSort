@@ -71,6 +71,11 @@ class MiniballGeometry : public TObject {
 	/// \return phi of cry in beam reference (degrees)
 	double GetCryPhi( unsigned char cry );
 
+	/// Get a unit vector pointing towards the core
+	/// \param cry number of the MB Ge crystal counting from 0 to 2
+	/// \return phi of segment in beam reference (degrees)
+	TVector3 GetCryVector( unsigned char cry );
+
 	/// Get the theta angle of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -78,9 +83,16 @@ class MiniballGeometry : public TObject {
 	double GetSegTheta( unsigned char cry, unsigned char seg );
 
 	/// Get the phi angle of a segment with respect to the beam
+	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
 	/// \return phi of segment in beam reference (degrees)
 	double GetSegPhi( unsigned char cry, unsigned char seg );
+
+	/// Get a unit vector pointing towards the segment
+	/// \param cry number of the MB Ge crystal counting from 0 to 2
+	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
+	/// \return phi of segment in beam reference (degrees)
+	TVector3 GetSegVector( unsigned char cry, unsigned char seg );
 
 	/// Get theta of a vector in Miniball system (return deg)
 	/// \param v vector from target to detector

@@ -40,6 +40,8 @@ public:
 	
 	void MakeHists();
 	unsigned long FillHists( unsigned long start_fill = 0 );
+	void FillParticleGammaHists( GammaRayEvt *g, bool ejectile, bool recoil, bool prompt );
+	void FillParticleGammaHists( GammaRayAddbackEvt *g, bool ejectile, bool recoil, bool prompt );
 	void Terminate();
 	
 	void SetInputFile( std::vector<std::string> input_file_names );
@@ -58,48 +60,75 @@ public:
 	
 	// Coincidence conditions (to be put in settings file eventually?)
 	inline bool	PromptCoincidence( GammaRayEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > -350 &&
-			(double)g->GetTime() - (double)p->GetTime() < 250 ) return true;
+		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaPromptTime(0) &&
+			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaPromptTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	RandomCoincidence( GammaRayEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > 600 &&
-			(double)g->GetTime() - (double)p->GetTime() < 1200 ) return true;
+		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaRandomTime(0) &&
+			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaRandomTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	PromptCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > -350 &&
-			(double)g->GetTime() - (double)p->GetTime() < 250 ) return true;
+		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaPromptTime(0) &&
+			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaPromptTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	RandomCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > 600 &&
-			(double)g->GetTime() - (double)p->GetTime() < 1200 ) return true;
+		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaRandomTime(0) &&
+			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaRandomTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	PromptCoincidence( GammaRayEvt *g1, GammaRayEvt *g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > -250 &&
-			(double)g1->GetTime() - (double)g2->GetTime() < 250 ) return true;
+		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaPromptTime(0) &&
+			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaPromptTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	RandomCoincidence( GammaRayEvt *g1, GammaRayEvt *g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > 500 &&
-			(double)g1->GetTime() - (double)g2->GetTime() < 1000 ) return true;
+		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaRandomTime(0) &&
+			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaRandomTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	PromptCoincidence( GammaRayAddbackEvt *g1, GammaRayAddbackEvt *g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > -250 &&
-			(double)g1->GetTime() - (double)g2->GetTime() < 250 ) return true;
+		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaPromptTime(0) &&
+			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaPromptTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	RandomCoincidence( GammaRayAddbackEvt *g1, GammaRayAddbackEvt *g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > 500 &&
-			(double)g1->GetTime() - (double)g2->GetTime() < 1000 ) return true;
+		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaRandomTime(0) &&
+			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaRandomTime(1) )
+			return true;
+		else return false;
+	};
+	inline bool	PromptCoincidence( ParticleEvt *p1, ParticleEvt *p2 ){
+		if( (double)p1->GetTime() - (double)p2->GetTime() > react->GetParticleParticlePromptTime(0) &&
+			(double)p1->GetTime() - (double)p2->GetTime() < react->GetParticleParticlePromptTime(1) )
+			return true;
+		else return false;
+	};
+	inline bool	RandomCoincidence( ParticleEvt *p1, ParticleEvt *p2 ){
+		if( (double)p1->GetTime() - (double)p2->GetTime() > react->GetParticleParticleRandomTime(0) &&
+			(double)p1->GetTime() - (double)p2->GetTime() < react->GetParticleParticleRandomTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	PromptCoincidence( BeamDumpEvt *g1, BeamDumpEvt *g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > -250 &&
-			(double)g1->GetTime() - (double)g2->GetTime() < 250 ) return true;
+		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaPromptTime(0) &&
+			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaPromptTime(1) )
+			return true;
+		else return false;
+	};
+	inline bool	RandomCoincidence( BeamDumpEvt *g1, BeamDumpEvt *g2 ){
+		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaRandomTime(0) &&
+			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaRandomTime(1) )
+			return true;
 		else return false;
 	};
 	inline bool	OnBeam( GammaRayEvt *g ){
@@ -134,13 +163,20 @@ public:
 	};
 
 	// Particle energy vs angle cuts
-	inline bool BeamCut( ParticleEvt *p ){
-		if( react->GetBeamCut()->IsInside( react->GetParticleTheta(p), p->GetEnergy() ) )
+	inline bool EjectileCut( ParticleEvt *p ){
+		if( react->GetEjectileCut()->IsInside( react->GetParticleTheta(p), p->GetEnergy() ) )
 			return true;
 		else return false;
 	}
-	inline bool TargetCut( ParticleEvt *p ){
-		if( react->GetTargetCut()->IsInside( react->GetParticleTheta(p), p->GetEnergy() ) )
+	inline bool RecoilCut( ParticleEvt *p ){
+		if( react->GetRecoilCut()->IsInside( react->GetParticleTheta(p), p->GetEnergy() ) )
+			return true;
+		else return false;
+	}
+	inline bool TwoParticleCut( ParticleEvt *p1, ParticleEvt *p2 ){
+		if( EjectileCut(p1) && RecoilCut(p2) && PromptCoincidence( p1, p2 ) &&
+		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) < 1.1*TMath::Pi() &&
+		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) > 0.9*TMath::Pi() )
 			return true;
 		else return false;
 	}
@@ -153,7 +189,7 @@ private:
 	// Settings file
 	Settings *set;
 	
-	/// Input tree
+	// Input tree
 	TChain *input_tree;
 	MiniballEvts *read_evts;
 	GammaRayEvt *gamma_evt, *gamma_evt2;
@@ -161,12 +197,14 @@ private:
 	ParticleEvt *particle_evt, *particle_evt2;
 	BeamDumpEvt *bd_evt, *bd_evt2;
 
-	/// Output file
+	// Output file
 	TFile *output_file;
-	
 	
 	// Counters
 	unsigned long n_entries;
+	
+	// Temporary variables for coincidence
+	std::vector<bool> particle_array;
 	
 	//------------//
 	// Histograms //
@@ -192,10 +230,21 @@ private:
 
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_beam, *pE_theta_target;
+	TH1F *particle_particle_td;
 
 	// Particle-gamma coincidences
 	TH1F *gamma_particle_td;
+	TH1F *gE_prompt, *gE_prompt_1p, *gE_prompt_2p;
+	TH1F *gE_random, *gE_random_1p, *gE_random_2p;
 	
+	// Doppler-corrected gamma-rays
+	TH1F *gE_ejectile_dc_none, *gE_ejectile_dc_ejectile, *gE_ejectile_dc_recoil;
+	TH1F *gE_recoil_dc_none,   *gE_recoil_dc_ejectile,   *gE_recoil_dc_recoil;
+	TH1F *gE_2p_dc_none,       *gE_2p_dc_ejectile,       *gE_2p_dc_recoil;
+	TH2F *gE_vs_theta_ejectile_dc_none, *gE_vs_theta_ejectile_dc_ejectile, *gE_vs_theta_ejectile_dc_recoil;
+	TH2F *gE_vs_theta_recoil_dc_none,   *gE_vs_theta_recoil_dc_ejectile,   *gE_vs_theta_recoil_dc_recoil;
+	TH2F *gE_vs_theta_2p_dc_none,       *gE_vs_theta_2p_dc_ejectile,       *gE_vs_theta_2p_dc_recoil;
+
 	// Beam-dump histograms
 	TH1F *bdE_singles;
 	std::vector<TH1F*> bdE_singles_det;
