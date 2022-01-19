@@ -230,29 +230,41 @@ private:
 	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;
 	
-	// Gamma-rays
+	// Gamma-rays with and without addback
 	TH1F *gE_singles, *gE_singles_ebis, *gE_singles_ebis_on, *gE_singles_ebis_off;
+	TH1F *aE_singles, *aE_singles_ebis, *aE_singles_ebis_on, *aE_singles_ebis_off;
 
-	// Gamma-ray coincidence matrices
-	TH2F *gE_gE, *gE_gE_ebis_on;
+	// Gamma-ray coincidence matrices with and without addback
 	TH1F *gamma_gamma_td;
+	TH2F *gE_gE, *gE_gE_ebis_on;
+	TH2F *aE_aE, *aE_aE_ebis_on;
 
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_beam, *pE_theta_target;
 	TH1F *particle_particle_td;
 
-	// Particle-gamma coincidences
+	// Particle-gamma coincidences with and without addback
 	TH1F *gamma_particle_td;
 	TH1F *gE_prompt, *gE_prompt_1p, *gE_prompt_2p;
 	TH1F *gE_random, *gE_random_1p, *gE_random_2p;
-	
-	// Doppler-corrected gamma-rays
+	TH1F *aE_prompt, *aE_prompt_1p, *aE_prompt_2p;
+	TH1F *aE_random, *aE_random_1p, *aE_random_2p;
+
+	// Doppler-corrected gamma-rays without addback
 	TH1F *gE_ejectile_dc_none, *gE_ejectile_dc_ejectile, *gE_ejectile_dc_recoil;
 	TH1F *gE_recoil_dc_none,   *gE_recoil_dc_ejectile,   *gE_recoil_dc_recoil;
 	TH1F *gE_2p_dc_none,       *gE_2p_dc_ejectile,       *gE_2p_dc_recoil;
 	TH2F *gE_vs_theta_ejectile_dc_none, *gE_vs_theta_ejectile_dc_ejectile, *gE_vs_theta_ejectile_dc_recoil;
 	TH2F *gE_vs_theta_recoil_dc_none,   *gE_vs_theta_recoil_dc_ejectile,   *gE_vs_theta_recoil_dc_recoil;
 	TH2F *gE_vs_theta_2p_dc_none,       *gE_vs_theta_2p_dc_ejectile,       *gE_vs_theta_2p_dc_recoil;
+
+	// Doppler-corrected gamma-rays with addback
+	TH1F *aE_ejectile_dc_none, *aE_ejectile_dc_ejectile, *aE_ejectile_dc_recoil;
+	TH1F *aE_recoil_dc_none,   *aE_recoil_dc_ejectile,   *aE_recoil_dc_recoil;
+	TH1F *aE_2p_dc_none,       *aE_2p_dc_ejectile,       *aE_2p_dc_recoil;
+	TH2F *aE_vs_theta_ejectile_dc_none, *aE_vs_theta_ejectile_dc_ejectile, *aE_vs_theta_ejectile_dc_recoil;
+	TH2F *aE_vs_theta_recoil_dc_none,   *aE_vs_theta_recoil_dc_ejectile,   *aE_vs_theta_recoil_dc_recoil;
+	TH2F *aE_vs_theta_2p_dc_none,       *aE_vs_theta_2p_dc_ejectile,       *aE_vs_theta_2p_dc_recoil;
 
 	// Beam-dump histograms
 	TH1F *bdE_singles;
