@@ -236,11 +236,26 @@ void Reaction::ReadReaction() {
 	pp_prompt[1] = config->GetValue( "ParticleParticle_PromptTime.Max", 200 );	// upper limit for particle-particle prompt time difference
 	pp_random[0] = config->GetValue( "ParticleParticle_RandomTime.Min", 400 );	// lower limit for particle-particle random time difference
 	pp_random[1] = config->GetValue( "ParticleParticle_RandomTime.Max", 800 );	// upper limit for particle-particle random time difference
+	ee_prompt[0] = config->GetValue( "ElectronElectron_PromptTime.Min", -200 );	// lower limit for electron-electron prompt time difference
+	ee_prompt[1] = config->GetValue( "ElectronElectron_PromptTime.Max", 200 );	// upper limit for electron-electron prompt time difference
+	ee_random[0] = config->GetValue( "ElectronElectron_RandomTime.Min", 400 );	// lower limit for electron-electron random time difference
+	ee_random[1] = config->GetValue( "ElectronElectron_RandomTime.Max", 800 );	// upper limit for electron-electron random time difference
+	ge_prompt[0] = config->GetValue( "GammaElectron_PromptTime.Min", -200 );	// lower limit for gamma-electron prompt time difference
+	ge_prompt[1] = config->GetValue( "GammaElectron_PromptTime.Max", 200 );		// upper limit for gamma-electron prompt time difference
+	ge_random[0] = config->GetValue( "GammaElectron_RandomTime.Min", 400 );		// lower limit for gamma-electron random time difference
+	ge_random[1] = config->GetValue( "GammaElectron_RandomTime.Max", 800 );		// upper limit for gamma-electron random time difference
+	pe_prompt[0] = config->GetValue( "ParticleElectron_PromptTime.Min", -200 );	// lower limit for particle-electron prompt time difference
+	pe_prompt[1] = config->GetValue( "ParticleElectron_PromptTime.Max", 200 );	// upper limit for particle-electron prompt time difference
+	pe_random[0] = config->GetValue( "ParticleElectron_RandomTime.Min", 400 );	// lower limit for particle-electron random time difference
+	pe_random[1] = config->GetValue( "ParticleElectron_RandomTime.Max", 800 );	// upper limit for particle-electron random time difference
 
 	// Particle-Gamma fill ratios
-	pg_ratio = config->GetValue( "ParticleGamma_RandomTime.Max", GetParticleGammaTimeRatio() );
-	gg_ratio = config->GetValue( "GammaGamma_RandomTime.Max", GetGammaGammaTimeRatio() );
-	pp_ratio = config->GetValue( "ParticleParticle_RandomTime.Max", GetParticleParticleTimeRatio() );
+	pg_ratio = config->GetValue( "ParticleGamma_FillRatio", GetParticleGammaTimeRatio() );
+	gg_ratio = config->GetValue( "GammaGamma_FillRatio", GetGammaGammaTimeRatio() );
+	pp_ratio = config->GetValue( "ParticleParticle_FillRatio", GetParticleParticleTimeRatio() );
+	ee_ratio = config->GetValue( "ElectronElectron_FillRatio", GetElectronElectronTimeRatio() );
+	ge_ratio = config->GetValue( "GammaElectron_FillRatio", GetGammaElectronTimeRatio() );
+	pe_ratio = config->GetValue( "ParticleElectron_FillRatio", GetParticleElectronTimeRatio() );
 
 	// Detector to target distances
 	cd_dist.resize( set->GetNumberOfCDDetectors() );
@@ -413,6 +428,20 @@ double Reaction::CosTheta( GammaRayEvt *g, bool ejectile ) {
 	
 }
 
+double Reaction::CosTheta( SpedeEvt *s, bool ejectile ) {
+
+	/// Returns the CosTheta angle between particle and electron.
+	/// @param ejectile true for and to the ejectile or false for recoil
+	Particle *p;
+	if( ejectile ) p = &Ejectile;
+	else p = &Recoil;
+
+	TVector3 evec = GetElectronVector( s->GetSegment() );
+	
+	return evec.Cross( p->GetVector() ).CosTheta();
+	
+}
+
 double Reaction::DopplerCorrection( GammaRayEvt *g, bool ejectile ) {
 
 	/// Returns Doppler corrected gamma-ray energy for given particle and gamma combination.
@@ -425,6 +454,21 @@ double Reaction::DopplerCorrection( GammaRayEvt *g, bool ejectile ) {
 	corr *= p->GetGamma();
 	
 	return corr * g->GetEnergy();
+	
+}
+
+double Reaction::DopplerCorrection( SpedeEvt *s, bool ejectile ) {
+
+	/// Returns Doppler corrected electron energy for given particle and SPEDE combination.
+	/// @param ejectile true for ejectile Doppler correction or false for recoil
+	Particle *p;
+	if( ejectile ) p = &Ejectile;
+	else p = &Recoil;
+	
+	double corr = 1. - p->GetBeta() * CosTheta( s, ejectile );
+	corr *= p->GetGamma();
+	
+	return corr * s->GetEnergy();
 	
 }
 

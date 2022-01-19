@@ -42,6 +42,7 @@ public:
 	unsigned long FillHists( unsigned long start_fill = 0 );
 	void FillParticleGammaHists( GammaRayEvt *g );
 	void FillParticleGammaHists( GammaRayAddbackEvt *g );
+	void FillParticleElectronHists( SpedeEvt *s );
 	void Terminate();
 	
 	void SetInputFile( std::vector<std::string> input_file_names );
@@ -80,18 +81,21 @@ public:
 	inline bool	PromptCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
 		return PromptCoincidence( g, p->GetTime() );
 	};
-	inline bool	PromptCoincidence( GammaRayAddbackEvt *g, unsigned long long ptime ){
-		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
-			(double)g->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
+	inline bool	PromptCoincidence( SpedeEvt *s, ParticleEvt *p ){
+		return PromptCoincidence( s, p->GetTime() );
+	};
+	inline bool	PromptCoincidence( SpedeEvt *s, unsigned long long ptime ){
+		if( (double)s->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
+			(double)s->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
-		return RandomCoincidence( g, p->GetTime() );
+	inline bool	RandomCoincidence( SpedeEvt *s, ParticleEvt *p ){
+		return RandomCoincidence( s, p->GetTime() );
 	};
-	inline bool	RandomCoincidence( GammaRayAddbackEvt *g, unsigned long long ptime ){
-		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
-			(double)g->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
+	inline bool	RandomCoincidence( SpedeEvt *s, unsigned long long ptime ){
+		if( (double)s->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
+			(double)s->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -107,15 +111,15 @@ public:
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( GammaRayAddbackEvt *g1, GammaRayAddbackEvt *g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaPromptTime(0) &&
-			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaPromptTime(1) )
+	inline bool	PromptCoincidence( SpedeEvt *s1, SpedeEvt *s2 ){
+		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetGammaGammaPromptTime(0) &&
+			(double)s1->GetTime() - (double)s2->GetTime() < react->GetGammaGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( GammaRayAddbackEvt *g1, GammaRayAddbackEvt *g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaRandomTime(0) &&
-			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaRandomTime(1) )
+	inline bool	RandomCoincidence( SpedeEvt *s1, SpedeEvt *s2 ){
+		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetGammaGammaRandomTime(0) &&
+			(double)s1->GetTime() - (double)s2->GetTime() < react->GetGammaGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -143,14 +147,32 @@ public:
 			return true;
 		else return false;
 	};
+	inline bool	PromptCoincidence( SpedeEvt *s, GammaRayEvt *g ){
+		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaGammaPromptTime(0) &&
+			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaGammaPromptTime(1) )
+			return true;
+		else return false;
+	};
+	inline bool	PromptCoincidence( GammaRayEvt *g, SpedeEvt *s ){
+		return PromptCoincidence( s, g );
+	};
+	inline bool	RandomCoincidence( SpedeEvt *s, GammaRayEvt *g ){
+		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaGammaRandomTime(0) &&
+			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaGammaRandomTime(1) )
+			return true;
+		else return false;
+	};
+	inline bool	RandomCoincidence( GammaRayEvt *g, SpedeEvt *s ){
+		return RandomCoincidence( s, g );
+	};
 	inline bool	OnBeam( GammaRayEvt *g ){
 		if( (double)g->GetTime() - (double)read_evts->GetEBIS() >= 0 &&
 			(double)g->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOnTime() ) return true;
 		else return false;
 	};
-	inline bool	OnBeam( GammaRayAddbackEvt *g ){
-		if( (double)g->GetTime() - (double)read_evts->GetEBIS() >= 0 &&
-			(double)g->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOnTime() ) return true;
+	inline bool	OnBeam( SpedeEvt *s ){
+		if( (double)s->GetTime() - (double)read_evts->GetEBIS() >= 0 &&
+			(double)s->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOnTime() ) return true;
 		else return false;
 	};
 	inline bool	OnBeam( ParticleEvt *p ){
@@ -163,14 +185,14 @@ public:
 			(double)g->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
 		else return false;
 	};
-	inline bool	OffBeam( GammaRayAddbackEvt *g ){
-		if( (double)g->GetTime() - (double)read_evts->GetEBIS() >= react->GetEBISOnTime() &&
-			(double)g->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
-		else return false;
-	};
 	inline bool	OffBeam( ParticleEvt *p ){
 		if( (double)p->GetTime() - (double)read_evts->GetEBIS() >= react->GetEBISOnTime() &&
 			(double)p->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
+		else return false;
+	};
+	inline bool	OffBeam( SpedeEvt *s ){
+		if( (double)s->GetTime() - (double)read_evts->GetEBIS() >= react->GetEBISOnTime() &&
+			(double)s->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
 		else return false;
 	};
 
@@ -208,6 +230,7 @@ private:
 	GammaRayAddbackEvt *gamma_ab_evt, *gamma_ab_evt2;
 	ParticleEvt *particle_evt, *particle_evt2;
 	BeamDumpEvt *bd_evt, *bd_evt2;
+	SpedeEvt *spede_evt, *spede_evt2;
 
 	// Output file
 	TFile *output_file;
@@ -223,6 +246,9 @@ private:
 	const unsigned int GBIN = 8000;		// number of bins in gamma spectra
 	const float GMIN = -0.25;			// lower limit of energy in gamma spectra
 	const float GMAX = 3999.75;			// upper limit of energy in gamma spectra
+	const unsigned int EBIN = 200;		// number of bins in electron spectra
+	const float EMIN = -0.5;			// lower limit of energy in electron spectra
+	const float EMAX = 1999.5;			// upper limit of energy in electron spectra
 	const unsigned int PBIN = 300;		// number of bins in particle spectra
 	const float PMIN = 0.0;				// lower limit of energy in particle spectra
 	const float PMAX = 1.2;				// upper limit of energy in particle spectra
@@ -234,10 +260,22 @@ private:
 	TH1F *gE_singles, *gE_singles_ebis, *gE_singles_ebis_on, *gE_singles_ebis_off;
 	TH1F *aE_singles, *aE_singles_ebis, *aE_singles_ebis_on, *aE_singles_ebis_off;
 
+	// Electron singles
+	TH1F *eE_singles, *eE_singles_ebis, *eE_singles_ebis_on, *eE_singles_ebis_off;
+
 	// Gamma-ray coincidence matrices with and without addback
 	TH1F *gamma_gamma_td;
 	TH2F *gE_gE, *gE_gE_ebis_on;
 	TH2F *aE_aE, *aE_aE_ebis_on;
+
+	// Electron coincidence matrices
+	TH1F *electron_electron_td;
+	TH2F *eE_eE, *eE_eE_ebis_on;
+
+	// Gamma-Electron coincidence matrices
+	TH1F *gamma_electron_td;
+	TH2F *gE_eE, *gE_eE_ebis_on;
+	TH2F *aE_eE, *aE_eE_ebis_on;
 
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_beam, *pE_theta_target;
@@ -249,6 +287,11 @@ private:
 	TH1F *gE_random, *gE_random_1p, *gE_random_2p;
 	TH1F *aE_prompt, *aE_prompt_1p, *aE_prompt_2p;
 	TH1F *aE_random, *aE_random_1p, *aE_random_2p;
+
+	// Particle-electron coincidences
+	TH1F *electron_particle_td;
+	TH1F *eE_prompt, *eE_prompt_1p, *eE_prompt_2p;
+	TH1F *eE_random, *eE_random_1p, *eE_random_2p;
 
 	// Doppler-corrected gamma-rays without addback
 	TH1F *gE_ejectile_dc_none, *gE_ejectile_dc_ejectile, *gE_ejectile_dc_recoil;
@@ -265,6 +308,14 @@ private:
 	TH2F *aE_vs_theta_ejectile_dc_none, *aE_vs_theta_ejectile_dc_ejectile, *aE_vs_theta_ejectile_dc_recoil;
 	TH2F *aE_vs_theta_recoil_dc_none,   *aE_vs_theta_recoil_dc_ejectile,   *aE_vs_theta_recoil_dc_recoil;
 	TH2F *aE_vs_theta_2p_dc_none,       *aE_vs_theta_2p_dc_ejectile,       *aE_vs_theta_2p_dc_recoil;
+
+	// Doppler-corrected electrons
+	TH1F *eE_ejectile_dc_none, *eE_ejectile_dc_ejectile, *eE_ejectile_dc_recoil;
+	TH1F *eE_recoil_dc_none,   *eE_recoil_dc_ejectile,   *eE_recoil_dc_recoil;
+	TH1F *eE_2p_dc_none,       *eE_2p_dc_ejectile,       *eE_2p_dc_recoil;
+	TH2F *eE_vs_theta_ejectile_dc_none, *eE_vs_theta_ejectile_dc_ejectile, *eE_vs_theta_ejectile_dc_recoil;
+	TH2F *eE_vs_theta_recoil_dc_none,   *eE_vs_theta_recoil_dc_ejectile,   *eE_vs_theta_recoil_dc_recoil;
+	TH2F *eE_vs_theta_2p_dc_none,       *eE_vs_theta_2p_dc_ejectile,       *eE_vs_theta_2p_dc_recoil;
 
 	// Beam-dump histograms
 	TH1F *bdE_singles;

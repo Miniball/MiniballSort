@@ -283,7 +283,9 @@ public:
 	
 	// Doppler correction
 	double DopplerCorrection( GammaRayEvt *g, bool ejectile );
+	double DopplerCorrection( SpedeEvt *s, bool ejectile );
 	double CosTheta( GammaRayEvt *g, bool ejectile );
+	double CosTheta( SpedeEvt *s, bool ejectile );
 
 
 	// Get EBIS times
@@ -303,7 +305,7 @@ public:
 		else return 0;
 	};
 	inline double GetParticleGammaTimeRatio(){
-		return ( pg_prompt[1] - pg_prompt[1] ) / ( pg_random[1] - pg_random[1] );
+		return ( pg_prompt[1] - pg_prompt[0] ) / ( pg_random[1] - pg_random[0] );
 	};
 	inline double GetParticleGammaFillRatio(){
 		return pg_ratio;
@@ -319,7 +321,7 @@ public:
 		else return 0;
 	};
 	inline double GetGammaGammaTimeRatio(){
-		return ( gg_prompt[1] - gg_prompt[1] ) / ( gg_random[1] - gg_random[1] );
+		return ( gg_prompt[1] - gg_prompt[0] ) / ( gg_random[1] - gg_random[0] );
 	};
 	inline double GetGammaGammaFillRatio(){
 		return gg_ratio;
@@ -335,13 +337,60 @@ public:
 		else return 0;
 	};
 	inline double GetParticleParticleTimeRatio(){
-		return ( pp_prompt[1] - pp_prompt[1] ) / ( pp_random[1] - pp_random[1] );
+		return ( pp_prompt[1] - pp_prompt[0] ) / ( pp_random[1] - pp_random[0] );
 	};
 	inline double GetParticleParticleFillRatio(){
 		return pp_ratio;
 	};
-	
-	
+	inline double GetGammaElectronPromptTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return ge_prompt[i];
+		else return 0;
+	};
+	inline double GetGammaElectronRandomTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return ge_random[i];
+		else return 0;
+	};
+	inline double GetGammaElectronTimeRatio(){
+		return ( ge_prompt[1] - ge_prompt[0] ) / ( ge_random[1] - ge_random[0] );
+	};
+	inline double GetGammaElectronFillRatio(){
+		return ge_ratio;
+	};
+	inline double GetElectronElectronPromptTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return ee_prompt[i];
+		else return 0;
+	};
+	inline double GetElectronElectronRandomTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return ee_random[i];
+		else return 0;
+	};
+	inline double GetElectronElectronTimeRatio(){
+		return ( ee_prompt[1] - ee_prompt[0] ) / ( ee_random[1] - ee_random[0] );
+	};
+	inline double GetElectronElectronFillRatio(){
+		return ee_ratio;
+	};
+	inline double GetParticleElectronPromptTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return pe_prompt[i];
+		else return 0;
+	};
+	inline double GetParticleElectronRandomTime( unsigned char i ){
+		// i = 0 for lower limite and i = 1 for upper limit
+		if( i < 2 ) return pe_random[i];
+		else return 0;
+	};
+	inline double GetParticleElectronTimeRatio(){
+		return ( pe_prompt[1] - pe_prompt[0] ) / ( pe_random[1] - pe_random[0] );
+	};
+	inline double GetParticleElectronFillRatio(){
+		return pe_ratio;
+	};
+
 	// Energy loss and stopping powers
 	double GetEnergyLoss( double Ei, double dist, TGraph* g );
 	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, TGraph* g );
@@ -395,7 +444,14 @@ private:
 	int gg_random[2];	// gamma-gamma random
 	int pp_prompt[2];	// particle-particle prompt
 	int pp_random[2];	// particle-particle random
+	int ge_prompt[2];	// gamma-electron prompt
+	int ge_random[2];	// gamma-electron random
+	int ee_prompt[2];	// electron-electron prompt
+	int ee_random[2];	// electron-electron random
+	int pe_prompt[2];	// particle-electron prompt
+	int pe_random[2];	// particle-electron random
 	float pg_ratio, gg_ratio, pp_ratio; // fill ratios
+	float pe_ratio, ge_ratio, ee_ratio; // fill ratios
 
 	// Target thickness and offsets
 	float target_thickness;	///< target thickness in units of mg/cm^2

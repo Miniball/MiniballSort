@@ -83,6 +83,21 @@
 #ParticleParticle_Random.Min: 400	# lower limit of particle-particle random window
 #ParticleParticle_Random.Max: 800	# upper limit of particle-particle random window
 #ParticleParticle_FillRatio: 1.0	# ratio of prompt and random events for subtraction (default: time window ratio)
+#ParticleElectron_Prompt.Min: -200	# lower limit of particle-electron prompt window
+#ParticleElectron_Prompt.Max: 200	# upper limit of particle-electron prompt window
+#ParticleElectron_Random.Min: 400	# lower limit of particle-electron random window
+#ParticleElectron_Random.Max: 800	# upper limit of particle-electron random window
+#ParticleElectron_FillRatio: 1.0	# ratio of prompt and random events for subtraction (default: time window ratio)
+#GammaElectron_Prompt.Min: -200		# lower limit of gamma-electron prompt window
+#GammaElectron_Prompt.Max: 200		# upper limit of gamma-electron prompt window
+#GammaElectron_Random.Min: 400		# lower limit of gamma-electron random window
+#GammaElectron_Random.Max: 800		# upper limit of gamma-electron random window
+#GammaElectron_FillRatio: 1.0		# ratio of prompt and random events for subtraction (default: time window ratio)
+#ElectronElectron_Prompt.Min: -200	# lower limit of electron-electron prompt window
+#ElectronElectron_Prompt.Max: 200	# upper limit of electron-electron prompt window
+#ElectronElectron_Random.Min: 400	# lower limit of electron-electron random window
+#ElectronElectron_Random.Max: 800	# upper limit of electron-electron random window
+#ElectronElectron_FillRatio: 1.0	# ratio of prompt and random events for subtraction (default: time window ratio)
 
 
 ## Particle cut files
