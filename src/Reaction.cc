@@ -19,7 +19,7 @@ Reaction::Reaction( std::string filename, Settings *myset ){
 	set = myset;
 	SetFile( filename );
 	ReadReaction();
-		
+	
 }
 
 void Reaction::AddBindingEnergy( short Ai, short Zi, TString ame_be_str ) {
@@ -245,17 +245,20 @@ void Reaction::ReadReaction() {
 	// Detector to target distances
 	cd_dist.resize( set->GetNumberOfCDDetectors() );
 	cd_offset.resize( set->GetNumberOfCDDetectors() );
+	dead_layer.resize( set->GetNumberOfCDDetectors() );
 	float d_tmp;
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 	
 		if( i == 0 ) d_tmp = 32.0; // standard CD
 		else if( i == 1 ) d_tmp = -64.0; // TREX backwards CD
-		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );	// distance to target in mm
-		cd_offset[i] = config->GetValue( Form( "CD_%d.PhiOffset", i ), 0.0 );	// phi rotation in degrees
+		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );		// distance to target in mm
+		cd_offset[i] = config->GetValue( Form( "CD_%d.PhiOffset", i ), 0.0 );		// phi rotation in degrees
+		dead_layer[i] = config->GetValue( Form( "CD_%d.DeadLayer", i ), 0.0007 );	// dead layer thickness in mm of Si
 
 	}
 	
-	// Target offset
+	// Target thickness and offsets
+	target_thickness = config->GetValue( "TargetThickness", 2.0 ); // units of mg/cm^2
 	x_offset = config->GetValue( "TargetOffset.X", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, vertical
 	y_offset = config->GetValue( "TargetOffset.Y", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, horizontal
 	z_offset = config->GetValue( "TargetOffset.Z", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, lateral
@@ -282,14 +285,35 @@ void Reaction::ReadReaction() {
 	spede_offset = config->GetValue( "Spede.PhiOffset", 0.0 );	// phi rotation in degrees
 	if( spede_dist > 0 ) std::cout << " !! WARNING !! Spede.Distance should be negative" << std::endl;
 	
+	// Get the stopping powers
+	stopping = true;
+	stopping *= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
+	stopping *= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
+	stopping *= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
+	stopping *= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
+
 	
 	// Some diagnostics and info
 	std::cout << std::endl << " +++  ";
 	std::cout << Beam.GetIsotope() << "(" << Target.GetIsotope() << ",";
 	std::cout << Ejectile.GetIsotope() << ")" << Recoil.GetIsotope();
-	std::cout << "  +++" << std::endl << "Beam energy = ";
-	std::cout << Beam.GetEnergy()*0.001 << " MeV" << std::endl;
+	std::cout << "  +++" << std::endl;
 	std::cout << "Q-value = " << GetQvalue()*0.001 << " MeV" << std::endl;
+	std::cout << "Incoming beam energy = ";
+	std::cout << Beam.GetEnergy()*0.001 << " MeV" << std::endl;
+	std::cout << "Target thickness = ";
+	std::cout << target_thickness << " mg/cm^2" << std::endl;
+
+	// Calculate the energy loss
+	if( stopping ){
+		
+		double eloss = GetEnergyLoss( Beam.GetEnergy(), 0.5 * target_thickness, gStopping[0] );
+		Beam.SetEnergy( Beam.GetEnergy() - eloss );
+		std::cout << "Beam energy at centre of target = ";
+		std::cout << Beam.GetEnergy()*0.001 << " MeV" << std::endl;
+
+	}
+	else std::cout << "Stopping powers not calculated" << std::endl;
 
 	// Finished
 	delete config;
@@ -371,6 +395,8 @@ TVector3 Reaction::GetElectronVector( unsigned char seg ){
 	vec.SetX( vec.X() - x_offset );
 	vec.SetY( vec.Y() - y_offset );
 
+	return vec;
+	
 }
 
 double Reaction::CosTheta( GammaRayEvt *g, bool ejectile ) {
@@ -406,7 +432,9 @@ void Reaction::IdentifyEjectile( ParticleEvt *p, bool kinflag ){
 	
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	Ejectile.SetEnergy( p->GetEnergy() );
+	double eloss = 0;
+	if( stopping ) eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] );
+	Ejectile.SetEnergy( p->GetEnergy() ); // eloss is negative to add back the dead layer energy
 	Ejectile.SetTheta( GetParticleTheta(p) );
 	Ejectile.SetPhi( GetParticlePhi(p) );
 
@@ -425,6 +453,7 @@ void Reaction::IdentifyEjectile( ParticleEvt *p, bool kinflag ){
 	else y = TMath::ASin( y );
 
 	Ejectile.SetThetaCoM( GetParticleTheta(p) + y );
+	ejectile_detected = true;
 
 }
 
@@ -432,7 +461,9 @@ void Reaction::IdentifyRecoil( ParticleEvt *p, bool kinflag ){
 	
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	Recoil.SetEnergy( p->GetEnergy() );
+	double eloss = 0;
+	if( stopping ) eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[3] );
+	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative to add back the dead layer energy
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
 
@@ -448,6 +479,7 @@ void Reaction::IdentifyRecoil( ParticleEvt *p, bool kinflag ){
 	else y = TMath::ASin( y );
 
 	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
+	recoil_detected = true;
 
 }
 
@@ -475,6 +507,7 @@ void Reaction::CalculateEjectile(){
 	
 	Ejectile.SetTheta( Th );
 	Ejectile.SetPhi( TMath::Pi() - Recoil.GetPhi() );
+	ejectile_detected = false;
 
 }
 
@@ -502,5 +535,157 @@ void Reaction::CalculateRecoil(){
 
 	Recoil.SetTheta( Th );
 	Recoil.SetPhi( TMath::Pi() - Ejectile.GetPhi() );
+	recoil_detected = false;
 
+}
+
+double Reaction::GetEnergyLoss( double Ei, double dist, TGraph* g ) {
+
+	/// Returns the energy loss at a given initial energy and distance travelled
+	/// A negative distance will add the energy back on, i.e. travelling backwards
+	/// This means that you will get a negative energy loss as a return value
+	unsigned int Nmeshpoints = 50; // number of steps to take in integration
+	double dx = dist/(double)Nmeshpoints;
+	double E = Ei;
+	
+	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
+
+		if( E < 100. ) break; // when we fall below 100 keV we assume maximum energy loss
+		E += g->Eval(E) * dx;
+		
+	}
+	
+	return E - Ei;
+
+}
+
+bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, TGraph* g ) {
+	 
+	/// Open stopping power files and make TGraphs of data
+	std::string title = "Stopping powers for ";
+	title += isotope1 + " in " + isotope2;
+	
+	// Initialise an empty TGraph
+	g = new TGraph();
+	g->SetTitle( title.c_str() );
+
+	// Keep things quiet from ROOT
+	gErrorIgnoreLevel = kWarning;
+
+	// Open the data file
+	// SRIM_DIR is defined at compilation and is in source code
+	std::string srimfilename = std::string( SRIM_DIR ) + "/";
+	srimfilename += isotope1 + "_" + isotope2 + ".txt";
+	
+	std::ifstream input_file;
+	input_file.open( srimfilename.data(), std::ios::in );
+
+	// If it fails to open print an error
+	if( !input_file.is_open() ) {
+		
+		std::cerr << "Cannot open " << srimfilename << std::endl;
+		return false;
+		  
+	}
+
+
+	std::string line, units, tmp_str;
+	std::stringstream line_ss;
+	bool endflag = false;
+	double En, nucl, elec, total, tmp_dbl;
+	int p = 0;
+	 
+	// Test file format
+	std::getline( input_file, line );
+	if( line.substr( 3, 5 ) == "=====" ) {
+		
+		while( line.substr( 3, 5 ) != "-----" && !input_file.eof() )
+			std::getline( input_file, line );
+		
+		std::getline( input_file, line ); // read first line of data
+		
+	}
+	else {
+		
+		std::cerr << "Not a srim file: " << srimfilename << std::endl;
+		return false;
+		
+	}
+
+	// Read in the data
+	while( !input_file.eof() && !endflag ) {
+		
+		// Read in data
+		line_ss.str("");
+		line_ss << line;
+		line_ss >> En >> units >> nucl >> elec >> tmp_dbl >> tmp_str >> tmp_dbl >> tmp_str;
+		
+		if( units == "eV" ) En *= 1E-3;
+		else if( units == "keV" ) En *= 1E0;
+		else if( units == "MeV" ) En *= 1E3;
+		else if( units == "GeV" ) En *= 1E6;
+		
+		total = nucl + elec ; // MeV / ( mg / cm^2 )
+		
+		g->SetPoint( g->GetN(), En, total );
+		
+		// Get next line
+		std::getline( input_file, line );
+		p++;
+		
+		// If we've reached the end, stop
+		if( line.substr( 3, 9 ) == "---------" ) endflag = true;
+		
+	}
+	
+	// Get next line and check there are conversion factors
+	std::getline( input_file, line );
+	if( line.substr( 0, 9 ) != " Multiply" ){
+		
+		std::cerr << "Couldn't get conversion factors from ";
+		std::cerr << srimfilename << std::endl;
+		return false;
+		
+	}
+	std::getline( input_file, line ); // next line is just ------
+
+	// Get conversion factors
+	double conv, conv_keVum, conv_MeVmgcm2;
+	std::getline( input_file, line ); // first conversion is eV / Angstrom
+	std::getline( input_file, line ); // keV / micron
+	line_ss.str("");
+	line_ss << line;
+	line_ss >> conv_keVum;
+	std::getline( input_file, line ); // MeV / mm
+	std::getline( input_file, line ); // keV / (ug/cm2)
+	std::getline( input_file, line ); // MeV / (mg/cm2)
+	line_ss.str("");
+	line_ss << line;
+	line_ss >> conv_MeVmgcm2;
+	
+	// Now convert all the points in the plot
+	if( isotope2 == "Si" ) conv = conv_keVum * 1000.; // silicon thickness in mm, energy in keV
+	else conv = conv_MeVmgcm2 * 1000.; // target thickness in mg/cm2, energy in keV
+	for( Int_t i = 0; i < g->GetN(); ++i ){
+		
+		g->GetPoint( i, En, total );
+		g->SetPoint( i, En, total*conv );
+		
+	}
+	
+	// Draw the plot and save it somewhere
+	TCanvas *c = new TCanvas();
+	g->Draw("A*");
+	std::string pdfname = srimfilename.substr( 0, srimfilename.find_last_of(".") ) + ".pdf";
+	c->SetLogx();
+	c->SaveAs( pdfname.c_str() );
+	
+	delete c;
+	input_file.close();
+	
+	// ROOT can be noisey again
+	gErrorIgnoreLevel = kInfo;
+
+	return true;
+	 
 }

@@ -255,22 +255,34 @@ void Histogrammer::MakeHists() {
 }
 
 // Particle-Gamma coincidences without addback
-void Histogrammer::FillParticleGammaHists( GammaRayEvt *g, bool ejectile, bool recoil, bool prompt ) {
+void Histogrammer::FillParticleGammaHists( GammaRayEvt *g ) {
 
 	// Work out the weight if it's prompt or random
-	float weight = 1.0;
-	if( !prompt ) weight = -1.0 * react->GetParticleGammaFillRatio();
+	bool prompt = false;
+	bool random = false;
+	float weight;
+	if( PromptCoincidence( g, react->GetParticleTime() ) ) {
+		prompt = true;
+		weight = 1.0;
+	}
+	else if( RandomCoincidence( g, react->GetParticleTime() ) ){
+		random = true;
+		weight = -1.0 * react->GetParticleGammaFillRatio();
+	}
+	else return; // outside of either window, quit now
 	
 	// Plot the prompt and random gamma spectra
 	if( prompt ) gE_prompt->Fill( g->GetEnergy() );
 	else gE_random->Fill( g->GetEnergy() );
 	
 	// Same again but explicitly 1 particle events
-	if( prompt && ( ejectile != recoil ) ) gE_prompt_1p->Fill( g->GetEnergy() );
-	else if( ejectile != recoil ) gE_random_1p->Fill( g->GetEnergy() );
+	if( prompt && ( react->IsEjectileDetected() != react->IsRecoilDetected() ) )
+		gE_prompt_1p->Fill( g->GetEnergy() );
+	else if( react->IsEjectileDetected() != react->IsRecoilDetected() )
+		gE_random_1p->Fill( g->GetEnergy() );
 
 	// Ejectile-gated spectra
-	if( ejectile ) {
+	if( react->IsEjectileDetected() ) {
 		
 		gE_ejectile_dc_none->Fill( g->GetEnergy(), weight );
 		gE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
@@ -283,7 +295,7 @@ void Histogrammer::FillParticleGammaHists( GammaRayEvt *g, bool ejectile, bool r
 	}
 
 	// Recoil-gated spectra
-	if( recoil ) {
+	if( react->IsRecoilDetected() ) {
 		
 		gE_recoil_dc_none->Fill( g->GetEnergy(), weight );
 		gE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
@@ -296,7 +308,7 @@ void Histogrammer::FillParticleGammaHists( GammaRayEvt *g, bool ejectile, bool r
 	}
 	
 	// Two particle spectra
-	if( ejectile && recoil ){
+	if( react->IsEjectileDetected() && react->IsRecoilDetected() ){
 		
 		// Prompt and random spectra
 		if( prompt ) gE_prompt_2p->Fill( g->GetEnergy() );
@@ -311,11 +323,13 @@ void Histogrammer::FillParticleGammaHists( GammaRayEvt *g, bool ejectile, bool r
 		gE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, false ), weight );
 		
 	}
+	
+	return;
 
 }
 
 // Particle-Gamma coincidences with addback
-void Histogrammer::FillParticleGammaHists( GammaRayAddbackEvt *g, bool ejectile, bool recoil, bool prompt ) {
+void Histogrammer::FillParticleGammaHists( GammaRayAddbackEvt *g ) {
 
 	// The addback spectra will basically be copy paste of no addback
 	// Therefore this remains an empty function until we're happy
@@ -350,221 +364,6 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 		
 		// Current event data
 		input_tree->GetEntry(i);
-		
-		// Reset the particle array that tracks when a particle event is used
-		std::vector<bool>( read_evts->GetParticleMultiplicity(), false ).swap( particle_array );
-		
-		// ------------------------------------------ //
-		// Loop over gamma-ray events without addback //
-		// ------------------------------------------ //
-		for( unsigned int j = 0; j < read_evts->GetGammaRayMultiplicity(); ++j ){
-			
-			// Get gamma-ray event
-			gamma_evt = read_evts->GetGammaRayEvt(j);
-			
-			// Singles
-			gE_singles->Fill( gamma_evt->GetEnergy() );
-			
-			// EBIS time
-			ebis_td_gamma->Fill( (double)gamma_evt->GetTime() - (double)read_evts->GetEBIS() );
-			
-			// Check for events in the EBIS on-beam window
-			if( OnBeam( gamma_evt ) ){
-				
-				gE_singles_ebis->Fill( gamma_evt->GetEnergy() );
-				gE_singles_ebis_on->Fill( gamma_evt->GetEnergy() );
-				
-			} // ebis on
-			
-			else if( OffBeam( gamma_evt ) ){
-				
-				gE_singles_ebis->Fill( gamma_evt->GetEnergy(), -1.0 * react->GetEBISRatio() );
-				gE_singles_ebis_off->Fill( gamma_evt->GetEnergy() );
-				
-			} // ebis off
-			
-			// Loop over particle events and look for coincidences
-			for( unsigned int k = 0; k < read_evts->GetParticleMultiplicity(); ++k ){
-				
-				// Check if we've already used this event
-				if( particle_array[k] ) continue;
-				
-				// Get particle event
-				particle_evt = read_evts->GetParticleEvt(k);
-				
-				// We need to look for two-particle events
-				for( unsigned int l = 0; l < read_evts->GetParticleMultiplicity(); ++l ){
-					
-					// Check if we've already used this event
-					// or if it's the same as the coincident event
-					if( particle_array[l] || l == k ) continue;
-					
-					// Get second particle event
-					particle_evt2 = read_evts->GetParticleEvt(l);
-					
-					// Do a two-particle cut and check that they are prompt
-					// particle_evt (k) is beam and particle_evt2 (l) is target
-					if( TwoParticleCut( particle_evt, particle_evt2 ) &&
-					   PromptCoincidence( gamma_evt, particle_evt ) &&
-					   PromptCoincidence( gamma_evt, particle_evt2 ) ){
-						
-						react->IdentifyEjectile( particle_evt );
-						react->IdentifyRecoil( particle_evt2 );
-						particle_array[k] = true;
-						particle_array[l] = true;
-						
-						// Fill histograms - both particles and prompt
-						FillParticleGammaHists( gamma_evt, true, true, true );
-						
-						break; // only fill once
-						
-					} // 2-particle check
-					
-					// particle_evt2 (l) is beam and particle_evt (k) is target
-					else if( TwoParticleCut( particle_evt2, particle_evt ) &&
-							PromptCoincidence( gamma_evt, particle_evt ) &&
-							PromptCoincidence( gamma_evt, particle_evt2 ) ){
-						
-						react->IdentifyEjectile( particle_evt2 );
-						react->IdentifyRecoil( particle_evt );
-						particle_array[k] = true;
-						particle_array[l] = true;
-						
-						// Fill histograms - both particles and prompt
-						FillParticleGammaHists( gamma_evt, true, true, true );
-						
-						break; // only fill once
-
-					} // 2-particle check
-					
-					// Do a two-particle cut and check that they are random
-					// particle_evt2 (l) is beam and particle_evt (k) is target
-					else if( TwoParticleCut( particle_evt, particle_evt2 ) &&
-							RandomCoincidence( gamma_evt, particle_evt ) &&
-							RandomCoincidence( gamma_evt, particle_evt2 ) ){
-						
-						react->IdentifyEjectile( particle_evt );
-						react->IdentifyRecoil( particle_evt2 );
-						particle_array[k] = true;
-						particle_array[l] = true;
-						
-						// Fill histograms - both particles and random
-						FillParticleGammaHists( gamma_evt, true, true, false );
-						
-						break; // only fill once
-
-					} // 2-particle check
-
-					// particle_evt2 (l) is beam and particle_evt (k) is target
-					else if( TwoParticleCut( particle_evt2, particle_evt ) &&
-							RandomCoincidence( gamma_evt, particle_evt ) &&
-							RandomCoincidence( gamma_evt, particle_evt2 ) ){
-						
-						react->IdentifyEjectile( particle_evt2 );
-						react->IdentifyRecoil( particle_evt );
-						particle_array[k] = true;
-						particle_array[l] = true;
-						
-						// Fill histograms - both particles and random
-						FillParticleGammaHists( gamma_evt, true, true, false );
-						
-						break; // only fill once
-
-					} // 2-particle check
-										
-				} // l: second particle
-				
-				// If we found a particle and used it, then we need to
-				// stop so we don't fill the gamma-spectra more than once
-				if( particle_array[k] ) break;
-				
-				// Otherwise we can build a one particle event
-				// This is a prompt ejectile (beam) event
-				if( EjectileCut( particle_evt ) &&
-				   PromptCoincidence( gamma_evt, particle_evt ) ) {
-					
-					react->IdentifyEjectile( particle_evt );
-					react->CalculateRecoil();
-					
-					// Fill histograms - ejectile and prompt
-					FillParticleGammaHists( gamma_evt, true, false, true );
-					
-					break; // only fill once
-					
-				} // prompt beam
-
-				else if( RecoilCut( particle_evt ) &&
-				   PromptCoincidence( gamma_evt, particle_evt ) ) {
-					
-					react->IdentifyRecoil( particle_evt );
-					react->CalculateEjectile();
-					
-					// Fill histograms - recoil and prompt
-					FillParticleGammaHists( gamma_evt, false, true, true );
-
-					break; // only fill once
-					
-				} // prompt target
-
-				else if( EjectileCut( particle_evt ) &&
-				   RandomCoincidence( gamma_evt, particle_evt ) ) {
-					
-					react->IdentifyEjectile( particle_evt );
-					react->CalculateRecoil();
-					
-					// Fill histograms - ejectile and random
-					FillParticleGammaHists( gamma_evt, true, false, false );
-
-					break; // only fill once
-					
-				} // random beam
-
-				else if( RecoilCut( particle_evt ) &&
-				   RandomCoincidence( gamma_evt, particle_evt ) ) {
-					
-					react->IdentifyRecoil( particle_evt );
-					react->CalculateEjectile();
-					
-					// Fill histograms - recoil and random
-					FillParticleGammaHists( gamma_evt, false, true, false );
-
-					break; // only fill once
-					
-				} // random target
-				
-			} // k: particles
-			
-			// Loop over other gamma events
-			for( unsigned int k = j+1; k < read_evts->GetGammaRayMultiplicity(); ++k ){
-				
-				// Get gamma-ray event
-				gamma_evt2 = read_evts->GetGammaRayEvt(k);
-				
-				// Time differences - symmetrise
-				gamma_gamma_td->Fill( (double)gamma_evt->GetTime() - (double)gamma_evt2->GetTime() );
-				gamma_gamma_td->Fill( (double)gamma_evt2->GetTime() - (double)gamma_evt->GetTime() );
-				
-				// Check for prompt gamma-gamma coincidences
-				if( PromptCoincidence( gamma_evt, gamma_evt2 ) ) {
-					
-					// Fill and symmetrise
-					gE_gE->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
-					gE_gE->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
-					
-					// Apply EBIS condition
-					if( OnBeam( gamma_evt ) && OnBeam( gamma_evt2 ) ) {
-						
-						// Fill and symmetrise
-						gE_gE_ebis_on->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
-						gE_gE_ebis_on->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
-						
-					} // On Beam
-					
-				} // if prompt
-				
-			} // k: second gamma-ray
-			
-		} // j: gamma ray
 		
 		
 		// ------------------------- //
@@ -609,6 +408,7 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 			} // k: gammas
 			
 			// Check for prompt coincidence with another particle
+			bool event_used = false;
 			for( unsigned int k = j+1; k < read_evts->GetParticleMultiplicity(); ++k ){
 				
 				// Get second particle event
@@ -618,9 +418,128 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
 				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
 				
+				// Don't try to make more particle events
+				// if we already got one?
+				if( event_used ) continue;
+				
+				// Do a two-particle cut and check that they are coincident
+				// particle_evt (k) is beam and particle_evt2 (l) is target
+				else if( TwoParticleCut( particle_evt, particle_evt2 ) ){
+					
+					react->IdentifyEjectile( particle_evt );
+					react->IdentifyRecoil( particle_evt2 );
+					if( particle_evt->GetTime() < particle_evt2->GetTime() )
+						react->SetParticleTime( particle_evt->GetTime() );
+					else react->SetParticleTime( particle_evt2->GetTime() );
+					event_used = true;
+
+				} // 2-particle check
+				
+				// particle_evt2 (l) is beam and particle_evt (k) is target
+				else if( TwoParticleCut( particle_evt2, particle_evt ) ){
+					
+					react->IdentifyEjectile( particle_evt2 );
+					react->IdentifyRecoil( particle_evt );
+					if( particle_evt->GetTime() < particle_evt2->GetTime() )
+						react->SetParticleTime( particle_evt->GetTime() );
+					else react->SetParticleTime( particle_evt2->GetTime() );
+					event_used = true;
+					
+				} // 2-particle check
+
 			} // k: second particle
 			
+			// If we found a particle and used it, then we need to
+			// stop so we don't fill the gamma-spectra more than once
+			if( event_used ) continue;
+
+			// Otherwise we can build a one particle event
+			else if( EjectileCut( particle_evt ) ) {
+				
+				react->IdentifyEjectile( particle_evt );
+				react->CalculateRecoil();
+				react->SetParticleTime( particle_evt->GetTime() );
+				
+			} // ejectile event
+
+			else if( RecoilCut( particle_evt ) &&
+			   PromptCoincidence( gamma_evt, particle_evt ) ) {
+				
+				react->IdentifyRecoil( particle_evt );
+				react->CalculateEjectile();
+				react->SetParticleTime( particle_evt->GetTime() );
+
+			} // recoil event
+
 		} // j: particles
+
+		
+		
+		// ------------------------------------------ //
+		// Loop over gamma-ray events without addback //
+		// ------------------------------------------ //
+		for( unsigned int j = 0; j < read_evts->GetGammaRayMultiplicity(); ++j ){
+						
+			// Get gamma-ray event
+			gamma_evt = read_evts->GetGammaRayEvt(j);
+			
+			// Singles
+			gE_singles->Fill( gamma_evt->GetEnergy() );
+			
+			// EBIS time
+			ebis_td_gamma->Fill( (double)gamma_evt->GetTime() - (double)read_evts->GetEBIS() );
+			
+			// Check for events in the EBIS on-beam window
+			if( OnBeam( gamma_evt ) ){
+				
+				gE_singles_ebis->Fill( gamma_evt->GetEnergy() );
+				gE_singles_ebis_on->Fill( gamma_evt->GetEnergy() );
+				
+			} // ebis on
+			
+			else if( OffBeam( gamma_evt ) ){
+				
+				gE_singles_ebis->Fill( gamma_evt->GetEnergy(), -1.0 * react->GetEBISRatio() );
+				gE_singles_ebis_off->Fill( gamma_evt->GetEnergy() );
+				
+			} // ebis off
+			
+			// Particle-gamma coincidence spectra
+			FillParticleGammaHists( gamma_evt );
+
+			// Loop over other gamma events
+			for( unsigned int k = j+1; k < read_evts->GetGammaRayMultiplicity(); ++k ){
+				
+				// Get gamma-ray event
+				gamma_evt2 = read_evts->GetGammaRayEvt(k);
+				
+				// Time differences - symmetrise
+				gamma_gamma_td->Fill( (double)gamma_evt->GetTime() - (double)gamma_evt2->GetTime() );
+				gamma_gamma_td->Fill( (double)gamma_evt2->GetTime() - (double)gamma_evt->GetTime() );
+				
+				// Check for prompt gamma-gamma coincidences
+				if( PromptCoincidence( gamma_evt, gamma_evt2 ) ) {
+					
+					// Fill and symmetrise
+					gE_gE->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
+					gE_gE->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+					
+					// Apply EBIS condition
+					if( OnBeam( gamma_evt ) && OnBeam( gamma_evt2 ) ) {
+						
+						// Fill and symmetrise
+						gE_gE_ebis_on->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
+						gE_gE_ebis_on->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+						
+					} // On Beam
+					
+				} // if prompt
+				
+			} // k: second gamma-ray
+			
+		} // j: gamma ray
+		
+		
 		
 		
 		// -------------------------- //

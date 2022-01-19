@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <map>
 
 #include "TSystem.h"
@@ -14,8 +15,9 @@
 #include "TFile.h"
 #include "TCutG.h"
 #include "TVector3.h"
-#include "TF1.h"
-#include "TError.h"
+//#include "TError.h"
+#include "TCanvas.h"
+#include "TGraph.h"
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -32,6 +34,13 @@
 # include "MiniballGeometry.hh"
 #endif
 
+// Make sure that the data and srim file are defined
+#ifndef AME_FILE
+# define AME_FILE "./data/mass_1.mas20"
+#endif
+#ifndef SRIM_DIR
+# define SRIM_DIR "./srim/"
+#endif
 
 const double p_mass = 938272.08816;	///< mass of the proton in keV/c^2
 const double n_mass = 939565.42052;	///< mass of the neutron in keV/c^2
@@ -159,6 +168,10 @@ public:
 		if( det < cd_offset.size() ) return cd_offset.at(det);
 		else return 0.0;
 	};
+	inline float			GetCDDeadLayer( unsigned char det ){
+		if( det < dead_layer.size() ) return dead_layer.at(det);
+		else return 0.0;
+	};
 	inline unsigned int		GetNumberOfParticleThetas() {
 		return set->GetNumberOfCDPStrips() * set->GetNumberOfCDDetectors();
 	};
@@ -268,7 +281,6 @@ public:
 	};
 
 	
-	
 	// Doppler correction
 	double DopplerCorrection( GammaRayEvt *g, bool ejectile );
 	double CosTheta( GammaRayEvt *g, bool ejectile );
@@ -328,6 +340,11 @@ public:
 	inline double GetParticleParticleFillRatio(){
 		return pp_ratio;
 	};
+	
+	
+	// Energy loss and stopping powers
+	double GetEnergyLoss( double Ei, double dist, TGraph* g );
+	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, TGraph* g );
 
 	
 	// Get cuts
@@ -339,6 +356,12 @@ public:
 	inline Particle* GetTarget(){ return &Target; };
 	inline Particle* GetEjectile(){ return &Ejectile; };
 	inline Particle* GetRecoil(){ return &Recoil; };
+	
+	// Timing for coincidence
+	inline unsigned long long GetParticleTime(){ return particle_time; };
+	inline void SetParticleTime( unsigned long long t ){ particle_time = t; };
+	inline bool IsEjectileDetected(){ return ejectile_detected; };
+	inline bool IsRecoilDetected(){ return recoil_detected; };
 
 
 private:
@@ -354,6 +377,10 @@ private:
 	// Reaction partners
 	Particle Beam, Target, Ejectile, Recoil;
 	
+	// Reaction times and flags for coincidences
+	unsigned long long particle_time;
+	bool ejectile_detected, recoil_detected;
+
 	// Initial properties from file
 	double Eb;		///< laboratory beam energy in keV/u
 
@@ -370,15 +397,17 @@ private:
 	int pp_random[2];	// particle-particle random
 	float pg_ratio, gg_ratio, pp_ratio; // fill ratios
 
-	// Target offsets
-	float x_offset;	///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
-	float y_offset;	///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
-	float z_offset;	///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
+	// Target thickness and offsets
+	float target_thickness;	///< target thickness in units of mg/cm^2
+	float x_offset;			///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
+	float y_offset;			///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
+	float z_offset;			///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
 
 	// CD detector things
 	std::vector<float> cd_dist;		///< distance from target to CD detector in mm
 	std::vector<float> cd_offset;	///< phi rotation of the CD in radians
-	
+	std::vector<float> dead_layer;	///< dead layer thickness in mm
+
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;
 	std::vector<float> mb_theta, mb_phi, mb_alpha, mb_r;
@@ -392,6 +421,10 @@ private:
 	std::string recoilcutfile, recoilcutname;
 	TFile *cut_file;
 	TCutG *ejectile_cut, *recoil_cut;
+	
+	// Stopping powers
+	TGraph *gStopping[4];
+	bool stopping;
 	
 };
 

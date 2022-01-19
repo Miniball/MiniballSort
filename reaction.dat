@@ -31,6 +31,12 @@
 #EjectileEx: 500.	# excitation energy in keV after the reaction
 #RecoilEx: 0.		# excitation energy in keV after the reaction
 
+# Target thickness and offsets
+#TargetThickness: 2.0	# Target thickness in units of mg/cm^2
+#TargetOffset.X: 0.0	# Beam spot offset with respect to the vertical in mm (positive is up wrt beam direction)
+#TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
+#TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD or SPEDE distance)
+
 
 # Miniball Detector geometry
 #Miniball_0.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
@@ -44,20 +50,17 @@
 #Miniball_7.R:		0.0		# Distance from cluster 0 to origin, i.e. nominal target position
 
 ## CD Detector geometry
-#CD_0.Distance: 32.0	# Target to CD distance in mm (forwards CD = 32.0)
-#CD_1.Distance: -64.0	# Target to CD distance in mm (backwards CD = -64.0)
-#CD_0.PhiOffset: 0.0	# Phi rotation of CD with sector 0 strip 0 vertical, clockwise wrt beam direction
-#CD_1.PhiOffset: 0.0	# Phi rotation of CD with sector 0 strip 0 vertical, anit-clockwise wrt beam direction because theta > 90 deg
+#CD_0.Distance: 32.0		# Target to CD distance in mm (forwards CD = 32.0)
+#CD_1.Distance: -64.0		# Target to CD distance in mm (backwards CD = -64.0)
+#CD_0.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, clockwise wrt beam direction
+#CD_1.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, anit-clockwise wrt beam direction because theta > 90 deg
+#CD_0.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
+#CD_1.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
 
 # SPEDE Detector geometry
 #Spede.Distance: -30.0	# Target to SPEDE distance in mm (backwards direction, so negative)
 #Spede.PhiOffset: 0.0	# Phi rotation of SPEDE, anit-clockwise wrt beam direction because theta > 90 deg
 
-
-# Target offsets
-#TargetOffset.X: 0.0	# Beam spot offset with respect to the vertical in mm (positive is up wrt beam direction)
-#TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
-#TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD or SPEDE distance)
 
 
 # EBIS time windows

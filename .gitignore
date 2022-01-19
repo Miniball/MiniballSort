@@ -43,3 +43,6 @@
 # Directories
 bin/*
 lib/*
+
+# Plots
+srim/*.pdf

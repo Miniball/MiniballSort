@@ -40,8 +40,8 @@ public:
 	
 	void MakeHists();
 	unsigned long FillHists( unsigned long start_fill = 0 );
-	void FillParticleGammaHists( GammaRayEvt *g, bool ejectile, bool recoil, bool prompt );
-	void FillParticleGammaHists( GammaRayAddbackEvt *g, bool ejectile, bool recoil, bool prompt );
+	void FillParticleGammaHists( GammaRayEvt *g );
+	void FillParticleGammaHists( GammaRayAddbackEvt *g );
 	void Terminate();
 	
 	void SetInputFile( std::vector<std::string> input_file_names );
@@ -60,26 +60,38 @@ public:
 	
 	// Coincidence conditions (to be put in settings file eventually?)
 	inline bool	PromptCoincidence( GammaRayEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaPromptTime(0) &&
-			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaPromptTime(1) )
+		return PromptCoincidence( g, p->GetTime() );
+	};
+	inline bool	PromptCoincidence( GammaRayEvt *g, unsigned long long ptime ){
+		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
+			(double)g->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
 	inline bool	RandomCoincidence( GammaRayEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaRandomTime(0) &&
-			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaRandomTime(1) )
+		return RandomCoincidence( g, p->GetTime() );
+	};
+	inline bool	RandomCoincidence( GammaRayEvt *g, unsigned long long ptime ){
+		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
+			(double)g->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
 	inline bool	PromptCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaPromptTime(0) &&
-			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaPromptTime(1) )
+		return PromptCoincidence( g, p->GetTime() );
+	};
+	inline bool	PromptCoincidence( GammaRayAddbackEvt *g, unsigned long long ptime ){
+		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
+			(double)g->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
 	inline bool	RandomCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
-		if( (double)g->GetTime() - (double)p->GetTime() > react->GetParticleGammaRandomTime(0) &&
-			(double)g->GetTime() - (double)p->GetTime() < react->GetParticleGammaRandomTime(1) )
+		return RandomCoincidence( g, p->GetTime() );
+	};
+	inline bool	RandomCoincidence( GammaRayAddbackEvt *g, unsigned long long ptime ){
+		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
+			(double)g->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -202,9 +214,6 @@ private:
 	
 	// Counters
 	unsigned long n_entries;
-	
-	// Temporary variables for coincidence
-	std::vector<bool> particle_array;
 	
 	//------------//
 	// Histograms //
