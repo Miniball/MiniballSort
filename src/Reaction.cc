@@ -154,6 +154,7 @@ void Reaction::ReadReaction() {
 		
 	}
 	Ejectile.SetBindingEnergy( ame_be.at( Ejectile.GetIsotope() ) );
+	Ejectile.SetEx( config->GetValue( "EjectileEx", 500. ) );
 
 	Recoil.SetA( config->GetValue( "RecoilA", 120 ) );
 	Recoil.SetZ( config->GetValue( "RecoilZ", 50 ) );
@@ -165,7 +166,8 @@ void Reaction::ReadReaction() {
 		
 	}
 	Recoil.SetBindingEnergy( ame_be.at( Recoil.GetIsotope() ) );
-	
+	Recoil.SetEx( config->GetValue( "RecoilEx", 0. ) );
+
 	// Get particle energy cut
 	ejectilecutfile = config->GetValue( "EjectileCut.File", "NULL" );
 	ejectilecutname = config->GetValue( "EjectileCut.Name", "NULL" );

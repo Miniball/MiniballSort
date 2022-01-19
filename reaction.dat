@@ -18,16 +18,18 @@
 
 
 ## Reaction definition
-#BeamA: 185		# mass number
-#BeamZ: 80		# atomic number
-#BeamE: 4500.	# the laboratory beam energy in keV per nucleon (note, not the usual MeV/u)
-#TargetA: 120	#
-#TargetZ: 50	#
-#TargetT: 2.0	# target thickness in units if mg/cm^2
-#EjectileA: 185	# Ejectile is the beam in Coulex, but the proton in (d,p)
-#EjectileZ: 80	# we keep this language even though we have inverse kinematics
-#RecoilA: 120	# Recoil is the target for Coulex, but the heavy ion in (d,p)
-#RecoilZ: 80	# this ambiguity is needed to match the language of the users
+#BeamA: 185			# mass number
+#BeamZ: 80			# atomic number
+#BeamE: 4500.		# the laboratory beam energy in keV per nucleon (note, not the usual MeV/u)
+#TargetA: 120		#
+#TargetZ: 50		#
+#TargetT: 2.0		# target thickness in units if mg/cm^2
+#EjectileA: 185		# Ejectile is the beam in Coulex, but the proton in (d,p)
+#EjectileZ: 80		# we keep this language even though we have inverse kinematics
+#RecoilA: 120		# Recoil is the target for Coulex, but the heavy ion in (d,p)
+#RecoilZ: 80		# this ambiguity is needed to match the language of the users
+#EjectileEx: 500.	# excitation energy in keV after the reaction
+#RecoilEx: 0.		# excitation energy in keV after the reaction
 
 
 # Miniball Detector geometry
