@@ -472,6 +472,7 @@ void Reaction::CalculateEjectile(){
 	if( Th < 0. ) Th += TMath::Pi();
 	
 	Ejectile.SetTheta( Th );
+	Ejectile.SetPhi( TMath::Pi() - Recoil.GetPhi() );
 
 }
 
@@ -498,5 +499,6 @@ void Reaction::CalculateRecoil(){
 	if( Th < 0. ) Th += TMath::Pi();
 
 	Recoil.SetTheta( Th );
+	Recoil.SetPhi( TMath::Pi() - Ejectile.GetPhi() );
 
 }
