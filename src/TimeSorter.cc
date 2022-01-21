@@ -36,6 +36,9 @@ void TimeSorter::SetInputTree( TTree* user_tree ){
 
 	// Find the tree and set branch addresses
 	input_tree = user_tree;
+	input_tree->SetCacheSize(200000000); // 200 MB
+	input_tree->SetCacheEntryRange(0,input_tree->GetEntries()-1);
+	input_tree->AddBranchToCache( "*", kTRUE );
 	return;
 	
 }
@@ -52,8 +55,8 @@ void TimeSorter::SetOutput( std::string output_file_name ){
 	output_tree->SetName( "mb_sort" );
 	output_tree->SetTitle( "Time sorted, calibrated Miniball data" );
 	//output_tree->SetBasketSize( "*", 16000 );
-	output_tree->SetAutoFlush( 30*1024*1024 );	// 30 MB
-	output_tree->SetAutoSave( 100*1024*1024 );	// 100 MB
+	//output_tree->SetAutoFlush( 30*1024*1024 );	// 30 MB
+	//output_tree->SetAutoSave( 100*1024*1024 );	// 100 MB
 	output_tree->AutoSave();
 	
 	// Create log file.
@@ -92,9 +95,9 @@ unsigned long TimeSorter::SortFile( unsigned long start_sort ) {
 			input_tree->GetEntry( idx );
 			output_tree->Fill();
 			
-			if( i % 100000 == 0 || i+1 == nb_idx ) {
+			if( i % (nb_idx/100) == 0 || i+1 == nb_idx ) {
 				
-				std::cout << " " << std::setw(8) << std::setprecision(4);
+				std::cout << " " << std::setw(6) << std::setprecision(4);
 				std::cout << (float)(i+1)*100.0/(float)nb_idx << "%    \r";
 				std::cout.flush();
 				

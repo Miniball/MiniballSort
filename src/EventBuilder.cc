@@ -501,9 +501,9 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			
 		} // if close event && hit_ctr > 0
 		
-		if( i % 10000 == 0 || i+1 == n_entries ) {
+		if( i % (n_entries/100) == 0 || i+1 == n_entries ) {
 			
-			std::cout << " " << std::setw(8) << std::setprecision(4);
+			std::cout << " " << std::setw(6) << std::setprecision(4);
 			std::cout << (float)(i+1)*100.0/(float)n_entries << "%    \r";
 			std::cout.flush();
 			
