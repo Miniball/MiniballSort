@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 
+#include "TObject.h"
 #include "TSystem.h"
 #include "TEnv.h"
 
@@ -12,12 +13,13 @@
 /// This has the number of modules, channels and things
 /// It also defines which detectors are which
 
-class Settings {
+class Settings : public TObject {
 
 public:
 
+	Settings();
 	Settings( std::string filename );
-	virtual ~Settings();
+	~Settings() {};
 	
 	void ReadSettings();
 	void PrintSettings();
@@ -117,6 +119,7 @@ public:
 	bool IsSpede( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch );
 
+	ClassDef( Settings, 10 )
 
 private:
 

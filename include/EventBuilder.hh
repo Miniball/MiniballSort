@@ -15,6 +15,8 @@
 #include <TProfile.h>
 #include <TVector2.h>
 #include <TVector3.h>
+#include <TGProgressBar.h>
+#include <TSystem.h>
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -42,20 +44,23 @@ class EventBuilder {
 	
 public:
 
-	EventBuilder( Settings *myset );
+	EventBuilder( std::shared_ptr<Settings> myset );
 	~EventBuilder() {};
 
 	void	SetInputFile( std::string input_file_name );
-	void	SetInputFile( std::vector<std::string> input_file_names );
-	void	SetInputTree( TTree* user_tree );
+	void	SetInputTree( TTree *user_tree );
 	void	SetOutput( std::string output_file_name );
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
 	
-	inline void AddCalibration( Calibration *mycal ){
+	inline void AddCalibration( std::shared_ptr<Calibration> mycal ){
 		cal = mycal;
 		overwrite_cal = true;
+	};
+	inline void AddProgressBar( std::shared_ptr<TGProgressBar> myprog ){
+		prog = myprog;
+		_prog_ = true;
 	};
 	
 	unsigned long	BuildEvents( unsigned long start_build = 0 );
@@ -68,36 +73,43 @@ public:
 	inline TTree* GetTree(){ return output_tree; };
 	inline void CloseOutput(){
 		output_file->Close();
+		input_file->Close();
+		delete in_data;
 	};
-	void CleanHists();
 
 
 private:
 	
 	/// Input tree
-	TChain *input_tree;
-	DataPackets *in_data;
-	FebexData *febex_data;
-	InfoData *info_data;
+	TFile *input_file;
+	TTree *input_tree;
+	DataPackets *in_data = 0;
+	std::shared_ptr<FebexData> febex_data;
+	std::shared_ptr<InfoData> info_data;
 
 	/// Outputs
 	TFile *output_file;
 	TTree *output_tree;
-	MiniballEvts *write_evts;
-	GammaRayEvt *gamma_evt;
-	GammaRayAddbackEvt *gamma_ab_evt;
-	ParticleEvt *particle_evt;
+	std::unique_ptr<MiniballEvts> write_evts;
+	std::shared_ptr<GammaRayEvt> gamma_evt;
+	std::shared_ptr<GammaRayAddbackEvt> gamma_ab_evt;
+	std::shared_ptr<ParticleEvt> particle_evt;
+	std::shared_ptr<SpedeEvt> spede_evt;
+	std::shared_ptr<BeamDumpEvt> bd_evt;
 
 	// Do calibration
-	Calibration *cal;
+	std::shared_ptr<Calibration> cal;
 	bool overwrite_cal;
 	
 	// Settings file
-	Settings *set;
+	std::shared_ptr<Settings> set;
+	
+	// Progress bar
+	bool _prog_;
+	std::shared_ptr<TGProgressBar> prog;
 	
 	// Build window which comes from the settings file
 	long build_window;  /// length of build window in ns
-	
 
 	// Flags
 	bool flag_close_event;

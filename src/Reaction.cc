@@ -3,14 +3,9 @@
 ClassImp( Particle )
 ClassImp( Reaction )
 
-// Particles
-Particle::Particle(){}
-Particle::~Particle(){}
-
-
 
 // Reaction things
-Reaction::Reaction( std::string filename, Settings *myset ){
+Reaction::Reaction( std::string filename, std::shared_ptr<Settings> myset ){
 		
 	// Read in mass tables
 	ReadMassTables();
@@ -301,16 +296,17 @@ void Reaction::ReadReaction() {
 	if( spede_dist > 0 ) std::cout << " !! WARNING !! Spede.Distance should be negative" << std::endl;
 	
 	// Get the stopping powers
-	stopping = true;
-	stopping *= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
-	stopping *= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
-	stopping *= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
-	stopping *= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
+	stopping = false;
+	//stopping = true;
+	//stopping *= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
+	//stopping *= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
+	//stopping *= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
+	//stopping *= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
 
 	
 	// Some diagnostics and info
 	std::cout << std::endl << " +++  ";
-	std::cout << Beam.GetIsotope() << "(" << Target.GetIsotope() << ",";
+	std::cout << Target.GetIsotope() << "(" << Beam.GetIsotope() << ",";
 	std::cout << Ejectile.GetIsotope() << ")" << Recoil.GetIsotope();
 	std::cout << "  +++" << std::endl;
 	std::cout << "Q-value = " << GetQvalue()*0.001 << " MeV" << std::endl;
@@ -335,12 +331,20 @@ void Reaction::ReadReaction() {
 
 }
 
-TVector3 Reaction::GetCDVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+TVector3 Reaction::GetCDVector( unsigned char det, unsigned char sec, float pid, float nid ){
+	
+	// Check that we have a real CD detector
+	if( det >= set->GetNumberOfCDDetectors() ) {
+	
+		std::cerr << "Bad CD Detector requested = " << det << std::endl;
+		det = 0;
+		
+	}
 	
 	// Create a TVector3 to handle the angles
 	float x = 9.0;
 	if( set->GetNumberOfCDNStrips() == 12 ) 		// standard CD
-		x += ( 15.5 - pid ) * 2.0;
+		x += ( 15.5 - pid + std::floor(pid) - std::ceil(pid) ) * 2.0;
 	else if( set->GetNumberOfCDNStrips() == 16 )	// CREX and TREX
 		x += ( pid + 0.5 ) * 2.0;
 
@@ -414,7 +418,7 @@ TVector3 Reaction::GetElectronVector( unsigned char seg ){
 	
 }
 
-double Reaction::CosTheta( GammaRayEvt *g, bool ejectile ) {
+double Reaction::CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
 
 	/// Returns the CosTheta angle between particle and gamma ray.
 	/// @param ejectile true for and to the ejectile or false for recoil
@@ -428,7 +432,7 @@ double Reaction::CosTheta( GammaRayEvt *g, bool ejectile ) {
 	
 }
 
-double Reaction::CosTheta( SpedeEvt *s, bool ejectile ) {
+double Reaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
 
 	/// Returns the CosTheta angle between particle and electron.
 	/// @param ejectile true for and to the ejectile or false for recoil
@@ -442,7 +446,7 @@ double Reaction::CosTheta( SpedeEvt *s, bool ejectile ) {
 	
 }
 
-double Reaction::DopplerCorrection( GammaRayEvt *g, bool ejectile ) {
+double Reaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
 
 	/// Returns Doppler corrected gamma-ray energy for given particle and gamma combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
@@ -457,7 +461,7 @@ double Reaction::DopplerCorrection( GammaRayEvt *g, bool ejectile ) {
 	
 }
 
-double Reaction::DopplerCorrection( SpedeEvt *s, bool ejectile ) {
+double Reaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
 
 	/// Returns Doppler corrected electron energy for given particle and SPEDE combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
@@ -472,7 +476,7 @@ double Reaction::DopplerCorrection( SpedeEvt *s, bool ejectile ) {
 	
 }
 
-void Reaction::IdentifyEjectile( ParticleEvt *p, bool kinflag ){
+void Reaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 	
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
@@ -501,7 +505,7 @@ void Reaction::IdentifyEjectile( ParticleEvt *p, bool kinflag ){
 
 }
 
-void Reaction::IdentifyRecoil( ParticleEvt *p, bool kinflag ){
+void Reaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 	
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)

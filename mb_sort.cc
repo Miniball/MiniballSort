@@ -6,12 +6,15 @@
 #include "EventBuilder.hh"
 #include "Reaction.hh"
 #include "Histogrammer.hh"
+#include "MiniballGUI.hh"
 
 // ROOT include.
 #include <TTree.h>
 #include <TFile.h>
 #include <THttpServer.h>
 #include <TThread.h>
+#include <TGClient.h>
+#include <TApplication.h>
 
 // C++ include.
 #include <iostream>
@@ -19,6 +22,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <memory>
 
 // Command line interface
 #ifndef __COMMAND_LINE_INTERFACE_HH
@@ -46,31 +50,34 @@ bool force_events = false;
 // Flag for somebody needing help on command line
 bool help_flag = false;
 
+// Flag if we want to launch the GUI for sorting
+bool gui_flag = false;
+
 // Monitoring input file
 bool flag_monitor = false;
 int mon_time = -1; // update time in seconds
 
 // Settings file
-Settings *myset;
+std::shared_ptr<Settings> myset;
 
 // Calibration file
-Calibration *mycal;
+std::shared_ptr<Calibration> mycal;
 bool overwrite_cal = false;
 
 // Reaction file
-Reaction *myreact;
+std::shared_ptr<Reaction> myreact;
 
 // Struct for passing to the thread
 typedef struct thptr {
 	
-	Calibration *mycal;
-	Settings *myset;
-	Reaction *myreact;
+	std::shared_ptr<Calibration> mycal;
+	std::shared_ptr<Settings> myset;
+	std::shared_ptr<Reaction> myreact;
 	
 } thread_data;
 
 // Server and controls for the GUI
-THttpServer *serv;
+std::unique_ptr<THttpServer> serv;
 Bool_t bRunMon = kTRUE;
 Bool_t bFirstRun = kTRUE;
 std::string curFileMon;
@@ -173,7 +180,7 @@ void start_http(){
 
 	// Server for JSROOT
 	std::string server_name = "http:" + std::to_string(port_num) + "?top=MiniballDAQMonitoring";
-	serv = new THttpServer( server_name.data() );
+	serv = std::make_unique<THttpServer>( server_name.data() );
 	serv->SetReadOnly(kFALSE);
 
 	// enable monitoring and
@@ -198,21 +205,235 @@ void start_http(){
 	
 }
 
+void do_convert() {
+	
+	//------------------------//
+	// Run conversion to ROOT //
+	//------------------------//
+	Converter conv( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing Converter +++" << std::endl;
+
+	TFile *rtest;
+	std::ifstream ftest;
+	std::string name_input_file;
+	std::string name_output_file;
+	
+	// Check each file
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+			
+		name_input_file = input_names.at(i);
+		name_output_file = input_names.at(i) + ".root";
+		
+		force_convert.push_back( false );
+
+		// If it doesn't exist, we have to convert it anyway
+		// The convert flag will force it to be converted
+		ftest.open( name_output_file.data() );
+		if( !ftest.is_open() ) force_convert.at(i) = true;
+		else {
+			
+			ftest.close();
+			rtest = new TFile( name_output_file.data() );
+			if( rtest->IsZombie() ) force_convert.at(i) = true;
+			if( !flag_convert && !force_convert.at(i) )
+				std::cout << name_output_file << " already converted" << std::endl;
+			rtest->Close();
+			
+		}
+
+		if( flag_convert || force_convert.at(i) ) {
+			
+			std::cout << name_input_file << " --> ";
+			std::cout << name_output_file << std::endl;
+			
+			conv.SetOutput( name_output_file );
+			conv.MakeTree();
+			conv.MakeHists();
+			conv.AddCalibration( mycal );
+			conv.ConvertFile( name_input_file );
+			conv.CloseOutput();
+
+		}
+		
+	}
+
+	return;
+	
+}
+
+void do_sort() {
+	
+	//-------------------------//
+	// Do time sorting of data //
+	//-------------------------//
+	TimeSorter sort;
+	std::cout << "\n +++ Miniball Analysis:: processing TimeSorter +++" << std::endl;
+	
+	TFile *rtest;
+	std::ifstream ftest;
+	std::string name_input_file;
+	std::string name_output_file;
+
+	// Check each file
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+			
+		name_input_file = input_names.at(i) + ".root";
+		name_output_file = input_names.at(i) + "_sort.root";
+
+		// We need to time sort it if we just converted it
+		if( flag_convert || force_convert.at(i) )
+			force_sort = true;
+			
+		// If it doesn't exist, we have to sort it anyway
+		else {
+			
+			ftest.open( name_output_file.data() );
+			if( !ftest.is_open() ) force_sort = true;
+			else {
+				
+				ftest.close();
+				rtest = new TFile( name_output_file.data() );
+				if( rtest->IsZombie() ) force_sort = true;
+				if( !force_sort )
+					std::cout << name_output_file << " already sorted" << std::endl;
+				rtest->Close();
+				
+			}
+			
+		}
+
+		if( force_sort ) {
+		
+			std::cout << name_input_file << " --> ";
+			std::cout << name_output_file << std::endl;
+			
+			sort.SetInputFile( name_input_file );
+			sort.SetOutput( name_output_file );
+			sort.SortFile();
+			sort.CloseOutput();
+
+			force_sort = false;
+
+		}
+	
+	}
+	
+	return;
+	
+}
+
+void do_build() {
+	
+	//-----------------------//
+	// Physics event builder //
+	//-----------------------//
+	EventBuilder eb( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing EventBuilder +++" << std::endl;
+
+	TFile *rtest;
+	std::ifstream ftest;
+	std::string name_input_file;
+	std::string name_output_file;
+
+	// Update calibration file if given
+	if( overwrite_cal ) eb.AddCalibration( mycal );
+
+	// Do event builder for each file individually
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+
+		name_input_file = input_names.at(i) + "_sort.root";
+		name_output_file = input_names.at(i) + "_events.root";
+
+		// We need to do event builder if we just converted it
+		// specific request to do new event build with -e
+		// this is useful if you need to add a new calibration
+		if( flag_convert || force_convert.at(i) || flag_events )
+			force_events = true;
+
+		// If it doesn't exist, we have to sort it anyway
+		else {
+
+			ftest.open( name_output_file.data() );
+			if( !ftest.is_open() ) force_events = true;
+			else {
+
+				ftest.close();
+				rtest = new TFile( name_output_file.data() );
+				if( rtest->IsZombie() ) force_events = true;
+				if( !force_events )
+					std::cout << name_output_file << " already built" << std::endl;
+				rtest->Close();
+
+			}
+
+		}
+
+		if( force_events ) {
+
+			std::cout << name_input_file << " --> ";
+			std::cout << name_output_file << std::endl;
+
+			eb.SetInputFile( name_input_file );
+			eb.SetOutput( name_output_file );
+			eb.BuildEvents();
+			eb.CloseOutput();
+
+			force_events = false;
+
+		}
+
+	}
+
+	return;
+	
+}
+
+void do_hist() {
+	
+	//------------------------------//
+	// Finally make some histograms //
+	//------------------------------//
+	Histogrammer hist( myreact, myset );
+	std::cout << "\n +++ Miniball Analysis:: processing Histogrammer +++" << std::endl;
+
+	std::string name_input_file;
+	std::string name_output_file;
+
+	hist.SetOutput( output_name );
+	std::vector<std::string> name_hist_files;
+
+	// We are going to chain all the event files now
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+
+		name_input_file = input_names.at(i) + "_events.root";
+		name_hist_files.push_back( name_input_file );
+
+	}
+
+	hist.SetInputFile( name_hist_files );
+	hist.FillHists();
+	hist.CloseOutput();
+	
+	return;
+	
+}
+
 int main( int argc, char *argv[] ){
 	
 	// Command line interface, stolen from MiniballCoulexSort
-	CommandLineInterface *interface = new CommandLineInterface();
+	std::unique_ptr<CommandLineInterface> interface = std::make_unique<CommandLineInterface>();
 
 	interface->Add("-i", "List of input files", &input_names );
-	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
-	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
-	interface->Add("-d", "Data directory to add to the monitor", &datadir_name );
 	interface->Add("-o", "Output file for histogram file", &output_name );
-	interface->Add("-f", "Flag to force new ROOT conversion", &flag_convert );
-	interface->Add("-e", "Flag to force new event builder (new calibration)", &flag_events );
 	interface->Add("-s", "Settings file", &name_set_file );
 	interface->Add("-c", "Calibration file", &name_cal_file );
 	interface->Add("-r", "Reaction file", &name_react_file );
+	interface->Add("-f", "Flag to force new ROOT conversion", &flag_convert );
+	interface->Add("-e", "Flag to force new event builder (new calibration)", &flag_events );
+	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
+	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
+	interface->Add("-d", "Data directory to add to the monitor", &datadir_name );
+	interface->Add("-g", "Launch the GUI", &gui_flag );
 	interface->Add("-h", "Print this help", &help_flag );
 
 	interface->CheckFlags( argc, argv );
@@ -221,6 +442,17 @@ int main( int argc, char *argv[] ){
 		interface->CheckFlags( 1, argv );
 		return 0;
 		
+	}
+	
+	// If we are launching the GUI
+	if( gui_flag ) {
+		
+		TApplication theApp( "App", &argc, argv );
+		new MiniballGUI();
+		theApp.Run();
+		
+		return 0;
+
 	}
 
 	// Check we have data files
@@ -291,9 +523,9 @@ int main( int argc, char *argv[] ){
 
 	}
 	
-	myset = new Settings( name_set_file );
-	mycal = new Calibration( name_cal_file, myset );
-	//myreact = new Reaction( name_react_file, myset );
+	myset = std::make_shared<Settings>( name_set_file );
+	mycal = std::make_shared<Calibration>( name_cal_file, myset );
+	myreact = std::make_shared<Reaction>( name_react_file, myset );
 
 
 	
@@ -336,187 +568,13 @@ int main( int argc, char *argv[] ){
 	}
 
 
-	
-
-	//------------------------//
-	// Run conversion to ROOT //
-	//------------------------//
-	Converter conv( myset );
-	std::cout << "\n +++ Miniball Analysis:: processing Converter +++" << std::endl;
-
-	TFile *rtest;
-	std::ifstream ftest;
-	std::string name_input_file;
-	std::string name_output_file;
-	
-	// Check each file
-	for( unsigned int i = 0; i < input_names.size(); i++ ){
-			
-		name_input_file = input_names.at(i);
-		name_output_file = input_names.at(i) + ".root";
-		
-		force_convert.push_back( false );
-
-		// If it doesn't exist, we have to convert it anyway
-		// The convert flag will force it to be converted
-		ftest.open( name_output_file.data() );
-		if( !ftest.is_open() ) force_convert.at(i) = true;
-		else {
-			
-			ftest.close();
-			rtest = new TFile( name_output_file.data() );
-			if( rtest->IsZombie() ) force_convert.at(i) = true;
-			if( !flag_convert && !force_convert.at(i) )
-				std::cout << name_output_file << " already converted" << std::endl;
-			rtest->Close();
-			
-		}
-
-		if( flag_convert || force_convert.at(i) ) {
-			
-			std::cout << name_input_file << " --> ";
-			std::cout << name_output_file << std::endl;
-			
-			conv.SetOutput( name_output_file );
-			conv.MakeTree();
-			conv.MakeHists();
-			conv.AddCalibration( mycal );
-			conv.ConvertFile( name_input_file );
-			conv.CloseOutput();
-
-		}
-		
-	}
-		
-	
-	//-------------------------//
-	// Do time sorting of data //
-	//-------------------------//
-	TimeSorter sort;
-	std::cout << "\n +++ Miniball Analysis:: processing TimeSorter +++" << std::endl;
-	
-	// Check each file
-	for( unsigned int i = 0; i < input_names.size(); i++ ){
-			
-		name_input_file = input_names.at(i) + ".root";
-		name_output_file = input_names.at(i) + "_sort.root";
-
-		// We need to time sort it if we just converted it
-		if( flag_convert || force_convert.at(i) )
-			force_sort = true;
-			
-		// If it doesn't exist, we have to sort it anyway
-		else {
-			
-			ftest.open( name_output_file.data() );
-			if( !ftest.is_open() ) force_sort = true;
-			else {
-				
-				ftest.close();
-				rtest = new TFile( name_output_file.data() );
-				if( rtest->IsZombie() ) force_sort = true;
-				if( !force_sort )
-					std::cout << name_output_file << " already sorted" << std::endl;
-				rtest->Close();
-				
-			}
-			
-		}
-
-		if( force_sort ) {
-		
-			std::cout << name_input_file << " --> ";
-			std::cout << name_output_file << std::endl;
-			
-			sort.SetInputFile( name_input_file );
-			sort.SetOutput( name_output_file );
-			sort.SortFile();
-			sort.CloseOutput();
-
-			force_sort = false;
-
-		}
-	
-	}
-	
-	
-	//-----------------------//
-	// Physics event builder //
-	//-----------------------//
-	EventBuilder eb( myset );
-	std::cout << "\n +++ Miniball Analysis:: processing EventBuilder +++" << std::endl;
-
-	// Update calibration file if given
-	if( overwrite_cal ) eb.AddCalibration( mycal );
-
-	// Do event builder for each file individually
-	for( unsigned int i = 0; i < input_names.size(); i++ ){
-
-		name_input_file = input_names.at(i) + "_sort.root";
-		name_output_file = input_names.at(i) + "_events.root";
-
-		// We need to do event builder if we just converted it
-		// specific request to do new event build with -e
-		// this is useful if you need to add a new calibration
-		if( flag_convert || force_convert.at(i) || flag_events )
-			force_events = true;
-
-		// If it doesn't exist, we have to sort it anyway
-		else {
-
-			ftest.open( name_output_file.data() );
-			if( !ftest.is_open() ) force_events = true;
-			else {
-
-				ftest.close();
-				rtest = new TFile( name_output_file.data() );
-				if( rtest->IsZombie() ) force_events = true;
-				if( !force_events )
-					std::cout << name_output_file << " already built" << std::endl;
-				rtest->Close();
-
-			}
-
-		}
-
-		if( force_events ) {
-
-			std::cout << name_input_file << " --> ";
-			std::cout << name_output_file << std::endl;
-
-			eb.SetInputFile( name_input_file );
-			eb.SetOutput( name_output_file );
-			eb.BuildEvents();
-			eb.CloseOutput();
-
-			force_events = false;
-
-		}
-
-	}
-	
-	
-	//------------------------------//
-	// Finally make some histograms //
-	//------------------------------//
-	Histogrammer hist( myreact, myset );
-	std::cout << "\n +++ Miniball Analysis:: processing Histogrammer +++" << std::endl;
-
-	hist.SetOutput( output_name );
-	std::vector<std::string> name_hist_files;
-
-	// We are going to chain all the event files now
-	for( unsigned int i = 0; i < input_names.size(); i++ ){
-
-		name_output_file = input_names.at(i) + "_events.root";
-		name_hist_files.push_back( name_output_file );
-
-	}
-
-	hist.SetInputFile( name_hist_files );
-	hist.FillHists();
-	hist.CloseOutput();
-	
+	//------------------//
+	// Run the analysis //
+	//------------------//
+	do_convert();
+	do_sort();
+	do_build();
+	do_hist();
 	std::cout << "\n\nFinished!\n";
 			
 	return 0;

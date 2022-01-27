@@ -14,6 +14,8 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
+#include <TGProgressBar.h>
+#include <TSystem.h>
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -34,8 +36,8 @@ class Converter {
 
 public:
 	
-	Converter( Settings *myset );
-	~Converter();
+	Converter( std::shared_ptr<Settings> myset );
+	~Converter() {};
 	
 
 	int ConvertFile( std::string input_file_name,
@@ -58,15 +60,15 @@ public:
 	
 	inline void CloseOutput(){
 		output_file->Close();
-		delete data_packet;
-		//delete asic_data;
-		//delete caen_data;
-		//delete info_data;
 	};
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
 
-	inline void AddCalibration( Calibration *mycal ){ cal = mycal; };
+	inline void AddCalibration( std::shared_ptr<Calibration> mycal ){ cal = mycal; };
+	inline void AddProgressBar( std::shared_ptr<TGProgressBar> myprog ){
+		prog = myprog;
+		_prog_ = true;
+	};
 
 
 
@@ -197,9 +199,9 @@ private:
 	UInt_t block_test;
 
 	// Data types
-	DataPackets *data_packet;
-	FebexData *febex_data;
-	InfoData *info_data;
+	std::shared_ptr<DataPackets> data_packet = 0;
+	std::shared_ptr<FebexData> febex_data;
+	std::shared_ptr<InfoData> info_data;
 	
 	// Output stuff
 	TFile *output_file;
@@ -221,11 +223,14 @@ private:
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_cal;
 
 	// 	Settings file
-	Settings *set;
+	std::shared_ptr<Settings> set;
 
 	// 	Calibrator
-	Calibration *cal;
-
+	std::shared_ptr<Calibration> cal;
+	
+	// Progress bar
+	bool _prog_;
+	std::shared_ptr<TGProgressBar> prog;
 
 };
 

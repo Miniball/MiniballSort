@@ -7,13 +7,13 @@ class FebexData : public TObject {
 	
 public:
 
-	FebexData();
+	FebexData() {};
 	FebexData( unsigned long long t,
+			  float qf, Float16_t qh, unsigned short qi,
 			  std::vector<unsigned short> tr,
-			  unsigned short qi, Float16_t qh, float qf,
 			  unsigned char s, unsigned char b, unsigned char c,
 			  bool th, bool v, bool f );
-	~FebexData();
+	~FebexData() {};
 
 	inline unsigned long long	GetTime() { return time; };
 	inline unsigned short		GetTraceLength() { return trace.size(); };
@@ -53,17 +53,17 @@ public:
 protected:
 	
 	unsigned long long			time;
-	std::vector<unsigned short>	trace;
-	unsigned short				Qint;		///< Charge from firmware as 16-bit integer
-	Float16_t					Qhalf;		///< Charge from firmware as 16-bit float
+	float						energy;
 	float						Qfloat;		///< Charge from firmware as 32-bit float
+	Float16_t					Qhalf;		///< Charge from firmware as 16-bit float
+	unsigned short				Qint;		///< Charge from firmware as 16-bit integer
+	std::vector<unsigned short>	trace;
 	unsigned char				sfp;		///< SFP ID of the event
 	unsigned char				board;		///< board ID of the event
 	unsigned char				ch;			///< channel ID of the event
 	bool						thres;		///< is the energy over threshold?
 	bool						veto;		///< veto bit from data stream
 	bool						fail;		///< fail bit from data stream
-	float						energy;
 
 	
 	ClassDef( FebexData, 1 )
@@ -74,9 +74,9 @@ class InfoData : public TObject {
 	
 public:
 
-	InfoData();
+	InfoData() {};
 	InfoData( unsigned long long t, unsigned char s, unsigned char b, unsigned char m );
-	~InfoData();
+	~InfoData() {};
 	
 	inline unsigned long long	GetTime(){ return time; };
 	inline unsigned char 		GetCode(){ return code; };
@@ -101,7 +101,7 @@ protected:
 	/// code = 22 is T1 timestamp
 
 	
-	ClassDef( InfoData, 1 )
+	ClassDef( InfoData, 10 )
 	
 };
 
@@ -109,15 +109,18 @@ class DataPackets : public TObject {
 	
 public:
 	
+	DataPackets() {};
+	~DataPackets() {};
+
 	inline bool	IsFebex() { return febex_packets.size(); };
 	inline bool	IsInfo() { return info_packets.size(); };
 	
-	void SetData( FebexData *data );
-	void SetData( InfoData *data );
+	void SetData( std::shared_ptr<FebexData> data );
+	void SetData( std::shared_ptr<InfoData> data );
 
 	// These methods are not very safe for access
-	inline FebexData* GetFebexData() { return &febex_packets.at(0); };
-	inline InfoData* GetInfoData() { return &info_packets.at(0); };
+	inline std::shared_ptr<FebexData> GetFebexData() { return std::make_shared<FebexData>( febex_packets.at(0) ); };
+	inline std::shared_ptr<InfoData> GetInfoData() { return std::make_shared<InfoData>( info_packets.at(0) ); };
 	
 	// Complicated way to get the time...
 	unsigned long long GetTime();
@@ -131,7 +134,7 @@ protected:
 	std::vector<FebexData>	febex_packets;
 	std::vector<InfoData>	info_packets;
 
-	ClassDef( DataPackets, 1 )
+	ClassDef( DataPackets, 10 )
 
 };
 

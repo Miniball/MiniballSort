@@ -1,15 +1,18 @@
 #include "Settings.hh"
 
-Settings::Settings( std::string filename ) {
+ClassImp(Settings)
+
+Settings::Settings() {
 	
-	SetFile( filename );
+	SetFile( "dummy" );
 	ReadSettings();
 	
 }
 
-Settings::~Settings() {
+Settings::Settings( std::string filename ) {
 	
-	//std::cout << "destructor" << std::endl;
+	SetFile( filename );
+	ReadSettings();
 	
 }
 

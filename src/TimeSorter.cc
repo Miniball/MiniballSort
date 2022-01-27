@@ -1,14 +1,9 @@
 #include "TimeSorter.hh"
 
-TimeSorter::TimeSorter( ){
+TimeSorter::TimeSorter(){
 	
-	//std::cout << "constructor" << std::endl;
-
-}
-
-TimeSorter::~TimeSorter() {
-	
-	//std::cout << "destructor" << std::endl;
+	// Progress bar starts as false
+	_prog_ = false;
 
 }
 
@@ -32,7 +27,7 @@ bool TimeSorter::SetInputFile( std::string input_file_name ){
 	
 }
 
-void TimeSorter::SetInputTree( TTree* user_tree ){
+void TimeSorter::SetInputTree( TTree *user_tree ){
 
 	// Find the tree and set branch addresses
 	input_tree = user_tree;
@@ -51,7 +46,7 @@ void TimeSorter::SetOutput( std::string output_file_name ){
 	// Create output Root file and Tree.
 	output_file->cd();
 	output_tree = (TTree*)input_tree->CloneTree(0);
-	output_tree->SetDirectory( output_file );
+	output_tree->SetDirectory( output_file->GetDirectory("/") );
 	output_tree->SetName( "mb_sort" );
 	output_tree->SetTitle( "Time sorted, calibrated Miniball data" );
 	//output_tree->SetBasketSize( "*", 16000 );
@@ -97,10 +92,18 @@ unsigned long TimeSorter::SortFile( unsigned long start_sort ) {
 			
 			if( i % (nb_idx/100) == 0 || i+1 == nb_idx ) {
 				
-				std::cout << " " << std::setw(6) << std::setprecision(4);
-				std::cout << (float)(i+1)*100.0/(float)nb_idx << "%    \r";
-				std::cout.flush();
+				// Percent complete
+				float percent = (float)(i+1)*100.0/(float)nb_idx;
 				
+				// Progress bar in GUI
+				if( _prog_ ) prog->SetPosition( percent );
+
+				// Progress bar in terminal
+				std::cout << " " << std::setw(6) << std::setprecision(4);
+				std::cout << percent << "%    \r";
+				std::cout.flush();
+				gSystem->ProcessEvents();
+
 			}
 
 		}
@@ -116,8 +119,11 @@ unsigned long TimeSorter::SortFile( unsigned long start_sort ) {
 	
 
 	// Write histograms, trees and clean up
+	output_file->cd();
 	output_tree->Write( 0, TObject::kWriteDelete );
 	output_file->SaveSelf();
+	//input_file->Get( "settings" )->Write( "settings", TObject::kWriteDelete );
+	//input_file->Get( "calibration" )->Write( "calibration", TObject::kWriteDelete );
 	//output_file->Print();
 	
 	

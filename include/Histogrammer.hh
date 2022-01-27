@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -15,6 +16,8 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TCutG.h>
+#include <TGProgressBar.h>
+#include <TSystem.h>
 
 // Reaction header
 #ifndef __REACTION_HH
@@ -35,179 +38,184 @@ class Histogrammer {
 	
 public:
 
-	Histogrammer( Reaction *myreact, Settings *myset );
-	~Histogrammer();
+	Histogrammer( std::shared_ptr<Reaction> myreact, std::shared_ptr<Settings> myset );
+	~Histogrammer() {};
 	
 	void MakeHists();
 	unsigned long FillHists( unsigned long start_fill = 0 );
-	void FillParticleGammaHists( GammaRayEvt *g );
-	void FillParticleGammaHists( GammaRayAddbackEvt *g );
-	void FillParticleElectronHists( SpedeEvt *s );
-	void Terminate();
+	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );
+	void FillParticleGammaHists( std::shared_ptr<GammaRayAddbackEvt> g );
+	void FillParticleElectronHists( std::shared_ptr<SpedeEvt> s );
 	
 	void SetInputFile( std::vector<std::string> input_file_names );
 	void SetInputFile( std::string input_file_name );
-	void SetInputTree( TTree* user_tree );
+	void SetInputTree( TTree *user_tree );
 
 	inline void SetOutput( std::string output_file_name ){
 		output_file = new TFile( output_file_name.data(), "recreate" );
 		MakeHists();
 	};
 	inline void CloseOutput( ){
-		output_file->Close();
+		//output_file->Close();
+		delete read_evts;
 	};
 
 	inline TFile* GetFile(){ return output_file; };
+
+	inline void AddProgressBar( std::shared_ptr<TGProgressBar> myprog ){
+		prog = myprog;
+		_prog_ = true;
+	};
 	
 	// Coincidence conditions (to be put in settings file eventually?)
-	inline bool	PromptCoincidence( GammaRayEvt *g, ParticleEvt *p ){
+	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, std::shared_ptr<ParticleEvt> p ){
 		return PromptCoincidence( g, p->GetTime() );
 	};
-	inline bool	PromptCoincidence( GammaRayEvt *g, unsigned long long ptime ){
+	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, unsigned long long ptime ){
 		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
 			(double)g->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( GammaRayEvt *g, ParticleEvt *p ){
+	inline bool	RandomCoincidence( std::shared_ptr<GammaRayEvt> g, std::shared_ptr<ParticleEvt> p ){
 		return RandomCoincidence( g, p->GetTime() );
 	};
-	inline bool	RandomCoincidence( GammaRayEvt *g, unsigned long long ptime ){
+	inline bool	RandomCoincidence( std::shared_ptr<GammaRayEvt> g, unsigned long long ptime ){
 		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
 			(double)g->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( GammaRayAddbackEvt *g, ParticleEvt *p ){
+	inline bool	PromptCoincidence( std::shared_ptr<GammaRayAddbackEvt> g, std::shared_ptr<ParticleEvt> p ){
 		return PromptCoincidence( g, p->GetTime() );
 	};
-	inline bool	PromptCoincidence( SpedeEvt *s, ParticleEvt *p ){
+	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s, std::shared_ptr<ParticleEvt> p ){
 		return PromptCoincidence( s, p->GetTime() );
 	};
-	inline bool	PromptCoincidence( SpedeEvt *s, unsigned long long ptime ){
+	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
 		if( (double)s->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
 			(double)s->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( SpedeEvt *s, ParticleEvt *p ){
+	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s, std::shared_ptr<ParticleEvt> p ){
 		return RandomCoincidence( s, p->GetTime() );
 	};
-	inline bool	RandomCoincidence( SpedeEvt *s, unsigned long long ptime ){
+	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
 		if( (double)s->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
 			(double)s->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( GammaRayEvt *g1, GammaRayEvt *g2 ){
+	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g1, std::shared_ptr<GammaRayEvt> g2 ){
 		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaPromptTime(0) &&
 			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( GammaRayEvt *g1, GammaRayEvt *g2 ){
+	inline bool	RandomCoincidence( std::shared_ptr<GammaRayEvt> g1, std::shared_ptr<GammaRayEvt> g2 ){
 		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaRandomTime(0) &&
 			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( SpedeEvt *s1, SpedeEvt *s2 ){
+	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s1, std::shared_ptr<SpedeEvt> s2 ){
 		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetGammaGammaPromptTime(0) &&
 			(double)s1->GetTime() - (double)s2->GetTime() < react->GetGammaGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( SpedeEvt *s1, SpedeEvt *s2 ){
+	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s1, std::shared_ptr<SpedeEvt> s2 ){
 		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetGammaGammaRandomTime(0) &&
 			(double)s1->GetTime() - (double)s2->GetTime() < react->GetGammaGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( ParticleEvt *p1, ParticleEvt *p2 ){
+	inline bool	PromptCoincidence( std::shared_ptr<ParticleEvt> p1, std::shared_ptr<ParticleEvt> p2 ){
 		if( (double)p1->GetTime() - (double)p2->GetTime() > react->GetParticleParticlePromptTime(0) &&
 			(double)p1->GetTime() - (double)p2->GetTime() < react->GetParticleParticlePromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( ParticleEvt *p1, ParticleEvt *p2 ){
+	inline bool	RandomCoincidence( std::shared_ptr<ParticleEvt> p1, std::shared_ptr<ParticleEvt> p2 ){
 		if( (double)p1->GetTime() - (double)p2->GetTime() > react->GetParticleParticleRandomTime(0) &&
 			(double)p1->GetTime() - (double)p2->GetTime() < react->GetParticleParticleRandomTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( BeamDumpEvt *g1, BeamDumpEvt *g2 ){
+	inline bool	PromptCoincidence( std::shared_ptr<BeamDumpEvt> g1, std::shared_ptr<BeamDumpEvt> g2 ){
 		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaPromptTime(0) &&
 			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( BeamDumpEvt *g1, BeamDumpEvt *g2 ){
+	inline bool	RandomCoincidence( std::shared_ptr<BeamDumpEvt> g1, std::shared_ptr<BeamDumpEvt> g2 ){
 		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaRandomTime(0) &&
 			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( SpedeEvt *s, GammaRayEvt *g ){
+	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g ){
 		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaGammaPromptTime(0) &&
 			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	PromptCoincidence( GammaRayEvt *g, SpedeEvt *s ){
+	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, std::shared_ptr<SpedeEvt> s ){
 		return PromptCoincidence( s, g );
 	};
-	inline bool	RandomCoincidence( SpedeEvt *s, GammaRayEvt *g ){
+	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g ){
 		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaGammaRandomTime(0) &&
 			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
-	inline bool	RandomCoincidence( GammaRayEvt *g, SpedeEvt *s ){
+	inline bool	RandomCoincidence( std::shared_ptr<GammaRayEvt> g, std::shared_ptr<SpedeEvt> s ){
 		return RandomCoincidence( s, g );
 	};
-	inline bool	OnBeam( GammaRayEvt *g ){
+	inline bool	OnBeam( std::shared_ptr<GammaRayEvt> g ){
 		if( (double)g->GetTime() - (double)read_evts->GetEBIS() >= 0 &&
 			(double)g->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOnTime() ) return true;
 		else return false;
 	};
-	inline bool	OnBeam( SpedeEvt *s ){
+	inline bool	OnBeam( std::shared_ptr<SpedeEvt> s ){
 		if( (double)s->GetTime() - (double)read_evts->GetEBIS() >= 0 &&
 			(double)s->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOnTime() ) return true;
 		else return false;
 	};
-	inline bool	OnBeam( ParticleEvt *p ){
+	inline bool	OnBeam( std::shared_ptr<ParticleEvt> p ){
 		if( (double)p->GetTime() - (double)read_evts->GetEBIS() >= 0 &&
 			(double)p->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOnTime() ) return true;
 		else return false;
 	};
-	inline bool	OffBeam( GammaRayEvt *g ){
+	inline bool	OffBeam( std::shared_ptr<GammaRayEvt> g ){
 		if( (double)g->GetTime() - (double)read_evts->GetEBIS() >= react->GetEBISOnTime() &&
 			(double)g->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
 		else return false;
 	};
-	inline bool	OffBeam( ParticleEvt *p ){
+	inline bool	OffBeam( std::shared_ptr<ParticleEvt> p ){
 		if( (double)p->GetTime() - (double)read_evts->GetEBIS() >= react->GetEBISOnTime() &&
 			(double)p->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
 		else return false;
 	};
-	inline bool	OffBeam( SpedeEvt *s ){
+	inline bool	OffBeam( std::shared_ptr<SpedeEvt> s ){
 		if( (double)s->GetTime() - (double)read_evts->GetEBIS() >= react->GetEBISOnTime() &&
 			(double)s->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
 		else return false;
 	};
 
 	// Particle energy vs angle cuts
-	inline bool EjectileCut( ParticleEvt *p ){
+	inline bool EjectileCut( std::shared_ptr<ParticleEvt> p ){
 		if( react->GetEjectileCut()->IsInside( react->GetParticleTheta(p), p->GetEnergy() ) )
 			return true;
 		else return false;
 	}
-	inline bool RecoilCut( ParticleEvt *p ){
+	inline bool RecoilCut( std::shared_ptr<ParticleEvt> p ){
 		if( react->GetRecoilCut()->IsInside( react->GetParticleTheta(p), p->GetEnergy() ) )
 			return true;
 		else return false;
 	}
-	inline bool TwoParticleCut( ParticleEvt *p1, ParticleEvt *p2 ){
+	inline bool TwoParticleCut( std::shared_ptr<ParticleEvt> p1, std::shared_ptr<ParticleEvt> p2 ){
 		if( EjectileCut(p1) && RecoilCut(p2) && PromptCoincidence( p1, p2 ) &&
 		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) < 1.1*TMath::Pi() &&
 		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) > 0.9*TMath::Pi() )
@@ -218,22 +226,26 @@ public:
 private:
 	
 	// Reaction
-	Reaction *react;
+	std::shared_ptr<Reaction> react;
 	
 	// Settings file
-	Settings *set;
+	std::shared_ptr<Settings> set;
 	
 	// Input tree
 	TChain *input_tree;
-	MiniballEvts *read_evts;
-	GammaRayEvt *gamma_evt, *gamma_evt2;
-	GammaRayAddbackEvt *gamma_ab_evt, *gamma_ab_evt2;
-	ParticleEvt *particle_evt, *particle_evt2;
-	BeamDumpEvt *bd_evt, *bd_evt2;
-	SpedeEvt *spede_evt, *spede_evt2;
+	MiniballEvts *read_evts = 0;
+	std::shared_ptr<GammaRayEvt> gamma_evt, gamma_evt2;
+	std::shared_ptr<GammaRayAddbackEvt> gamma_ab_evt, gamma_ab_evt2;
+	std::shared_ptr<ParticleEvt> particle_evt, particle_evt2;
+	std::shared_ptr<BeamDumpEvt> bd_evt, bd_evt2;
+	std::shared_ptr<SpedeEvt> spede_evt, spede_evt2;
 
 	// Output file
 	TFile *output_file;
+	
+	// Progress bar
+	bool _prog_;
+	std::shared_ptr<TGProgressBar> prog;
 	
 	// Counters
 	unsigned long n_entries;
@@ -251,7 +263,7 @@ private:
 	const float EMAX = 1999.5;			// upper limit of energy in electron spectra
 	const unsigned int PBIN = 300;		// number of bins in particle spectra
 	const float PMIN = 0.0;				// lower limit of energy in particle spectra
-	const float PMAX = 1.2;				// upper limit of energy in particle spectra
+	const float PMAX = 1.2e6;			// upper limit of energy in particle spectra
 
 	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;

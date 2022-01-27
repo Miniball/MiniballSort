@@ -1,6 +1,6 @@
 #include "EventBuilder.hh"
 
-EventBuilder::EventBuilder( Settings *myset ){
+EventBuilder::EventBuilder( std::shared_ptr<Settings> myset ){
 	
 	// First get the settings
 	set = myset;
@@ -11,6 +11,17 @@ EventBuilder::EventBuilder( Settings *myset ){
 	build_window = set->GetEventWindow();
 
 	n_sfp.resize( set->GetNumberOfFebexSfps() );
+
+	febex_time_start.resize( set->GetNumberOfFebexSfps() );
+	febex_time_stop.resize( set->GetNumberOfFebexSfps() );
+	febex_dead_time.resize( set->GetNumberOfFebexSfps() );
+	pause_time.resize( set->GetNumberOfFebexSfps() );
+	resume_time.resize( set->GetNumberOfFebexSfps() );
+	n_board.resize( set->GetNumberOfFebexSfps() );
+	n_pause.resize( set->GetNumberOfFebexSfps() );
+	n_resume.resize( set->GetNumberOfFebexSfps() );
+	flag_pause.resize( set->GetNumberOfFebexSfps() );
+	flag_resume.resize( set->GetNumberOfFebexSfps() );
 
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 		
@@ -26,6 +37,9 @@ EventBuilder::EventBuilder( Settings *myset ){
 		flag_resume[i].resize( set->GetNumberOfFebexBoards() );
 		
 	}
+	
+	// Progress bar starts as false
+	_prog_ = false;
 	
 }
 
@@ -82,30 +96,11 @@ void EventBuilder::StartFile(){
 	
 }
 
-void EventBuilder::SetInputFile( std::vector<std::string> input_file_names ) {
-	
-	/// Overloaded function for a single file or multiple files
-	input_tree = new TChain( "mb_sort" );
-	for( unsigned int i = 0; i < input_file_names.size(); i++ ) {
-	
-		input_tree->Add( input_file_names[i].data() );
-		
-	}
-	input_tree->SetBranchAddress( "data", &in_data );
-	
-	StartFile();
-
-	return;
-	
-}
-
 void EventBuilder::SetInputFile( std::string input_file_name ) {
 	
 	/// Overloaded function for a single file or multiple files
-	input_tree = new TChain( "mb_sort" );
-	input_tree->Add( input_file_name.data() );
-	input_tree->SetBranchAddress( "data", &in_data );
-
+	input_file = new TFile( input_file_name.data(), "read" );
+	SetInputTree( (TTree*)input_file->Get("mb_sort") );
 	StartFile();
 
 	return;
@@ -115,7 +110,7 @@ void EventBuilder::SetInputFile( std::string input_file_name ) {
 void EventBuilder::SetInputTree( TTree *user_tree ){
 	
 	// Find the tree and set branch addresses
-	input_tree = (TChain*)user_tree;
+	input_tree = user_tree;
 	input_tree->SetBranchAddress( "data", &in_data );
 
 	StartFile();
@@ -127,16 +122,17 @@ void EventBuilder::SetInputTree( TTree *user_tree ){
 void EventBuilder::SetOutput( std::string output_file_name ) {
 
 	// These are the branches we need
-	write_evts = new MiniballEvts();
-	gamma_evt = new GammaRayEvt();
-	gamma_ab_evt = new GammaRayAddbackEvt();
+	write_evts = std::make_unique<MiniballEvts>();
+	gamma_evt = std::make_shared<GammaRayEvt>();
+	gamma_ab_evt = std::make_shared<GammaRayAddbackEvt>();
+	particle_evt = std::make_shared<ParticleEvt>();
 
 	// ------------------------------------------------------------------------ //
 	// Create output file and create events tree
 	// ------------------------------------------------------------------------ //
 	output_file = new TFile( output_file_name.data(), "recreate" );
 	output_tree = new TTree( "evt_tree", "evt_tree" );
-	output_tree->Branch( "MiniballEvts", "MiniballEvts", &write_evts );
+	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get() );
 
 	// Hisograms in separate function
 	MakeEventHists();
@@ -220,7 +216,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 		if( time_prev > mytime ) {
 			
 			std::cout << "Out of order event in file ";
-			std::cout << input_tree->GetFile()->GetName() << std::endl;
+			std::cout << input_tree->GetName() << std::endl;
 			
 		}
 			
@@ -503,12 +499,19 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 		
 		if( i % (n_entries/100) == 0 || i+1 == n_entries ) {
 			
+			// Percent complete
+			float percent = (float)(i+1)*100.0/(float)n_entries;
+
+			// Progress bar in GUI
+			if( _prog_ ) prog->SetPosition( percent );
+
+			// Progress bar in terminal
 			std::cout << " " << std::setw(6) << std::setprecision(4);
-			std::cout << (float)(i+1)*100.0/(float)n_entries << "%    \r";
+			std::cout << percent << "%    \r";
 			std::cout.flush();
-			
-		}
-		
+			gSystem->ProcessEvents();
+
+		}		
 		
 	} // End of main loop over TTree to process raw MIDAS data entries (for n_entries)
 	
@@ -518,16 +521,16 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 
 	std::cout << "\n EventBuilder finished..." << std::endl;
 	std::cout << "  FEBEX data packets = " << n_febex_data << std::endl;
-	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
-		std::cout << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-			std::cout << "    Board " << i << " events = " << n_board[i][j] << std::endl;
-			std::cout << "             pause = " << n_pause[i][j] << std::endl;
-			std::cout << "            resume = " << n_resume[i][j] << std::endl;
-			std::cout << "         dead time = " << (double)febex_dead_time[i][j]/1e9 << " s" << std::endl;
-			std::cout << "         live time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
-		}
-	}
+	//for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+	//	std::cout << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
+	//	for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
+	//		std::cout << "    Board " << j << " events = " << n_board[i][j] << std::endl;
+	//		std::cout << "             pause = " << n_pause[i][j] << std::endl;
+	//		std::cout << "            resume = " << n_resume[i][j] << std::endl;
+	//		std::cout << "         dead time = " << (double)febex_dead_time[i][j]/1e9 << " s" << std::endl;
+	//		std::cout << "         live time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
+	//	}
+	//}
 	std::cout << "  Info data packets = " << n_info_data << std::endl;
 	std::cout << "   Pulser events = " << n_pulser << std::endl;
 	std::cout << "   EBIS events = " << n_ebis << std::endl;
@@ -759,18 +762,5 @@ void EventBuilder::MakeEventHists(){
 	
 	return;
 	
-}
-
-void EventBuilder::CleanHists() {
-
-	// Clean up the histograms to save memory for later
-	delete tdiff;
-	delete tdiff_clean;
-	delete pulser_freq;
-	delete ebis_freq;
-	delete t1_freq;
-
-	return;
-
 }
 

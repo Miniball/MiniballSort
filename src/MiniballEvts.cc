@@ -32,7 +32,7 @@ void MiniballEvts::ClearEvt() {
 
 }
 
-void MiniballEvts::AddEvt( GammaRayEvt *event ) {
+void MiniballEvts::AddEvt( std::shared_ptr<GammaRayEvt> event ) {
 	
 	// Make a copy of the event and push it back
 	GammaRayEvt fill_evt;
@@ -46,7 +46,7 @@ void MiniballEvts::AddEvt( GammaRayEvt *event ) {
 	
 }
 
-void MiniballEvts::AddEvt( GammaRayAddbackEvt *event ) {
+void MiniballEvts::AddEvt( std::shared_ptr<GammaRayAddbackEvt> event ) {
 	
 	// Make a copy of the event and push it back
 	GammaRayAddbackEvt fill_evt;
@@ -60,7 +60,7 @@ void MiniballEvts::AddEvt( GammaRayAddbackEvt *event ) {
 	
 }
 
-void MiniballEvts::AddEvt( ParticleEvt *event ) {
+void MiniballEvts::AddEvt( std::shared_ptr<ParticleEvt> event ) {
 	
 	// Make a copy of the event and push it back
 	ParticleEvt fill_evt;
@@ -77,7 +77,7 @@ void MiniballEvts::AddEvt( ParticleEvt *event ) {
 	
 }
 
-void MiniballEvts::AddEvt( BeamDumpEvt *event ) {
+void MiniballEvts::AddEvt( std::shared_ptr<BeamDumpEvt> event ) {
 	
 	// Make a copy of the event and push it back
 	BeamDumpEvt fill_evt;
@@ -89,7 +89,7 @@ void MiniballEvts::AddEvt( BeamDumpEvt *event ) {
 	
 }
 
-void MiniballEvts::AddEvt( SpedeEvt *event ) {
+void MiniballEvts::AddEvt( std::shared_ptr<SpedeEvt> event ) {
 	
 	// Make a copy of the event and push it back
 	SpedeEvt fill_evt;

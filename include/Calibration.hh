@@ -23,12 +23,13 @@
 /// Each channel also has a threshold (not implemented)
 /// and there is a time offset parameter for each ASIC module, too.
 
-class Calibration {
+class Calibration : public TObject {
 
 public:
 
-	Calibration( std::string filename, Settings *myset );
-	virtual ~Calibration();
+	Calibration();
+	Calibration( std::string filename, std::shared_ptr<Settings> myset );
+	~Calibration() {};
 	void ReadCalibration();
 	void PrintCalibration();
 	void SetFile( std::string filename ){
@@ -47,7 +48,7 @@ private:
 
 	std::string fInputFile;
 	
-	Settings *set;
+	std::shared_ptr<Settings> set;
 
 	std::vector< std::vector<std::vector<float>> > fFebexOffset;
 	std::vector< std::vector<std::vector<float>> > fFebexGain;
@@ -55,7 +56,7 @@ private:
 	std::vector< std::vector<std::vector<float>> > fFebexThreshold;
 	std::vector< std::vector<std::vector<long>> > fFebexTime;
 
-	//ClassDef(Calibration, 1)
+	ClassDef( Calibration, 10 )
    
 };
 

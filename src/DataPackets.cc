@@ -4,23 +4,19 @@ ClassImp(FebexData)
 ClassImp(InfoData)
 ClassImp(DataPackets)
 
-FebexData::FebexData(){}
-FebexData::~FebexData(){}
 FebexData::FebexData( unsigned long long t,
+					float qf, Float16_t qh, unsigned short qi,
 				    std::vector<unsigned short> tr,
-					unsigned short qi, Float16_t qh, float qf,
 					unsigned char s, unsigned char b, unsigned char c,
 				    bool th, bool v, bool f ) :
-					time(t), trace(tr), Qint(qi), Qhalf(qh), Qfloat(qf), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f) {}
+					time(t), Qfloat(qf), Qhalf(qh), Qint(qi), trace(tr), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f) {}
 
-InfoData::InfoData(){}
-InfoData::~InfoData(){}
 InfoData::InfoData( unsigned long long t, unsigned char c, unsigned char s, unsigned char b ) :
 					time(t), code(c), sfp(s), board(b) {}
 
 
 
-void DataPackets::SetData( FebexData *data ){
+void DataPackets::SetData( std::shared_ptr<FebexData> data ){
 	
 	// Reset the vector to size = 0
 	// We only want to have one element per Tree entry
@@ -46,7 +42,7 @@ void DataPackets::SetData( FebexData *data ){
 
 }
 
-void DataPackets::SetData( InfoData *data ){
+void DataPackets::SetData( std::shared_ptr<InfoData> data ){
 	
 	// Reset the vector to size = 0
 	// We only want to have one element per Tree entry

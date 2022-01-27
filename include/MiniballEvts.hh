@@ -177,11 +177,11 @@ public:
 	MiniballEvts() {};
 	~MiniballEvts() {};
 	
-	void AddEvt( GammaRayEvt *event );
-	void AddEvt( GammaRayAddbackEvt *event );
-	void AddEvt( ParticleEvt *event );
-	void AddEvt( BeamDumpEvt *event );
-	void AddEvt( SpedeEvt *event );
+	void AddEvt( std::shared_ptr<GammaRayEvt> event );
+	void AddEvt( std::shared_ptr<GammaRayAddbackEvt> event );
+	void AddEvt( std::shared_ptr<ParticleEvt> event );
+	void AddEvt( std::shared_ptr<BeamDumpEvt> event );
+	void AddEvt( std::shared_ptr<SpedeEvt> event );
 
 	inline unsigned int GetGammaRayMultiplicity(){ return gamma_event.size(); };
 	inline unsigned int GetGammaRayAddbackMultiplicity(){ return gamma_ab_event.size(); };
@@ -189,24 +189,24 @@ public:
 	inline unsigned int GetBeamDumpMultiplicity(){ return bd_event.size(); };
 	inline unsigned int GetSpedeMultiplicity(){ return spede_event.size(); };
 
-	inline GammaRayEvt* GetGammaRayEvt( unsigned int i ){
-		if( i < gamma_event.size() ) return &gamma_event.at(i);
+	inline std::shared_ptr<GammaRayEvt> GetGammaRayEvt( unsigned int i ){
+		if( i < gamma_event.size() ) return std::make_shared<GammaRayEvt>( gamma_event.at(i) );
 		else return nullptr;
 	};
-	inline GammaRayAddbackEvt* GetGammaRayAddbackEvt( unsigned int i ){
-		if( i < gamma_ab_event.size() ) return &gamma_ab_event.at(i);
+	inline std::shared_ptr<GammaRayAddbackEvt> GetGammaRayAddbackEvt( unsigned int i ){
+		if( i < gamma_ab_event.size() ) return std::make_shared<GammaRayAddbackEvt>( gamma_ab_event.at(i) );
 		else return nullptr;
 	};
-	inline ParticleEvt* GetParticleEvt( unsigned int i ){
-		if( i < particle_event.size() ) return &particle_event.at(i);
+	inline std::shared_ptr<ParticleEvt> GetParticleEvt( unsigned int i ){
+		if( i < particle_event.size() ) return std::make_shared<ParticleEvt>( particle_event.at(i) );
 		else return nullptr;
 	};
-	inline BeamDumpEvt* GetBeamDumpEvt( unsigned int i ){
-		if( i < bd_event.size() ) return &bd_event.at(i);
+	inline std::shared_ptr<BeamDumpEvt> GetBeamDumpEvt( unsigned int i ){
+		if( i < bd_event.size() ) return std::make_shared<BeamDumpEvt>( bd_event.at(i) );
 		else return nullptr;
 	};
-	inline SpedeEvt* GetSpedeEvt( unsigned int i ){
-		if( i < spede_event.size() ) return &spede_event.at(i);
+	inline std::shared_ptr<SpedeEvt> GetSpedeEvt( unsigned int i ){
+		if( i < spede_event.size() ) return std::make_shared<SpedeEvt>( spede_event.at(i) );
 		else return nullptr;
 	};
 

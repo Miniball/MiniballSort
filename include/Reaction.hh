@@ -3,9 +3,11 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include <map>
+#include <cmath>
 
 #include "TSystem.h"
 #include "TEnv.h"
@@ -69,8 +71,8 @@ class Particle : public TObject {
 public:
 	
 	// setup functions
-	Particle();
-	~Particle();
+	Particle() {};
+	~Particle() {};
 	
 	// Get properties
 	inline double		GetMass_u(){
@@ -136,16 +138,16 @@ private:
 	double	Phi;		///< phi in the laboratory system in radians
 
 	
-	ClassDef( Particle, 1 )
+	ClassDef( Particle, 10 )
 	
 };
 
-class Reaction {
+class Reaction : public TObject {
 	
 public:
 	
 	// setup functions
-	Reaction( std::string filename, Settings *myset );
+	Reaction( std::string filename, std::shared_ptr<Settings> myset );
 	~Reaction() {};
 	
 	// Main functions
@@ -175,14 +177,19 @@ public:
 	inline unsigned int		GetNumberOfParticleThetas() {
 		return set->GetNumberOfCDPStrips() * set->GetNumberOfCDDetectors();
 	};
-	inline double*			GetParticleThetas(){
+	inline std::vector<double>	GetParticleThetas(){
 		std::vector<double> cd_angles;
 		for( unsigned char i = 0; i < set->GetNumberOfCDDetectors(); i++ )
 			for( unsigned char j = 0; j < set->GetNumberOfCDPStrips(); j++ )
-				cd_angles.push_back( GetCDVector(i,0,j,0).Theta() * TMath::RadToDeg() );
-		return cd_angles.data();
+				cd_angles.push_back( GetCDVector(i,0,(float)(j-0.5),(float)0).Theta() * TMath::RadToDeg() );
+		std::sort( cd_angles.begin(), cd_angles.end() );
+		cd_angles.push_back( cd_angles.back() + 2.0 );
+		return cd_angles;
 	};
-	TVector3		GetCDVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
+	TVector3		GetCDVector( unsigned char det, unsigned char sec, float pid, float nid );
+	inline TVector3	GetCDVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+		return GetCDVector( det, sec, (float)pid, (float)nid );
+	};
 	TVector3		GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
 	inline float	GetParticleTheta( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Theta();
@@ -190,16 +197,16 @@ public:
 	inline float	GetParticlePhi( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Phi();
 	};
-	inline TVector3	GetCDVector( ParticleEvt *p ){
+	inline TVector3	GetCDVector( std::shared_ptr<ParticleEvt> p ){
 		return GetCDVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline TVector3	GetParticleVector( ParticleEvt *p ){
+	inline TVector3	GetParticleVector( std::shared_ptr<ParticleEvt> p ){
 		return GetParticleVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline float	GetParticleTheta( ParticleEvt *p ){
+	inline float	GetParticleTheta( std::shared_ptr<ParticleEvt> p ){
 		return GetParticleTheta( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline float	GetParticlePhi( ParticleEvt *p ){
+	inline float	GetParticlePhi( std::shared_ptr<ParticleEvt> p ){
 		return GetParticlePhi( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
 
@@ -210,16 +217,16 @@ public:
 	inline float	GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegPhi( cry, seg );
 	};
-	inline float	GetGammaTheta( GammaRayEvt *g ){
+	inline float	GetGammaTheta( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaTheta( GammaRayAddbackEvt *g ){
+	inline float	GetGammaTheta( std::shared_ptr<GammaRayAddbackEvt> g ){
 		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaPhi( GammaRayEvt *g ){
+	inline float	GetGammaPhi( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaPhi( GammaRayAddbackEvt *g ){
+	inline float	GetGammaPhi( std::shared_ptr<GammaRayAddbackEvt> g ){
 		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
 	
@@ -243,8 +250,8 @@ public:
 
 	
 	// Identify the ejectile and recoil and calculate
-	void	IdentifyEjectile( ParticleEvt *p, bool kinflag = false );
-	void	IdentifyRecoil( ParticleEvt *p, bool kinflag = false );
+	void	IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
+	void	IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
 	void	CalculateEjectile();
 	void	CalculateRecoil();
 
@@ -282,10 +289,10 @@ public:
 
 	
 	// Doppler correction
-	double DopplerCorrection( GammaRayEvt *g, bool ejectile );
-	double DopplerCorrection( SpedeEvt *s, bool ejectile );
-	double CosTheta( GammaRayEvt *g, bool ejectile );
-	double CosTheta( SpedeEvt *s, bool ejectile );
+	double DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile );
+	double DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile );
+	double CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile );
+	double CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile );
 
 
 	// Get EBIS times
@@ -412,13 +419,14 @@ public:
 	inline bool IsEjectileDetected(){ return ejectile_detected; };
 	inline bool IsRecoilDetected(){ return recoil_detected; };
 
+	ClassDef( Reaction, 10 )
 
 private:
 
 	std::string fInputFile;
 	
 	// Settings file
-	Settings *set;
+	std::shared_ptr<Settings> set;
 	
 	// Mass tables
 	std::map< std::string, double > ame_be; ///< List of biniding energies from  AME2021

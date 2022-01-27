@@ -1,6 +1,6 @@
 #include "Converter.hh"
 
-Converter::Converter( Settings *myset ) {
+Converter::Converter( std::shared_ptr<Settings> myset ) {
 
 	// We need to do initialise, but only after Settings are added
 	set = myset;
@@ -27,19 +27,16 @@ Converter::Converter( Settings *myset ) {
 		}
 
 	}
-
-}
-
-Converter::~Converter() {
 	
-	//std::cout << "destructor" << std::endl;
+	// Do we have a progress bar? Start as false
+	_prog_ = false;
 
 }
 
 void Converter::SetOutput( std::string output_file_name ){
 	
 	// Open output file
-	output_file = new TFile( output_file_name.data(), "recreate", 0 );
+	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file", 0 );
 	output_file->SetCompressionLevel(0);
 
 	// Create log file.
@@ -59,20 +56,20 @@ void Converter::MakeTree() {
 	if( gDirectory->GetListOfKeys()->Contains( "mb" ) ) {
 		
 		output_tree = (TTree*)gDirectory->Get("mb");
-		output_tree->SetBranchAddress( "data", &data_packet );
+		output_tree->SetBranchAddress( "data", data_packet.get() );
 
 	}
 	
 	else {
 	
 		output_tree = new TTree( "mb", "mb" );
-		data_packet = new DataPackets();
-		output_tree->Branch( "data", "DataPackets", &data_packet, splitLevel );
+		data_packet = std::make_shared<DataPackets>();
+		output_tree->Branch( "data", "DataPackets", data_packet.get(), splitLevel );
 
 	}
 	
-	febex_data = new FebexData();
-	info_data = new InfoData();
+	febex_data = std::make_shared<FebexData>();
+	info_data = std::make_shared<InfoData>();
 	
 	febex_data->ClearData();
 	info_data->ClearData();
@@ -87,18 +84,24 @@ void Converter::MakeHists() {
 	std::string dirname, maindirname, subdirname;
 	
 	// Make directories - just one DAQ type for now, no sub directories
+	// if you do add a directory here, please use a trailing slash
 	maindirname = "";
-	
 	
 	// Resize vectors
 	hfebex.resize( set->GetNumberOfFebexSfps() );
 	hfebex_cal.resize( set->GetNumberOfFebexSfps() );
+	hfebex_hit.resize( set->GetNumberOfFebexSfps() );
+	hfebex_pause.resize( set->GetNumberOfFebexSfps() );
+	hfebex_resume.resize( set->GetNumberOfFebexSfps() );
 
 	// Loop over FEBEX SFPs
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 		
 		hfebex[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_cal[i].resize( set->GetNumberOfFebexBoards() );
+		hfebex_hit[i].resize( set->GetNumberOfFebexBoards() );
+		hfebex_pause[i].resize( set->GetNumberOfFebexBoards() );
+		hfebex_resume[i].resize( set->GetNumberOfFebexBoards() );
 
 		// Loop over each FEBEX board
 		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
@@ -106,8 +109,8 @@ void Converter::MakeHists() {
 			hfebex[i][j].resize( set->GetNumberOfFebexChannels() );
 			hfebex_cal[i][j].resize( set->GetNumberOfFebexChannels() );
 
-			dirname  = maindirname + "/sfp_" + std::to_string(i);
-			dirname += "/board_" + std::to_string(i);
+			dirname  = maindirname + "sfp_" + std::to_string(i);
+			dirname += "/board_" + std::to_string(j);
 			
 			if( !output_file->GetDirectory( dirname.data() ) )
 				output_file->mkdir( dirname.data() );
@@ -176,7 +179,7 @@ void Converter::MakeHists() {
 			
 			else {
 				
-				hfebex_hit[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000. );
+				hfebex_hit[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
 				hfebex_hit[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 				
 			}
@@ -192,7 +195,7 @@ void Converter::MakeHists() {
 			
 			else {
 				
-				hfebex_pause[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000. );
+				hfebex_pause[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
 				hfebex_pause[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 				
 			}
@@ -208,7 +211,7 @@ void Converter::MakeHists() {
 			
 			else {
 				
-				hfebex_resume[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000. );
+				hfebex_resume[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
 				hfebex_resume[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 				
 			}
@@ -226,7 +229,7 @@ void Converter::MakeHists() {
 	
 	else {
 		
-		hfebex_ext = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000. );
+		hfebex_ext = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
 		hfebex_ext->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 		
 	}
@@ -716,12 +719,12 @@ void Converter::FinishFebexData(){
 	// missing something
 	else if( my_tm_stp != febex_data->GetTime() ) {
 		
-		std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
-		std::cout << " Qint          = " << flag_febex_data0 << std::endl;
-		std::cout << " Qhalf         = " << flag_febex_data1 << std::endl;
-		std::cout << " Qfloat (low)  = " << flag_febex_data2 << std::endl;
-		std::cout << " Qfloat (high) = " << flag_febex_data3 << std::endl;
-		std::cout << " trace data    = " << flag_febex_trace << std::endl;
+		//std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
+		//std::cout << " Qint          = " << flag_febex_data0 << std::endl;
+		//std::cout << " Qhalf         = " << flag_febex_data1 << std::endl;
+		//std::cout << " Qfloat (low)  = " << flag_febex_data2 << std::endl;
+		//std::cout << " Qfloat (high) = " << flag_febex_data3 << std::endl;
+		//std::cout << " trace data    = " << flag_febex_trace << std::endl;
 
 	}
 
@@ -833,7 +836,6 @@ int Converter::ConvertFile( std::string input_file_name,
 	std::cout << "Converting file: " << input_file_name;
 	std::cout << " from block " << start_block << std::endl;
 	
-	
 	// Calculate the size of the file.
 	input_file.seekg( 0, input_file.end );
 	int size_end = input_file.tellg();
@@ -862,6 +864,7 @@ int Converter::ConvertFile( std::string input_file_name,
 	log_file << sslogs.str() << std::endl;
 	sslogs.str( std::string() ); // clean up
 	
+
 	// Data format: http://npg.dl.ac.uk/documents/edoc504/edoc504.html
 	// The information is split into 2 words of 32 bits (4 byte).
 	// We will collect the data in 64 bit words and split later
@@ -873,10 +876,18 @@ int Converter::ConvertFile( std::string input_file_name,
 		// Take one block each time and analyze it.
 		if( nblock % 200 == 0 || nblock+1 == BLOCKS_NUM ) {
 			
-			std::cout << " " << std::setw(8) << std::setprecision(4);
-			std::cout << (float)(nblock+1)*100.0/(float)BLOCKS_NUM << "%\r";
-			std::cout.flush();
+			// Percent complete
+			float percent = (float)(nblock+1)*100.0/(float)BLOCKS_NUM;
 			
+			// Progress bar in GUI
+			if( _prog_ ) prog->SetPosition( percent );
+
+			// Progress bar in terminal
+			std::cout << " " << std::setw(8) << std::setprecision(4);
+			std::cout << percent << "%\r";
+			std::cout.flush();
+			gSystem->ProcessEvents();
+
 		}
 		
 		
@@ -911,7 +922,10 @@ int Converter::ConvertFile( std::string input_file_name,
 	} // loop - nblock < BLOCKS_NUM
 	
 	input_file.close();
+	output_file->cd();
 	output_file->Write( 0, TObject::kWriteDelete );
+	//set->Write( "settings", TObject::kWriteDelete );
+	//cal->Write( "calibration", TObject::kWriteDelete );
 	//output_file->Print();
 	log_file.close();
 	

@@ -57,7 +57,8 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 				$(SRC_DIR)/MiniballEvts.o \
 				$(SRC_DIR)/MiniballGeometry.o \
 				$(SRC_DIR)/Reaction.o \
-				$(SRC_DIR)/Histogrammer.o
+				$(SRC_DIR)/Histogrammer.o \
+				$(SRC_DIR)/MiniballGUI.o
 
 # The header files.
 DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
@@ -70,7 +71,8 @@ DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/MiniballEvts.hh \
 				$(INC_DIR)/MiniballGeometry.hh \
 				$(INC_DIR)/Reaction.hh \
-				$(INC_DIR)/Histogrammer.hh
+				$(INC_DIR)/Histogrammer.hh \
+				$(INC_DIR)/MiniballGUI.hh
 
  
 .PHONY : all
@@ -94,8 +96,8 @@ mb_sortDict.o: mb_sortDict.cc mb_sortDict$(DICTEXT) $(INC_DIR)/RootLinkDef.h
 	mkdir -p $(BIN_DIR)
 	mkdir -p $(LIB_DIR)
 	$(CC) -fPIC $(CFLAGS) $(INCLUDES) -c $<
-	cp mb_sortDict$(DICTEXT) $(BIN_DIR)/
-	cp mb_sortDict$(DICTEXT) $(LIB_DIR)/
+	cp $(basename $@)$(DICTEXT) $(LIB_DIR)/
+	cp $(basename $@)$(DICTEXT) $(BIN_DIR)/
 
 mb_sortDict.cc: $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 	$(ROOTDICT) -f $@ -c $(INCLUDES) $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h

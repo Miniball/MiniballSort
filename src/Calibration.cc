@@ -1,6 +1,16 @@
 #include "Calibration.hh"
 
-Calibration::Calibration( std::string filename, Settings *myset ) {
+ClassImp(Calibration)
+
+Calibration::Calibration() {
+
+	SetFile( "dummy" );
+	set = std::make_shared<Settings>();
+	ReadCalibration();
+
+}
+
+Calibration::Calibration( std::string filename, std::shared_ptr<Settings> myset ) {
 
 	SetFile( filename );
 	set = myset;
@@ -8,15 +18,9 @@ Calibration::Calibration( std::string filename, Settings *myset ) {
 		
 }
 
-Calibration::~Calibration() {
-
-	//std::cout << "destructor" << std::endl;
-
-}
-
 void Calibration::ReadCalibration() {
 
-	TEnv *config = new TEnv( fInputFile.data() );
+	std::unique_ptr<TEnv> config( new TEnv( fInputFile.data() ) );
 	
 	// FEBEX initialisation
 	fFebexOffset.resize( set->GetNumberOfFebexSfps() );
@@ -34,7 +38,7 @@ void Calibration::ReadCalibration() {
 		fFebexThreshold[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexTime[i].resize( set->GetNumberOfFebexBoards() );
 
-		for( unsigned int j = 0; i < set->GetNumberOfFebexSfps(); i++ ){
+		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); j++ ){
 
 			fFebexOffset[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexGain[i][j].resize( set->GetNumberOfFebexChannels() );
@@ -56,8 +60,6 @@ void Calibration::ReadCalibration() {
 		
 	} // i: sfp
 
-	delete config;
-	
 }
 
 float Calibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned short raw ) {

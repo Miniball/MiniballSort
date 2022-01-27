@@ -21,4 +21,6 @@
 #pragma link C++ class Reaction+;
 #pragma link C++ class Particle+;
 #pragma link C++ class Histogrammer+;
+#pragma link C++ class MiniballGUI+;
+#pragma link C++ class MyDialog+;
 #endif
