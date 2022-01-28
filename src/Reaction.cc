@@ -296,12 +296,14 @@ void Reaction::ReadReaction() {
 	if( spede_dist > 0 ) std::cout << " !! WARNING !! Spede.Distance should be negative" << std::endl;
 	
 	// Get the stopping powers
-	stopping = false;
-	//stopping = true;
-	//stopping *= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
-	//stopping *= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
-	//stopping *= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
-	//stopping *= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
+	stopping = true;
+	for( unsigned int i = 0; i < 4; ++i )
+		gStopping.push_back( std::make_unique<TGraph>() );
+	stopping *= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
+	stopping *= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
+	stopping *= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
+	stopping *= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
+
 
 	
 	// Some diagnostics and info
@@ -587,7 +589,7 @@ void Reaction::CalculateRecoil(){
 
 }
 
-double Reaction::GetEnergyLoss( double Ei, double dist, TGraph* g ) {
+double Reaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g ) {
 
 	/// Returns the energy loss at a given initial energy and distance travelled
 	/// A negative distance will add the energy back on, i.e. travelling backwards
@@ -599,22 +601,25 @@ double Reaction::GetEnergyLoss( double Ei, double dist, TGraph* g ) {
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
 
 		if( E < 100. ) break; // when we fall below 100 keV we assume maximum energy loss
-		E += g->Eval(E) * dx;
+		E -= g->Eval(E) * dx;
 		
 	}
 	
-	return E - Ei;
+	return Ei - E;
 
 }
 
-bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, TGraph* g ) {
+bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g ) {
 	 
 	/// Open stopping power files and make TGraphs of data
 	std::string title = "Stopping powers for ";
 	title += isotope1 + " in " + isotope2;
+	title += ";" + isotope1 + " energy [keV];";
+	title += "Energy loss in " + isotope2;
+	if( isotope2 == "Si" ) title += " [keV/#mum]";
+	else title += " [keV/(mg/cm^{2})]";
 	
 	// Initialise an empty TGraph
-	g = new TGraph();
 	g->SetTitle( title.c_str() );
 
 	// Keep things quiet from ROOT
@@ -626,7 +631,7 @@ bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, T
 	srimfilename += isotope1 + "_" + isotope2 + ".txt";
 	
 	std::ifstream input_file;
-	input_file.open( srimfilename.data(), std::ios::in );
+	input_file.open( srimfilename, std::ios::in );
 
 	// If it fails to open print an error
 	if( !input_file.is_open() ) {
@@ -639,18 +644,22 @@ bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, T
 
 	std::string line, units, tmp_str;
 	std::stringstream line_ss;
-	bool endflag = false;
 	double En, nucl, elec, total, tmp_dbl;
-	int p = 0;
 	 
 	// Test file format
 	std::getline( input_file, line );
 	if( line.substr( 3, 5 ) == "=====" ) {
 		
-		while( line.substr( 3, 5 ) != "-----" && !input_file.eof() )
-			std::getline( input_file, line );
-		
-		std::getline( input_file, line ); // read first line of data
+		// Advance
+		while( std::getline( input_file, line ) && !input_file.eof() ) {
+			
+			// Skip over the really short lines
+			if( line.length() < 10 ) continue;
+			
+			// Check for the start of the data
+			if( line.substr( 3, 5 ) == "-----" ) break;
+			
+		}
 		
 	}
 	else {
@@ -661,8 +670,11 @@ bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, T
 	}
 
 	// Read in the data
-	while( !input_file.eof() && !endflag ) {
+	while( std::getline( input_file, line ) && !input_file.eof() ) {
 		
+		// Skip over the really short lines
+		if( line.length() < 10 ) continue;
+
 		// Read in data
 		line_ss.str("");
 		line_ss << line;
@@ -673,16 +685,12 @@ bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, T
 		else if( units == "MeV" ) En *= 1E3;
 		else if( units == "GeV" ) En *= 1E6;
 		
-		total = nucl + elec ; // MeV / ( mg / cm^2 )
+		total = nucl + elec ; // in some units, conversion done later
 		
 		g->SetPoint( g->GetN(), En, total );
 		
-		// Get next line
-		std::getline( input_file, line );
-		p++;
-		
 		// If we've reached the end, stop
-		if( line.substr( 3, 9 ) == "---------" ) endflag = true;
+		if( line.substr( 3, 9 ) == "---------" ) break;
 		
 	}
 	
@@ -701,19 +709,15 @@ bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, T
 	double conv, conv_keVum, conv_MeVmgcm2;
 	std::getline( input_file, line ); // first conversion is eV / Angstrom
 	std::getline( input_file, line ); // keV / micron
-	line_ss.str("");
-	line_ss << line;
-	line_ss >> conv_keVum;
+	conv_keVum = std::stod( line.substr( 0, 15 ) );
 	std::getline( input_file, line ); // MeV / mm
 	std::getline( input_file, line ); // keV / (ug/cm2)
 	std::getline( input_file, line ); // MeV / (mg/cm2)
-	line_ss.str("");
-	line_ss << line;
-	line_ss >> conv_MeVmgcm2;
+	conv_MeVmgcm2 = std::stod( line.substr( 0, 15 ) );
 	
 	// Now convert all the points in the plot
-	if( isotope2 == "Si" ) conv = conv_keVum * 1000.; // silicon thickness in mm, energy in keV
-	else conv = conv_MeVmgcm2 * 1000.; // target thickness in mg/cm2, energy in keV
+	if( isotope2 == "Si" ) conv = conv_keVum * 1E3; // silicon thickness in mm, energy in keV
+	else conv = conv_MeVmgcm2 * 1E3; // target thickness in mg/cm2, energy in keV
 	for( Int_t i = 0; i < g->GetN(); ++i ){
 		
 		g->GetPoint( i, En, total );
@@ -723,9 +727,10 @@ bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, T
 	
 	// Draw the plot and save it somewhere
 	TCanvas *c = new TCanvas();
+	c->SetLogx();
+	//c->SetLogy();
 	g->Draw("A*");
 	std::string pdfname = srimfilename.substr( 0, srimfilename.find_last_of(".") ) + ".pdf";
-	c->SetLogx();
 	c->SaveAs( pdfname.c_str() );
 	
 	delete c;

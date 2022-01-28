@@ -399,8 +399,8 @@ public:
 	};
 
 	// Energy loss and stopping powers
-	double GetEnergyLoss( double Ei, double dist, TGraph* g );
-	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, TGraph* g );
+	double GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g );
+	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g );
 
 	
 	// Get cuts
@@ -487,7 +487,7 @@ private:
 	TCutG *ejectile_cut, *recoil_cut;
 	
 	// Stopping powers
-	TGraph *gStopping[4];
+	std::vector<std::unique_ptr<TGraph>> gStopping;
 	bool stopping;
 	
 };
