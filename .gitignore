@@ -46,3 +46,6 @@ lib/*
 
 # Plots
 srim/*.pdf
+
+# Test data
+test/*
