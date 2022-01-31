@@ -511,7 +511,7 @@ void Converter::ProcessFebexData(){
 	my_sfp_id = (ADCchanIdent >> 10) & 0x0003; // 2 bits from 10
 	my_board_id = (ADCchanIdent >> 6) & 0x000F; // 4 bits from 6
 	my_data_id = (ADCchanIdent >> 4) & 0x0003; // 2 bits from 4
-	my_ch_id = ADCchanIdent & 0x0007; // 3 bits from 0
+	my_ch_id = ADCchanIdent & 0x000F; // 4 bits from 0
 	
 	// Check things make sense
 	if( my_sfp_id >= set->GetNumberOfFebexSfps() ||
@@ -761,19 +761,17 @@ void Converter::ProcessInfoData(){
 	my_info_code	= (word_0 >> 20) & 0x0000000F; // bits 20:23
 	my_tm_stp_lsb	= word_1 & 0x0FFFFFFF;  // bits 0:27
 
-	// HSB of timestamp
+	// HSB of FEBEX extended timestamp
 	if( my_info_code == set->GetTimestampCode() ) {
 		
 		my_tm_stp_hsb = my_info_field & 0x000FFFFF;
 
 	}
 	
-	// MSB of timestamp in sync pulse or CAEN extended time stamp
+	// MSB of FEBEX extended timestamp
 	if( my_info_code == set->GetSyncCode() ) {
 		
-		// We don't know yet if it's from CAEN or ISS
-		// In CAEN this would be the extended timestamp
-		// In ISS it is the Sync100 pulses
+		// In FEBEX this would be the extended timestamp
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
 		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
 
