@@ -23,7 +23,7 @@ void Settings::ReadSettings() {
 	// FEBEX initialisation
 	n_febex_sfp		= config->GetValue( "NumberOfFebexSfps", 4 );
 	n_febex_board	= config->GetValue( "NumberOfFebexBoards", 16 );
-	n_febex_ch		= config->GetValue( "NumberOfFebexChannels", 32 );
+	n_febex_ch		= config->GetValue( "NumberOfFebexChannels", 16 );
 	
 	// Miniball array initialisation
 	n_mb_cluster	= config->GetValue( "NumberOfMiniballClusters", 8 );
