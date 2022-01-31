@@ -616,7 +616,7 @@ bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, s
 	title += isotope1 + " in " + isotope2;
 	title += ";" + isotope1 + " energy [keV];";
 	title += "Energy loss in " + isotope2;
-	if( isotope2 == "Si" ) title += " [keV/#mum]";
+	if( isotope2 == "Si" ) title += " [keV/mm]";
 	else title += " [keV/(mg/cm^{2})]";
 	
 	// Initialise an empty TGraph
