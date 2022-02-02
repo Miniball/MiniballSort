@@ -483,8 +483,11 @@ void Reaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
-	if( stopping ) eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] );
-	Ejectile.SetEnergy( p->GetEnergy() ); // eloss is negative to add back the dead layer energy
+	if( stopping ) {
+		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] ); // ejectile in dead layer
+		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[0] ); // ejectile in target
+	}
+	Ejectile.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
 	Ejectile.SetTheta( GetParticleTheta(p) );
 	Ejectile.SetPhi( GetParticlePhi(p) );
 
@@ -512,7 +515,10 @@ void Reaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
-	if( stopping ) eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[3] );
+	if( stopping ) {
+		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[3] ); // recoil in dead layer
+		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[1] ); // recoil in target
+	}
 	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative to add back the dead layer energy
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
