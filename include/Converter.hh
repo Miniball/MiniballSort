@@ -2,6 +2,7 @@
 #define __CONVERTER_HH
 
 #include <bitset>
+#include <memory>
 #include <fstream>
 #include <iostream>
 #include <iomanip>

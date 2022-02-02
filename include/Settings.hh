@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <memory>
 
 #include "TObject.h"
 #include "TSystem.h"

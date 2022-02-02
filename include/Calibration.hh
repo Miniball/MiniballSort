@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <fstream>
 #include <string>
 #include <array>

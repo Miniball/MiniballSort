@@ -1,6 +1,8 @@
 #ifndef __DATAPACKETS_HH
 #define __DATAPACKETS_HH
 
+#include <memory>
+
 #include "TObject.h"
 
 class FebexData : public TObject {
