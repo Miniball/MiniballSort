@@ -4,6 +4,8 @@
 #include <memory>
 
 #include "TObject.h"
+#include "TVector.h"
+#include "TGraph.h"
 
 class FebexData : public TObject {
 	
@@ -30,6 +32,18 @@ public:
 	inline bool					IsVeto() { return veto; };
 	inline bool					IsFail() { return fail; };
 	inline std::vector<unsigned short> GetTrace() { return trace; };
+	inline TGraph* GetTraceGraph() {
+		std::vector<int> x, y;
+		std::string title = "Trace for SFP " + std::to_string( GetSfp() );
+		title += ", Board " + std::to_string( GetBoard() ) + ", Channel ";
+		title += std::to_string( GetChannel() ) + ";time [ns];signal";
+		for( unsigned short i = 0; i < GetTraceLength(); ++i ){
+			x.push_back( i * 20 );
+			y.push_back( GetSample(i) );
+		}
+		TGraph *g = new TGraph( GetTraceLength(), x.data(), y.data() );
+		return (TGraph*)g->Clone();
+	};
 	inline unsigned short		GetSample( unsigned int i = 0 ) {
 		if( i >= trace.size() ) return 0;
 		return trace.at(i);

@@ -94,6 +94,7 @@ void FebexData::ClearData(){
 	
 	time = 0;
 	trace.clear();
+	std::vector<unsigned short>().swap(trace);
 	Qint = 0;
 	Qhalf = 0.;
 	Qfloat = 0.;

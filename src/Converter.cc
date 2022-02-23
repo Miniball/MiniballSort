@@ -39,11 +39,6 @@ void Converter::SetOutput( std::string output_file_name ){
 	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file", 0 );
 	output_file->SetCompressionLevel(0);
 
-	// Create log file.
-	std::string log_file_name = output_file_name.substr( 0, output_file_name.find_last_of(".") );
-	log_file_name += ".log";
-	log_file.open( log_file_name.c_str(), std::ios::out );
-	
 	return;
 
 };
@@ -285,25 +280,6 @@ void Converter::ProcessBlockHeader( unsigned long nblock ){
 	(block_header[20] & 0xFF) | (block_header[21]& 0xFF) << 8 |
 	(block_header[22] & 0xFF) << 16  | (block_header[23]& 0xFF) << 24 ;
 	
-
-	// Print header info.
-	log_file << "== DATA BLOCK: " << nblock << std::endl;
-	log_file << "Header_id: " << header_id << std::endl;
-	log_file << "Header_sequence: " << header_sequence << std::endl;
-	log_file << "Header_stream: " << header_stream << std::endl;
-	log_file << "Header tape: " << header_tape << std::endl;
-	log_file << "Header_MyEndian: " << header_MyEndian << std::endl;
-	log_file << "Header_DataEndian: " << header_DataEndian << std::endl;
-	log_file << "Header_DataLen: " << header_DataLen << std::endl;
-	
-	log_file << "== and in HEX:" << std::hex << std::endl;
-	for( unsigned int i = 0; i < HEADER_SIZE; i++ ) {
-		
-		log_file << int( block_header[i] ) << " ";
-		if( (i+1)%4 == 0 ) log_file << std::endl;
-		
-	}
-	
 	if( std::string(header_id).substr(0,8) != "EBYEDATA" ) {
 	
 		std::cerr << "Bad header in block " << nblock << std::endl;
@@ -367,27 +343,12 @@ void Converter::ProcessBlockData( unsigned long nblock ){
 		word_0 = (word & 0xFFFFFFFF00000000) >> 32;
 		word_1 = (word & 0x00000000FFFFFFFF);
 
-		// Put the info in binary and dump it to file.
-		// only do it for first 25 words of data
-		if( i < 25 && nblock < 10 ){
-			
-			std::bitset<32> _word_0(word_0);
-			std::bitset<32> _word_1(word_1);
-			
-			log_file << "= Entry: " << i  << std::endl;
-			log_file << "Word 0: " << _word_0 << "  "<< std::hex << "0x"<<word_0 << std::dec << std::endl; // Must have first 2 bits: 10.
-			log_file << "Word 1: " << _word_1 << "  "<< std::hex << "0x"<<word_1 << std::dec << std::endl; // Must have first 4 bits: 0000.
-						
-		}
-		
 		// Check the trailer: reject or keep the block.
 		if( ( word_0 & 0xFFFFFFFF ) == 0xFFFFFFFF ||
 		    ( word_0 & 0xFFFFFFFF ) == 0x5E5E5E5E ||
 		    ( word_1 & 0xFFFFFFFF ) == 0xFFFFFFFF ||
 		    ( word_1 & 0xFFFFFFFF ) == 0x5E5E5E5E ){
 			
-			log_file << "End of block " << nblock << " (" << std::hex;
-			log_file << word_0 << ", " << word_1 << ")" << std::dec << std::endl;
 			flag_terminator = true;
 			return;
 			
@@ -415,43 +376,7 @@ void Converter::ProcessBlockData( unsigned long nblock ){
 		// Trace header
 		else if( my_type == 0x1 ){
 			
-			// contains the sample length
-			nsamples = word_1 & 0x0000FFFF; // 16 bits from 0 in second word
-			if( i < 25 && nblock < 10 ) log_file << "nsamples = " << nsamples << std::endl;
-			
-			// Get the samples from the trace
-			for( UInt_t j = 0; j < nsamples; j++ ){
-				
-				// get next word
-				i++;
-				sample_packet = GetWord(i);
-				
-				block_test = ( sample_packet >> 32 ) & 0x00000000FFFFFFFF;
-				trace_test = ( sample_packet >> 62 ) & 0x0000000000000003;
-				
-				if( trace_test == 0 && block_test != 0x5E5E5E5E ){
-					
-					febex_data->AddSample( ( sample_packet >> 48 ) & 0x0000000000003FFF );
-					febex_data->AddSample( ( sample_packet >> 32 ) & 0x0000000000003FFF );
-					febex_data->AddSample( ( sample_packet >> 16 ) & 0x0000000000003FFF );
-					febex_data->AddSample( sample_packet & 0x0000000000003FFF );
-					
-				}
-				
-				else {
-					
-					//std::cout << "This isn't a trace anymore..." << std::endl;
-					//std::cout << "Sample #" << j << " of " << nsamples << std::endl;
-					//std::cout << " trace_test = " << (int)trace_test << std::endl;
-
-					i--;
-					break;
-					
-				}
-
-			}
-			
-			flag_febex_trace = true;
+			i = ProcessTraceData(i);
 			FinishFebexData();
 
 		}
@@ -459,50 +384,21 @@ void Converter::ProcessBlockData( unsigned long nblock ){
 		else {
 			
 			// output error message!
-			log_file << "WARNING: WRONG TYPE! word 0: " << word_0;
-			log_file << ", my_type: " << my_type << std::endl;
-		
-		}
-		
-		
-		if( i < 25 && nblock < 10 ){
-			
-			// Print the information.
-			log_file << "Info:" << std::endl;
-			
-			log_file << "type: " << std::dec << int(my_type) << std::hex <<" 0x" << int(my_type)<<std::endl;
-			log_file << "veto: " << std::dec << int(my_veto) << std::hex<<" 0x"<< int(my_veto)<<std::endl;
-			log_file << "fail: " << std::dec << int(my_fail) << std::hex<<" 0x"<< int(my_fail)<<std::endl;
-			log_file << "sfp id: " << std::dec << int(my_sfp_id) << std::hex<<" 0x"<< int(my_sfp_id)<<std::endl;
-			log_file << "board id: " << std::dec << int(my_board_id) << std::hex<<" 0x"<< int(my_board_id)<<std::endl;
-			log_file << "channel id: " << std::dec << int(my_ch_id) << std::hex<<" 0x"<< int(my_ch_id)<<std::endl;
-			log_file << "time stamp(LSB): " << std::dec << my_tm_stp << std::hex<<" 0x"<< my_tm_stp<<std::endl;
-			log_file << "ADC data: " << std::dec << my_adc_data << std::hex<<" 0x"<< my_adc_data<<std::endl;
-			log_file << "ADC id: " << std::dec << int(my_data_id) << std::hex<<" 0x"<< int(my_data_id)<<std::endl;
-			log_file << "info code: " << std::dec << int(my_info_code) << std::hex<<" 0x"<< int(my_info_code)<<std::endl;
-			log_file << "info field: " << std::dec << my_info_field << std::hex<<" 0x"<< my_info_field<<std::endl;
-			
-			log_file << std::dec << std::endl;
+			std::cerr << "WARNING: WRONG TYPE! word 0: " << word_0;
+			std::cerr << ", my_type: " << my_type << std::endl;
+			std::cerr << ", in bloc: " << nblock << std::endl;
 
 		}
-		
-		
+
 	} // loop - i < header_DataLen
 	
 	return;
 
 }
 
-void Converter::ProcessFebexData(){
-
-	// Febex data format
-	my_adc_data = word_0 & 0xFFFF; // 16 bits from 0
+bool Converter::GetFebexChanID(){
 	
-	// Fail and veto bits (not used in FEBEX?)
-	my_veto = (word_0 >> 28) & 0x0001;
-	my_fail = (word_0 >> 29) & 0x0001;
-
-	// ADCchannelIdent are bits 27:16
+	// ADCchannelIdent are bits 27:16 of word_0
 	// sfp_id= bit 11:10, board_id= bit 9:6, data_id= bit 5:4, ch_id= bit 3:0
 	// data_id: fast mode readout: =0 16 bit integer; =1 16 bit float;
 	//				=2 32 bit float (low 16 bits); =3 32 bit float (high 16 bits)
@@ -522,9 +418,83 @@ void Converter::ProcessFebexData(){
 		std::cout << " board_id=" << my_board_id;
 		std::cout << " ch_id=" << my_ch_id;
 		std::cout << " data_id=" << my_data_id << std::endl;
-		return;
+		return false;
 
 	}
+
+	else return true;
+	
+}
+
+int Converter::ProcessTraceData( int pos ){
+	
+	// Channel ID, etc
+	if( !GetFebexChanID() ) return pos;
+
+	// reconstruct time stamp= MSB+LSB
+	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
+	my_tm_stp = ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
+
+	// Make a FebexData item
+	febex_data->SetTime( my_tm_stp );
+	febex_data->SetSfp( my_sfp_id );
+	febex_data->SetBoard( my_board_id );
+	febex_data->SetChannel( my_ch_id );
+	febex_data->SetFail( 0 );
+	febex_data->SetVeto( 0 );
+
+	// sample length
+	nsamples = word_0 & 0xFFFF; // 16 bits from 0
+	
+	// Get the samples from the trace
+	for( UInt_t j = 0; j < nsamples; j++ ){
+		
+		// get next word
+		pos++;
+		sample_packet = GetWord(pos);
+		
+		block_test = ( sample_packet >> 32 ) & 0x00000000FFFFFFFF;
+		trace_test = ( sample_packet >> 62 ) & 0x0000000000000003;
+		
+		if( trace_test == 0 && block_test != 0x5E5E5E5E ){
+			
+			febex_data->AddSample( ( sample_packet >> 48 ) & 0x0000000000003FFF );
+			febex_data->AddSample( ( sample_packet >> 32 ) & 0x0000000000003FFF );
+			febex_data->AddSample( ( sample_packet >> 16 ) & 0x0000000000003FFF );
+			febex_data->AddSample( sample_packet & 0x0000000000003FFF );
+			
+		}
+		
+		else {
+			
+			//std::cout << "This isn't a trace anymore..." << std::endl;
+			//std::cout << "Sample #" << j << " of " << nsamples << std::endl;
+			//std::cout << " trace_test = " << (int)trace_test << std::endl;
+
+			pos--;
+			break;
+			
+		}
+
+	}
+	
+	flag_febex_trace = true;
+	
+	return pos;
+
+}
+
+void Converter::ProcessFebexData(){
+
+	// Febex data format
+	my_adc_data = word_0 & 0xFFFF; // 16 bits from 0
+	
+	// Fail and veto bits (not used in FEBEX?)
+	my_veto = (word_0 >> 28) & 0x0001;
+	my_fail = (word_0 >> 29) & 0x0001;
+
+	// Channel ID, etc
+	if( !GetFebexChanID() ) return;
 	
 	// reconstruct time stamp= MSB+LSB
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
@@ -555,9 +525,6 @@ void Converter::ProcessFebexData(){
 	else if( flag_febex_data0 && flag_febex_data1 &&
 			 flag_febex_data2 && flag_febex_data3 ){
 		
-		// Fake trace flag, but with an empty trace
-		flag_febex_trace = true;
-		
 		// Finish up the previous event
 		FinishFebexData();
 
@@ -580,9 +547,6 @@ void Converter::ProcessFebexData(){
 		flag_febex_data2 = true;
 		flag_febex_data3 = true;
 
-		// Fake trace flag, but with an empty trace
-		flag_febex_trace = true;
-		
 		// Finish up the previous event
 		FinishFebexData();
 
@@ -595,7 +559,7 @@ void Converter::ProcessFebexData(){
 		febex_data->SetVeto( my_veto );
 		
 	}
-
+	
 	// 16-bit integer energy
 	if( my_data_id == 0 ) {
 		
@@ -650,9 +614,9 @@ void Converter::FinishFebexData(){
 	// Timestamp with offset
 	unsigned long long time_corr;
 	
-	// Got all items
-	if( flag_febex_data0 && flag_febex_data1 &&
-	    flag_febex_data2 && flag_febex_data3 && flag_febex_trace ){
+	// Got all items in fast readout mode or trace only mode
+	if( ( flag_febex_data0 && flag_febex_data1 &&
+	    flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
 
 		// Add the time offset to this channel
 		time_corr  = febex_data->GetTime();
@@ -718,7 +682,7 @@ void Converter::FinishFebexData(){
 		}
 
 	}
-	
+
 	// missing something
 	else if( my_tm_stp != febex_data->GetTime() ) {
 		
@@ -861,8 +825,6 @@ int Converter::ConvertFile( std::string input_file_name,
 	sslogs << "\t  N blocks = " << BLOCKS_NUM << std::endl;
 
 	std::cout << sslogs.str() << std::endl;
-	log_file << __PRETTY_FUNCTION__ << std::endl;
-	log_file << sslogs.str() << std::endl;
 	sslogs.str( std::string() ); // clean up
 	
 
@@ -928,7 +890,7 @@ int Converter::ConvertFile( std::string input_file_name,
 	//set->Write( "settings", TObject::kWriteDelete );
 	//cal->Write( "calibration", TObject::kWriteDelete );
 	//output_file->Print();
-	log_file.close();
+
 	
 	return BLOCKS_NUM;
 	

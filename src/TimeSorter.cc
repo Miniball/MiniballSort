@@ -54,11 +54,6 @@ void TimeSorter::SetOutput( std::string output_file_name ){
 	//output_tree->SetAutoSave( 100*1024*1024 );	// 100 MB
 	output_tree->AutoSave();
 	
-	// Create log file.
-	std::string log_file_name = output_file_name.substr( 0, output_file_name.find_last_of(".") );
-	log_file_name += ".log";
-	log_file.open( log_file_name.data(), std::ios::app );
-
 	return;
 	
 };
@@ -71,7 +66,6 @@ unsigned long TimeSorter::SortFile( unsigned long start_sort ) {
 	// Time sort all entries of the tree
 	n_entries = input_tree->GetEntries();
 	std::cout << " Sorting: number of entries in input tree = " << n_entries << std::endl;
-	log_file << " Sorting: number of entries in input tree = " << n_entries << std::endl;
 
 	if( n_entries > 0 && start_sort < n_entries  ) {
 		
@@ -80,7 +74,6 @@ unsigned long TimeSorter::SortFile( unsigned long start_sort ) {
 		att_index = (TTreeIndex*)input_tree->GetTreeIndex();
 	
 		std::cout << " Sorting: size of the sorted index = " << nb_idx << std::endl;
-		log_file << " Sorting: size of the sorted index = " << nb_idx << std::endl;
 
 		// Loop on t_raw entries and fill t
 		for( unsigned long i = 0; i < nb_idx; ++i ) {
@@ -110,13 +103,7 @@ unsigned long TimeSorter::SortFile( unsigned long start_sort ) {
 
 	}
 	
-	else {
-		
-		std::cout << " Sorting: nothing to sort " << std::endl;
-		log_file << " Sorting: nothing to sort " << std::endl;
-		
-	}
-	
+	else std::cout << " Sorting: nothing to sort " << std::endl;	
 
 	// Write histograms, trees and clean up
 	output_file->cd();
@@ -128,8 +115,6 @@ unsigned long TimeSorter::SortFile( unsigned long start_sort ) {
 	
 	
 	std::cout << "End TimeSorter: time elapsed = " << time(NULL)-t_start << " sec." << std::endl;
-	log_file << "End TimeSorter: time elapsed = " << time(NULL)-t_start << " sec." << std::endl;
-	
 	
 	return n_entries;
 	

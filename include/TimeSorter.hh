@@ -31,7 +31,6 @@ public:
 	inline void CloseOutput(){
 		output_file->Close();
 		input_file->Close(); // Close TFile
-		log_file.close(); //?? to close or not to close?
 	};
 
 	inline TFile* GetFile(){ return output_file; };
@@ -50,8 +49,6 @@ private:
 	TTree *input_tree;
 	TFile *output_file;
 	TTree *output_tree;
-	
-	std::ofstream log_file;
 	
 	TTreeIndex *att_index;
 

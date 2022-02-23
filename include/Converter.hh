@@ -53,9 +53,11 @@ public:
 	void SetBlockData( char *input_data );
 	void ProcessBlockData( unsigned long nblock );
 
-	void ProcessInfoData();
+	bool GetFebexChanID();
+	int  ProcessTraceData( int pos );
 	void ProcessFebexData();
 	void FinishFebexData();
+	void ProcessInfoData();
 
 	void SetOutput( std::string output_file_name );
 	
@@ -126,8 +128,7 @@ private:
 	};
 
 
-	// Log file
-	std::ofstream log_file;
+	// Logs
 	std::stringstream sslogs;
 
 	
