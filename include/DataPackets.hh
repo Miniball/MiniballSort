@@ -41,8 +41,10 @@ public:
 			x.push_back( i * 20 );
 			y.push_back( GetSample(i) );
 		}
-		TGraph *g = new TGraph( GetTraceLength(), x.data(), y.data() );
-		return (TGraph*)g->Clone();
+		std::unique_ptr<TGraph> g = std::make_unique<TGraph>(
+                            GetTraceLength(), x.data(), y.data() );
+        g.get()->SetTitle( title.data() );
+		return (TGraph*)g.get()->Clone();
 	};
 	inline unsigned short		GetSample( unsigned int i = 0 ) {
 		if( i >= trace.size() ) return 0;

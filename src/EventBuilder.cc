@@ -5,6 +5,9 @@ EventBuilder::EventBuilder( std::shared_ptr<Settings> myset ){
 	// First get the settings
 	set = myset;
 	
+	// No calibration file by default
+	overwrite_cal = false;
+	
 	// ------------------------------- //
 	// Initialise variables and flags  //
 	// ------------------------------- //
@@ -49,6 +52,9 @@ void EventBuilder::StartFile(){
 	// Reset counters etc.
 	
 	time_prev		= 0;
+	time_min		= 0;
+	time_max		= 0;
+	time_first		= 0;
 	pulser_time		= 0;
 	pulser_prev		= 0;
 	ebis_prev		= 0;
@@ -144,7 +150,6 @@ void EventBuilder::Initialise(){
 	/// This is called at the end of every execution/loop
 	
 	flag_close_event = false;
-	noise_flag = false;
 	event_open = false;
 
 	hit_ctr = 0;
@@ -220,35 +225,11 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			
 		}
 			
-		// Sort out the timing for the event window
-		// but only if it isn't an info event, i.e only for real data
-		if( !in_data->IsInfo() ) {
-			
-			// if this is first datum included in Event
-			if( hit_ctr == 0 ) {
-				
-				time_min	= mytime;
-				time_max	= mytime;
-				time_first	= mytime;
-				
-			}
-			
-			// Check if first event was noise
-			// Reset the build window if so
-			if( noise_flag && !event_open )
-				time_first = mytime;
-			
-			noise_flag = false; // reset noise flag
-			hit_ctr++; // increase counter for bits of data included in this event
-
-			// record time of this event
-			time_prev = mytime;
-			
-			// Update min and max
-			if( mytime > time_max ) time_max = mytime;
-			else if( mytime < time_min ) time_min = mytime;
-			
-		}
+		// record time of this event
+		time_prev = mytime;
+		
+		// assume this isn't noise for now
+		noise_flag = false;
 
 
 		// ------------------------------------------ //
@@ -338,7 +319,8 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			info_data = in_data->GetInfoData();
 			
 			// Update EBIS time
-			if( info_data->GetCode() == set->GetEBISCode() ) {
+			if( info_data->GetCode() == set->GetEBISCode() &&
+				TMath::Abs( (double)ebis_time - (double)info_data->GetTime() ) > 1e3 ) {
 				
 				ebis_time = info_data->GetTime();
 				ebis_hz = 1e9 / ( (double)ebis_time - (double)ebis_prev );
@@ -349,7 +331,8 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			}
 		
 			// Update T1 time
-			if( info_data->GetCode() == set->GetT1Code() ){
+			if( info_data->GetCode() == set->GetT1Code() &&
+				TMath::Abs( (double)t1_time - (double)info_data->GetTime() ) > 1e3 ){
 				
 				t1_time = info_data->GetTime();
 				t1_hz = 1e9 / ( (double)t1_time - (double)t1_prev );
@@ -425,8 +408,26 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 				
 				}
 				
+			} // is info
+			
+			// Sort out the timing for the event window
+			// but only if it isn't an info event, i.e only for real data
+			else {
+				
+				// if this is first datum included in Event
+				if( hit_ctr == 1 ) {
+					
+					time_min	= mytime;
+					time_max	= mytime;
+					time_first	= mytime;
+					
+				}
+				
+				// Update min and max
+				if( mytime > time_max ) time_max = mytime;
+				else if( mytime < time_min ) time_min = mytime;
+				
 			}
-
 		
 			// Now reset previous timestamps
 			if( info_data->GetCode() == set->GetPulserCode() )
@@ -440,12 +441,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 		//  check if last datum from this event and do some cleanup
 		//------------------------------
 		
-		if( (i+1) == n_entries )
-			flag_close_event = true; // set flag to close this event
-			
-		else {  //check if next entry is beyond time window: close event!
-
-			input_tree->GetEntry(i+1);
+		if( input_tree->GetEntry(i+1) ) {
 						
 			time_diff = in_data->GetTime() - time_first;
 
@@ -470,26 +466,30 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 		
 		
 		//----------------------------
-		// if close this event and number of datums in event>0
+		// if close this event or last entry
 		//----------------------------
-		if( flag_close_event && hit_ctr > 0 ) {
+		if( flag_close_event || (i+1) == n_entries ) {
 
-			//----------------------------------
-			// Build array events, recoils, etc
-			//----------------------------------
-			GammaRayFinder();		// perform addback
-			ParticleFinder();		// sort out CD n/p correlations
+			// If we opened the event, then sort it out
+			if( event_open ) {
+			
+				//----------------------------------
+				// Build array events, recoils, etc
+				//----------------------------------
+				GammaRayFinder();		// perform addback
+				ParticleFinder();		// sort out CD n/p correlations
 
-			// ------------------------------------
-			// Add timing and fill the ISSEvts tree
-			// ------------------------------------
-			write_evts->SetEBIS( ebis_time );
-			write_evts->SetT1( t1_time );
-			if( write_evts->GetGammaRayMultiplicity() ||
-			    write_evts->GetGammaRayAddbackMultiplicity() )
-				output_tree->Fill();
+				// ------------------------------------
+				// Add timing and fill the ISSEvts tree
+				// ------------------------------------
+				write_evts->SetEBIS( ebis_time );
+				write_evts->SetT1( t1_time );
+				if( write_evts->GetGammaRayMultiplicity() ||
+					write_evts->GetGammaRayAddbackMultiplicity() )
+					output_tree->Fill();
 
-
+			}
+			
 			//--------------------------------------------------
 			// clear values of arrays to store intermediate info
 			//--------------------------------------------------

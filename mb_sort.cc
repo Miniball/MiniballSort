@@ -445,7 +445,7 @@ int main( int argc, char *argv[] ){
 	}
 	
 	// If we are launching the GUI
-	if( gui_flag ) {
+	if( gui_flag || argc == 1 ) {
 		
 		TApplication theApp( "App", &argc, argv );
 		new MiniballGUI();

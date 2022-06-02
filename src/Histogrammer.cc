@@ -20,8 +20,8 @@ void Histogrammer::MakeHists() {
 	output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
 	
-	ebis_td_gamma = new TH1F( "ebis_td_gamma", "Gamma-ray time with respect to EBIS;#Deltat;Counts per 20 #mus", 5e3, 0, 1e8  );
-	ebis_td_particle = new TH1F( "ebis_td_particle", "Particle time with respect to EBIS;#Deltat;Counts per 20 #mus", 5e3, 0, 1e8  );
+	ebis_td_gamma = new TH1F( "ebis_td_gamma", "Gamma-ray time with respect to EBIS;#Deltat;Counts per 20 #mus", 5.5e3, -0.1e8, 1e8  );
+	ebis_td_particle = new TH1F( "ebis_td_particle", "Particle time with respect to EBIS;#Deltat;Counts per 20 #mus", 5.5e3, -0.1e8, 1e8  );
 	
 	hname = "gamma_particle_td";
 	htitle = "Gamma-ray - Particle time difference;#Deltat;Counts";
@@ -1238,7 +1238,8 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 			std::cout << " " << std::setw(6) << std::setprecision(4);
 			std::cout << percent << "%    \r";
 			std::cout.flush();
-			
+			gSystem->ProcessEvents();
+
 		}
 		
 		

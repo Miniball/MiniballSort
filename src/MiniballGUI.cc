@@ -549,7 +549,7 @@ void MiniballGUI::gui_convert(){
 			
 			prog_format  = "Converting ";
 			prog_format += name_input_file( name_input_file.Last('/') + 1,
-					name_input_file.Length() - name_input_file.Last('/') );
+					name_input_file.Length() - name_input_file.Last('/') ).Data();
 			prog_format += ": %.0f%%";
 			prog_conv->ShowPosition( true, false, prog_format.data() );
 
@@ -630,7 +630,7 @@ void MiniballGUI::gui_sort(){
 			
 			prog_format  = "Sorting ";
 			prog_format += name_input_file( name_input_file.Last('/') + 1,
-						name_input_file.Length() - name_input_file.Last('/') );
+						name_input_file.Length() - name_input_file.Last('/') ).Data();
 			prog_format += ": %.0f%%";
 			prog_sort->ShowPosition( true, false, prog_format.data() );
 
@@ -718,7 +718,7 @@ void MiniballGUI::gui_build(){
 
 			prog_format  = "Building ";
 			prog_format += name_input_file( name_input_file.Last('/') + 1,
-						name_input_file.Length() - name_input_file.Last('/') );
+						name_input_file.Length() - name_input_file.Last('/') ).Data();
 			prog_format += ": %.0f%%";
 			prog_evnt->ShowPosition( true, false, prog_format.data() );
 

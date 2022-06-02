@@ -1,3 +1,5 @@
+#include "../include/DataPackets.hh"
+
 void read_traces( std::string filename = "test/R4_13.root" ) {
 	
 	// Open file
@@ -20,6 +22,9 @@ void read_traces( std::string filename = "test/R4_13.root" ) {
 	// Loop
 	for( unsigned long long i = 0; i < nentries; ++i ){
 		
+        // Skip except for every 16
+        if( i%16 != 0 ) continue;
+        
 		// Get entry
 		t->GetEntry(i);
 		
@@ -31,11 +36,16 @@ void read_traces( std::string filename = "test/R4_13.root" ) {
 		
 		// Draw trace
 		febex.get()->GetTraceGraph()->Draw("ac");
-		c1->Update();
+        
+        // Add label
+        TText lab;
+        std::string lab_str = "Event #" + std::to_string(i);
+        lab.DrawTextNDC( 0.2, 0.2, lab_str.data() );
 		
-		// Update the canvas and wait 500 ms
+		// Update the canvas and wait 50 ms
+        c1->Update();
 		gSystem->ProcessEvents();
-		gSystem->Sleep(500);
+		gSystem->Sleep(50);
 		
 	}
 	
