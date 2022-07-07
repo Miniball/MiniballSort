@@ -115,7 +115,7 @@ private:
 	// Flags
 	bool flag_close_event;
 	std::vector<std::vector<bool>> flag_pause, flag_resume;
-	bool noise_flag, event_open;
+	bool event_open;
 
 	// Time variables
 	long		 		time_diff;

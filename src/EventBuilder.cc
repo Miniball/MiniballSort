@@ -8,6 +8,9 @@ EventBuilder::EventBuilder( std::shared_ptr<Settings> myset ){
 	// No calibration file by default
 	overwrite_cal = false;
 	
+	// Progress bar starts as false
+	_prog_ = false;
+
 	// ------------------------------- //
 	// Initialise variables and flags  //
 	// ------------------------------- //
@@ -40,10 +43,7 @@ EventBuilder::EventBuilder( std::shared_ptr<Settings> myset ){
 		flag_resume[i].resize( set->GetNumberOfFebexBoards() );
 		
 	}
-	
-	// Progress bar starts as false
-	_prog_ = false;
-	
+		
 }
 
 void EventBuilder::StartFile(){
@@ -95,11 +95,7 @@ void EventBuilder::StartFile(){
 		}
 	
 	}
-	
-	// Some flags must be false to start
-	event_open = false;
-	flag_close_event = false;
-	
+		
 }
 
 void EventBuilder::SetInputFile( std::string input_file_name ) {
@@ -212,8 +208,8 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 	for( unsigned long i = start_build; i < n_entries; ++i ) {
 		
 		// Current event data
-		input_tree->GetEntry(i);
-		
+		if( i == start_build ) input_tree->GetEntry(i);
+
 		// Get the time of the event
 		mytime = in_data->GetTime();
 				
@@ -228,8 +224,8 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 		// record time of this event
 		time_prev = mytime;
 		
-		// assume this isn't noise for now
-		noise_flag = false;
+		// assume this is above threshold initially
+		mythres = true;
 
 
 		// ------------------------------------------ //
@@ -262,11 +258,8 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 
 			}
 			
-			// If it's below threshold do not use as window opener
-			if( !mythres ) noise_flag = true;
-
 			// Is it a gamma ray from Miniball?
-			else if( set->IsMiniball( mysfp, myboard, mych ) && mythres ) {
+			if( set->IsMiniball( mysfp, myboard, mych ) && mythres ) {
 				
 				// Increment counts and open the event
 				n_miniball++;
@@ -302,7 +295,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			if( febex_time_start.at( mysfp ).at( myboard ) == 0 )
 				febex_time_start.at( mysfp ).at( myboard ) = mytime;
 			
-			// or is it the end event (we don't know so keep updating
+			// or is it the end event (we don't know so keep updating)
 			febex_time_stop.at( mysfp ).at( myboard ) = mytime;
 
 		}
@@ -311,7 +304,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 		// ------------------------------------------ //
 		// Find info events, like timestamps etc
 		// ------------------------------------------ //
-		if( in_data->IsInfo() ) {
+		else if( in_data->IsInfo() ) {
 			
 			// Increment event counter
 			n_info_data++;
@@ -328,7 +321,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 				ebis_prev = ebis_time;
 				n_ebis++;
 				
-			}
+			} // EBIS code
 		
 			// Update T1 time
 			if( info_data->GetCode() == set->GetT1Code() &&
@@ -340,7 +333,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 				t1_prev = t1_time;
 				n_t1++;
 
-			}
+			} // T1 code
 			
 			// Update pulser time
 			if( info_data->GetCode() == set->GetPulserCode() ) {
@@ -351,7 +344,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 
 				n_pulser++;
 
-			}
+			} // pulser code
 
 			// Check the pause events for each module
 			if( info_data->GetCode() == set->GetPauseCode() ) {
@@ -372,7 +365,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 				
 				}
 
-			}
+			} // pause code
 			
 			// Check the resume events for each module
 			if( info_data->GetCode() == set->GetResumeCode() ) {
@@ -408,35 +401,34 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 				
 				}
 				
-			} // is info
+			} // resume code
 			
-			// Sort out the timing for the event window
-			// but only if it isn't an info event, i.e only for real data
-			else {
-				
-				// if this is first datum included in Event
-				if( hit_ctr == 1 ) {
-					
-					time_min	= mytime;
-					time_max	= mytime;
-					time_first	= mytime;
-					
-				}
-				
-				// Update min and max
-				if( mytime > time_max ) time_max = mytime;
-				else if( mytime < time_min ) time_min = mytime;
-				
-			}
-		
 			// Now reset previous timestamps
 			if( info_data->GetCode() == set->GetPulserCode() )
 				pulser_prev = pulser_time;
 
 						
-		}
+		} // is info data
 
-		
+		// Sort out the timing for the event window
+		// but only if it isn't an info event, i.e only for real data
+		if( !in_data->IsInfo() ) {
+			
+			// if this is first datum included in Event
+			if( hit_ctr == 1 && mythres ) {
+				
+				time_min	= mytime;
+				time_max	= mytime;
+				time_first	= mytime;
+				
+			}
+			
+			// Update min and max
+			if( mytime > time_max ) time_max = mytime;
+			else if( mytime < time_min ) time_min = mytime;
+			
+		} // not info data
+
 		//------------------------------
 		//  check if last datum from this event and do some cleanup
 		//------------------------------
@@ -457,7 +449,7 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			if( !in_data->IsInfo() ) {
 				
 				tdiff->Fill( time_diff );
-				if( !noise_flag )
+				if( !mythres )
 					tdiff_clean->Fill( time_diff );
 			
 			}
@@ -497,8 +489,15 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			
 		} // if close event && hit_ctr > 0
 		
-		if( i % (n_entries/100) == 0 || i+1 == n_entries ) {
-			
+		// Progress bar
+		bool update_progress = false;
+		if( n_entries < 200 )
+			update_progress = true;
+		else if( i % (n_entries/100) == 0 || i+1 == n_entries )
+			update_progress = true;
+		
+		if( update_progress ) {
+
 			// Percent complete
 			float percent = (float)(i+1)*100.0/(float)n_entries;
 
