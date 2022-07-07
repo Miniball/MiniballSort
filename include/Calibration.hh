@@ -42,7 +42,7 @@ public:
 	float FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned short raw );
 	float FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch );
 	long FebexTime( unsigned int sfp, unsigned int board, unsigned int ch );
-	
+	std::vector<float> FebexMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace );
 
 
 private:
@@ -51,12 +51,26 @@ private:
 	
 	std::shared_ptr<Settings> set;
 
+	std::vector< std::vector<std::vector<long>> > fFebexTime;
 	std::vector< std::vector<std::vector<float>> > fFebexOffset;
 	std::vector< std::vector<std::vector<float>> > fFebexGain;
 	std::vector< std::vector<std::vector<float>> > fFebexGainQuadr;
 	std::vector< std::vector<std::vector<float>> > fFebexThreshold;
-	std::vector< std::vector<std::vector<long>> > fFebexTime;
+	std::vector< std::vector<std::vector<float>> > fFebexMWD_Decay;
+	std::vector< std::vector<std::vector<float>> > fFebexMWD_Rise;
+	std::vector< std::vector<std::vector<float>> > fFebexMWD_Top;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Window;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Diff;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Threshold;
 
+	float default_MWD_Decay;
+	float default_MWD_Rise;
+	float default_MWD_Top;
+	unsigned int default_MWD_Window;
+	unsigned int default_MWD_Diff;
+	unsigned int default_MWD_Threshold;
+
+	
 	ClassDef( Calibration, 10 )
    
 };

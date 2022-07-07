@@ -85,6 +85,7 @@ void Converter::MakeHists() {
 	// Resize vectors
 	hfebex.resize( set->GetNumberOfFebexSfps() );
 	hfebex_cal.resize( set->GetNumberOfFebexSfps() );
+	hfebex_mwd.resize( set->GetNumberOfFebexSfps() );
 	hfebex_hit.resize( set->GetNumberOfFebexSfps() );
 	hfebex_pause.resize( set->GetNumberOfFebexSfps() );
 	hfebex_resume.resize( set->GetNumberOfFebexSfps() );
@@ -94,6 +95,7 @@ void Converter::MakeHists() {
 		
 		hfebex[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_cal[i].resize( set->GetNumberOfFebexBoards() );
+		hfebex_mwd[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_hit[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_pause[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_resume[i].resize( set->GetNumberOfFebexBoards() );
@@ -103,6 +105,7 @@ void Converter::MakeHists() {
 			
 			hfebex[i][j].resize( set->GetNumberOfFebexChannels() );
 			hfebex_cal[i][j].resize( set->GetNumberOfFebexChannels() );
+			hfebex_mwd[i][j].resize( set->GetNumberOfFebexChannels() );
 
 			dirname  = maindirname + "sfp_" + std::to_string(i);
 			dirname += "/board_" + std::to_string(j);
@@ -161,9 +164,33 @@ void Converter::MakeHists() {
 					
 				}
 				
+				// MWD energy
+				hname = "febex_" + std::to_string(i);
+				hname += "_" + std::to_string(j);
+				hname += "_" + std::to_string(k);
+				hname += "_mwd";
+				
+				htitle = "MWD FEBEX spectra for SFP " + std::to_string(i);
+				htitle += ", board " + std::to_string(j);
+				htitle += ", channel " + std::to_string(k);
+
+				htitle += ";Energy (keV);Counts per 0.5 keV";
+				
+				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
+					hfebex_mwd[i][j][k] = (TH1F*)output_file->Get( hname.data() );
+				
+				else {
+					
+					hfebex_mwd[i][j][k] = new TH1F( hname.data(), htitle.data(),
+												65536, -0.5, 65535.5 );
+					
+					hfebex_mwd[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+					
+				}
+				
 			} // k - channel
-			
-			// Hit ID vs timestamp
+
+		// Hit ID vs timestamp
 			hname  = "hfebex_hit_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			htitle = "Profile of ts versus hit_id in SFP " + std::to_string(i);
@@ -477,6 +504,11 @@ int Converter::ProcessTraceData( int pos ){
 		}
 
 	}
+	
+	mwd_energy = cal->FebexMWD( my_sfp_id, my_board_id, my_ch_id, febex_data->GetTrace() );
+	for( unsigned int i = 0; i < mwd_energy.size(); ++i )
+		hfebex_mwd[my_sfp_id][my_board_id][my_ch_id]->Fill( mwd_energy[i] );
+
 	
 	flag_febex_trace = true;
 	

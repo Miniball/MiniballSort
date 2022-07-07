@@ -193,6 +193,7 @@ private:
 	unsigned char my_data_id;
 	bool my_fail, my_veto;
 	float my_energy;
+	std::vector<float> mwd_energy;
 
 	// For traces
 	unsigned int nsamples;
@@ -223,6 +224,7 @@ private:
 
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_cal;
+	std::vector<std::vector<std::vector<TH1F*>>> hfebex_mwd;
 
 	// 	Settings file
 	std::shared_ptr<Settings> set;
