@@ -48,7 +48,12 @@ public:
 		if( i < energy_list.size() ) return energy_list.at(i);
 		else return -99.9;
 	};
+	inline float GetCfdTime( unsigned int i ){
+		if( i < cfd_list.size() ) return cfd_list.at(i);
+		else return 0;
+	};
 	inline std::vector<float> GetEnergies(){ return energy_list; };
+	inline std::vector<float> GetCfdTimes(){ return cfd_list; };
 	inline std::vector<float> GetStage1(){ return stage1; };
 	inline std::vector<float> GetStage2(){ return stage2; };
 	inline std::vector<float> GetStage3(){ return stage3; };
@@ -73,8 +78,9 @@ public:
 
 private:
 	
-	// List of energies to return
+	// List of energies and time to return
 	std::vector<float> energy_list;
+	std::vector<float> cfd_list;
 
 	// Vector to hold the trace
 	std::vector<unsigned short> trace;

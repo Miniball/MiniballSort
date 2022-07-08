@@ -92,11 +92,21 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			g5 = mwd.GetCfdGraph();
 			g5->SetTitle( title.data() );
 			g5->Draw("ac");
+			
+			// Add CFD triggers
+			std::vector<TArrow> arr( mwd.NumberOfTriggers() );
+			for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i ) {
 
+				arr[i].SetLineColor(kRed+1);
+				arr[i].DrawArrow( mwd.GetCfdTime(i), 0,
+								  mwd.GetCfdTime(i), -1.0 * mwd.GetEnergy(i),
+								  0.01, "-|>" );
+
+			}
 
 			// Draw energy histogram - graph6
 			c1->cd(6);
-			if( i > 50 )
+			if( h->Integral() > 50 )
 				h->GetXaxis()->SetRangeUser(
 						h->GetMean() - 10.* h->GetStdDev(),
 						h->GetMean() + 10.* h->GetStdDev() );
@@ -105,7 +115,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			// Update the canvas and wait 5 ms
 			c1->Update();
 			gSystem->ProcessEvents();
-			gSystem->Sleep(50);
+			gSystem->Sleep(700);
 
 		} // correct channel
 		

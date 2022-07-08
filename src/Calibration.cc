@@ -61,7 +61,7 @@ void FebexMWD::DoMWD() {
 	
 	
 	// Loop now over the CFD trace until we trigger
-	for( unsigned int i = delay_time; i < trace_length; ++i ) {
+	for( unsigned int i = delay_time*2+1; i < trace_length; ++i ) {
 		
 		// Trigger when we pass the threshold on the CFD
 		if( cfd[i] > threshold || -1.0*cfd[i] > threshold ) {
@@ -72,6 +72,12 @@ void FebexMWD::DoMWD() {
 			// Check we have enough trace left to analyse
 			if( trace_length - i < peaking_time + window/2 )
 				break;
+			
+			// Mark the CFD time
+			float cfd_time = (float)i / cfd[i];
+			cfd_time += (float)(i-1) / cfd[i-1];
+			cfd_time /= 1.0 / cfd[i] + 1.0 / cfd[i-1];
+			cfd_list.push_back( cfd_time );
 			
 			// intialise energy to be zero to start
 			float energy = 0.0;
