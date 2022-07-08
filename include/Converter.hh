@@ -193,7 +193,6 @@ private:
 	unsigned char my_data_id;
 	bool my_fail, my_veto;
 	float my_energy;
-	std::vector<float> mwd_energy;
 
 	// For traces
 	unsigned int nsamples;

@@ -505,9 +505,9 @@ int Converter::ProcessTraceData( int pos ){
 
 	}
 	
-	mwd_energy = cal->FebexMWD( my_sfp_id, my_board_id, my_ch_id, febex_data->GetTrace() );
-	for( unsigned int i = 0; i < mwd_energy.size(); ++i )
-		hfebex_mwd[my_sfp_id][my_board_id][my_ch_id]->Fill( mwd_energy[i] );
+	FebexMWD mwd = cal->DoMWD( my_sfp_id, my_board_id, my_ch_id, febex_data->GetTrace() );
+	for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i )
+		hfebex_mwd[my_sfp_id][my_board_id][my_ch_id]->Fill( mwd.GetEnergy(i) );
 
 	
 	flag_febex_trace = true;
