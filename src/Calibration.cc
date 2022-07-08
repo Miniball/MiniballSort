@@ -6,12 +6,7 @@ ClassImp(Calibration)
 void FebexMWD::DoMWD() {
 		
 	// Define the peaking time for this channel based on rise time then go to centre of flat top
-	float mwd_peaking_time = rise_time;
-	mwd_peaking_time += flat_top / 2.0;
-	
-	// Define the CFD peaking time for this channel based on rise time then go to centre of flat top
-	float cfd_peaking_time = rise_time / 2.0;
-	cfd_peaking_time += flat_top / 2.0;
+	float peaking_time = flat_top - (float)rise_time * fraction;
 
 	// Get the trace length
 	unsigned int trace_length = trace.size();
@@ -20,11 +15,8 @@ void FebexMWD::DoMWD() {
 	stage1.resize( trace_length, 0.0 );
 	stage2.resize( trace_length, 0.0 );
 	stage3.resize( trace_length, 0.0 );
-	stage1_int.resize( trace_length, 0 );
-	stage2_int.resize( trace_length, 0 );
-	stage3_int.resize( trace_length, 0 );
-	diff1.resize( trace_length, 0 );
-	diff2.resize( trace_length, 0 );
+	shaper.resize( trace_length, 0.0 );
+	cfd.resize( trace_length, 0.0 );
 	
 	
 	// Loop over trace and analyse
@@ -38,69 +30,72 @@ void FebexMWD::DoMWD() {
 			stage1[i] *= trace[i-1];
 			stage1[i] += trace[i];
 			stage1[i] += stage1[i-1];
-			stage1_int[i] = (unsigned int)(stage1[i]+0.5);
 			
 		}
 		
 		// MWD stage 2 - difference
-		if( i > (unsigned int)(flat_top+0.5) ) {
+		if( i > flat_top ) {
 			
 			stage2[i]  = stage1[i];
-			stage2[i] -= stage1[i-(unsigned int)(flat_top+0.5)];
-			stage2_int[i] = (unsigned int)(stage2[i]+0.5);
+			stage2[i] -= stage1[i-flat_top];
 			
 		}
 		
 		// MWD stage 3 - moving average
-		if( i >= (unsigned int)(rise_time+0.5) ) {
+		if( i >= rise_time ) {
 			
-			for( unsigned int j = 0; j < (unsigned int)(rise_time+0.5); ++j )
+			for( unsigned int j = 0; j < rise_time; ++j )
 				stage3[i] += stage2[i-j];
 			
-			stage3[i] /= rise_time;
-			stage3_int[i] = (unsigned int)(stage3[i]+0.5);
-			
+			stage3[i] /= (float)rise_time;
+
 		}
 		
 		// some kind of cfd trigger for thresholding
-		if( i >= (unsigned int)(diff_width+0.5) ) {
+		if( i >= delay_time ) {
 			
-			unsigned int buff = trace[i] - trace[i-(unsigned int)(diff_width+0.5)];
-			if( buff > 0 ) diff1[i] = buff;
-			buff = diff1[i] - diff1[i-(unsigned int)(diff_width+0.5)];
-			diff2[i] = buff + 1000;
-			
+			shaper[i] = trace[i] - trace[i-delay_time];
+			if( shaper[i] < 0 ) shaper[i] = 0.0;
+			cfd[i]  = fraction * shaper[i];
+			cfd[i] -= shaper[i-delay_time];
+
 		}
 		
 	} // loop over trace
 	
 	
 	// Loop now over the CFD trace until we trigger
-	for( unsigned int i = 0; i < trace_length; ++i ) {
+	for( unsigned int i = 1; i < trace_length; ++i ) {
 		
 		// Trigger when we pass the threshold on the CFD
-		if( diff2[i] > threshold ) {
+		if( cfd[i] > threshold || -1.0*cfd[i] > threshold ) {
+			
+			// Find zero crossing
+			while( cfd[i] * cfd[i-1] > 0 ) i++;
+	
+			// Check we have enough trace left to analyse
+			if( trace_length - i < peaking_time + window/2 )
+				break;
 			
 			// intialise energy to be zero to start
 			float energy = 0.0;
 			
-			// move to centre of flat top
-			i += (int)(cfd_peaking_time+0.5);
+			// move to peak of the flat top
+			i += peaking_time;
 			
 			// Go back to the start of the averaging window
-			i -= window / 2.0;
+			i -= window;
 			
 			// average energy over window
 			for( unsigned int j = i; j < i + window; ++j )
-				energy += stage3_int[j];
+				energy += stage3[j];
 			
 			energy_list.push_back( energy / (float)window );
 			
-			// move to the back to the centre then the end of the peak
-			i -= window / 2.0;
-			i += (int)(cfd_peaking_time+0.5);
-			
-		}
+			// move back to the peak, then to the end of the trapezoid
+			i += peaking_time/2;
+							
+		} // threshold passed
 		
 	} // loop over CFD
 	
@@ -130,12 +125,13 @@ void Calibration::ReadCalibration() {
 
 	std::unique_ptr<TEnv> config( new TEnv( fInputFile.data() ) );
 	
-	default_MWD_Decay		= 6000.0;
-	default_MWD_Rise		= 100.;
-	default_MWD_Top			= 250.;
-	default_MWD_Window		= 10;
-	default_MWD_Diff		= 175;
-	default_MWD_Threshold	= 1100;
+	default_MWD_Decay		= 14000.0;
+	default_MWD_Rise		= 25;
+	default_MWD_Top			= 150;
+	default_MWD_Window		= 12;
+	default_CFD_Delay		= 5;
+	default_CFD_Threshold	= 150;
+	default_CFD_Fraction	= 0.5;
 
 	
 	// FEBEX initialisation
@@ -148,8 +144,9 @@ void Calibration::ReadCalibration() {
 	fFebexMWD_Rise.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Top.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Window.resize( set->GetNumberOfFebexSfps() );
-	fFebexMWD_Diff.resize( set->GetNumberOfFebexSfps() );
-	fFebexMWD_Threshold.resize( set->GetNumberOfFebexSfps() );
+	fFebexCFD_Delay.resize( set->GetNumberOfFebexSfps() );
+	fFebexCFD_Threshold.resize( set->GetNumberOfFebexSfps() );
+	fFebexCFD_Fraction.resize( set->GetNumberOfFebexSfps() );
 
 	// FEBEX parameter read
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); i++ ){
@@ -163,8 +160,9 @@ void Calibration::ReadCalibration() {
 		fFebexMWD_Rise[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Top[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Window[i].resize( set->GetNumberOfFebexBoards() );
-		fFebexMWD_Diff[i].resize( set->GetNumberOfFebexBoards() );
-		fFebexMWD_Threshold[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexCFD_Delay[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexCFD_Threshold[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexCFD_Fraction[i].resize( set->GetNumberOfFebexBoards() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); j++ ){
 
@@ -177,8 +175,9 @@ void Calibration::ReadCalibration() {
 			fFebexMWD_Rise[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Top[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Window[i][j].resize( set->GetNumberOfFebexChannels() );
-			fFebexMWD_Diff[i][j].resize( set->GetNumberOfFebexChannels() );
-			fFebexMWD_Threshold[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexCFD_Delay[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexCFD_Threshold[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexCFD_Fraction[i][j].resize( set->GetNumberOfFebexChannels() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); k++ ){
 				
@@ -188,11 +187,12 @@ void Calibration::ReadCalibration() {
 				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 0. );
 				fFebexTime[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), 0 );
 				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), default_MWD_Decay );
-				fFebexMWD_Rise[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), default_MWD_Rise );
-				fFebexMWD_Top[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), default_MWD_Top );
+				fFebexMWD_Rise[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (int)default_MWD_Rise );
+				fFebexMWD_Top[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (int)default_MWD_Top );
 				fFebexMWD_Window[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (int)default_MWD_Window );
-				fFebexMWD_Diff[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Diff", i, j, k ), (int)default_MWD_Diff );
-				fFebexMWD_Threshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Threshold", i, j, k ), (int)default_MWD_Threshold );
+				fFebexCFD_Delay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), (int)default_CFD_Delay );
+				fFebexCFD_Threshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.Threshold", i, j, k ), (int)default_CFD_Threshold );
+				fFebexCFD_Fraction[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.Fraction", i, j, k ), default_CFD_Fraction );
 
 			} // k: channel
 			
@@ -249,10 +249,11 @@ FebexMWD Calibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int 
 		mwd.SetRiseTime( fFebexMWD_Rise[sfp][board][ch] );
 		mwd.SetDecayTime( fFebexMWD_Decay[sfp][board][ch] );
 		mwd.SetFlatTop( fFebexMWD_Top[sfp][board][ch] );
-		mwd.SetDiffWidth( fFebexMWD_Diff[sfp][board][ch] );
 		mwd.SetWindow( fFebexMWD_Window[sfp][board][ch] );
-		mwd.SetThreshold( fFebexMWD_Threshold[sfp][board][ch] );
-		
+		mwd.SetDelayTime( fFebexCFD_Delay[sfp][board][ch] );
+		mwd.SetThreshold( fFebexCFD_Threshold[sfp][board][ch] );
+		mwd.SetFraction( fFebexCFD_Fraction[sfp][board][ch] );
+
 		// Run the MWD
 		mwd.DoMWD();
 		

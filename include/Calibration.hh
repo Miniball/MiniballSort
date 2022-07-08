@@ -13,6 +13,7 @@
 #include "TEnv.h"
 #include "TRandom.h"
 #include "TMath.h"
+#include "TGraph.h"
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -33,12 +34,13 @@ public:
 	
 	// Set functions
 	inline void SetTrace( std::vector<unsigned short> t ){ trace = t; };
-	inline void SetRiseTime( float t ){ rise_time = t; };
+	inline void SetRiseTime( unsigned int t ){ rise_time = t; };
 	inline void SetDecayTime( float t ){ decay_time = t; };
-	inline void SetFlatTop( float t ){ flat_top = t; };
-	inline void SetDiffWidth( float t ){ diff_width = t; };
+	inline void SetFlatTop( unsigned int t ){ flat_top = t; };
 	inline void SetWindow( unsigned int t ){ window = t; };
+	inline void SetDelayTime( unsigned int t ){ delay_time = t; };
 	inline void SetThreshold( unsigned int t ){ threshold = t; };
+	inline void SetFraction( float f ){ fraction = f; };
 
 	// Get functions
 	inline unsigned int NumberOfTriggers(){ return energy_list.size(); };
@@ -50,8 +52,24 @@ public:
 	inline std::vector<float> GetStage1(){ return stage1; };
 	inline std::vector<float> GetStage2(){ return stage2; };
 	inline std::vector<float> GetStage3(){ return stage3; };
-	inline std::vector<unsigned int> GetDiff1(){ return diff1; };
-	inline std::vector<unsigned int> GetDiff2(){ return diff2; };
+	inline std::vector<float> GetCfd(){ return cfd; };
+	
+	// Graphs
+	inline TGraph* GetTraceGraph() {
+		return GetGraph( trace );
+	};
+	inline TGraph* GetStage1Graph() {
+		return GetGraph( stage1 );
+	};
+	inline TGraph* GetStage2Graph() {
+		return GetGraph( stage2 );
+	};
+	inline TGraph* GetStage3Graph() {
+		return GetGraph( stage3 );
+	};
+	inline TGraph* GetCfdGraph() {
+		return GetGraph( cfd );
+	};
 
 private:
 	
@@ -61,17 +79,34 @@ private:
 	// Vector to hold the trace
 	std::vector<unsigned short> trace;
 	
-	// Initialise some vectors for holding the differentials etc.
+	// Initialise some vectors for holding the MWD and CFD etc.
 	std::vector<float> stage1, stage2, stage3;
-	std::vector<unsigned int> stage1_int, stage2_int, stage3_int;
-	std::vector<unsigned int> diff1, diff2;
+	std::vector<float> shaper, cfd;
 
-	// Values of the rise time, decay time, flat top and differential width
-	float rise_time, decay_time, flat_top, diff_width;
+	// Values of MWD
+	unsigned int rise_time, flat_top, window;
+	float decay_time;
+
+	// Values for CFD
+	unsigned int delay_time, threshold;
+	float fraction;
 	
-	// Values for the averaging window and threshold
-	unsigned int window, threshold;
-	
+	// Graphs
+	inline TGraph* GetGraph( std::vector<float> &t ) {
+		std::vector<float> x;
+		for( unsigned short i = 0; i < t.size(); ++i )
+			x.push_back( i );
+		std::unique_ptr<TGraph> g = std::make_unique<TGraph>(
+                            t.size(), x.data(), t.data() );
+ 		return (TGraph*)g.get()->Clone();
+	};
+	inline TGraph* GetGraph( std::vector<unsigned short> &t ) {
+		std::vector<float> y;
+		for( unsigned short i = 0; i < t.size(); ++i )
+			y.push_back( static_cast<float>(t[i]) );
+ 		return GetGraph(y);
+	};
+
 	ClassDef( FebexMWD, 1 );
 	
 };
@@ -102,6 +137,7 @@ public:
 	long FebexTime( unsigned int sfp, unsigned int board, unsigned int ch );
 	FebexMWD DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace );
 
+	
 private:
 
 	std::string fInputFile;
@@ -114,18 +150,20 @@ private:
 	std::vector< std::vector<std::vector<float>> > fFebexGainQuadr;
 	std::vector< std::vector<std::vector<float>> > fFebexThreshold;
 	std::vector< std::vector<std::vector<float>> > fFebexMWD_Decay;
-	std::vector< std::vector<std::vector<float>> > fFebexMWD_Rise;
-	std::vector< std::vector<std::vector<float>> > fFebexMWD_Top;
+	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Rise;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Top;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Window;
-	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Diff;
-	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Threshold;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Delay;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Threshold;
 
 	float default_MWD_Decay;
-	float default_MWD_Rise;
-	float default_MWD_Top;
+	float default_CFD_Fraction;
+	unsigned int default_MWD_Rise;
+	unsigned int default_MWD_Top;
 	unsigned int default_MWD_Window;
-	unsigned int default_MWD_Diff;
-	unsigned int default_MWD_Threshold;
+	unsigned int default_CFD_Delay;
+	unsigned int default_CFD_Threshold;
 
 	
 	ClassDef( Calibration, 10 )
