@@ -20,18 +20,14 @@ void FebexMWD::DoMWD() {
 	
 	
 	// Loop over trace and analyse
-	for( unsigned int i = 0; i < trace_length; ++i ) {
+	for( unsigned int i = 1; i < trace_length; ++i ) {
 		
 		// MWD stage 1 - remove decay
-		if( i > 0 ) {
-			
-			stage1[i]  = 1.0 / decay_time;
-			stage1[i] -= 1.0;
-			stage1[i] *= trace[i-1];
-			stage1[i] += trace[i];
-			stage1[i] += stage1[i-1];
-			
-		}
+		stage1[i]  = 1.0 / decay_time;
+		stage1[i] -= 1.0;
+		stage1[i] *= trace[i-1];
+		stage1[i] += trace[i];
+		stage1[i] += stage1[i-1];
 		
 		// MWD stage 2 - difference
 		if( i > flat_top ) {
@@ -55,7 +51,7 @@ void FebexMWD::DoMWD() {
 		if( i >= delay_time ) {
 			
 			shaper[i] = trace[i] - trace[i-delay_time];
-			if( shaper[i] < 0 ) shaper[i] = 0.0;
+			//if( shaper[i] < 0 ) shaper[i] = 0.0;
 			cfd[i]  = fraction * shaper[i];
 			cfd[i] -= shaper[i-delay_time];
 
@@ -65,7 +61,7 @@ void FebexMWD::DoMWD() {
 	
 	
 	// Loop now over the CFD trace until we trigger
-	for( unsigned int i = 1; i < trace_length; ++i ) {
+	for( unsigned int i = delay_time; i < trace_length; ++i ) {
 		
 		// Trigger when we pass the threshold on the CFD
 		if( cfd[i] > threshold || -1.0*cfd[i] > threshold ) {
@@ -90,7 +86,7 @@ void FebexMWD::DoMWD() {
 			for( unsigned int j = i; j < i + window; ++j )
 				energy += stage3[j];
 			
-			energy_list.push_back( energy / (float)window );
+			energy_list.push_back( TMath::Abs(energy) / (float)window );
 			
 			// move back to the peak, then to the end of the trapezoid
 			i += peaking_time/2;

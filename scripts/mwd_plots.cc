@@ -2,7 +2,7 @@
 #include "../include/Calibration.hh"
 
 void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
-			   unsigned board = 0, unsigned int ch = 0 ) {
+			   unsigned board = 0, unsigned int ch = 0, std::string calfile = "default" ) {
 	
 	// Open file
 	TFile *f = new TFile( filename.data() );
@@ -10,8 +10,11 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 	// Get Tree
 	TTree *t = (TTree*)f->Get("mb");
 	
-	// Calibration file - can be a real file, but needs settings too
-	Calibration *cal = new Calibration();
+	// Settings file - needed for calibration, just use defaults
+	std::shared_ptr<Settings> myset = std::make_shared<Settings>( "default" );
+	
+	// Calibration file
+	Calibration *cal = new Calibration( calfile.data(), myset );
 		
 	// Get entries
 	unsigned long long nentries = t->GetEntries();
@@ -102,7 +105,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			// Update the canvas and wait 5 ms
 			c1->Update();
 			gSystem->ProcessEvents();
-			gSystem->Sleep(5);
+			gSystem->Sleep(50);
 
 		} // correct channel
 		
