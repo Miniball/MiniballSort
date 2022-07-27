@@ -94,7 +94,8 @@ private:
 	float decay_time;
 
 	// Values for CFD
-	unsigned int delay_time, threshold;
+	unsigned int delay_time;
+	int threshold;
 	float fraction;
 	
 	// Graphs
@@ -161,7 +162,7 @@ private:
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Top;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Window;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Delay;
-	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Threshold;
+	std::vector< std::vector<std::vector<int>> > fFebexCFD_Threshold; // polarity of CFD selected by a negative threshold
 
 	float default_MWD_Decay;
 	float default_CFD_Fraction;
@@ -169,7 +170,7 @@ private:
 	unsigned int default_MWD_Top;
 	unsigned int default_MWD_Window;
 	unsigned int default_CFD_Delay;
-	unsigned int default_CFD_Threshold;
+	int default_CFD_Threshold;
 
 	
 	ClassDef( Calibration, 10 )

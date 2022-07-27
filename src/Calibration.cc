@@ -64,11 +64,16 @@ void FebexMWD::DoMWD() {
 	for( unsigned int i = delay_time*2+1; i < trace_length; ++i ) {
 		
 		// Trigger when we pass the threshold on the CFD
-		if( cfd[i] > threshold || -1.0*cfd[i] > threshold ) {
+		if( ( cfd[i] > threshold && threshold > 0 ) ||
+		    ( cfd[i] < threshold && threshold < 0 ) ) {
 			
 			// Find zero crossing
-			while( cfd[i] * cfd[i-1] > 0 ) i++;
-	
+			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
+			
+			// Reject incorrect polarity
+			if( threshold < 0 && cfd[i-1] > 0 ) continue;
+			if( threshold > 0 && cfd[i-1] < 0 ) continue;
+
 			// Check we have enough trace left to analyse
 			if( trace_length - i < peaking_time + window/2 )
 				break;
