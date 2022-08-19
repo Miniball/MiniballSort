@@ -8,6 +8,9 @@ EventBuilder::EventBuilder( std::shared_ptr<Settings> myset ){
 	// No calibration file by default
 	overwrite_cal = false;
 	
+	// No input file at the start by default
+	flag_input_file = false;
+	
 	// Progress bar starts as false
 	_prog_ = false;
 
@@ -99,9 +102,19 @@ void EventBuilder::StartFile(){
 }
 
 void EventBuilder::SetInputFile( std::string input_file_name ) {
-	
-	/// Overloaded function for a single file or multiple files
+		
+	// Open next Root input file.
 	input_file = new TFile( input_file_name.data(), "read" );
+	if( input_file->IsZombie() ) {
+		
+		std::cout << "Cannot open " << input_file_name << std::endl;
+		return;
+		
+	}
+	
+	flag_input_file = true;
+	
+	// Set the input tree
 	SetInputTree( (TTree*)input_file->Get("mb_sort") );
 	StartFile();
 
@@ -113,9 +126,8 @@ void EventBuilder::SetInputTree( TTree *user_tree ){
 	
 	// Find the tree and set branch addresses
 	input_tree = user_tree;
+	in_data = nullptr;
 	input_tree->SetBranchAddress( "data", &in_data );
-
-	StartFile();
 
 	return;
 	
@@ -135,6 +147,11 @@ void EventBuilder::SetOutput( std::string output_file_name ) {
 	output_file = new TFile( output_file_name.data(), "recreate" );
 	output_tree = new TTree( "evt_tree", "evt_tree" );
 	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get() );
+
+	// Create log file.
+	std::string log_file_name = output_file_name.substr( 0, output_file_name.find_last_of(".") );
+	log_file_name += ".log";
+	log_file.open( log_file_name.data(), std::ios::app );
 
 	// Hisograms in separate function
 	MakeEventHists();
@@ -182,7 +199,7 @@ void EventBuilder::Initialise(){
 	
 }
 
-unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
+unsigned long EventBuilder::BuildEvents() {
 	
 	/// Function to loop over the sort tree and build array and recoil events
 
@@ -199,16 +216,15 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 
 	std::cout << " Event Building: number of entries in input tree = ";
 	std::cout << n_entries << std::endl;
-	std::cout << " Start build at event " << start_build << std::endl;
 
 	
 	// ------------------------------------------------------------------------ //
 	// Main loop over TTree to find events
 	// ------------------------------------------------------------------------ //
-	for( unsigned long i = start_build; i < n_entries; ++i ) {
+	for( unsigned long i = 0; i < n_entries; ++i ) {
 		
 		// Current event data
-		if( i == start_build ) input_tree->GetEntry(i);
+		if( i == 0 ) input_tree->GetEntry(i);
 
 		// Get the time of the event
 		mytime = in_data->GetTime();
@@ -502,13 +518,17 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 			float percent = (float)(i+1)*100.0/(float)n_entries;
 
 			// Progress bar in GUI
-			if( _prog_ ) prog->SetPosition( percent );
+			if( _prog_ ) {
+				
+				prog->SetPosition( percent );
+				gSystem->ProcessEvents();
+				
+			}
 
 			// Progress bar in terminal
 			std::cout << " " << std::setw(6) << std::setprecision(4);
 			std::cout << percent << "%    \r";
 			std::cout.flush();
-			gSystem->ProcessEvents();
 
 		}		
 		
@@ -518,8 +538,8 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 	// Clean up
 	//--------------------------
 
-	std::cout << "\n EventBuilder finished..." << std::endl;
-	std::cout << "  FEBEX data packets = " << n_febex_data << std::endl;
+	ss_log << "\n EventBuilder finished..." << std::endl;
+	ss_log << "  FEBEX data packets = " << n_febex_data << std::endl;
 	//for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 	//	std::cout << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
 	//	for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
@@ -530,31 +550,27 @@ unsigned long EventBuilder::BuildEvents( unsigned long start_build ) {
 	//		std::cout << "         live time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
 	//	}
 	//}
-	std::cout << "  Info data packets = " << n_info_data << std::endl;
-	std::cout << "   Pulser events = " << n_pulser << std::endl;
-	std::cout << "   EBIS events = " << n_ebis << std::endl;
-	std::cout << "   T1 events = " << n_t1 << std::endl;
-	std::cout << "  Tree entries = " << output_tree->GetEntries() << std::endl;
-	std::cout << "   Miniball events = " << n_miniball << std::endl;
-	std::cout << "    Gamma singles events = " << gamma_ctr << std::endl;
-	std::cout << "    Gamma addback events = " << gamma_ab_ctr << std::endl;
-	std::cout << "   CD detector events = " << n_cd << std::endl;
-	std::cout << "    Particle events = " << cd_ctr << std::endl;
-	std::cout << "   Beam dump events = " << bd_ctr << std::endl;
+	ss_log << "  Info data packets = " << n_info_data << std::endl;
+	ss_log << "   Pulser events = " << n_pulser << std::endl;
+	ss_log << "   EBIS events = " << n_ebis << std::endl;
+	ss_log << "   T1 events = " << n_t1 << std::endl;
+	ss_log << "  Tree entries = " << output_tree->GetEntries() << std::endl;
+	ss_log << "   Miniball events = " << n_miniball << std::endl;
+	ss_log << "    Gamma singles events = " << gamma_ctr << std::endl;
+	ss_log << "    Gamma addback events = " << gamma_ab_ctr << std::endl;
+	ss_log << "   CD detector events = " << n_cd << std::endl;
+	ss_log << "    Particle events = " << cd_ctr << std::endl;
+	ss_log << "   Beam dump events = " << bd_ctr << std::endl;
 
+	std::cout << ss_log.str();
+	if( log_file.is_open() && flag_input_file ) log_file << ss_log.str();
 
+	std::cout << "Writing output file...\r";
+	std::cout.flush();
 	output_file->Write( 0, TObject::kWriteDelete );
-
-
-
-	//output_file->Print();
-
-
-
-	//output_file->Close();
 	
-	std::cout << std::endl;
-	
+	std::cout << "Writing output file... Done!" << std::endl << std::endl;
+
 	return n_entries;
 	
 }

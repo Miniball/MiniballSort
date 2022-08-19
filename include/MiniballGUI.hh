@@ -31,7 +31,6 @@
 #include "Settings.hh"
 #include "Calibration.hh"
 #include "Converter.hh"
-#include "TimeSorter.hh"
 #include "EventBuilder.hh"
 #include "Reaction.hh"
 #include "Histogrammer.hh"
@@ -125,6 +124,7 @@ protected:
 	// Check buttons
 	TGCheckButton       *check_force;		// check button to force resort
 	TGCheckButton       *check_event;		// check button to rebuild events
+	TGCheckButton       *check_source;		// check button to rebuild events
 
 	// Action buttons
 	TGTextButton        *but_sel;			// button to select files
@@ -150,6 +150,7 @@ protected:
 	bool force_events;
 	bool flag_convert;
 	bool flag_events;
+	bool flag_source;
 
 	
 public:

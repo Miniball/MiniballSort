@@ -28,7 +28,10 @@ Converter::Converter( std::shared_ptr<Settings> myset ) {
 
 	}
 	
-	// Do we have a progress bar? Start as false
+	// Default that we do not have a source only run
+	flag_source = false;
+	
+	// No progress bar by default
 	_prog_ = false;
 
 }
@@ -37,7 +40,6 @@ void Converter::SetOutput( std::string output_file_name ){
 	
 	// Open output file
 	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file", 0 );
-	output_file->SetCompressionLevel(0);
 
 	return;
 
@@ -48,10 +50,12 @@ void Converter::MakeTree() {
 
 	// Create Root tree
 	const int splitLevel = 0; // don't split branches = 0, full splitting = 99
+	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
 	if( gDirectory->GetListOfKeys()->Contains( "mb" ) ) {
 		
 		output_tree = (TTree*)gDirectory->Get("mb");
 		output_tree->SetBranchAddress( "data", data_packet.get() );
+		sorted_tree = (TTree*)gDirectory->Get("mb_sort");
 
 	}
 	
@@ -59,7 +63,13 @@ void Converter::MakeTree() {
 	
 		output_tree = new TTree( "mb", "mb" );
 		data_packet = std::make_shared<DataPackets>();
-		output_tree->Branch( "data", "DataPackets", data_packet.get(), splitLevel );
+		output_tree->Branch( "data", "DataPackets", data_packet.get(), bufsize, splitLevel );
+		
+		sorted_tree = (TTree*)output_tree->CloneTree(0);
+		sorted_tree->SetName("mb_sort");
+		sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
+		sorted_tree->SetDirectory( output_file->GetDirectory("/") );
+		output_tree->SetDirectory(0);
 
 	}
 	
@@ -379,6 +389,12 @@ void Converter::ProcessBlockData( unsigned long nblock ){
 			flag_terminator = true;
 			return;
 			
+		}
+		else if( i >= header_DataLen/sizeof(ULong64_t) ){
+			
+			flag_terminator = true;
+			return;
+
 		}
 		
 			
@@ -814,6 +830,44 @@ void Converter::ProcessInfoData(){
 	
 }
 
+// Common function called to process data in a block from file or DataSpy
+bool Converter::ProcessCurrentBlock( int nblock ) {
+	
+	// Process header.
+	ProcessBlockHeader( nblock );
+
+	// Process the main block data until terminator found
+	data = (ULong64_t *)(block_data);
+	ProcessBlockData( nblock );
+			
+	// Check once more after going over left overs....
+	if( !flag_terminator ){
+
+		std::cout << std::endl << __PRETTY_FUNCTION__ << std::endl;
+		std::cout << "\tERROR - Terminator sequence not found in data.\n";
+		return false;
+		
+	}
+
+	return true;
+
+}
+
+// Function to convert a block of data from DataSpy
+int Converter::ConvertBlock( char *input_block, int nblock ) {
+	
+	// Get the header.
+	std::memmove( &block_header, &input_block[0], HEADER_SIZE );
+	
+	// Get the block
+	std::memmove( &block_data, &input_block[HEADER_SIZE], MAIN_SIZE );
+	
+	// Process the data
+	ProcessCurrentBlock( nblock );
+
+	return nblock+1;
+	
+}
 
 // Function to run the conversion for a single file
 int Converter::ConvertFile( std::string input_file_name,
@@ -864,7 +918,6 @@ int Converter::ConvertFile( std::string input_file_name,
 	// The information is split into 2 words of 32 bits (4 byte).
 	// We will collect the data in 64 bit words and split later
 	
-	
 	// Loop over all the blocks.
 	for( unsigned long nblock = 0; nblock < BLOCKS_NUM ; nblock++ ){
 		
@@ -875,13 +928,17 @@ int Converter::ConvertFile( std::string input_file_name,
 			float percent = (float)(nblock+1)*100.0/(float)BLOCKS_NUM;
 			
 			// Progress bar in GUI
-			if( _prog_ ) prog->SetPosition( percent );
+			if( _prog_ ){
+				
+				prog->SetPosition( percent );
+				gSystem->ProcessEvents();
 
+			}
+			
 			// Progress bar in terminal
 			std::cout << " " << std::setw(8) << std::setprecision(4);
 			std::cout << percent << "%\r";
 			std::cout.flush();
-			gSystem->ProcessEvents();
 
 		}
 		
@@ -897,33 +954,75 @@ int Converter::ConvertFile( std::string input_file_name,
 			continue;
 
 
-		// Process header.
-		ProcessBlockHeader( nblock );
-
-		// Process the main block data until terminator found
-		data = (ULong64_t *)(block_data);
-		ProcessBlockData( nblock );
-				
-		// Check once more after going over left overs....
-		if( !flag_terminator ){
-
-			std::cout << std::endl << __PRETTY_FUNCTION__ << std::endl;
-			std::cout << "\tERROR - Terminator sequence not found in data.\n";
-			break;
-			
-		}
-		
+		// Process current block. If it's the end, stop.
+		if( !ProcessCurrentBlock( nblock ) ) break;
 		
 	} // loop - nblock < BLOCKS_NUM
 	
 	input_file.close();
-	output_file->cd();
-	output_file->Write( 0, TObject::kWriteDelete );
-	//set->Write( "settings", TObject::kWriteDelete );
-	//cal->Write( "calibration", TObject::kWriteDelete );
-	//output_file->Print();
 
-	
 	return BLOCKS_NUM;
+	
+}
+
+unsigned long long Converter::SortTree(){
+	
+	// Reset the sorted tree so it's empty before we start
+	sorted_tree->Reset();
+	
+	// Check we have entries and build time-ordered index
+	if( output_tree->GetEntries() ){
+
+		std::cout << "Building time-ordered index of events..." << std::endl;
+		output_tree->BuildIndex( "data.GetTime()" );
+
+	}
+	else return 0;
+	
+	// Get index and prepare for sorting
+	TTreeIndex *att_index = (TTreeIndex*)output_tree->GetTreeIndex();
+	unsigned long long nb_idx = att_index->GetN();
+	std::cout << " Sorting: size of the sorted index = " << nb_idx << std::endl;
+
+	// Loop on t_raw entries and fill t
+	for( unsigned long i = 0; i < nb_idx; ++i ) {
+		
+		unsigned long long idx = att_index->GetIndex()[i];
+		output_tree->GetEntry( idx );
+		sorted_tree->Fill();
+
+		// Progress bar
+		bool update_progress = false;
+		if( nb_idx < 200 )
+			update_progress = true;
+		else if( i % (nb_idx/100) == 0 || i+1 == nb_idx )
+			update_progress = true;
+		
+		if( update_progress ) {
+			
+			// Percent complete
+			float percent = (float)(i+1)*100.0/(float)nb_idx;
+			
+			// Progress bar in GUI
+			if( _prog_ ) {
+				
+				prog->SetPosition( percent );
+				gSystem->ProcessEvents();
+				
+			}
+			
+			// Progress bar in terminal
+			std::cout << " " << std::setw(6) << std::setprecision(4);
+			std::cout << percent << "%    \r";
+			std::cout.flush();
+
+		}
+
+	}
+	
+	// Reset the output tree so it's empty after we've finished
+	output_tree->Reset();
+
+	return nb_idx;
 	
 }

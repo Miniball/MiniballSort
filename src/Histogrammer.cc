@@ -794,7 +794,7 @@ void Histogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> e ) {
 
 }
 
-unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
+unsigned long Histogrammer::FillHists() {
 	
 	/// Main function to fill the histograms
 	n_entries = input_tree->GetEntries();
@@ -802,7 +802,7 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 	std::cout << " Histogrammer: number of entries in event tree = ";
 	std::cout << n_entries << std::endl;
 	
-	if( start_fill == n_entries ){
+	if( n_entries == 0 ){
 		
 		std::cout << " Histogrammer: Nothing to do..." << std::endl;
 		return n_entries;
@@ -810,15 +810,14 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 	}
 	else {
 		
-		std::cout << " Histogrammer: Start filling at event #";
-		std::cout << std::to_string( start_fill ) << std::endl;
+		std::cout << " Histogrammer: Start filling histograms" << std::endl;
 		
 	}
 
 	// ------------------------------------------------------------------------ //
 	// Main loop over TTree to find events
 	// ------------------------------------------------------------------------ //
-	for( unsigned int i = start_fill; i < n_entries; ++i ){
+	for( unsigned int i = 0; i < n_entries; ++i ){
 		
 		// Current event data
 		input_tree->GetEntry(i);
@@ -1238,13 +1237,17 @@ unsigned long Histogrammer::FillHists( unsigned long start_fill ) {
 			float percent = (float)(i+1)*100.0/(float)n_entries;
 			
 			// Progress bar in GUI
-			if( _prog_ ) prog->SetPosition( percent );
-
+			if( _prog_ ){
+				
+				prog->SetPosition( percent );
+				gSystem->ProcessEvents();
+				
+			}
+		
 			// Progress bar in terminal
 			std::cout << " " << std::setw(6) << std::setprecision(4);
 			std::cout << percent << "%    \r";
 			std::cout.flush();
-			gSystem->ProcessEvents();
 
 		}
 		

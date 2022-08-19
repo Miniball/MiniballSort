@@ -12,6 +12,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TTreeIndex.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
@@ -44,8 +45,12 @@ public:
 	int ConvertFile( std::string input_file_name,
 					unsigned long start_block = 0,
 					long end_block = -1);
+	int ConvertBlock( char *input_block, int nblock );
 	void MakeHists();
 	void MakeTree();
+	unsigned long long SortTree();
+
+	bool ProcessCurrentBlock( int nblock );
 
 	void SetBlockHeader( char *input_header );
 	void ProcessBlockHeader( unsigned long nblock );
@@ -62,12 +67,18 @@ public:
 	void SetOutput( std::string output_file_name );
 	
 	inline void CloseOutput(){
+		output_file->cd();
+		output_file->Write( 0, TObject::kWriteDelete );
 		output_file->Close();
+		output_tree->Delete();
 	};
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
+	inline TTree* GetSortedTree(){ return sorted_tree; };
 
 	inline void AddCalibration( std::shared_ptr<Calibration> mycal ){ cal = mycal; };
+	inline void SourceOnly(){ flag_source = true; };
+
 	inline void AddProgressBar( std::shared_ptr<TGProgressBar> myprog ){
 		prog = myprog;
 		_prog_ = true;
@@ -128,9 +139,11 @@ private:
 	};
 
 
+	// Flag for source run
+	bool flag_source;
+
 	// Logs
 	std::stringstream sslogs;
-
 	
 	// Set the size of the block and its components.
 	static const int HEADER_SIZE = 24; // Size of header in bytes
@@ -208,7 +221,8 @@ private:
 	// Output stuff
 	TFile *output_file;
 	TTree *output_tree;
-	
+	TTree *sorted_tree;
+
 	// Counters
 	std::vector<std::vector<unsigned long>> ctr_febex_hit;		// hits on each Febex module
 	std::vector<std::vector<unsigned long>> ctr_febex_pause;   	// pause acq for module

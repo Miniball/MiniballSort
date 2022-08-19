@@ -299,10 +299,10 @@ void Reaction::ReadReaction() {
 	stopping = true;
 	for( unsigned int i = 0; i < 4; ++i )
 		gStopping.push_back( std::make_unique<TGraph>() );
-	stopping *= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
-	stopping *= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
-	stopping *= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
-	stopping *= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
+	stopping &= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
+	stopping &= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
+	stopping &= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
+	stopping &= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
 
 
 	

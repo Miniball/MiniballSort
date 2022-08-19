@@ -42,7 +42,7 @@ public:
 	~Histogrammer() {};
 	
 	void MakeHists();
-	unsigned long FillHists( unsigned long start_fill = 0 );
+	unsigned long FillHists();
 	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );
 	void FillParticleGammaHists( std::shared_ptr<GammaRayAddbackEvt> g );
 	void FillParticleElectronHists( std::shared_ptr<SpedeEvt> s );

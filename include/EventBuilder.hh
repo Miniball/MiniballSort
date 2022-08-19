@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <memory>
 
@@ -64,7 +65,7 @@ public:
 		_prog_ = true;
 	};
 	
-	unsigned long	BuildEvents( unsigned long start_build = 0 );
+	unsigned long	BuildEvents();
 
 	// Resolve multiplicities and coincidences etc
 	void GammaRayFinder();
@@ -75,6 +76,7 @@ public:
 	inline void CloseOutput(){
 		output_file->Close();
 		input_file->Close();
+		log_file.close(); //?? to close or not to close?
 		delete in_data;
 	};
 
@@ -84,7 +86,7 @@ private:
 	/// Input tree
 	TFile *input_file;
 	TTree *input_tree;
-	DataPackets *in_data = 0;
+	DataPackets *in_data;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 
@@ -109,6 +111,13 @@ private:
 	bool _prog_;
 	std::shared_ptr<TGProgressBar> prog;
 	
+	// Log file
+	std::stringstream ss_log;
+	std::ofstream log_file; ///< Log file for recording the results of the ISSEventBuilder
+	
+	// Flag to know we've opened a file on disk
+	bool flag_input_file;
+
 	// Build window which comes from the settings file
 	long build_window;  /// length of build window in ns
 

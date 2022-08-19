@@ -21,20 +21,24 @@ endif
 PLATFORM:=$(shell uname)
 ifeq ($(PLATFORM),Darwin)
 SHAREDSWITCH = -Qunused-arguments -shared -undefined dynamic_lookup -dynamiclib -Wl,-install_name,'@executable_path/../lib/'# NO ENDING SPACE
+OSDEF = -DMACOSX
 else
 SHAREDSWITCH = -shared -Wl,-soname,# NO ENDING SPACE
+OSDEF = -DLINUX
+LIBEXTRA = -lrt
 endif
 
 
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLDFLAGS  := $(shell root-config --ldflags)
 ROOTLIBS     := $(shell root-config --glibs) -lRHTTP -lThread
-LIBS         := $(ROOTLIBS)
+LIBS         := $(ROOTLIBS) $(LIBEXTRA)
 
 # Compiler.
 CC          = $(shell root-config --cxx)
 # Flags for compiler.
 CFLAGS		= -c -Wall -Wextra $(ROOTCFLAGS) -g -fPIC
+CPPFLAGS	+= -DUNIX -DPOSIX $(OSDEF)
 INCLUDES	+= -I$(INC_DIR) -I.
 
 # Pass in the data file locations
@@ -51,8 +55,8 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 				$(SRC_DIR)/CommandLineInterface.o \
 				$(SRC_DIR)/Converter.o \
 				$(SRC_DIR)/DataPackets.o \
+				$(SRC_DIR)/DataSpy.o \
 				$(SRC_DIR)/Settings.o \
-				$(SRC_DIR)/TimeSorter.o \
 				$(SRC_DIR)/EventBuilder.o \
 				$(SRC_DIR)/MiniballEvts.o \
 				$(SRC_DIR)/MiniballGeometry.o \
@@ -65,8 +69,8 @@ DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/CommandLineInterface.hh \
 				$(INC_DIR)/Converter.hh \
 				$(INC_DIR)/DataPackets.hh \
+				$(INC_DIR)/DataSpy.hh \
 				$(INC_DIR)/Settings.hh \
-				$(INC_DIR)/TimeSorter.hh \
 				$(INC_DIR)/EventBuilder.hh \
 				$(INC_DIR)/MiniballEvts.hh \
 				$(INC_DIR)/MiniballGeometry.hh \
