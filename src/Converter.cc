@@ -49,30 +49,21 @@ void Converter::SetOutput( std::string output_file_name ){
 void Converter::MakeTree() {
 
 	// Create Root tree
-	const int splitLevel = 0; // don't split branches = 0, full splitting = 99
+	const int splitLevel = 2; // don't split branches = 0, full splitting = 99
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
-	if( gDirectory->GetListOfKeys()->Contains( "mb" ) ) {
-		
-		output_tree = (TTree*)gDirectory->Get("mb");
-		output_tree->SetBranchAddress( "data", data_packet.get() );
-		sorted_tree = (TTree*)gDirectory->Get("mb_sort");
+	output_tree = new TTree( "mb", "mb" );
+	data_packet = std::make_unique<DataPackets>();
+	output_tree->Branch( "data", "DataPackets", data_packet.get(), bufsize, splitLevel );
 
-	}
+	sorted_tree = (TTree*)output_tree->CloneTree(0);
+	sorted_tree->SetName("mb_sort");
+	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
+	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
+	output_tree->SetDirectory( output_file->GetDirectory("/") );
 	
-	else {
-	
-		output_tree = new TTree( "mb", "mb" );
-		data_packet = std::make_shared<DataPackets>();
-		output_tree->Branch( "data", "DataPackets", data_packet.get(), bufsize, splitLevel );
-		
-		sorted_tree = (TTree*)output_tree->CloneTree(0);
-		sorted_tree->SetName("mb_sort");
-		sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
-		sorted_tree->SetDirectory( output_file->GetDirectory("/") );
-		output_tree->SetDirectory(0);
+	output_tree->SetAutoFlush(-10e6);
+	sorted_tree->SetAutoFlush(-10e6);
 
-	}
-	
 	febex_data = std::make_shared<FebexData>();
 	info_data = std::make_shared<InfoData>();
 	
@@ -970,6 +961,11 @@ unsigned long long Converter::SortTree(){
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();
 	
+	// Load the full tree if possible
+	output_tree->SetMaxVirtualSize(2e9); // 2GB
+	sorted_tree->SetMaxVirtualSize(2e9); // 2GB
+	output_tree->LoadBaskets(1e9); 		 // Load 1 GB of data to memory
+	
 	// Check we have entries and build time-ordered index
 	if( output_tree->GetEntries() ){
 
@@ -987,9 +983,24 @@ unsigned long long Converter::SortTree(){
 	// Loop on t_raw entries and fill t
 	for( unsigned long i = 0; i < nb_idx; ++i ) {
 		
+		// Clean up old data
+		data_packet->ClearData();
+		
+		// Get time-ordered event index
 		unsigned long long idx = att_index->GetIndex()[i];
+		
+		// Check if the input or output trees are filling
+		if( output_tree->MemoryFull(30e6) )
+			output_tree->DropBaskets();
+		if( sorted_tree->MemoryFull(30e6) )
+			sorted_tree->FlushBaskets();
+		
+		// Get entry from unsorted tree and fill to sorted tree
 		output_tree->GetEntry( idx );
 		sorted_tree->Fill();
+
+		// Optimise filling tree
+		if( i == 100 ) sorted_tree->OptimizeBaskets(30e6);	 // sorted tree basket size max 30 MB
 
 		// Progress bar
 		bool update_progress = false;
@@ -1021,6 +1032,7 @@ unsigned long long Converter::SortTree(){
 	}
 	
 	// Reset the output tree so it's empty after we've finished
+	output_tree->FlushBaskets();
 	output_tree->Reset();
 
 	return nb_idx;

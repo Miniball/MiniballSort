@@ -147,6 +147,7 @@ void EventBuilder::SetOutput( std::string output_file_name ) {
 	output_file = new TFile( output_file_name.data(), "recreate" );
 	output_tree = new TTree( "evt_tree", "evt_tree" );
 	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get() );
+	output_tree->SetAutoFlush();
 
 	// Create log file.
 	std::string log_file_name = output_file_name.substr( 0, output_file_name.find_last_of(".") );
@@ -203,6 +204,11 @@ unsigned long EventBuilder::BuildEvents() {
 	
 	/// Function to loop over the sort tree and build array and recoil events
 
+	// Load the full tree if possible
+	output_tree->SetMaxVirtualSize(2e9); // 2GB
+	input_tree->SetMaxVirtualSize(2e9); // 2GB
+	input_tree->LoadBaskets(1e9); // Load 2 GB of data to memory
+
 	if( input_tree->LoadTree(0) < 0 ){
 		
 		std::cout << " Event Building: nothing to do" << std::endl;
@@ -224,6 +230,8 @@ unsigned long EventBuilder::BuildEvents() {
 	for( unsigned long i = 0; i < n_entries; ++i ) {
 		
 		// Current event data
+		if( input_tree->MemoryFull(30e6) )
+			input_tree->DropBaskets();
 		if( i == 0 ) input_tree->GetEntry(i);
 
 		// Get the time of the event
@@ -495,6 +503,10 @@ unsigned long EventBuilder::BuildEvents() {
 				if( write_evts->GetGammaRayMultiplicity() ||
 					write_evts->GetGammaRayAddbackMultiplicity() )
 					output_tree->Fill();
+
+				// Clean up if the next event is going to make the tree full
+				if( output_tree->MemoryFull(30e6) )
+					output_tree->DropBaskets();
 
 			}
 			
@@ -779,3 +791,16 @@ void EventBuilder::MakeEventHists(){
 	
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// This function cleans up all of the histograms used in the EventBuilder class, by deleting them and clearing all histogram vectors.
+void EventBuilder::CleanHists(){
+
+	// Clean up the histograms to save memory for later
+	delete tdiff;
+	delete tdiff_clean;
+	delete pulser_freq;
+	delete ebis_freq;
+	delete t1_freq;
+	
+}

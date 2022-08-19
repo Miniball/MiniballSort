@@ -553,15 +553,11 @@ int main( int argc, char *argv[] ){
 	//-------------------//
 	if( flag_monitor || flag_spy ) {
 		
-		// Thread for the HTTP server
-		//TThread *th = new TThread( "http_server", start_http, (void*)nullptr );
-		//th->Run();
-		
 		// Make some data for the thread
 		thread_data data;
 		data.mycal = mycal;
 		data.myset = myset;
-		//data.myreact = myreact;
+		data.myreact = myreact;
 
 		// Start the HTTP server from the main thread (should usually do this)
 		start_http();
@@ -570,12 +566,9 @@ int main( int argc, char *argv[] ){
 		// Thread for the monitor process
 		TThread *th = new TThread( "monitor", monitor_run, &data );
 		th->Run();
-		
-		// Just call monitor process without threading
-		//monitor_run();
-		
+
 		// wait until we finish
-		while( bRunMon ){
+		while( true ){
 			
 			gSystem->Sleep(10);
 			gSystem->ProcessEvents();

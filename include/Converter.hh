@@ -67,10 +67,9 @@ public:
 	void SetOutput( std::string output_file_name );
 	
 	inline void CloseOutput(){
-		output_file->cd();
+		std::cout << "\n Writing data and closing the file" << std::endl;
 		output_file->Write( 0, TObject::kWriteDelete );
 		output_file->Close();
-		output_tree->Delete();
 	};
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };

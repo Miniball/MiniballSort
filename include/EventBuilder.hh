@@ -74,11 +74,14 @@ public:
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
 	inline void CloseOutput(){
+		output_tree->ResetBranchAddresses();
 		output_file->Close();
+		input_tree->ResetBranchAddresses();
 		input_file->Close();
-		log_file.close(); //?? to close or not to close?
 		delete in_data;
-	};
+		log_file.close(); //?? to close or not to close?
+	}; ///< Closes the output files from this class
+	void CleanHists(); ///< Deletes histograms from memory and clears vectors that store histograms
 
 
 private:
