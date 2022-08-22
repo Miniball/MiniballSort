@@ -184,7 +184,7 @@ void* monitor_run( void* ptr ){
 				eb_mon.StartFile();
 
 			}
-			// TODO - This could be done better with smart pointers
+			// TODO: This could be done better with smart pointers
 			TTree *sorted_tree = conv_mon.GetSortedTree()->CloneTree();
 			eb_mon.SetInputTree( sorted_tree );
 			eb_mon.GetTree()->Reset();
@@ -196,7 +196,7 @@ void* monitor_run( void* ptr ){
 				hist_mon.SetOutput( "monitor_hists.root" );
 			}
 			if( nbuild ) {
-				// TODO - This could be done better with smart pointers
+				// TODO: This could be done better with smart pointers
 				TTree *evt_tree = eb_mon.GetTree()->CloneTree();
 				hist_mon.SetInputTree( evt_tree );
 				hist_mon.FillHists();

@@ -39,7 +39,7 @@ Converter::Converter( std::shared_ptr<Settings> myset ) {
 void Converter::SetOutput( std::string output_file_name ){
 	
 	// Open output file
-	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file", 0 );
+	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file" );
 
 	return;
 
