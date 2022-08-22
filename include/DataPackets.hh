@@ -13,7 +13,7 @@ public:
 
 	FebexData() {};
 	FebexData( unsigned long long t,
-			  float qf, Float16_t qh, unsigned short qi,
+			  unsigned int qi, Float16_t qh, unsigned short qs,
 			  std::vector<unsigned short> tr,
 			  unsigned char s, unsigned char b, unsigned char c,
 			  bool th, bool v, bool f );
@@ -21,9 +21,9 @@ public:
 
 	inline unsigned long long	GetTime() { return time; };
 	inline unsigned short		GetTraceLength() { return trace.size(); };
-	inline unsigned short		GetQint() { return Qint; };
+	inline unsigned short		GetQshort() { return Qshort; };
 	inline Float16_t			GetQhalf() { return Qhalf; };
-	inline float				GetQfloat() { return Qfloat; };
+	inline unsigned int			GetQint() { return Qint; };
 	inline unsigned char		GetSfp() { return sfp; };
 	inline unsigned char		GetBoard() { return board; };
 	inline unsigned char		GetChannel() { return ch; };
@@ -54,9 +54,9 @@ public:
 	inline void	SetTime( unsigned long long t ) { time = t; };
 	inline void	SetTrace( std::vector<unsigned short> t ) { trace = t; };
 	inline void AddSample( unsigned short s ) { trace.push_back(s); };
-	inline void	SetQint( unsigned short q ) { Qint = q; };
+	inline void	SetQshort( unsigned short q ) { Qshort = q; };
 	inline void	SetQhalf( Float16_t q ) { Qhalf = q; };
-	inline void	SetQfloat( float q ) { Qfloat = q; };
+	inline void	SetQint( unsigned int q ) { Qint = q; };
 	inline void SetSfp( unsigned char s ){ sfp = s; };
 	inline void SetBoard( unsigned char b ){ board = b; };
 	inline void	SetChannel( unsigned char c ) { ch = c; };
@@ -72,9 +72,9 @@ protected:
 	
 	unsigned long long			time;
 	float						energy;
-	float						Qfloat;		///< Charge from firmware as 32-bit float
+	unsigned int				Qint;		///< Charge from firmware as 32-bit integer
 	Float16_t					Qhalf;		///< Charge from firmware as 16-bit float
-	unsigned short				Qint;		///< Charge from firmware as 16-bit integer
+	unsigned short				Qshort;		///< Charge from firmware as 16-bit integer
 	std::vector<unsigned short>	trace;
 	unsigned char				sfp;		///< SFP ID of the event
 	unsigned char				board;		///< board ID of the event
@@ -84,7 +84,7 @@ protected:
 	bool						fail;		///< fail bit from data stream
 
 	
-	ClassDef( FebexData, 1 )
+	ClassDef( FebexData, 2 )
 	
 };
 

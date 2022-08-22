@@ -5,11 +5,11 @@ ClassImp(InfoData)
 ClassImp(DataPackets)
 
 FebexData::FebexData( unsigned long long t,
-					float qf, Float16_t qh, unsigned short qi,
+					unsigned int qi, Float16_t qh, unsigned short qs,
 				    std::vector<unsigned short> tr,
 					unsigned char s, unsigned char b, unsigned char c,
 				    bool th, bool v, bool f ) :
-					time(t), Qfloat(qf), Qhalf(qh), Qint(qi), trace(tr), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f) {}
+					time(t), Qint(qi), Qhalf(qh), Qshort(qs), trace(tr), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f) {}
 
 InfoData::InfoData( unsigned long long t, unsigned char c, unsigned char s, unsigned char b ) :
 					time(t), code(c), sfp(s), board(b) {}
@@ -29,7 +29,7 @@ void DataPackets::SetData( std::shared_ptr<FebexData> data ){
 	fill_data.SetTrace( data->GetTrace() );
 	fill_data.SetQint( data->GetQint() );
 	fill_data.SetQhalf( data->GetQhalf() );
-	fill_data.SetQfloat( data->GetQfloat() );
+	fill_data.SetQshort( data->GetQshort() );
 	fill_data.SetSfp( data->GetSfp() );
 	fill_data.SetBoard( data->GetBoard() );
 	fill_data.SetChannel( data->GetChannel() );
@@ -97,7 +97,7 @@ void FebexData::ClearData(){
 	std::vector<unsigned short>().swap(trace);
 	Qint = 0;
 	Qhalf = 0.;
-	Qfloat = 0.;
+	Qshort = 0;
 	sfp = 255;
 	board = 255;
 	ch = 255;

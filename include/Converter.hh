@@ -198,7 +198,7 @@ private:
 	unsigned short my_adc_data;
 	unsigned short my_adc_data_lsb;
 	unsigned short my_adc_data_hsb;
-	float my_adc_data_float;
+	unsigned int my_adc_data_int;
 	unsigned char my_sfp_id;
 	unsigned char my_board_id;
 	unsigned char my_ch_id;

@@ -191,7 +191,7 @@ void Converter::MakeHists() {
 				
 			} // k - channel
 
-		// Hit ID vs timestamp
+			// Hit ID vs timestamp
 			hname  = "hfebex_hit_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			htitle = "Profile of ts versus hit_id in SFP " + std::to_string(i);
@@ -243,7 +243,9 @@ void Converter::MakeHists() {
 		
 	} // i - SFP
 	
+
 	// External trigger vs timestamp
+	output_file->cd( maindirname.data() );
 	hname = "hfebex_ext_ts";
 	htitle = "Profile of external trigger ts versus hit_id";
 
@@ -599,15 +601,10 @@ void Converter::ProcessFebexData(){
 		
 	}
 	
-	// 16-bit integer energy
+	// 16-bit integer (short) energy
 	if( my_data_id == 0 ) {
 		
-		// Fill histograms
-		my_energy = cal->FebexEnergy( my_sfp_id, my_board_id, my_ch_id, my_adc_data );
-		hfebex[my_sfp_id][my_board_id][my_ch_id]->Fill( my_adc_data );
-		hfebex_cal[my_sfp_id][my_board_id][my_ch_id]->Fill( my_energy );
-		
-		febex_data->SetQint( my_adc_data );
+		febex_data->SetQshort( my_adc_data );
 		febex_data->SetEnergy( my_energy );
 
 		// Check if it's over threshold
@@ -654,15 +651,18 @@ void Converter::FinishFebexData(){
 	unsigned long long time_corr;
 	
 	// Got all items in fast readout mode or trace only mode
-	if( ( flag_febex_data0 && flag_febex_data1 &&
-	    flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
+	//if( ( flag_febex_data0 && flag_febex_data1 &&
+	//    flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
+
+	// James says (22/08/2022) that we only get the 32-bit integer now
+	if( ( flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
 
 		// Add the time offset to this channel
 		time_corr  = febex_data->GetTime();
 		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
-		// Combine the two halfs of the floating point ADC energy
-		my_adc_data_float = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
+		// Combine the two halfs of the 32-bit integer point ADC energy
+		my_adc_data_int = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
 		
 		// Check if this is actually just a timestamp or info like event
 		flag_febex_info = false;
@@ -697,7 +697,7 @@ void Converter::FinishFebexData(){
 
 		// If this is a timestamp, fill an info event
 		if( flag_febex_info ) {
-				
+		
 			info_data->SetTime( time_corr );
 			info_data->SetSfp( febex_data->GetSfp() );
 			info_data->SetBoard( febex_data->GetBoard() );
@@ -714,9 +714,14 @@ void Converter::FinishFebexData(){
 			// Set this data and fill event to tree
 			// Also add the time offset when we do this
 			febex_data->SetTime( time_corr );
-			febex_data->SetQfloat( my_adc_data_float );
+			febex_data->SetQint( my_adc_data_int );
 			data_packet->SetData( febex_data );
 			output_tree->Fill();
+			
+			// Fill histograms
+			my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), my_adc_data_int );
+			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_adc_data_int );
+			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
 			
 		}
 
@@ -726,10 +731,10 @@ void Converter::FinishFebexData(){
 	else if( my_tm_stp != febex_data->GetTime() ) {
 		
 		std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
-		std::cout << " Qint          = " << flag_febex_data0 << std::endl;
+		std::cout << " Qshort        = " << flag_febex_data0 << std::endl;
 		std::cout << " Qhalf         = " << flag_febex_data1 << std::endl;
-		std::cout << " Qfloat (low)  = " << flag_febex_data2 << std::endl;
-		std::cout << " Qfloat (high) = " << flag_febex_data3 << std::endl;
+		std::cout << " Qint (low)    = " << flag_febex_data2 << std::endl;
+		std::cout << " Qint (high)   = " << flag_febex_data3 << std::endl;
 		std::cout << " trace data    = " << flag_febex_trace << std::endl;
 
 	}
@@ -804,8 +809,8 @@ void Converter::ProcessInfoData(){
     }
 
 	// Create an info event and fill the tree for external triggers and pause/resume
-	if( my_info_code == set->GetPauseCode() ||
-	    my_info_code == set->GetResumeCode() ) {
+	//if( my_info_code == set->GetPauseCode() ||
+	//    my_info_code == set->GetResumeCode() ) {
 
 		info_data->SetSfp( my_sfp_id );
 		info_data->SetBoard( my_board_id );
@@ -815,7 +820,7 @@ void Converter::ProcessInfoData(){
 		output_tree->Fill();
 		info_data->Clear();
 
-	}
+	//}
 
 	return;
 	
@@ -864,6 +869,9 @@ int Converter::ConvertBlock( char *input_block, int nblock ) {
 int Converter::ConvertFile( std::string input_file_name,
 							 unsigned long start_block,
 							 long end_block ) {
+	
+	// Uncomment to force only a few blocks - debug
+	//end_block = 1000;
 	
 	// Read the file.
 	std::ifstream input_file( input_file_name, std::ios::in|std::ios::binary );
