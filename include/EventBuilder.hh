@@ -42,12 +42,12 @@
 
 
 
-class EventBuilder {
+class MiniballEventBuilder {
 	
 public:
 
-	EventBuilder( std::shared_ptr<Settings> myset );
-	~EventBuilder() {};
+	MiniballEventBuilder( std::shared_ptr<MiniballSettings> myset );
+	~MiniballEventBuilder() {};
 
 	void	SetInputFile( std::string input_file_name );
 	void	SetInputTree( TTree *user_tree );
@@ -56,7 +56,7 @@ public:
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
 	
-	inline void AddCalibration( std::shared_ptr<Calibration> mycal ){
+	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){
 		cal = mycal;
 		overwrite_cal = true;
 	};
@@ -89,7 +89,7 @@ private:
 	/// Input tree
 	TFile *input_file;
 	TTree *input_tree;
-	DataPackets *in_data;
+	MiniballDataPackets *in_data;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 
@@ -104,11 +104,11 @@ private:
 	std::shared_ptr<BeamDumpEvt> bd_evt;
 
 	// Do calibration
-	std::shared_ptr<Calibration> cal;
+	std::shared_ptr<MiniballCalibration> cal;
 	bool overwrite_cal;
 	
 	// Settings file
-	std::shared_ptr<Settings> set;
+	std::shared_ptr<MiniballSettings> set;
 	
 	// Progress bar
 	bool _prog_;
@@ -116,7 +116,7 @@ private:
 	
 	// Log file
 	std::stringstream ss_log;
-	std::ofstream log_file; ///< Log file for recording the results of the ISSEventBuilder
+	std::ofstream log_file; ///< Log file for recording the results of the MiniballEventBuilder
 	
 	// Flag to know we've opened a file on disk
 	bool flag_input_file;

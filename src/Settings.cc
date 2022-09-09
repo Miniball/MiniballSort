@@ -1,22 +1,22 @@
 #include "Settings.hh"
 
-ClassImp(Settings)
+ClassImp(MiniballSettings)
 
-Settings::Settings() {
+MiniballSettings::MiniballSettings() {
 	
 	SetFile( "dummy" );
 	ReadSettings();
 	
 }
 
-Settings::Settings( std::string filename ) {
+MiniballSettings::MiniballSettings( std::string filename ) {
 	
 	SetFile( filename );
 	ReadSettings();
 	
 }
 
-void Settings::ReadSettings() {
+void MiniballSettings::ReadSettings() {
 	
 	TEnv *config = new TEnv( fInputFile.data() );
 	
@@ -316,7 +316,7 @@ void Settings::ReadSettings() {
 }
 
 
-bool Settings::IsMiniball( unsigned int sfp, unsigned int board, unsigned int ch ) {
+bool MiniballSettings::IsMiniball( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a Miniball event
 	if( mb_cluster[sfp][board][ch] >= 0 ) return true;
@@ -324,7 +324,7 @@ bool Settings::IsMiniball( unsigned int sfp, unsigned int board, unsigned int ch
 	
 }
 
-int Settings::GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
+int MiniballSettings::GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
 							 std::vector<std::vector<std::vector<int>>> vector ) {
 	
 	/// Return the Miniball ID by the FEBEX SFP, Board number and Channel number
@@ -343,7 +343,7 @@ int Settings::GetMiniballID( unsigned int sfp, unsigned int board, unsigned int 
 }
 
 
-bool Settings::IsCD( unsigned int sfp, unsigned int board, unsigned int ch ) {
+bool MiniballSettings::IsCD( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a CD event
 	if( cd_det[sfp][board][ch] >= 0 ) return true;
@@ -351,7 +351,7 @@ bool Settings::IsCD( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 }
 
-int Settings::GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
+int MiniballSettings::GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
 					  std::vector<std::vector<std::vector<int>>> vector ) {
 	
 	/// Return the CD ID by the FEBEX SFP, Board number and Channel number
@@ -369,7 +369,7 @@ int Settings::GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
 	
 }
 
-bool Settings::IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch ) {
+bool MiniballSettings::IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a beam dump event
 	if( bd_det[sfp][board][ch] >= 0 ) return true;
@@ -377,7 +377,7 @@ bool Settings::IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch
 	
 }
 
-int Settings::GetBeamDumpDetector( unsigned int sfp, unsigned int board, unsigned int ch ) {
+int MiniballSettings::GetBeamDumpDetector( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return the beam dump detector ID by the FEBEX SFP, Board number and Channel number
 	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
@@ -394,7 +394,7 @@ int Settings::GetBeamDumpDetector( unsigned int sfp, unsigned int board, unsigne
 	
 }
 
-bool Settings::IsSpede( unsigned int sfp, unsigned int board, unsigned int ch ) {
+bool MiniballSettings::IsSpede( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a SPEDE event
 	if( spede_seg[sfp][board][ch] >= 0 ) return true;
@@ -402,7 +402,7 @@ bool Settings::IsSpede( unsigned int sfp, unsigned int board, unsigned int ch ) 
 	
 }
 
-int Settings::GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch ) {
+int MiniballSettings::GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return the SPEDE segment ID by the FEBEX SFP, Board number and Channel number
 	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )

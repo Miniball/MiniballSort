@@ -16,7 +16,7 @@ public:
 			  unsigned int qi, Float16_t qh, unsigned short qs,
 			  std::vector<unsigned short> tr,
 			  unsigned char s, unsigned char b, unsigned char c,
-			  bool th, bool v, bool f );
+			  bool th, bool v, bool f, bool p );
 	~FebexData() {};
 
 	inline unsigned long long	GetTime() { return time; };
@@ -31,6 +31,7 @@ public:
 	inline bool					IsOverThreshold() { return thres; };
 	inline bool					IsVeto() { return veto; };
 	inline bool					IsFail() { return fail; };
+	inline bool					IsPileUp() { return pileup; };
 	inline std::vector<unsigned short> GetTrace() { return trace; };
 	inline TGraph* GetTraceGraph() {
 		std::vector<int> x, y;
@@ -64,6 +65,7 @@ public:
 	inline void SetThreshold( bool t ){ thres = t; };
 	inline void SetVeto( bool v ){ veto = v; };
 	inline void SetFail( bool f ){ fail = f; };
+	inline void SetPileUp( bool p ){ pileup = p; };
 
 	inline void ClearTrace() { trace.clear(); };
 	void ClearData();
@@ -82,9 +84,10 @@ protected:
 	bool						thres;		///< is the energy over threshold?
 	bool						veto;		///< veto bit from data stream
 	bool						fail;		///< fail bit from data stream
+	bool						pileup;		///< pileup flag from data stream
 
 	
-	ClassDef( FebexData, 2 )
+	ClassDef( FebexData, 3 )
 	
 };
 
@@ -123,12 +126,12 @@ protected:
 	
 };
 
-class DataPackets : public TObject {
+class MiniballDataPackets : public TObject {
 	
 public:
 	
-	DataPackets() {};
-	~DataPackets() {};
+	MiniballDataPackets() {};
+	~MiniballDataPackets() {};
 
 	inline bool	IsFebex() { return febex_packets.size(); };
 	inline bool	IsInfo() { return info_packets.size(); };
@@ -152,7 +155,7 @@ protected:
 	std::vector<FebexData>	febex_packets;
 	std::vector<InfoData>	info_packets;
 
-	ClassDef( DataPackets, 10 )
+	ClassDef( MiniballDataPackets, 1 )
 
 };
 

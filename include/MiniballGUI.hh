@@ -30,7 +30,7 @@
 // My code include.
 #include "Settings.hh"
 #include "Calibration.hh"
-#include "Converter.hh"
+#include "MidasConverter.hh"
 #include "EventBuilder.hh"
 #include "Reaction.hh"
 #include "Histogrammer.hh"
@@ -140,9 +140,9 @@ protected:
 
 	
 	// Files
-	std::shared_ptr<Settings> myset;
-	std::shared_ptr<Calibration> mycal;
-	std::shared_ptr<Reaction> myrea;
+	std::shared_ptr<MiniballSettings> myset;
+	std::shared_ptr<MiniballCalibration> mycal;
+	std::shared_ptr<MiniballReaction> myrea;
 	
 	// select what steps of the analysis to be forced
 	std::vector<bool> force_convert;

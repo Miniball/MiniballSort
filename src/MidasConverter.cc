@@ -1,6 +1,6 @@
-#include "Converter.hh"
+#include "MidasConverter.hh"
 
-Converter::Converter( std::shared_ptr<Settings> myset ) {
+MiniballMidasConverter::MiniballMidasConverter( std::shared_ptr<MiniballSettings> myset ) {
 
 	// We need to do initialise, but only after Settings are added
 	set = myset;
@@ -36,7 +36,7 @@ Converter::Converter( std::shared_ptr<Settings> myset ) {
 
 }
 
-void Converter::SetOutput( std::string output_file_name ){
+void MiniballMidasConverter::SetOutput( std::string output_file_name ){
 	
 	// Open output file
 	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file" );
@@ -46,14 +46,14 @@ void Converter::SetOutput( std::string output_file_name ){
 };
 
 
-void Converter::MakeTree() {
+void MiniballMidasConverter::MakeTree() {
 
 	// Create Root tree
 	const int splitLevel = 2; // don't split branches = 0, full splitting = 99
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
 	output_tree = new TTree( "mb", "mb" );
-	data_packet = std::make_unique<DataPackets>();
-	output_tree->Branch( "data", "DataPackets", data_packet.get(), bufsize, splitLevel );
+	data_packet = std::make_unique<MiniballDataPackets>();
+	output_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
 
 	sorted_tree = (TTree*)output_tree->CloneTree(0);
 	sorted_tree->SetName("mb_sort");
@@ -74,7 +74,7 @@ void Converter::MakeTree() {
 	
 }
 
-void Converter::MakeHists() {
+void MiniballMidasConverter::MakeHists() {
 	
 	std::string hname, htitle;
 	std::string dirname, maindirname, subdirname;
@@ -264,7 +264,7 @@ void Converter::MakeHists() {
 }
 
 // Function to copy the header from a DataSpy, for example
-void Converter::SetBlockHeader( char *input_header ){
+void MiniballMidasConverter::SetBlockHeader( char *input_header ){
 	
 	// Copy header
 	for( unsigned int i = 0; i < HEADER_SIZE; i++ )
@@ -275,7 +275,7 @@ void Converter::SetBlockHeader( char *input_header ){
 }
 
 // Function to process header words
-void Converter::ProcessBlockHeader( unsigned long nblock ){
+void MiniballMidasConverter::ProcessBlockHeader( unsigned long nblock ){
 		
 	// For each new header, reset the swap mode
 	swap = 0;
@@ -323,7 +323,7 @@ void Converter::ProcessBlockHeader( unsigned long nblock ){
 
 
 // Function to copy the main data from a DataSpy, for example
-void Converter::SetBlockData( char *input_data ){
+void MiniballMidasConverter::SetBlockData( char *input_data ){
 	
 	// Copy header
 	for( UInt_t i = 0; i < MAIN_SIZE; i++ )
@@ -335,7 +335,7 @@ void Converter::SetBlockData( char *input_data ){
 
 
 // Function to process data words
-void Converter::ProcessBlockData( unsigned long nblock ){
+void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 	
 	// Get the data in 64-bit words and check endieness and swap if needed
 	// Data format here: http://npg.dl.ac.uk/documents/edoc504/edoc504.html
@@ -432,7 +432,7 @@ void Converter::ProcessBlockData( unsigned long nblock ){
 
 }
 
-bool Converter::GetFebexChanID(){
+bool MiniballMidasConverter::GetFebexChanID(){
 	
 	// ADCchannelIdent are bits 27:16 of word_0
 	// sfp_id= bit 11:10, board_id= bit 9:6, data_id= bit 5:4, ch_id= bit 3:0
@@ -462,7 +462,7 @@ bool Converter::GetFebexChanID(){
 	
 }
 
-int Converter::ProcessTraceData( int pos ){
+int MiniballMidasConverter::ProcessTraceData( int pos ){
 	
 	// Channel ID, etc
 	if( !GetFebexChanID() ) return pos;
@@ -478,6 +478,7 @@ int Converter::ProcessTraceData( int pos ){
 	febex_data->SetChannel( my_ch_id );
 	febex_data->SetFail( 0 );
 	febex_data->SetVeto( 0 );
+	febex_data->SetPileUp( 0 );
 
 	// sample length
 	nsamples = word_0 & 0xFFFF; // 16 bits from 0
@@ -525,7 +526,7 @@ int Converter::ProcessTraceData( int pos ){
 
 }
 
-void Converter::ProcessFebexData(){
+void MiniballMidasConverter::ProcessFebexData(){
 
 	// Febex data format
 	my_adc_data = word_0 & 0xFFFF; // 16 bits from 0
@@ -556,6 +557,7 @@ void Converter::ProcessFebexData(){
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetFail( my_fail );
 		febex_data->SetVeto( my_veto );
+		febex_data->SetPileUp( false ); // not implemented in the MIDAS firmware
 
 	}
 	
@@ -576,6 +578,7 @@ void Converter::ProcessFebexData(){
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetFail( my_fail );
 		febex_data->SetVeto( my_veto );
+		febex_data->SetPileUp( false ); // not implemented in the MIDAS firmware
 
 	}
 	
@@ -598,7 +601,8 @@ void Converter::ProcessFebexData(){
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetFail( my_fail );
 		febex_data->SetVeto( my_veto );
-		
+		febex_data->SetPileUp( false ); // not implemented in the MIDAS firmware
+
 	}
 	
 	// 16-bit integer (short) energy
@@ -645,7 +649,7 @@ void Converter::ProcessFebexData(){
 
 }
 
-void Converter::FinishFebexData(){
+void MiniballMidasConverter::FinishFebexData(){
 	
 	// Timestamp with offset
 	unsigned long long time_corr;
@@ -762,7 +766,7 @@ void Converter::FinishFebexData(){
 
 }
 
-void Converter::ProcessInfoData(){
+void MiniballMidasConverter::ProcessInfoData(){
 
 	// MIDAS info data format
 	my_sfp_id	= (word_0 >> 28) & 0x0003; // bits 28:29
@@ -827,7 +831,7 @@ void Converter::ProcessInfoData(){
 }
 
 // Common function called to process data in a block from file or DataSpy
-bool Converter::ProcessCurrentBlock( int nblock ) {
+bool MiniballMidasConverter::ProcessCurrentBlock( int nblock ) {
 	
 	// Process header.
 	ProcessBlockHeader( nblock );
@@ -850,7 +854,7 @@ bool Converter::ProcessCurrentBlock( int nblock ) {
 }
 
 // Function to convert a block of data from DataSpy
-int Converter::ConvertBlock( char *input_block, int nblock ) {
+int MiniballMidasConverter::ConvertBlock( char *input_block, int nblock ) {
 	
 	// Get the header.
 	std::memmove( &block_header, &input_block[0], HEADER_SIZE );
@@ -866,7 +870,7 @@ int Converter::ConvertBlock( char *input_block, int nblock ) {
 }
 
 // Function to run the conversion for a single file
-int Converter::ConvertFile( std::string input_file_name,
+int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 							 unsigned long start_block,
 							 long end_block ) {
 	
@@ -883,7 +887,7 @@ int Converter::ConvertFile( std::string input_file_name,
 	}
 
 	// Conversion starting
-	std::cout << "Converting file: " << input_file_name;
+	std::cout << "Converting MIDAS file: " << input_file_name;
 	std::cout << " from block " << start_block << std::endl;
 	
 	// Calculate the size of the file.
@@ -964,7 +968,7 @@ int Converter::ConvertFile( std::string input_file_name,
 	
 }
 
-unsigned long long Converter::SortTree(){
+unsigned long long MiniballMidasConverter::SortTree(){
 	
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();

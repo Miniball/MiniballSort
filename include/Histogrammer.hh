@@ -34,12 +34,12 @@
 # include "Settings.hh"
 #endif
 
-class Histogrammer {
+class MiniballHistogrammer {
 	
 public:
 
-	Histogrammer( std::shared_ptr<Reaction> myreact, std::shared_ptr<Settings> myset );
-	~Histogrammer() {};
+	MiniballHistogrammer( std::shared_ptr<MiniballReaction> myreact, std::shared_ptr<MiniballSettings> myset );
+	~MiniballHistogrammer() {};
 	
 	void MakeHists();
 	unsigned long FillHists();
@@ -226,10 +226,10 @@ public:
 private:
 	
 	// Reaction
-	std::shared_ptr<Reaction> react;
+	std::shared_ptr<MiniballReaction> react;
 	
 	// Settings file
-	std::shared_ptr<Settings> set;
+	std::shared_ptr<MiniballSettings> set;
 	
 	// Input tree
 	TChain *input_tree;

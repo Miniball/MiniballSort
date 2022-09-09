@@ -1,7 +1,7 @@
 // My code include.
 #include "Settings.hh"
 #include "Calibration.hh"
-#include "Converter.hh"
+#include "MidasConverter.hh"
 #include "EventBuilder.hh"
 #include "Reaction.hh"
 #include "Histogrammer.hh"
@@ -54,6 +54,9 @@ bool help_flag = false;
 // Flag if we want to launch the GUI for sorting
 bool gui_flag = false;
 
+// Input data type
+bool flag_mbs = false;
+
 // DataSpy
 bool flag_spy = false;
 int open_spy_data = -1;
@@ -63,21 +66,21 @@ bool flag_monitor = false;
 int mon_time = -1; // update time in seconds
 
 // Settings file
-std::shared_ptr<Settings> myset;
+std::shared_ptr<MiniballSettings> myset;
 
 // Calibration file
-std::shared_ptr<Calibration> mycal;
+std::shared_ptr<MiniballCalibration> mycal;
 bool overwrite_cal = false;
 
 // Reaction file
-std::shared_ptr<Reaction> myreact;
+std::shared_ptr<MiniballReaction> myreact;
 
 // Struct for passing to the thread
 typedef struct thptr {
 	
-	std::shared_ptr<Calibration> mycal;
-	std::shared_ptr<Settings> myset;
-	std::shared_ptr<Reaction> myreact;
+	std::shared_ptr<MiniballCalibration> mycal;
+	std::shared_ptr<MiniballSettings> myset;
+	std::shared_ptr<MiniballReaction> myreact;
 	
 } thread_data;
 
@@ -95,12 +98,12 @@ void* monitor_run( void* ptr ){
 	thptr *calfiles = (thptr*)ptr;
 
 	// This function is called to run when monitoring
-	Converter conv_mon( calfiles->myset );
-	EventBuilder eb_mon( calfiles->myset );
-	Histogrammer hist_mon( calfiles->myreact, calfiles->myset );
+	MiniballMidasConverter conv_mon( calfiles->myset );
+	MiniballEventBuilder eb_mon( calfiles->myset );
+	MiniballHistogrammer hist_mon( calfiles->myreact, calfiles->myset );
 
 	// Data blocks for Data spy
-	if( flag_spy && myset->GetBlockSize() != 0x10000 ) {
+	if( flag_spy && ( myset->GetBlockSize() != 0x10000 && !flag_mbs ) ) {
 	
 		// only 64 kB supported atm
 		std::cerr << "Currently only supporting 64 kB block size" << std::endl;
@@ -266,8 +269,8 @@ void do_convert() {
 	//------------------------//
 	// Run conversion to ROOT //
 	//------------------------//
-	Converter conv( myset );
-	std::cout << "\n +++ Miniball Analysis:: processing Converter +++" << std::endl;
+	MiniballMidasConverter conv( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballMidasConverter +++" << std::endl;
 
 	TFile *rtest;
 	std::ifstream ftest;
@@ -335,8 +338,8 @@ void do_build() {
 	//-----------------------//
 	// Physics event builder //
 	//-----------------------//
-	EventBuilder eb( myset );
-	std::cout << "\n +++ Miniball Analysis:: processing EventBuilder +++" << std::endl;
+	MiniballEventBuilder eb( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballEventBuilder +++" << std::endl;
 
 	TFile *rtest;
 	std::ifstream ftest;
@@ -401,8 +404,8 @@ void do_hist() {
 	//------------------------------//
 	// Finally make some histograms //
 	//------------------------------//
-	Histogrammer hist( myreact, myset );
-	std::cout << "\n +++ Miniball Analysis:: processing Histogrammer +++" << std::endl;
+	MiniballHistogrammer hist( myreact, myset );
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballHistogrammer +++" << std::endl;
 
 	std::string name_input_file;
 	std::string name_output_file;
@@ -439,7 +442,8 @@ int main( int argc, char *argv[] ){
 	interface->Add("-f", "Flag to force new ROOT conversion", &flag_convert );
 	interface->Add("-e", "Flag to force new event builder (new calibration)", &flag_events );
 	interface->Add("-source", "Flag to define an source only run", &flag_source );
-	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
+    interface->Add("-mbs", "Flag to define input as MBS data type", &flag_mbs );
+    interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
 	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
 	interface->Add("-d", "Data directory to add to the monitor", &datadir_name );
@@ -471,6 +475,17 @@ int main( int argc, char *argv[] ){
 			std::cout << "You have to provide at least one input file!" << std::endl;
 			return 1;
 			
+	}
+	
+	// Check if it should be MBS format
+	if( !flag_mbs && !flag_spy ){
+		
+		std::string extension = input_names.at(0).substr( input_names.at(0).find_last_of(".")+1,
+														 input_names.at(0).length()-input_names.at(0).find_last_of(".")-1 );
+		
+		if( extension == "lmd" ) flag_mbs = true;
+		std::cout << "Assuming we have MBS data because of the .lmd extension" << std::endl;
+
 	}
 	
 	// Check if we should be monitoring the input
@@ -542,9 +557,9 @@ int main( int argc, char *argv[] ){
 
 	}
 	
-	myset = std::make_shared<Settings>( name_set_file );
-	mycal = std::make_shared<Calibration>( name_cal_file, myset );
-	myreact = std::make_shared<Reaction>( name_react_file, myset );
+	myset = std::make_shared<MiniballSettings>( name_set_file );
+	mycal = std::make_shared<MiniballCalibration>( name_cal_file, myset );
+	myreact = std::make_shared<MiniballReaction>( name_react_file, myset );
 
 
 	

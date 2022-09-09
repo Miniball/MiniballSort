@@ -1,11 +1,11 @@
 #include "Reaction.hh"
 
-ClassImp( Particle )
-ClassImp( Reaction )
+ClassImp( MiniballParticle )
+ClassImp( MiniballReaction )
 
 
 // Reaction things
-Reaction::Reaction( std::string filename, std::shared_ptr<Settings> myset ){
+MiniballReaction::MiniballReaction( std::string filename, std::shared_ptr<MiniballSettings> myset ){
 		
 	// Read in mass tables
 	ReadMassTables();
@@ -17,7 +17,7 @@ Reaction::Reaction( std::string filename, std::shared_ptr<Settings> myset ){
 	
 }
 
-void Reaction::AddBindingEnergy( short Ai, short Zi, TString ame_be_str ) {
+void MiniballReaction::AddBindingEnergy( short Ai, short Zi, TString ame_be_str ) {
 	
 	// A key for the isotope
 	std::string isotope_key;
@@ -39,7 +39,7 @@ void Reaction::AddBindingEnergy( short Ai, short Zi, TString ame_be_str ) {
 	
 }
 
-void Reaction::ReadMassTables() {
+void MiniballReaction::ReadMassTables() {
 
 	// Input data file is in the source code
 	// AME_FILE is passed as a definition at compilation time in Makefile
@@ -105,7 +105,7 @@ void Reaction::ReadMassTables() {
 
 }
 
-void Reaction::ReadReaction() {
+void MiniballReaction::ReadReaction() {
 
 	TEnv *config = new TEnv( fInputFile.data() );
 	
@@ -333,7 +333,7 @@ void Reaction::ReadReaction() {
 
 }
 
-TVector3 Reaction::GetCDVector( unsigned char det, unsigned char sec, float pid, float nid ){
+TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, float pid, float nid ){
 	
 	// Check that we have a real CD detector
 	if( det >= set->GetNumberOfCDDetectors() ) {
@@ -371,7 +371,7 @@ TVector3 Reaction::GetCDVector( unsigned char det, unsigned char sec, float pid,
 
 }
 
-TVector3 Reaction::GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+TVector3 MiniballReaction::GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 	
 	// Create a TVector3 to handle the angles
 	TVector3 vec = GetCDVector( det, sec, pid, nid );
@@ -386,7 +386,7 @@ TVector3 Reaction::GetParticleVector( unsigned char det, unsigned char sec, unsi
 
 }
 
-TVector3 Reaction::GetSpedeVector( unsigned char seg ){
+TVector3 MiniballReaction::GetSpedeVector( unsigned char seg ){
 
 	// Calculate the vertical distance from axis
 	float x = 0.0;
@@ -405,7 +405,7 @@ TVector3 Reaction::GetSpedeVector( unsigned char seg ){
 	
 }
 
-TVector3 Reaction::GetElectronVector( unsigned char seg ){
+TVector3 MiniballReaction::GetElectronVector( unsigned char seg ){
 
 	// Create a TVector3 to handle the angles
 	TVector3 vec = GetSpedeVector( seg );
@@ -420,11 +420,11 @@ TVector3 Reaction::GetElectronVector( unsigned char seg ){
 	
 }
 
-double Reaction::CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
+double MiniballReaction::CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
 
 	/// Returns the CosTheta angle between particle and gamma ray.
 	/// @param ejectile true for and to the ejectile or false for recoil
-	Particle *p;
+	MiniballParticle *p;
 	if( ejectile ) p = &Ejectile;
 	else p = &Recoil;
 
@@ -434,11 +434,11 @@ double Reaction::CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
 	
 }
 
-double Reaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
+double MiniballReaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
 
 	/// Returns the CosTheta angle between particle and electron.
 	/// @param ejectile true for and to the ejectile or false for recoil
-	Particle *p;
+	MiniballParticle *p;
 	if( ejectile ) p = &Ejectile;
 	else p = &Recoil;
 
@@ -448,11 +448,11 @@ double Reaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
 	
 }
 
-double Reaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
+double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
 
 	/// Returns Doppler corrected gamma-ray energy for given particle and gamma combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
-	Particle *p;
+	MiniballParticle *p;
 	if( ejectile ) p = &Ejectile;
 	else p = &Recoil;
 	
@@ -463,11 +463,11 @@ double Reaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectil
 	
 }
 
-double Reaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
+double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
 
 	/// Returns Doppler corrected electron energy for given particle and SPEDE combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
-	Particle *p;
+	MiniballParticle *p;
 	if( ejectile ) p = &Ejectile;
 	else p = &Recoil;
 	
@@ -478,7 +478,7 @@ double Reaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile )
 	
 }
 
-void Reaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool kinflag ){
+void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 	
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
@@ -510,7 +510,7 @@ void Reaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 
 }
 
-void Reaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinflag ){
+void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 	
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
@@ -539,7 +539,7 @@ void Reaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinflag ){
 
 }
 
-void Reaction::CalculateEjectile(){
+void MiniballReaction::CalculateEjectile(){
 
 	/// Set the ejectile properties using the recoil data
 	// Assume that the centre of mass angle is defined by the recoil
@@ -567,7 +567,7 @@ void Reaction::CalculateEjectile(){
 
 }
 
-void Reaction::CalculateRecoil(){
+void MiniballReaction::CalculateRecoil(){
 
 	/// Set the recoil properties using the ejectile data
 	// Assume that the centre of mass angle is defined by the ejectile
@@ -595,7 +595,7 @@ void Reaction::CalculateRecoil(){
 
 }
 
-double Reaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g ) {
+double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g ) {
 
 	/// Returns the energy loss at a given initial energy and distance travelled
 	/// A negative distance will add the energy back on, i.e. travelling backwards
@@ -615,7 +615,7 @@ double Reaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> 
 
 }
 
-bool Reaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g ) {
+bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g ) {
 	 
 	/// Open stopping power files and make TGraphs of data
 	std::string title = "Stopping powers for ";

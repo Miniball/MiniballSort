@@ -14,13 +14,13 @@
 /// This has the number of modules, channels and things
 /// It also defines which detectors are which
 
-class Settings : public TObject {
+class MiniballSettings : public TObject {
 
 public:
 
-	Settings();
-	Settings( std::string filename );
-	~Settings() {};
+	MiniballSettings();
+	MiniballSettings( std::string filename );
+	~MiniballSettings() {};
 	
 	void ReadSettings();
 	void PrintSettings();
@@ -120,7 +120,7 @@ public:
 	bool IsSpede( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch );
 
-	ClassDef( Settings, 10 )
+	ClassDef( MiniballSettings, 1 )
 
 private:
 

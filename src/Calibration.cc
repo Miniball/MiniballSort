@@ -1,7 +1,7 @@
 #include "Calibration.hh"
 
 ClassImp(FebexMWD)
-ClassImp(Calibration)
+ClassImp(MiniballCalibration)
 
 void FebexMWD::DoMWD() {
 		
@@ -112,15 +112,15 @@ void FebexMWD::DoMWD() {
 
 
 
-Calibration::Calibration() {
+MiniballCalibration::MiniballCalibration() {
 
 	SetFile( "dummy" );
-	set = std::make_shared<Settings>();
+	set = std::make_shared<MiniballSettings>();
 	ReadCalibration();
 
 }
 
-Calibration::Calibration( std::string filename, std::shared_ptr<Settings> myset ) {
+MiniballCalibration::MiniballCalibration( std::string filename, std::shared_ptr<MiniballSettings> myset ) {
 
 	SetFile( filename );
 	set = myset;
@@ -128,7 +128,7 @@ Calibration::Calibration( std::string filename, std::shared_ptr<Settings> myset 
 		
 }
 
-void Calibration::ReadCalibration() {
+void MiniballCalibration::ReadCalibration() {
 
 	std::unique_ptr<TEnv> config( new TEnv( fInputFile.data() ) );
 	
@@ -209,7 +209,7 @@ void Calibration::ReadCalibration() {
 
 }
 
-float Calibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned short raw ) {
+float MiniballCalibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned short raw ) {
 	
 	float energy, raw_rand;
 	TRandom *fRand = new TRandom();
@@ -241,7 +241,7 @@ float Calibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned i
 	
 }
 
-FebexMWD Calibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace ) {
+FebexMWD MiniballCalibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace ) {
 	
 	// Create a FebexMWD class to hold the info
 	FebexMWD mwd;
@@ -271,7 +271,7 @@ FebexMWD Calibration::DoMWD( unsigned int sfp, unsigned int board, unsigned int 
 }
 
 
-float Calibration::FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch ) {
+float MiniballCalibration::FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
 	    board < set->GetNumberOfFebexBoards() &&
@@ -285,7 +285,7 @@ float Calibration::FebexThreshold( unsigned int sfp, unsigned int board, unsigne
 	
 }
 
-long Calibration::FebexTime( unsigned int sfp, unsigned int board, unsigned int ch ){
+long MiniballCalibration::FebexTime( unsigned int sfp, unsigned int board, unsigned int ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
 	    board < set->GetNumberOfFebexBoards() &&

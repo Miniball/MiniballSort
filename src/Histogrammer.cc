@@ -1,6 +1,6 @@
 #include "Histogrammer.hh"
 
-Histogrammer::Histogrammer( std::shared_ptr<Reaction> myreact, std::shared_ptr<Settings> myset ){
+MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> myreact, std::shared_ptr<MiniballSettings> myset ){
 	
 	react = myreact;
 	set = myset;
@@ -10,7 +10,7 @@ Histogrammer::Histogrammer( std::shared_ptr<Reaction> myreact, std::shared_ptr<S
 	
 }
 
-void Histogrammer::MakeHists() {
+void MiniballHistogrammer::MakeHists() {
 	
 	std::string hname, htitle;
 	std::string dirname;
@@ -573,7 +573,7 @@ void Histogrammer::MakeHists() {
 }
 
 // Particle-Gamma coincidences without addback
-void Histogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g ) {
+void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g ) {
 
 	// Work out the weight if it's prompt or random
 	bool prompt = false;
@@ -647,7 +647,7 @@ void Histogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g ) {
 }
 
 // Particle-Gamma coincidences with addback
-void Histogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddbackEvt> g ) {
+void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddbackEvt> g ) {
 
 	// Work out the weight if it's prompt or random
 	bool prompt = false;
@@ -721,7 +721,7 @@ void Histogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddbackEvt> g
 }
 
 // Particle-Electron coincidences with addback
-void Histogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> e ) {
+void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> e ) {
 
 	// Work out the weight if it's prompt or random
 	bool prompt = false;
@@ -794,23 +794,23 @@ void Histogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> e ) {
 
 }
 
-unsigned long Histogrammer::FillHists() {
+unsigned long MiniballHistogrammer::FillHists() {
 	
 	/// Main function to fill the histograms
 	n_entries = input_tree->GetEntries();
 	
-	std::cout << " Histogrammer: number of entries in event tree = ";
+	std::cout << " MiniballHistogrammer: number of entries in event tree = ";
 	std::cout << n_entries << std::endl;
 	
 	if( n_entries == 0 ){
 		
-		std::cout << " Histogrammer: Nothing to do..." << std::endl;
+		std::cout << " MiniballHistogrammer: Nothing to do..." << std::endl;
 		return n_entries;
 		
 	}
 	else {
 		
-		std::cout << " Histogrammer: Start filling histograms" << std::endl;
+		std::cout << " MiniballHistogrammer: Start filling histograms" << std::endl;
 		
 	}
 
@@ -1260,7 +1260,7 @@ unsigned long Histogrammer::FillHists() {
 	
 }
 
-void Histogrammer::SetInputFile( std::vector<std::string> input_file_names ) {
+void MiniballHistogrammer::SetInputFile( std::vector<std::string> input_file_names ) {
 	
 	/// Overloaded function for a single file or multiple files
 	input_tree = new TChain( "evt_tree" );
@@ -1275,7 +1275,7 @@ void Histogrammer::SetInputFile( std::vector<std::string> input_file_names ) {
 	
 }
 
-void Histogrammer::SetInputFile( std::string input_file_name ) {
+void MiniballHistogrammer::SetInputFile( std::string input_file_name ) {
 	
 	/// Overloaded function for a single file or multiple files
 	input_tree = new TChain( "evt_tree" );
@@ -1286,7 +1286,7 @@ void Histogrammer::SetInputFile( std::string input_file_name ) {
 	
 }
 
-void Histogrammer::SetInputTree( TTree *user_tree ){
+void MiniballHistogrammer::SetInputTree( TTree *user_tree ){
 	
 	// Find the tree and set branch addresses
 	input_tree = (TChain*)user_tree;

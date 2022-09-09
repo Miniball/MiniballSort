@@ -507,10 +507,10 @@ void MiniballGUI::gui_convert(){
 	//------------------------//
 	// Run conversion to ROOT //
 	//------------------------//
-	Converter conv( myset );
+	MiniballMidasConverter conv( myset );
 	conv.AddCalibration( mycal );
 	conv.AddProgressBar( prog_conv );
-	std::cout << "\n +++ Miniball Analysis:: processing Converter +++" << std::endl;
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballMidasConverter +++" << std::endl;
 
 	// Progress bar and filename
 	std::string prog_format;
@@ -612,9 +612,9 @@ void MiniballGUI::gui_build(){
 	//-----------------------//
 	// Physics event builder //
 	//-----------------------//
-	EventBuilder eb( myset );
+	MiniballEventBuilder eb( myset );
 	eb.AddProgressBar( prog_evnt );
-	std::cout << "\n +++ Miniball Analysis:: processing EventBuilder +++" << std::endl;
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballEventBuilder +++" << std::endl;
 
 	// Update everything
 	gSystem->ProcessEvents();
@@ -699,9 +699,9 @@ void MiniballGUI::gui_hist(){
 	//------------------------------//
 	// Finally make some histograms //
 	//------------------------------//
-	Histogrammer hist( myrea, myset );
+	MiniballHistogrammer hist( myrea, myset );
 	hist.AddProgressBar( prog_hist );
-	std::cout << "\n +++ Miniball Analysis:: processing Histogrammer +++" << std::endl;
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballHistogrammer +++" << std::endl;
 
 	// Update everything
 	gSystem->ProcessEvents();
@@ -755,9 +755,9 @@ void MiniballGUI::on_sort_clicked() {
 	if( name_cal_file == "" ) name_cal_file = "dummy";
 	if( name_rea_file == "" ) name_rea_file = "dummy";
 
-	myset = std::make_shared<Settings>( name_set_file );
-	mycal = std::make_shared<Calibration>( name_cal_file, myset );
-	myrea = std::make_shared<Reaction>( name_rea_file, myset );
+	myset = std::make_shared<MiniballSettings>( name_set_file );
+	mycal = std::make_shared<MiniballCalibration>( name_cal_file, myset );
+	myrea = std::make_shared<MiniballReaction>( name_rea_file, myset );
 	
 	// select what steps of the analysis to be forced
 	force_events = false;

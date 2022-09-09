@@ -53,11 +53,12 @@ LDFLAGS 	+= $(ROOTLDFLAGS)
 # The object files.
 OBJECTS =  		$(SRC_DIR)/Calibration.o \
 				$(SRC_DIR)/CommandLineInterface.o \
-				$(SRC_DIR)/Converter.o \
 				$(SRC_DIR)/DataPackets.o \
 				$(SRC_DIR)/DataSpy.o \
 				$(SRC_DIR)/Settings.o \
 				$(SRC_DIR)/EventBuilder.o \
+				$(SRC_DIR)/MbsConverter.o \
+				$(SRC_DIR)/MidasConverter.o \
 				$(SRC_DIR)/MiniballEvts.o \
 				$(SRC_DIR)/MiniballGeometry.o \
 				$(SRC_DIR)/Reaction.o \
@@ -67,11 +68,12 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 # The header files.
 DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/CommandLineInterface.hh \
-				$(INC_DIR)/Converter.hh \
 				$(INC_DIR)/DataPackets.hh \
 				$(INC_DIR)/DataSpy.hh \
 				$(INC_DIR)/Settings.hh \
 				$(INC_DIR)/EventBuilder.hh \
+				$(INC_DIR)/MbsConverter.hh \
+				$(INC_DIR)/MidasConverter.hh \
 				$(INC_DIR)/MiniballEvts.hh \
 				$(INC_DIR)/MiniballGeometry.hh \
 				$(INC_DIR)/Reaction.hh \

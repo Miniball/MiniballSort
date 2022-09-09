@@ -67,13 +67,13 @@ const std::vector<std::string> gElName = {
 /// A class to read in the reaction file in ROOT's TConfig format.
 /// And also to do the physics stuff for the reaction
 
-class Particle : public TObject {
+class MiniballParticle : public TObject {
 	
 public:
 	
 	// setup functions
-	Particle() {};
-	~Particle() {};
+	MiniballParticle() {};
+	~MiniballParticle() {};
 	
 	// Get properties
 	inline double		GetMass_u(){
@@ -139,17 +139,17 @@ private:
 	double	Phi;		///< phi in the laboratory system in radians
 
 	
-	ClassDef( Particle, 10 )
+	ClassDef( MiniballParticle, 1 )
 	
 };
 
-class Reaction : public TObject {
+class MiniballReaction : public TObject {
 	
 public:
 	
 	// setup functions
-	Reaction( std::string filename, std::shared_ptr<Settings> myset );
-	~Reaction() {};
+	MiniballReaction( std::string filename, std::shared_ptr<MiniballSettings> myset );
+	~MiniballReaction() {};
 	
 	// Main functions
 	void AddBindingEnergy( short Ai, short Zi, TString ame_be_str );
@@ -409,10 +409,10 @@ public:
 	inline TCutG* GetRecoilCut(){ return recoil_cut; };
 	
 	// Get particles
-	inline Particle* GetBeam(){ return &Beam; };
-	inline Particle* GetTarget(){ return &Target; };
-	inline Particle* GetEjectile(){ return &Ejectile; };
-	inline Particle* GetRecoil(){ return &Recoil; };
+	inline MiniballParticle* GetBeam(){ return &Beam; };
+	inline MiniballParticle* GetTarget(){ return &Target; };
+	inline MiniballParticle* GetEjectile(){ return &Ejectile; };
+	inline MiniballParticle* GetRecoil(){ return &Recoil; };
 	
 	// Timing for coincidence
 	inline unsigned long long GetParticleTime(){ return particle_time; };
@@ -420,20 +420,20 @@ public:
 	inline bool IsEjectileDetected(){ return ejectile_detected; };
 	inline bool IsRecoilDetected(){ return recoil_detected; };
 
-	ClassDef( Reaction, 10 )
+	ClassDef( MiniballReaction, 1 )
 
 private:
 
 	std::string fInputFile;
 	
 	// Settings file
-	std::shared_ptr<Settings> set;
+	std::shared_ptr<MiniballSettings> set;
 	
 	// Mass tables
 	std::map< std::string, double > ame_be; ///< List of biniding energies from  AME2021
 
 	// Reaction partners
-	Particle Beam, Target, Ejectile, Recoil;
+	MiniballParticle Beam, Target, Ejectile, Recoil;
 	
 	// Reaction times and flags for coincidences
 	unsigned long long particle_time;

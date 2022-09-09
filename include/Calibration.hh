@@ -124,13 +124,13 @@ private:
 /// Each channel also has a threshold (not implemented)
 /// and there is a time offset parameter for each ASIC module, too.
 
-class Calibration : public TObject {
+class MiniballCalibration : public TObject {
 
 public:
 
-	Calibration();
-	Calibration( std::string filename, std::shared_ptr<Settings> myset );
-	~Calibration() {};
+	MiniballCalibration();
+	MiniballCalibration( std::string filename, std::shared_ptr<MiniballSettings> myset );
+	~MiniballCalibration() {};
 	void ReadCalibration();
 	void PrintCalibration();
 	void SetFile( std::string filename ){
@@ -149,7 +149,7 @@ private:
 
 	std::string fInputFile;
 	
-	std::shared_ptr<Settings> set;
+	std::shared_ptr<MiniballSettings> set;
 
 	std::vector< std::vector<std::vector<long>> > fFebexTime;
 	std::vector< std::vector<std::vector<float>> > fFebexOffset;
@@ -173,7 +173,7 @@ private:
 	int default_CFD_Threshold;
 
 	
-	ClassDef( Calibration, 10 )
+	ClassDef( MiniballCalibration, 1 )
    
 };
 

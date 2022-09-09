@@ -2,21 +2,21 @@
 
 ClassImp(FebexData)
 ClassImp(InfoData)
-ClassImp(DataPackets)
+ClassImp(MiniballDataPackets)
 
 FebexData::FebexData( unsigned long long t,
 					unsigned int qi, Float16_t qh, unsigned short qs,
 				    std::vector<unsigned short> tr,
 					unsigned char s, unsigned char b, unsigned char c,
-				    bool th, bool v, bool f ) :
-					time(t), Qint(qi), Qhalf(qh), Qshort(qs), trace(tr), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f) {}
+				    bool th, bool v, bool f, bool p ) :
+					time(t), Qint(qi), Qhalf(qh), Qshort(qs), trace(tr), sfp(s), board(b), ch(c), thres(th), veto(v), fail(f), pileup(p) {}
 
 InfoData::InfoData( unsigned long long t, unsigned char c, unsigned char s, unsigned char b ) :
 					time(t), code(c), sfp(s), board(b) {}
 
 
 
-void DataPackets::SetData( std::shared_ptr<FebexData> data ){
+void MiniballDataPackets::SetData( std::shared_ptr<FebexData> data ){
 	
 	// Reset the vector to size = 0
 	// We only want to have one element per Tree entry
@@ -37,12 +37,13 @@ void DataPackets::SetData( std::shared_ptr<FebexData> data ){
 	fill_data.SetThreshold( data->IsOverThreshold() );
 	fill_data.SetVeto( data->IsVeto() );
 	fill_data.SetFail( data->IsFail() );
+	fill_data.SetPileUp( data->IsPileUp() );
 
 	febex_packets.push_back( fill_data );
 
 }
 
-void DataPackets::SetData( std::shared_ptr<InfoData> data ){
+void MiniballDataPackets::SetData( std::shared_ptr<InfoData> data ){
 	
 	// Reset the vector to size = 0
 	// We only want to have one element per Tree entry
@@ -60,7 +61,7 @@ void DataPackets::SetData( std::shared_ptr<InfoData> data ){
 }
 
 
-void DataPackets::ClearData(){
+void MiniballDataPackets::ClearData(){
 	
 	febex_packets.clear();
 	info_packets.clear();
@@ -69,7 +70,7 @@ void DataPackets::ClearData(){
 	
 }
 
-unsigned long long DataPackets::GetTime(){
+unsigned long long MiniballDataPackets::GetTime(){
 		
 	if( IsFebex() ) return GetFebexData()->GetTime();
 	if( IsInfo() ) return GetInfoData()->GetTime();
@@ -78,13 +79,13 @@ unsigned long long DataPackets::GetTime(){
 	
 }
 
-UInt_t DataPackets::GetTimeMSB(){
+UInt_t MiniballDataPackets::GetTimeMSB(){
 	
 	return ( (this->GetTime() >> 32) & 0x0000FFFF );
 	
 }
 
-UInt_t DataPackets::GetTimeLSB(){
+UInt_t MiniballDataPackets::GetTimeLSB(){
 	
 	return (UInt_t)this->GetTime();
 	
@@ -105,6 +106,7 @@ void FebexData::ClearData(){
 	veto = false;
 	fail = false;
 	thres = false;
+	pileup = false;
 
 	return;
 	

@@ -1,6 +1,6 @@
 #include "EventBuilder.hh"
 
-EventBuilder::EventBuilder( std::shared_ptr<Settings> myset ){
+MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> myset ){
 	
 	// First get the settings
 	set = myset;
@@ -49,7 +49,7 @@ EventBuilder::EventBuilder( std::shared_ptr<Settings> myset ){
 		
 }
 
-void EventBuilder::StartFile(){
+void MiniballEventBuilder::StartFile(){
 	
 	// Call for every new file
 	// Reset counters etc.
@@ -101,7 +101,7 @@ void EventBuilder::StartFile(){
 		
 }
 
-void EventBuilder::SetInputFile( std::string input_file_name ) {
+void MiniballEventBuilder::SetInputFile( std::string input_file_name ) {
 		
 	// Open next Root input file.
 	input_file = new TFile( input_file_name.data(), "read" );
@@ -122,7 +122,7 @@ void EventBuilder::SetInputFile( std::string input_file_name ) {
 	
 }
 
-void EventBuilder::SetInputTree( TTree *user_tree ){
+void MiniballEventBuilder::SetInputTree( TTree *user_tree ){
 	
 	// Find the tree and set branch addresses
 	input_tree = user_tree;
@@ -133,7 +133,7 @@ void EventBuilder::SetInputTree( TTree *user_tree ){
 	
 }
 
-void EventBuilder::SetOutput( std::string output_file_name ) {
+void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 
 	// These are the branches we need
 	write_evts = std::make_unique<MiniballEvts>();
@@ -159,7 +159,7 @@ void EventBuilder::SetOutput( std::string output_file_name ) {
 	
 }
 
-void EventBuilder::Initialise(){
+void MiniballEventBuilder::Initialise(){
 
 	/// This is called at the end of every execution/loop
 	
@@ -200,7 +200,7 @@ void EventBuilder::Initialise(){
 	
 }
 
-unsigned long EventBuilder::BuildEvents() {
+unsigned long MiniballEventBuilder::BuildEvents() {
 	
 	/// Function to loop over the sort tree and build array and recoil events
 
@@ -550,7 +550,7 @@ unsigned long EventBuilder::BuildEvents() {
 	// Clean up
 	//--------------------------
 
-	ss_log << "\n EventBuilder finished..." << std::endl;
+	ss_log << "\n MiniballEventBuilder finished..." << std::endl;
 	ss_log << "  FEBEX data packets = " << n_febex_data << std::endl;
 	//for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 	//	std::cout << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
@@ -588,7 +588,7 @@ unsigned long EventBuilder::BuildEvents() {
 }
 
 
-void EventBuilder::GammaRayFinder() {
+void MiniballEventBuilder::GammaRayFinder() {
 	
 	// Temporary variables for addback
 	unsigned long long MaxTime; // time of event with maximum energy
@@ -714,7 +714,7 @@ void EventBuilder::GammaRayFinder() {
 }
 
 
-void EventBuilder::ParticleFinder() {
+void MiniballEventBuilder::ParticleFinder() {
 
 	// Variables for the finder algorithm
 	std::vector<unsigned char> pindex;
@@ -767,7 +767,7 @@ void EventBuilder::ParticleFinder() {
 }
 
 
-void EventBuilder::MakeEventHists(){
+void MiniballEventBuilder::MakeEventHists(){
 	
 	std::string hname, htitle;
 	std::string dirname, maindirname, subdirname;
@@ -793,8 +793,8 @@ void EventBuilder::MakeEventHists(){
 
 
 ////////////////////////////////////////////////////////////////////////////////
-/// This function cleans up all of the histograms used in the EventBuilder class, by deleting them and clearing all histogram vectors.
-void EventBuilder::CleanHists(){
+/// This function cleans up all of the histograms used in the MiniballEventBuilder class, by deleting them and clearing all histogram vectors.
+void MiniballEventBuilder::CleanHists(){
 
 	// Clean up the histograms to save memory for later
 	delete tdiff;
