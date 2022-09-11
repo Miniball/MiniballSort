@@ -6,14 +6,14 @@ void read_traces( std::string filename = "test/R4_13.root" ) {
 	TFile *f = new TFile( filename.data() );
 	
 	// Get Tree
-	TTree *t = (TTree*)f->Get("mb");
+	TTree *t = (TTree*)f->Get("mb_sort");
 	
 	// Get entries
 	unsigned long long nentries = t->GetEntries();
 	
 	// Branches, etc
 	std::shared_ptr<FebexData> febex;
-	DataPackets *data = new DataPackets;
+	MiniballDataPackets *data = new MiniballDataPackets;
 	t->SetBranchAddress( "data", &data );
 	
 	// Canvas
@@ -23,7 +23,7 @@ void read_traces( std::string filename = "test/R4_13.root" ) {
 	for( unsigned long long i = 0; i < nentries; ++i ){
 		
         // Skip except for every 16
-        if( i%16 != 0 ) continue;
+        //if( i%16 != 0 ) continue;
         
 		// Get entry
 		t->GetEntry(i);
@@ -45,7 +45,7 @@ void read_traces( std::string filename = "test/R4_13.root" ) {
 		// Update the canvas and wait 50 ms
         c1->Update();
 		gSystem->ProcessEvents();
-		gSystem->Sleep(50);
+		gSystem->Sleep(200);
 		
 	}
 	

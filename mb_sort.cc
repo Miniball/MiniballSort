@@ -2,6 +2,7 @@
 #include "Settings.hh"
 #include "Calibration.hh"
 #include "MidasConverter.hh"
+#include "MbsConverter.hh"
 #include "EventBuilder.hh"
 #include "Reaction.hh"
 #include "Histogrammer.hh"
@@ -269,45 +270,49 @@ void do_convert() {
 	//------------------------//
 	// Run conversion to ROOT //
 	//------------------------//
-	MiniballMidasConverter conv( myset );
-	std::cout << "\n +++ Miniball Analysis:: processing MiniballMidasConverter +++" << std::endl;
+	// TODO: Find a better way to have a converter object without creating everything twice
+	MiniballMidasConverter conv_midas( myset );
+	MiniballMbsConverter conv_mbs( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballConverter +++" << std::endl;
 
 	TFile *rtest;
 	std::ifstream ftest;
 	std::string name_input_file;
 	std::string name_output_file;
-	
+
 	// Check each file
 	for( unsigned int i = 0; i < input_names.size(); i++ ){
-			
+
 		name_input_file = input_names.at(i);
-		name_output_file = input_names.at(i) + ".root";
-		
+		name_output_file = name_input_file.substr( 0,
+								name_input_file.find_last_of(".") );
+		name_output_file += ".root";
+
 		force_convert.push_back( false );
 
 		// If input doesn't exist, skip it
 		ftest.open( name_input_file.data() );
 		if( !ftest.is_open() ) {
-			
+
 			std::cerr << name_input_file << " does not exist" << std::endl;
 			continue;
-			
+
 		}
 		else ftest.close();
-		
+
 		// If output doesn't exist, we have to convert it anyway
 		// The convert flag will force it to be converted
 		ftest.open( name_output_file.data() );
 		if( !ftest.is_open() ) force_convert.at(i) = true;
 		else {
-			
+
 			ftest.close();
 			rtest = new TFile( name_output_file.data() );
 			if( rtest->IsZombie() ) force_convert.at(i) = true;
 			if( !flag_convert && !force_convert.at(i) )
 				std::cout << name_output_file << " already converted" << std::endl;
 			rtest->Close();
-			
+
 		}
 
 		if( flag_convert || force_convert.at(i) ) {
@@ -315,25 +320,43 @@ void do_convert() {
 			std::cout << name_input_file << " --> ";
 			std::cout << name_output_file << std::endl;
 			
-			conv.SetOutput( name_output_file );
-			conv.MakeTree();
-			conv.MakeHists();
-			conv.AddCalibration( mycal );
-			conv.ConvertFile( name_input_file );
+			if( flag_mbs ) {
+			
+				conv_mbs.SetOutput( name_output_file );
+				conv_mbs.MakeTree();
+				conv_mbs.MakeHists();
+				conv_mbs.AddCalibration( mycal );
+				conv_mbs.ConvertFile( name_input_file );
 
-			// Sort the tree before writing and closing
-			if( !flag_source ) conv.SortTree();
-			conv.CloseOutput();
+				// Sort the tree before writing and closing
+				if( !flag_source ) conv_mbs.SortTree();
+				conv_mbs.CloseOutput();
+				
+			}
+			
+			else {
+				
+				conv_midas.SetOutput( name_output_file );
+				conv_midas.MakeTree();
+				conv_midas.MakeHists();
+				conv_midas.AddCalibration( mycal );
+				conv_midas.ConvertFile( name_input_file );
+
+				// Sort the tree before writing and closing
+				if( !flag_source ) conv_midas.SortTree();
+				conv_midas.CloseOutput();
+				
+			}
 
 		}
-		
+
 	}
 
 	return;
-	
+
 }
 
-void do_build() {
+bool do_build() {
 	
 	//-----------------------//
 	// Physics event builder //
@@ -345,6 +368,7 @@ void do_build() {
 	std::ifstream ftest;
 	std::string name_input_file;
 	std::string name_output_file;
+	bool return_flag = false;
 
 	// Update calibration file if given
 	if( overwrite_cal ) eb.AddCalibration( mycal );
@@ -352,9 +376,27 @@ void do_build() {
 	// Do event builder for each file individually
 	for( unsigned int i = 0; i < input_names.size(); i++ ){
 
-		name_input_file = input_names.at(i) + "_sort.root";
-		name_output_file = input_names.at(i) + "_events.root";
+		name_input_file = input_names.at(i);
+		name_input_file = name_input_file.substr( 0,
+								name_input_file.find_last_of(".") );
+		name_output_file = name_input_file + "_events.root";
+		name_input_file += ".root";
 
+		// If input doesn't exist, skip it
+		ftest.open( name_input_file.data() );
+		if( !ftest.is_open() ) {
+
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+
+		}
+		else {
+			
+			ftest.close();
+			return_flag = true;
+			
+		}
+		
 		// We need to do event builder if we just converted it
 		// specific request to do new event build with -e
 		// this is useful if you need to add a new calibration
@@ -395,7 +437,7 @@ void do_build() {
 
 	}
 
-	return;
+	return return_flag;
 	
 }
 
@@ -410,20 +452,28 @@ void do_hist() {
 	std::string name_input_file;
 	std::string name_output_file;
 
-	hist.SetOutput( output_name );
 	std::vector<std::string> name_hist_files;
 
 	// We are going to chain all the event files now
 	for( unsigned int i = 0; i < input_names.size(); i++ ){
 
-		name_input_file = input_names.at(i) + "_events.root";
+		name_input_file = input_names.at(i);
+		name_input_file = name_input_file.substr( 0,
+								name_input_file.find_last_of(".") );
+		name_input_file += "_events.root";
 		name_hist_files.push_back( name_input_file );
 
 	}
 
-	hist.SetInputFile( name_hist_files );
-	hist.FillHists();
-	hist.CloseOutput();
+	// Only do something if there are valid files
+	if( name_hist_files.size() ) {
+		
+		hist.SetOutput( output_name );
+		hist.SetInputFile( name_hist_files );
+		hist.FillHists();
+		hist.CloseOutput();
+	
+	}
 	
 	return;
 	
@@ -514,8 +564,14 @@ int main( int argc, char *argv[] ){
 	}
 	
 	// Check the ouput file name
-	if( output_name.length() == 0 )
-		output_name = input_names.at(0) + "_hists.root";
+	if( output_name.length() == 0 ) {
+		
+		output_name = input_names.at(0);
+		output_name = output_name.substr( 0,
+								output_name.find_last_of(".") );
+		output_name += "_hists.root";
+	
+	}
 	
 	// Check we have a Settings file
 	if( name_set_file.length() > 0 ) {
@@ -568,6 +624,13 @@ int main( int argc, char *argv[] ){
 	//-------------------//
 	if( flag_monitor || flag_spy ) {
 		
+		if( flag_mbs ){
+			
+			std::cout << "MBS data spy not yet supported (but it will be)" << std::endl;
+			return 0;
+			
+		}
+		
 		// Make some data for the thread
 		thread_data data;
 		data.mycal = mycal;
@@ -600,8 +663,8 @@ int main( int argc, char *argv[] ){
 	//------------------//
 	do_convert();
 	if( !flag_source ) {
-		do_build();
-		do_hist();
+		if( do_build() )
+			do_hist();
 	}
 
 	std::cout << "\n\nFinished!\n";

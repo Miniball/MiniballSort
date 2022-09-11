@@ -31,6 +31,7 @@
 #include "Settings.hh"
 #include "Calibration.hh"
 #include "MidasConverter.hh"
+#include "MbsConverter.hh"
 #include "EventBuilder.hh"
 #include "Reaction.hh"
 #include "Histogrammer.hh"
@@ -125,6 +126,7 @@ protected:
 	TGCheckButton       *check_force;		// check button to force resort
 	TGCheckButton       *check_event;		// check button to rebuild events
 	TGCheckButton       *check_source;		// check button to rebuild events
+	TGCheckButton       *check_mbs;			// check button to define MBS data
 
 	// Action buttons
 	TGTextButton        *but_sel;			// button to select files
@@ -151,6 +153,7 @@ protected:
 	bool flag_convert;
 	bool flag_events;
 	bool flag_source;
+	bool flag_mbs;
 
 	
 public:

@@ -11,10 +11,10 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 	TTree *t = (TTree*)f->Get("mb");
 	
 	// Settings file - needed for calibration, just use defaults
-	std::shared_ptr<Settings> myset = std::make_shared<Settings>( "default" );
+	std::shared_ptr<MiniballSettings> myset = std::make_shared<MiniballSettings>( "default" );
 	
 	// Calibration file
-	Calibration *cal = new Calibration( calfile.data(), myset );
+	MiniballCalibration *cal = new MiniballCalibration( calfile.data(), myset );
 		
 	// Get entries
 	unsigned long long nentries = t->GetEntries();
@@ -22,7 +22,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 	
 	// Branches, etc
 	std::shared_ptr<FebexData> febex;
-	DataPackets *data = new DataPackets;
+	MiniballDataPackets *data = new MiniballDataPackets;
 	t->SetBranchAddress( "data", &data );
 	
 	// Canvas

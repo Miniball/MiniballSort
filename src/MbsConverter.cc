@@ -1,307 +1,318 @@
 #include "MbsConverter.hh"
 
-MiniballMbsConverter::MiniballMbsConverter( std::shared_ptr<MiniballSettings> myset ) {
+// Function to process header words and then the data
+void MiniballMbsConverter::ProcessBlock( unsigned long nblock ){
+		
+	// Get number of 32-bit words and pointer to them
+	ndata = ev->GetNData();
+	data = ev->GetData();
+	
+	// Debug events
+	//ev->Show(1);
 
-	// We need to do initialise, but only after Settings are added
-	set = myset;
+	// Decode header
+	UInt_t pos = 3;
+	UInt_t nboards = data[pos++];
+	unsigned int trace = data[pos++];
+	unsigned int filter = data[pos++];
+	
+	// Debug header
+	//std::cout << "nboards: " << nboards << std::endl;
+	//std::cout << "trace: " << trace << std::endl;
+	//std::cout << "filter: " << filter << std::endl;
 
-	my_tm_stp_msb = 0;
-	my_tm_stp_hsb = 0;
+	for( UInt_t i = 0; i < 4; i++ ) {
+		auto pola = data[pos++];
+	}
+	
+	// Padding - Nigel
+	//while(1) {
+	//	if( (data[pos] & 0xFFFF0000) != 0xADD00000 ) break;
+	//	pos++;
+	//}
 
-	ctr_febex_hit.resize( set->GetNumberOfFebexSfps() );
-	ctr_febex_pause.resize( set->GetNumberOfFebexSfps() );
-	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
+	// Now the channel data
+	while( pos < ndata ) ProcessFebexData( pos );
 
-	ctr_febex_ext = 0;	// pulser trigger
+	return;
+	
+}
 
-	// Start counters at zero
-	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
-				
-		// Start counters at zero
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-					
-			ctr_febex_hit[i].push_back(0);	// hits on each module
-			ctr_febex_pause[i].push_back(0);
-			ctr_febex_resume[i].push_back(0);
+//-----------------------------------------------------------------------------
+// Treat a channel - this should always start with a byte 0x34. If chan is 0 to
+// 15, that is a trace for the corresponding channel. If it is 255, this is the
+// special channel, where the energies from the FPGA are stored.
+void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
+	
+	flag_febex_data0 = false;
+	flag_febex_trace = false;
+
+	// Check for padding - Liam
+	while( (data[pos++] & 0xFFFF0000) == 0xADD00000 ) {}
+	pos--;
+	
+	// Padding - Nik
+	//unsigned int first_word = data[pos++];
+	//if( ( first_word & 0xFFF00000 ) == 0xADD00000 ) {
+	//
+	//	//std::cout << "Padding found" << std::endl;
+	//	pos += ((first_word & 0xFF00) >> 8 );
+	//	pos--;
+	//
+	//}
+	
+	// Get channel header
+	if( !GetFebexChanID( data[pos++] ) ){
+		pos = ndata;
+		return;
+	}
+	
+	// Special channel
+	if( my_ch_id == 255 ) {
+		
+		// Get the length in bytes
+		auto length = data[pos++];
+		nsamples = (length - 16) >> 3; // Length in 64-bit (8-byte) words
+
+		// Get the spec header
+		auto specheader = data[pos++];
+		
+		my_tm_stp = data[pos++] & 0xFFFFFF;
+		my_tm_stp <<= 32;
+		my_tm_stp |= data[pos++];
+		//std::cout << "my_tm_stp = " << my_tm_stp << std::endl;
+
+		for( UInt_t i = 0; i < nsamples; i++ ) {
 			
+			// hit times and energies
+			// First 32-bit word of data.
+			auto val32 = data[pos++];
+			unsigned char my_hit_ch_id = (val32 & 0xf0000000) >> 28;
+			unsigned char n_hit_in_cha = (val32 & 0xf000000) >> 24;
+			bool more_than_1_hit_in_cha = (val32 & 0x400000) >> 22;
+			bool only_one_hit_in_cha = (val32 & 0x100000) >> 20;
+			
+			if( more_than_1_hit_in_cha ){
+				
+				//std::cout << "More than one hit found in SFP " << (int)my_sfp_id;
+				//std::cout << ", board " << (int)my_board_id;
+				//std::cout << ", channel " << (int)my_hit_ch_id << std::endl;
+				
+				if( only_one_hit_in_cha )
+					std::cerr << "Error: One hit and multiple hits flagged" << std::endl;
+				
+				n_double_hits++;
+				
+			}
+			
+			else if( only_one_hit_in_cha ) {
+			
+				// Hit time negative is before trigger
+				// Hit time positive is after trigger
+				bool hit_time_sign = (val32 & 0x8000) >> 15;
+				short hit_time = val32 & 0x7ff;
+				if( hit_time_sign ) hit_time *= -1.0;
+
+				n_single_hits++;
+
+			}
+
+			// Second 32-bit word of data
+			val32 = data[pos++];
+			unsigned char my_hit_ch_id2 = (val32 & 0xf0000000) >> 28;
+			my_adc_data_int = val32 & 0x7fffff;
+			bool my_adc_sign = (val32 & 0x800000) >> 23;
+			
+			// Make sure that the hit ids match
+			if( my_hit_ch_id != my_hit_ch_id2 ){
+				std::cerr << "Hit IDs don't match in channels: ";
+				std::cerr << (int)my_hit_ch_id << " & ";
+				std::cerr << (int)my_hit_ch_id2 << std::endl;
+				pos = ndata;
+				return;
+			}
+			
+			// Test that the channel number is good
+			if( my_hit_ch_id >= set->GetNumberOfFebexChannels() ) {
+				std::cerr << "Bad hit ID: " << (int)my_hit_ch_id;
+				std::cerr << std::endl;
+				pos = ndata;
+				return;
+			}
+			
+			// Make an event if we have one trigger
+			if( only_one_hit_in_cha ) {
+		
+				// Don't make events for pileups, as they will have a trace?
+				flag_febex_data0 = true;
+				
+				if( my_adc_sign ) my_adc_data_int *= -1.0;
+				
+				// Make a FebexData item
+				febex_data->SetQint( my_adc_data_int );
+				febex_data->SetTime( my_tm_stp );
+				febex_data->SetSfp( my_sfp_id );
+				febex_data->SetBoard( my_board_id );
+				febex_data->SetChannel( my_hit_ch_id );
+				febex_data->SetFail( 0 );
+				febex_data->SetVeto( 0 );
+				febex_data->SetPileUp( more_than_1_hit_in_cha );
+				
+				// Close the data packet and clean up
+				FinishFebexData();
+
+			}
+		
+		}
+		
+		// Spec trailer
+		auto spectrailer = data[pos++];
+		if( ((spectrailer & 0xff000000) >> 24) != 0xbf ){
+			std::cerr << "Invalid special trailer: ";
+			std::cerr << ((spectrailer & 0xff000000) >> 24);
+			std::cerr << std::endl;
+			pos = ndata;
+			return;
+		}
+		
+	}
+	
+	else { // Trace
+
+		// Trace size
+		nsamples = (data[pos++]/4) - 2; // In 32-bit words - 2 samples per word?
+		//std::cout << "nsamples: " << nsamples << std::endl;
+		
+		// Trace header
+		unsigned int trace_header = data[pos++];
+		if( ((trace_header & 0xff000000) >> 24) != 0xaa ){
+			std::cerr << "Invalid trace header: ";
+			std::cerr << ((trace_header & 0xff000000) >> 24);
+			std::cerr << std::endl;
+			pos = ndata;
+			return;
+		}
+		
+		bool adc_type = (trace_header & 0x800000) >> 23;
+		bool filter_on = (trace_header & 0x80000) >> 19;
+		bool filter_mode = (trace_header & 0x40000) >> 18;
+
+		for( UInt_t i = 0; i < nsamples; i++ ) {
+
+			auto sample_packet = data[pos++];
+
+			if( nsamples > 0 ) {
+
+				//std::cout << pos << " : " << sample_packet << std::endl;
+				//std::cout << " " << (( sample_packet >> 16 ) & 0x0000FFFF) << std::endl;
+				//std::cout << " " << (sample_packet & 0x0000FFFF) << std::endl;
+
+			}
+			
+			if( filter_on ) {
+			
+				if( adc_type ) febex_data->AddSample( ( sample_packet >> 16 ) & 0x00003FFF ); // 14 bit
+				else febex_data->AddSample( ( sample_packet >> 16 ) & 0x00000FFF ); // 12 bit
+				
+				bool filter_sign = (sample_packet & 0x800000) >> 23;
+				int filter_energy = sample_packet & 0x7fffff;
+				if( filter_sign ) filter_energy *= -1.0;
+				febex_data->SetQint( filter_energy );
+				
+			}
+			
+			else {
+				
+				if( adc_type ) { // 14 bit
+			
+					febex_data->AddSample( sample_packet & 0x00003FFF );
+					febex_data->AddSample( ( sample_packet >> 16 ) & 0x00003FFF );
+			
+				}
+				
+				else { // 12 bit
+					
+					febex_data->AddSample( sample_packet & 0x00000FFF );
+					febex_data->AddSample( ( sample_packet >> 16 ) & 0x00000FFF );
+
+				}
+			
+			}
+			
+		}
+
+		FebexMWD mwd = cal->DoMWD( my_sfp_id, my_board_id, my_ch_id, febex_data->GetTrace() );
+		for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i ) {
+
+			flag_febex_trace = true;
+
+			// Make a FebexData item
+			febex_data->SetQint( mwd.GetEnergy(i) );
+			febex_data->SetTime( my_tm_stp ); // TODO: Timestamp of trace
+			febex_data->SetSfp( my_sfp_id );
+			febex_data->SetBoard( my_board_id );
+			febex_data->SetChannel( my_ch_id );
+			febex_data->SetFail( 0 );
+			febex_data->SetVeto( 0 );
+			febex_data->SetPileUp( 0 );
+
+			// Close the data packet and clean up
+			FinishFebexData();
+			
+		}
+
+		// Trace trailer
+		auto tracetrailer = data[pos++];
+		if( ((tracetrailer & 0xff000000) >> 24) != 0xbb ){
+			std::cerr << "Invalid trace trailer: ";
+			std::cerr << ((tracetrailer & 0xff000000) >> 24);
+			std::cerr << std::endl;
+			pos = ndata;
+			return;
 		}
 
 	}
 	
-	// Default that we do not have a source only run
-	flag_source = false;
-	
-	// No progress bar by default
-	_prog_ = false;
-
-}
-
-void MiniballMbsConverter::SetOutput( std::string output_file_name ){
-	
-	// Open output file
-	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file" );
-
-	return;
-
-};
-
-
-void MiniballMbsConverter::MakeTree() {
-
-	// Create Root tree
-	const int splitLevel = 2; // don't split branches = 0, full splitting = 99
-	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
-	output_tree = new TTree( "mb", "mb" );
-	data_packet = std::make_unique<MiniballDataPackets>();
-	output_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
-
-	sorted_tree = (TTree*)output_tree->CloneTree(0);
-	sorted_tree->SetName("mb_sort");
-	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
-	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
-	output_tree->SetDirectory( output_file->GetDirectory("/") );
-	
-	output_tree->SetAutoFlush(-10e6);
-	sorted_tree->SetAutoFlush(-10e6);
-
-	febex_data = std::make_shared<FebexData>();
-	info_data = std::make_shared<InfoData>();
-	
-	febex_data->ClearData();
-	info_data->ClearData();
-	
 	return;
 	
 }
 
-void MiniballMbsConverter::MakeHists() {
-	
-	std::string hname, htitle;
-	std::string dirname, maindirname, subdirname;
-	
-	// Make directories - just one DAQ type for now, no sub directories
-	// if you do add a directory here, please use a trailing slash
-	maindirname = "";
-	
-	// Resize vectors
-	hfebex.resize( set->GetNumberOfFebexSfps() );
-	hfebex_cal.resize( set->GetNumberOfFebexSfps() );
-	hfebex_mwd.resize( set->GetNumberOfFebexSfps() );
-	hfebex_hit.resize( set->GetNumberOfFebexSfps() );
-	hfebex_pause.resize( set->GetNumberOfFebexSfps() );
-	hfebex_resume.resize( set->GetNumberOfFebexSfps() );
 
-	// Loop over FEBEX SFPs
-	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+bool MiniballMbsConverter::GetFebexChanID( unsigned int x ){
+	
+	// Decode the channel ID
+	my_tag_id = (x & 0xFF);
+	my_trig_id = (x & 0xF00) >> 8;
+	my_sfp_id = (x & 0xF000) >> 12;
+	my_board_id = (x & 0xFF0000) >> 16;
+	my_ch_id = (x & 0xFF000000) >> 24;
+
+	// Debug channel ID
+	//std::cout << "channel header: " << (unsigned int)x << std::endl;
+	//std::cout << "my_tag_id: " << (unsigned int)my_tag_id << std::endl;
+	//std::cout << "my_trig_id: " << (unsigned int)my_trig_id << std::endl;
+	//std::cout << "my_sfp_id: " << (unsigned int)my_sfp_id << std::endl;
+	//std::cout << "my_board_id: " << (unsigned int)my_board_id << std::endl;
+	//std::cout << "my_ch_id: " << (unsigned int)my_ch_id << std::endl;
+
+	// Make sure it is valid
+	if( my_tag_id != 0x34 ) {
 		
-		hfebex[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_cal[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_mwd[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_hit[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_pause[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_resume[i].resize( set->GetNumberOfFebexBoards() );
-
-		// Loop over each FEBEX board
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-			
-			hfebex[i][j].resize( set->GetNumberOfFebexChannels() );
-			hfebex_cal[i][j].resize( set->GetNumberOfFebexChannels() );
-			hfebex_mwd[i][j].resize( set->GetNumberOfFebexChannels() );
-
-			dirname  = maindirname + "sfp_" + std::to_string(i);
-			dirname += "/board_" + std::to_string(j);
-			
-			if( !output_file->GetDirectory( dirname.data() ) )
-				output_file->mkdir( dirname.data() );
-			output_file->cd( dirname.data() );
-
-			// Loop over channels of each FEBEX board
-			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
-				
-				// Uncalibrated energy
-				hname = "febex_" + std::to_string(i);
-				hname += "_" + std::to_string(j);
-				hname += "_" + std::to_string(k);
-				
-				htitle = "Raw FEBEX spectra for SFP " + std::to_string(i);
-				htitle += ", board " + std::to_string(j);
-				htitle += ", channel " + std::to_string(k);
-
-				htitle += ";Charge value;Counts";
-				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex[i][j][k] = new TH1F( hname.data(), htitle.data(),
-											65536, -0.5, 65535.5 );
-					
-					hfebex[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
-				// Calibrated energy
-				hname = "febex_" + std::to_string(i);
-				hname += "_" + std::to_string(j);
-				hname += "_" + std::to_string(k);
-				hname += "_cal";
-				
-				htitle = "Calibrated FEBEX spectra for SFP " + std::to_string(i);
-				htitle += ", board " + std::to_string(j);
-				htitle += ", channel " + std::to_string(k);
-
-				htitle += ";Energy (keV);Counts per 0.5 keV";
-				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_cal[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_cal[i][j][k] = new TH1F( hname.data(), htitle.data(),
-												8000, -0.25, 3999.75 );
-					
-					hfebex_cal[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
-				// MWD energy
-				hname = "febex_" + std::to_string(i);
-				hname += "_" + std::to_string(j);
-				hname += "_" + std::to_string(k);
-				hname += "_mwd";
-				
-				htitle = "MWD FEBEX spectra for SFP " + std::to_string(i);
-				htitle += ", board " + std::to_string(j);
-				htitle += ", channel " + std::to_string(k);
-
-				htitle += ";Energy (keV);Counts per 0.5 keV";
-				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_mwd[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_mwd[i][j][k] = new TH1F( hname.data(), htitle.data(),
-												65536, -0.5, 65535.5 );
-					
-					hfebex_mwd[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
-			} // k - channel
-
-			// Hit ID vs timestamp
-			hname  = "hfebex_hit_" + std::to_string(i);
-			hname += "_" + std::to_string(j);
-			htitle = "Profile of ts versus hit_id in SFP " + std::to_string(i);
-			htitle += ", board " + std::to_string(j);
-
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_hit[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_hit[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
-				hfebex_hit[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-
-			// Pause events vs timestamp
-			hname = "hfebex_pause_" + std::to_string(i);
-			hname += "_" + std::to_string(j);
-			htitle = "Profile of ts versus pause events in SFP " + std::to_string(i);
-			htitle += ", board " + std::to_string(j);
-
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_pause[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_pause[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
-				hfebex_pause[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-			
-			// Resume events vs timestamp
-			hname = "hfebex_resume_" + std::to_string(i);
-			hname += "_" + std::to_string(j);
-			htitle = "Profile of ts versus resume events in SFP " + std::to_string(i);
-			htitle += ", board " + std::to_string(j);
-
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_resume[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_resume[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
-				hfebex_resume[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-				
-		} // j - board
-		
-	} // i - SFP
-	
-
-	// External trigger vs timestamp
-	output_file->cd( maindirname.data() );
-	hname = "hfebex_ext_ts";
-	htitle = "Profile of external trigger ts versus hit_id";
-
-	if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-		hfebex_ext = (TProfile*)output_file->Get( hname.data() );
-	
-	else {
-		
-		hfebex_ext = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
-		hfebex_ext->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+		std::cerr << "Invalid channel header: ";
+		std::cerr << (int)my_tag_id << std::endl;
+		return false;
 		
 	}
-
-	return;
-	
-}
-
-// Function to process header words
-void MiniballMbsConverter::ProcessBlockHeader( unsigned long nblock ){
-		
-	// Flags for FEBEX data items
-	flag_febex_data0 = false;
-	flag_febex_data1 = false;
-	flag_febex_data2 = false;
-	flag_febex_data3 = false;
-	flag_febex_trace = false;
-
-	return;
-	
-}
-
-
-// Function to process data words
-void MiniballMbsConverter::ProcessBlockData( unsigned long nblock ){
-	
-		
-	
-	return;
-
-}
-
-bool MiniballMbsConverter::GetFebexChanID(){
-	
-	/// TODO: To be updated to get Channel ID data from MBS sub event
-	my_sfp_id = 0; // 2 bits from 10
-	my_board_id = 0; // 4 bits from 6
-	my_ch_id = 0;
 	
 	// Check things make sense
 	if( my_sfp_id >= set->GetNumberOfFebexSfps() ||
 	    my_board_id >= set->GetNumberOfFebexBoards() ||
-	    my_ch_id >= set->GetNumberOfFebexChannels() ) {
+	    ( my_ch_id >= set->GetNumberOfFebexChannels()
+		 && my_ch_id != 255 ) ) {
 		
-		std::cout << "Bad FEBEX event with sfp_id=" << my_sfp_id;
-		std::cout << " board_id=" << my_board_id;
-		std::cout << " ch_id=" << my_ch_id;
+		std::cerr << "Bad FEBEX event with sfp_id=" << (unsigned int)my_sfp_id;
+		std::cerr << " board_id=" << (unsigned int)my_board_id;
+		std::cerr << " ch_id=" << (unsigned int)my_ch_id << std::endl;
 		return false;
 
 	}
@@ -309,172 +320,73 @@ bool MiniballMbsConverter::GetFebexChanID(){
 	else return true;
 	
 }
-
-int MiniballMbsConverter::ProcessTraceData( int pos ){
 	
-	// Channel ID, etc
-	if( !GetFebexChanID() ) return pos;
-
-	// reconstruct time stamp= MSB+LSB
-	my_tm_stp = ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
-
-	// Make a FebexData item
-	febex_data->SetTime( my_tm_stp );
-	febex_data->SetSfp( my_sfp_id );
-	febex_data->SetBoard( my_board_id );
-	febex_data->SetChannel( my_ch_id );
-	febex_data->SetFail( 0 );
-	febex_data->SetVeto( 0 );
-	febex_data->SetPileUp( 0 ); // there should be a flag in the MBS data
-
-	// sample length
-	nsamples = 0;
-	
-	// Get the samples from the trace
-	for( UInt_t j = 0; j < nsamples; j++ ){
-		
-
-	}
-	
-	FebexMWD mwd = cal->DoMWD( my_sfp_id, my_board_id, my_ch_id, febex_data->GetTrace() );
-	for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i )
-		hfebex_mwd[my_sfp_id][my_board_id][my_ch_id]->Fill( mwd.GetEnergy(i) );
-
-	
-	flag_febex_trace = true;
-	
-	return pos;
-
-}
-
-void MiniballMbsConverter::ProcessFebexData(){
-
-	// TODO: Get sub event data from MBS
-	my_adc_data = 0;
-	
-	// Channel ID, etc
-	if( !GetFebexChanID() ) return;
-	
-	// reconstruct time stamp= MSB+LSB
-	my_tm_stp = ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
-	
-	// FEBEX timestamps are what precision?
-	// Can we multiply here to get to ns
-	//my_tm_stp = my_tm_stp*20;
-	
-	// First of the data items
-	if( !flag_febex_data0 && !flag_febex_data1 &&
-	    !flag_febex_data2 && !flag_febex_data3 ){
-		
-		// Make a FebexData item
-		febex_data->SetTime( my_tm_stp );
-		febex_data->SetSfp( my_sfp_id );
-		febex_data->SetBoard( my_board_id );
-		febex_data->SetChannel( my_ch_id );
-		febex_data->SetFail( 0 );
-		febex_data->SetVeto( 0 );
-		febex_data->SetPileUp( 0 ); // there should be a flag in the MBS data
-
-	}
-	
-	// If we already have all the data items, then the next event has
-	// already occured before we found traces. This means that there
-	// is not trace data. Finish the event with an empty trace.
-	else if( flag_febex_data0 && flag_febex_data1 &&
-			 flag_febex_data2 && flag_febex_data3 ){
-		
-		// Finish up the previous event
-		FinishFebexData();
-
-		// Then set the info correctly for this event
-		febex_data->SetTime( my_tm_stp );
-		febex_data->SetSfp( my_sfp_id );
-		febex_data->SetBoard( my_board_id );
-		febex_data->SetChannel( my_ch_id );
-		febex_data->SetFail( 0 );
-		febex_data->SetVeto( 0 );
-		febex_data->SetPileUp( 0 ); // there should be a flag in the MBS data
-
-
-	}
-
-	return;
-
-}
-
 void MiniballMbsConverter::FinishFebexData(){
 	
 	// Timestamp with offset
 	unsigned long long time_corr;
+	time_corr  = my_tm_stp;
+	time_corr += cal->FebexTime( my_sfp_id, my_board_id, my_ch_id );
+
+	// Check if this is actually just a timestamp or info like event
+	flag_febex_info = false;
+	if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
+	    febex_data->GetBoard()   == set->GetPulserBoard()   &&
+	    febex_data->GetChannel() == set->GetPulserChannel() ){
+		
+		flag_febex_info = true;
+		my_info_code = 20; // Pulser is always 20 (defined here)
+		hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
+		ctr_febex_ext++;
+		
+	}
 	
-	// James says (22/08/2022) that we only get the 32-bit integer now
-	if( ( flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
-
-		// Add the time offset to this channel
-		time_corr  = febex_data->GetTime();
-		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
+	else if( febex_data->GetSfp()     == set->GetEBISSfp()     &&
+			 febex_data->GetBoard()   == set->GetEBISBoard()   &&
+			 febex_data->GetChannel() == set->GetEBISChannel() ){
 		
-		// Check if this is actually just a timestamp or info like event
-		flag_febex_info = false;
-		if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
-		    febex_data->GetBoard()   == set->GetPulserBoard()   &&
-		    febex_data->GetChannel() == set->GetPulserChannel() ){
-			
-			flag_febex_info = true;
-			my_info_code = 20; // Pulser is always 20 (defined here)
-			hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
-			ctr_febex_ext++;
-
-		}
+		flag_febex_info = true;
+		my_info_code = 21; // EBIS is always 21 (defined here)
 		
-		else if( febex_data->GetSfp()     == set->GetEBISSfp()     &&
-				 febex_data->GetBoard()   == set->GetEBISBoard()   &&
-				 febex_data->GetChannel() == set->GetEBISChannel() ){
-			
-			flag_febex_info = true;
-			my_info_code = 21; // EBIS is always 21 (defined here)
-			
-		}
+	}
+	
+	else if( febex_data->GetSfp()     == set->GetT1Sfp()     &&
+			 febex_data->GetBoard()   == set->GetT1Board()   &&
+			 febex_data->GetChannel() == set->GetT1Channel() ){
 		
-		else if( febex_data->GetSfp()     == set->GetT1Sfp()     &&
-				 febex_data->GetBoard()   == set->GetT1Board()   &&
-				 febex_data->GetChannel() == set->GetT1Channel() ){
-			
-			flag_febex_info = true;
-			my_info_code = 22; // T1 is always 22 (defined here)
-			
-		}
-
-		// If this is a timestamp, fill an info event
-		if( flag_febex_info ) {
+		flag_febex_info = true;
+		my_info_code = 22; // T1 is always 22 (defined here)
 		
-			info_data->SetTime( time_corr );
-			info_data->SetSfp( febex_data->GetSfp() );
-			info_data->SetBoard( febex_data->GetBoard() );
-			info_data->SetCode( my_info_code );
-			data_packet->SetData( info_data );
-			output_tree->Fill();
-			info_data->Clear();
+	}
+	
+	// If this is a timestamp, fill an info event
+	if( flag_febex_info ) {
+		
+		info_data->SetTime( time_corr );
+		info_data->SetSfp( febex_data->GetSfp() );
+		info_data->SetBoard( febex_data->GetBoard() );
+		info_data->SetCode( my_info_code );
+		data_packet->SetData( info_data );
+		output_tree->Fill();
 
-		}
+	}
+	
+	// Otherwise it is real data, so fill a FEBEX event
+	else if( flag_febex_data0 || flag_febex_trace ) {
+		
+		// Set this data and fill event to tree
+		// Also add the time offset when we do this
+		febex_data->SetTime( time_corr );
+		data_packet->SetData( febex_data );
+		output_tree->Fill();
 
-		// Otherwise it is real data, so fill a FEBEX event
-		else {
-			
-			// Set this data and fill event to tree
-			// Also add the time offset when we do this
-			febex_data->SetTime( time_corr );
-			febex_data->SetQint( my_adc_data );
-			data_packet->SetData( febex_data );
-			output_tree->Fill();
-			
-			// Fill histograms
-			my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), my_adc_data );
-			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_adc_data );
-			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
-			
-		}
-
+		// Fill histograms
+		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), febex_data->GetQint() );
+		hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+		
+		if( flag_febex_data0 ) hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+		else if( flag_febex_trace ) hfebex_mwd[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+		
 	}
 
 	// Fill histograms
@@ -485,27 +397,12 @@ void MiniballMbsConverter::FinishFebexData(){
 	// Count the hit, even if it's bad
 	ctr_febex_hit[febex_data->GetSfp()][febex_data->GetBoard()]++;
 	
-	// Assuming it did finish, in a good way or bad, clean up.
-	flag_febex_data0 = false;
-	flag_febex_data1 = false;
-	flag_febex_data2 = false;
-	flag_febex_data3 = false;
-	flag_febex_trace = false;
+	// Clean up.
+	data_packet->ClearData();
 	febex_data->ClearData();
-	
+	info_data->ClearData();
+
 	return;
-
-}
-// Common function called to process data in a block from file or DataSpy
-bool MiniballMbsConverter::ProcessCurrentBlock( int nblock ) {
-	
-	// Process header.
-	ProcessBlockHeader( nblock );
-
-	// Process the main block data until terminator found
-	ProcessBlockData( nblock );
-
-	return true;
 
 }
 
@@ -526,25 +423,18 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 		
 	}
 
-	// Conversion starting
-	std::cout << "Converting file: " << input_file_name;
-	std::cout << " from block " << start_block << std::endl;
-	
-	// TODO: Use the MBS API to open the file
-
 	// Calculate the size of the file.
 	input_file.seekg( 0, input_file.end );
 	unsigned long long size_end = input_file.tellg();
 	input_file.seekg( 0, input_file.beg );
 	unsigned long long size_beg = input_file.tellg();
 	unsigned long long FILE_SIZE = size_end - size_beg;
-	
+
 	// Calculate the number of blocks in the file.
-	unsigned long BLOCKS_NUM = FILE_SIZE / DATA_BLOCK_SIZE;
+	unsigned long BLOCKS_NUM = FILE_SIZE / set->GetBlockSize();
 	
-	//a sanity check for file size...
-	//QQQ: add more strict test?
-	if( FILE_SIZE % DATA_BLOCK_SIZE != 0 ){
+	// a sanity check for file size...
+	if( FILE_SIZE % set->GetBlockSize() != 0 ){
 		
 		std::cout << " *WARNING* " << __PRETTY_FUNCTION__;
 		std::cout << "\tMissing data blocks?" << std::endl;
@@ -552,21 +442,32 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 	}
 	
 	sslogs << "\t File size = " << FILE_SIZE << std::endl;
-	sslogs << "\tBlock size = " << DATA_BLOCK_SIZE << std::endl;
+	sslogs << "\tBlock size = " << set->GetBlockSize() << std::endl;
 	sslogs << "\t  N blocks = " << BLOCKS_NUM << std::endl;
 
 	std::cout << sslogs.str() << std::endl;
 	sslogs.str( std::string() ); // clean up
-	
 
-	// Loop over all the blocks.
-	for( unsigned long nblock = 0; nblock < BLOCKS_NUM ; nblock++ ){
+	// Close the file
+	input_file.close();
+
+	// Create an MBS data instance and set block/buffer size etc
+	std::cout << "Opening file: " << input_file_name << std::endl;
+	MBS mbs;
+	mbs.SetBufferSize( set->GetBlockSize() );
+	mbs.Open( input_file_name );
+	
+	// Need to define total number of MBS Events
+	unsigned long MBS_EVENTS = 1e6;
+
+	// Loop over all the MBS Events.
+	for( unsigned long mbsevt = 0; ; mbsevt++ ){
 		
 		// Take one block each time and analyze it.
-		if( nblock % 200 == 0 || nblock+1 == BLOCKS_NUM ) {
+		if( mbsevt % 200 == 0 ) {
 			
 			// Percent complete
-			float percent = (float)(nblock+1)*100.0/(float)BLOCKS_NUM;
+			float percent = (float)(mbsevt+1)*100.0/(float)MBS_EVENTS;
 			
 			// Progress bar in GUI
 			if( _prog_ ){
@@ -583,105 +484,28 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 
 		}
 		
-		
-		// TODO: Use the MBS API to read the file
-
+		// Get the next event - returns nullptr at the end of the file
+		ev = mbs.GetNextEvent();
+		if( !ev ) break;
 
 		// Check if we are before the start block or after the end block
-		if( nblock < start_block || ( (long)nblock > end_block && end_block > 0 ) )
+		if( mbsevt < start_block || ( (long)mbsevt > end_block && end_block > 0 ) )
 			continue;
 
-
-		// Process current block. If it's the end, stop.
-		if( !ProcessCurrentBlock( nblock ) ) break;
+		// Process current block
+		ProcessBlock( mbsevt );
 		
-	} // loop - nblock < BLOCKS_NUM
+	} // loop - mbsevt < MBS_EVENTS
 	
-	input_file.close();
+	// Close the file
+	mbs.Close();
+	
+	// Print stats
+	std::cout << std::endl;
+	std::cout << "Number of single hits = " << n_single_hits << std::endl;
+	std::cout << "Number of double hits = " << n_double_hits << std::endl;
 
+	
 	return BLOCKS_NUM;
-	
-}
-
-unsigned long long MiniballMbsConverter::SortTree(){
-	
-	// Reset the sorted tree so it's empty before we start
-	sorted_tree->Reset();
-	
-	// Load the full tree if possible
-	output_tree->SetMaxVirtualSize(2e9); // 2GB
-	sorted_tree->SetMaxVirtualSize(2e9); // 2GB
-	output_tree->LoadBaskets(1e9); 		 // Load 1 GB of data to memory
-	
-	// Check we have entries and build time-ordered index
-	if( output_tree->GetEntries() ){
-
-		std::cout << "Building time-ordered index of events..." << std::endl;
-		output_tree->BuildIndex( "data.GetTime()" );
-
-	}
-	else return 0;
-	
-	// Get index and prepare for sorting
-	TTreeIndex *att_index = (TTreeIndex*)output_tree->GetTreeIndex();
-	unsigned long long nb_idx = att_index->GetN();
-	std::cout << " Sorting: size of the sorted index = " << nb_idx << std::endl;
-
-	// Loop on t_raw entries and fill t
-	for( unsigned long i = 0; i < nb_idx; ++i ) {
-		
-		// Clean up old data
-		data_packet->ClearData();
-		
-		// Get time-ordered event index
-		unsigned long long idx = att_index->GetIndex()[i];
-		
-		// Check if the input or output trees are filling
-		if( output_tree->MemoryFull(30e6) )
-			output_tree->DropBaskets();
-		if( sorted_tree->MemoryFull(30e6) )
-			sorted_tree->FlushBaskets();
-		
-		// Get entry from unsorted tree and fill to sorted tree
-		output_tree->GetEntry( idx );
-		sorted_tree->Fill();
-
-		// Optimise filling tree
-		if( i == 100 ) sorted_tree->OptimizeBaskets(30e6);	 // sorted tree basket size max 30 MB
-
-		// Progress bar
-		bool update_progress = false;
-		if( nb_idx < 200 )
-			update_progress = true;
-		else if( i % (nb_idx/100) == 0 || i+1 == nb_idx )
-			update_progress = true;
-		
-		if( update_progress ) {
-			
-			// Percent complete
-			float percent = (float)(i+1)*100.0/(float)nb_idx;
-			
-			// Progress bar in GUI
-			if( _prog_ ) {
-				
-				prog->SetPosition( percent );
-				gSystem->ProcessEvents();
-				
-			}
-			
-			// Progress bar in terminal
-			std::cout << " " << std::setw(6) << std::setprecision(4);
-			std::cout << percent << "%    \r";
-			std::cout.flush();
-
-		}
-
-	}
-	
-	// Reset the output tree so it's empty after we've finished
-	output_tree->FlushBaskets();
-	output_tree->Reset();
-
-	return nb_idx;
 	
 }

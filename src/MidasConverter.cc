@@ -1,267 +1,5 @@
 #include "MidasConverter.hh"
 
-MiniballMidasConverter::MiniballMidasConverter( std::shared_ptr<MiniballSettings> myset ) {
-
-	// We need to do initialise, but only after Settings are added
-	set = myset;
-
-	my_tm_stp_msb = 0;
-	my_tm_stp_hsb = 0;
-
-	ctr_febex_hit.resize( set->GetNumberOfFebexSfps() );
-	ctr_febex_pause.resize( set->GetNumberOfFebexSfps() );
-	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
-
-	ctr_febex_ext = 0;	// pulser trigger
-
-	// Start counters at zero
-	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
-				
-		// Start counters at zero
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-					
-			ctr_febex_hit[i].push_back(0);	// hits on each module
-			ctr_febex_pause[i].push_back(0);
-			ctr_febex_resume[i].push_back(0);
-			
-		}
-
-	}
-	
-	// Default that we do not have a source only run
-	flag_source = false;
-	
-	// No progress bar by default
-	_prog_ = false;
-
-}
-
-void MiniballMidasConverter::SetOutput( std::string output_file_name ){
-	
-	// Open output file
-	output_file = new TFile( output_file_name.data(), "recreate", "FEBEX raw data file" );
-
-	return;
-
-};
-
-
-void MiniballMidasConverter::MakeTree() {
-
-	// Create Root tree
-	const int splitLevel = 2; // don't split branches = 0, full splitting = 99
-	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
-	output_tree = new TTree( "mb", "mb" );
-	data_packet = std::make_unique<MiniballDataPackets>();
-	output_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
-
-	sorted_tree = (TTree*)output_tree->CloneTree(0);
-	sorted_tree->SetName("mb_sort");
-	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
-	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
-	output_tree->SetDirectory( output_file->GetDirectory("/") );
-	
-	output_tree->SetAutoFlush(-10e6);
-	sorted_tree->SetAutoFlush(-10e6);
-
-	febex_data = std::make_shared<FebexData>();
-	info_data = std::make_shared<InfoData>();
-	
-	febex_data->ClearData();
-	info_data->ClearData();
-	
-	return;
-	
-}
-
-void MiniballMidasConverter::MakeHists() {
-	
-	std::string hname, htitle;
-	std::string dirname, maindirname, subdirname;
-	
-	// Make directories - just one DAQ type for now, no sub directories
-	// if you do add a directory here, please use a trailing slash
-	maindirname = "";
-	
-	// Resize vectors
-	hfebex.resize( set->GetNumberOfFebexSfps() );
-	hfebex_cal.resize( set->GetNumberOfFebexSfps() );
-	hfebex_mwd.resize( set->GetNumberOfFebexSfps() );
-	hfebex_hit.resize( set->GetNumberOfFebexSfps() );
-	hfebex_pause.resize( set->GetNumberOfFebexSfps() );
-	hfebex_resume.resize( set->GetNumberOfFebexSfps() );
-
-	// Loop over FEBEX SFPs
-	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
-		
-		hfebex[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_cal[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_mwd[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_hit[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_pause[i].resize( set->GetNumberOfFebexBoards() );
-		hfebex_resume[i].resize( set->GetNumberOfFebexBoards() );
-
-		// Loop over each FEBEX board
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-			
-			hfebex[i][j].resize( set->GetNumberOfFebexChannels() );
-			hfebex_cal[i][j].resize( set->GetNumberOfFebexChannels() );
-			hfebex_mwd[i][j].resize( set->GetNumberOfFebexChannels() );
-
-			dirname  = maindirname + "sfp_" + std::to_string(i);
-			dirname += "/board_" + std::to_string(j);
-			
-			if( !output_file->GetDirectory( dirname.data() ) )
-				output_file->mkdir( dirname.data() );
-			output_file->cd( dirname.data() );
-
-			// Loop over channels of each FEBEX board
-			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
-				
-				// Uncalibrated energy
-				hname = "febex_" + std::to_string(i);
-				hname += "_" + std::to_string(j);
-				hname += "_" + std::to_string(k);
-				
-				htitle = "Raw FEBEX spectra for SFP " + std::to_string(i);
-				htitle += ", board " + std::to_string(j);
-				htitle += ", channel " + std::to_string(k);
-
-				htitle += ";Charge value;Counts";
-				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex[i][j][k] = new TH1F( hname.data(), htitle.data(),
-											65536, -0.5, 65535.5 );
-					
-					hfebex[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
-				// Calibrated energy
-				hname = "febex_" + std::to_string(i);
-				hname += "_" + std::to_string(j);
-				hname += "_" + std::to_string(k);
-				hname += "_cal";
-				
-				htitle = "Calibrated FEBEX spectra for SFP " + std::to_string(i);
-				htitle += ", board " + std::to_string(j);
-				htitle += ", channel " + std::to_string(k);
-
-				htitle += ";Energy (keV);Counts per 0.5 keV";
-				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_cal[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_cal[i][j][k] = new TH1F( hname.data(), htitle.data(),
-												8000, -0.25, 3999.75 );
-					
-					hfebex_cal[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
-				// MWD energy
-				hname = "febex_" + std::to_string(i);
-				hname += "_" + std::to_string(j);
-				hname += "_" + std::to_string(k);
-				hname += "_mwd";
-				
-				htitle = "MWD FEBEX spectra for SFP " + std::to_string(i);
-				htitle += ", board " + std::to_string(j);
-				htitle += ", channel " + std::to_string(k);
-
-				htitle += ";Energy (keV);Counts per 0.5 keV";
-				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_mwd[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_mwd[i][j][k] = new TH1F( hname.data(), htitle.data(),
-												65536, -0.5, 65535.5 );
-					
-					hfebex_mwd[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
-			} // k - channel
-
-			// Hit ID vs timestamp
-			hname  = "hfebex_hit_" + std::to_string(i);
-			hname += "_" + std::to_string(j);
-			htitle = "Profile of ts versus hit_id in SFP " + std::to_string(i);
-			htitle += ", board " + std::to_string(j);
-
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_hit[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_hit[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
-				hfebex_hit[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-
-			// Pause events vs timestamp
-			hname = "hfebex_pause_" + std::to_string(i);
-			hname += "_" + std::to_string(j);
-			htitle = "Profile of ts versus pause events in SFP " + std::to_string(i);
-			htitle += ", board " + std::to_string(j);
-
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_pause[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_pause[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
-				hfebex_pause[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-			
-			// Resume events vs timestamp
-			hname = "hfebex_resume_" + std::to_string(i);
-			hname += "_" + std::to_string(j);
-			htitle = "Profile of ts versus resume events in SFP " + std::to_string(i);
-			htitle += ", board " + std::to_string(j);
-
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_resume[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_resume[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
-				hfebex_resume[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-				
-		} // j - board
-		
-	} // i - SFP
-	
-
-	// External trigger vs timestamp
-	output_file->cd( maindirname.data() );
-	hname = "hfebex_ext_ts";
-	htitle = "Profile of external trigger ts versus hit_id";
-
-	if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-		hfebex_ext = (TProfile*)output_file->Get( hname.data() );
-	
-	else {
-		
-		hfebex_ext = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
-		hfebex_ext->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-		
-	}
-
-	return;
-	
-}
 
 // Function to copy the header from a DataSpy, for example
 void MiniballMidasConverter::SetBlockHeader( char *input_header ){
@@ -487,11 +225,10 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	for( UInt_t j = 0; j < nsamples; j++ ){
 		
 		// get next word
-		pos++;
-		sample_packet = GetWord(pos);
+		ULong64_t sample_packet = GetWord(pos++);
 		
-		block_test = ( sample_packet >> 32 ) & 0x00000000FFFFFFFF;
-		trace_test = ( sample_packet >> 62 ) & 0x0000000000000003;
+		UInt_t block_test = ( sample_packet >> 32 ) & 0x00000000FFFFFFFF;
+		unsigned char trace_test = ( sample_packet >> 62 ) & 0x0000000000000003;
 		
 		if( trace_test == 0 && block_test != 0x5E5E5E5E ){
 			
@@ -708,8 +445,7 @@ void MiniballMidasConverter::FinishFebexData(){
 			info_data->SetCode( my_info_code );
 			data_packet->SetData( info_data );
 			output_tree->Fill();
-			info_data->Clear();
-
+	
 		}
 
 		// Otherwise it is real data, so fill a FEBEX event
@@ -721,10 +457,10 @@ void MiniballMidasConverter::FinishFebexData(){
 			febex_data->SetQint( my_adc_data_int );
 			data_packet->SetData( febex_data );
 			output_tree->Fill();
-			
+
 			// Fill histograms
-			my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), my_adc_data_int );
-			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_adc_data_int );
+			my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), febex_data->GetQint() );
+			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
 			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
 			
 		}
@@ -761,7 +497,8 @@ void MiniballMidasConverter::FinishFebexData(){
 	flag_febex_data3 = false;
 	flag_febex_trace = false;
 	febex_data->ClearData();
-	
+	info_data->ClearData();
+
 	return;
 
 }
@@ -831,7 +568,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 }
 
 // Common function called to process data in a block from file or DataSpy
-bool MiniballMidasConverter::ProcessCurrentBlock( int nblock ) {
+bool MiniballMidasConverter::ProcessCurrentBlock( long nblock ) {
 	
 	// Process header.
 	ProcessBlockHeader( nblock );
@@ -854,7 +591,7 @@ bool MiniballMidasConverter::ProcessCurrentBlock( int nblock ) {
 }
 
 // Function to convert a block of data from DataSpy
-int MiniballMidasConverter::ConvertBlock( char *input_block, int nblock ) {
+int MiniballMidasConverter::ConvertBlock( char *input_block, long nblock ) {
 	
 	// Get the header.
 	std::memmove( &block_header, &input_block[0], HEADER_SIZE );
@@ -900,8 +637,7 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	// Calculate the number of blocks in the file.
 	unsigned long BLOCKS_NUM = FILE_SIZE / DATA_BLOCK_SIZE;
 	
-	//a sanity check for file size...
-	//QQQ: add more strict test?
+	// a sanity check for file size...
 	if( FILE_SIZE % DATA_BLOCK_SIZE != 0 ){
 		
 		std::cout << " *WARNING* " << __PRETTY_FUNCTION__;
@@ -965,88 +701,5 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	input_file.close();
 
 	return BLOCKS_NUM;
-	
-}
-
-unsigned long long MiniballMidasConverter::SortTree(){
-	
-	// Reset the sorted tree so it's empty before we start
-	sorted_tree->Reset();
-	
-	// Load the full tree if possible
-	output_tree->SetMaxVirtualSize(2e9); // 2GB
-	sorted_tree->SetMaxVirtualSize(2e9); // 2GB
-	output_tree->LoadBaskets(1e9); 		 // Load 1 GB of data to memory
-	
-	// Check we have entries and build time-ordered index
-	if( output_tree->GetEntries() ){
-
-		std::cout << "Building time-ordered index of events..." << std::endl;
-		output_tree->BuildIndex( "data.GetTime()" );
-
-	}
-	else return 0;
-	
-	// Get index and prepare for sorting
-	TTreeIndex *att_index = (TTreeIndex*)output_tree->GetTreeIndex();
-	unsigned long long nb_idx = att_index->GetN();
-	std::cout << " Sorting: size of the sorted index = " << nb_idx << std::endl;
-
-	// Loop on t_raw entries and fill t
-	for( unsigned long i = 0; i < nb_idx; ++i ) {
-		
-		// Clean up old data
-		data_packet->ClearData();
-		
-		// Get time-ordered event index
-		unsigned long long idx = att_index->GetIndex()[i];
-		
-		// Check if the input or output trees are filling
-		if( output_tree->MemoryFull(30e6) )
-			output_tree->DropBaskets();
-		if( sorted_tree->MemoryFull(30e6) )
-			sorted_tree->FlushBaskets();
-		
-		// Get entry from unsorted tree and fill to sorted tree
-		output_tree->GetEntry( idx );
-		sorted_tree->Fill();
-
-		// Optimise filling tree
-		if( i == 100 ) sorted_tree->OptimizeBaskets(30e6);	 // sorted tree basket size max 30 MB
-
-		// Progress bar
-		bool update_progress = false;
-		if( nb_idx < 200 )
-			update_progress = true;
-		else if( i % (nb_idx/100) == 0 || i+1 == nb_idx )
-			update_progress = true;
-		
-		if( update_progress ) {
-			
-			// Percent complete
-			float percent = (float)(i+1)*100.0/(float)nb_idx;
-			
-			// Progress bar in GUI
-			if( _prog_ ) {
-				
-				prog->SetPosition( percent );
-				gSystem->ProcessEvents();
-				
-			}
-			
-			// Progress bar in terminal
-			std::cout << " " << std::setw(6) << std::setprecision(4);
-			std::cout << percent << "%    \r";
-			std::cout.flush();
-
-		}
-
-	}
-	
-	// Reset the output tree so it's empty after we've finished
-	output_tree->FlushBaskets();
-	output_tree->Reset();
-
-	return nb_idx;
 	
 }

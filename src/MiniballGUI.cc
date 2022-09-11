@@ -205,6 +205,9 @@ MiniballGUI::MiniballGUI() {
 	// Create check buttons //
 	//----------------------//
 
+	check_mbs = new TGCheckButton( centre_go, "MBS data" );
+	centre_go->AddFrame( check_mbs, new TGLayoutHints( kLHintsLeft, 2, 2, 2, 2 ) );
+
 	check_source = new TGCheckButton( centre_go, "Source data" );
 	centre_go->AddFrame( check_source, new TGLayoutHints( kLHintsLeft, 2, 2, 2, 2 ) );
 
@@ -507,9 +510,21 @@ void MiniballGUI::gui_convert(){
 	//------------------------//
 	// Run conversion to ROOT //
 	//------------------------//
-	MiniballMidasConverter conv( myset );
-	conv.AddCalibration( mycal );
-	conv.AddProgressBar( prog_conv );
+	MiniballMidasConverter conv_midas( myset );
+	MiniballMbsConverter conv_mbs( myset );
+	if( flag_mbs ) {
+		
+		conv_mbs.AddCalibration( mycal );
+		conv_mbs.AddProgressBar( prog_conv );
+	
+	}
+	else {
+		
+		conv_midas.AddCalibration( mycal );
+		conv_midas.AddProgressBar( prog_conv );
+	
+	}
+
 	std::cout << "\n +++ Miniball Analysis:: processing MiniballMidasConverter +++" << std::endl;
 
 	// Progress bar and filename
@@ -568,12 +583,25 @@ void MiniballGUI::gui_convert(){
 			prog_conv->ShowPosition( true, false, prog_format.data() );
 
 			// Open file and covert data to ROOT
-			if( flag_source ) conv.SourceOnly();
-			conv.SetOutput( name_output_file.Data() );
-			conv.MakeTree();
-			conv.MakeHists();
-			conv.ConvertFile( name_input_file.Data() );
+			if( flag_mbs ) {
+		
+				if( flag_source ) conv_mbs.SourceOnly();
+				conv_mbs.SetOutput( name_output_file.Data() );
+				conv_mbs.MakeTree();
+				conv_mbs.MakeHists();
+				conv_mbs.ConvertFile( name_input_file.Data() );
 			
+			}
+			else {
+				
+				if( flag_source ) conv_midas.SourceOnly();
+				conv_midas.SetOutput( name_output_file.Data() );
+				conv_midas.MakeTree();
+				conv_midas.MakeHists();
+				conv_midas.ConvertFile( name_input_file.Data() );
+				
+			}
+
 			prog_format  = "Converter complete";
 			prog_conv->ShowPosition( true, false, prog_format.data() );
 
@@ -585,8 +613,16 @@ void MiniballGUI::gui_convert(){
 											   name_input_file.Length() - name_input_file.Last('/') ).Data();
 				prog_format += ": %.0f%%";
 				prog_sort->ShowPosition( true, false, prog_format.data() );
-				conv.AddProgressBar( prog_sort );
-				conv.SortTree();
+
+				if( flag_mbs ) {
+					conv_mbs.AddProgressBar( prog_sort );
+					conv_mbs.SortTree();
+				}
+				else {
+					conv_midas.AddProgressBar( prog_sort );
+					conv_midas.SortTree();
+				}
+
 				
 				prog_format  = "Time ordering complete";
 				prog_conv->ShowPosition( true, false, prog_format.data() );
@@ -594,7 +630,8 @@ void MiniballGUI::gui_convert(){
 			}
 
 			// Close file
-			conv.CloseOutput();
+			if( flag_mbs ) conv_mbs.CloseOutput();
+			else conv_midas.CloseOutput();
 
 		}
 		
