@@ -139,8 +139,8 @@ public:
 	const std::string InputFile(){
 		return fInputFile;
 	}
-	float FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned short raw );
-	float FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch );
+	float FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned int raw );
+	unsigned int FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch );
 	long FebexTime( unsigned int sfp, unsigned int board, unsigned int ch );
 	FebexMWD DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace );
 
@@ -155,7 +155,8 @@ private:
 	std::vector< std::vector<std::vector<float>> > fFebexOffset;
 	std::vector< std::vector<std::vector<float>> > fFebexGain;
 	std::vector< std::vector<std::vector<float>> > fFebexGainQuadr;
-	std::vector< std::vector<std::vector<float>> > fFebexThreshold;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexThreshold;
+
 	std::vector< std::vector<std::vector<float>> > fFebexMWD_Decay;
 	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Rise;

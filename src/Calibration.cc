@@ -189,9 +189,9 @@ void MiniballCalibration::ReadCalibration() {
 			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); k++ ){
 				
 				fFebexOffset[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Offset", i, j, k ), 0. );
-				fFebexGain[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 1. );
+				fFebexGain[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.0015 );
 				fFebexGainQuadr[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), 0. );
-				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 0. );
+				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 15000 );
 				fFebexTime[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), 0 );
 				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), default_MWD_Decay );
 				fFebexMWD_Rise[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (int)default_MWD_Rise );
@@ -209,7 +209,7 @@ void MiniballCalibration::ReadCalibration() {
 
 }
 
-float MiniballCalibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned short raw ) {
+float MiniballCalibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned int raw ) {
 	
 	float energy, raw_rand;
 	TRandom *fRand = new TRandom();
@@ -270,8 +270,7 @@ FebexMWD MiniballCalibration::DoMWD( unsigned int sfp, unsigned int board, unsig
 	
 }
 
-
-float MiniballCalibration::FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch ) {
+unsigned int MiniballCalibration::FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
 	    board < set->GetNumberOfFebexBoards() &&

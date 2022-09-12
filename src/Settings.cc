@@ -21,8 +21,8 @@ void MiniballSettings::ReadSettings() {
 	TEnv *config = new TEnv( fInputFile.data() );
 	
 	// FEBEX initialisation
-	n_febex_sfp		= config->GetValue( "NumberOfFebexSfps", 4 );
-	n_febex_board	= config->GetValue( "NumberOfFebexBoards", 16 );
+	n_febex_sfp		= config->GetValue( "NumberOfFebexSfps", 2 );
+	n_febex_board	= config->GetValue( "NumberOfFebexBoards", 12 );
 	n_febex_ch		= config->GetValue( "NumberOfFebexChannels", 16 );
 	
 	// Miniball array initialisation
@@ -146,9 +146,9 @@ void MiniballSettings::ReadSettings() {
 			for( unsigned int k = 0; k < n_mb_segment; ++k ){
 
 				d = i*3 + j;			// Crystal ordering: 0-23
-				s = d/12;				// spread 24 crystals over 2 SFPs
-				b = (d&0xFFFE)/2 - s*6;	// 2 crystals per board
-				c = k + 8*(d&0x1);		// odd crystals starts at ch8
+				s = 0;					// spread 24 crystals over 1 SFPs
+				b = d/2;				// 2 crystals per board
+				c = k + 9*(d&0x1);		// odd crystals starts at ch8
 				mb_sfp[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Sfp", i, j, k ), s );
 				mb_board[i][j][k]	= config->GetValue( Form( "Miniball_%d_%d_%d.Board", i, j, k ), b );
 				mb_ch[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Channel", i, j, k ), c );
@@ -213,8 +213,8 @@ void MiniballSettings::ReadSettings() {
 
 				for( unsigned int l = 0; l < side_size; ++l ){
 					
-					s = 2+i;
-					b = j*2;
+					s = 1;			// sfp number - all in SFP 1
+					b = j*2 + k;	// boards go 0-7
 					c = k;
 					cd_sfp[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Sfp", i, j, l, side_str.data() ), s );
 					cd_board[i][j][k][l]	= config->GetValue( Form( "CD_%d_%d_%d.%s.Board", i, j, l, side_str.data() ), b );
@@ -255,9 +255,9 @@ void MiniballSettings::ReadSettings() {
 	
 	for( unsigned int i = 0; i < n_bd_det; ++i ){
 		
-		bd_sfp[i]		= config->GetValue( Form( "BeamDump_%d.Sfp", i ), 0 );
-		bd_board[i]		= config->GetValue( Form( "BeamDump_%d.Board", i ), 6 );
-		bd_ch[i]		= config->GetValue( Form( "BeamDump_%d.Channel", i ), (int)i );
+		bd_sfp[i]		= config->GetValue( Form( "BeamDump_%d.Sfp", i ), 1 );
+		bd_board[i]		= config->GetValue( Form( "BeamDump_%d.Board", i ), 9 );
+		bd_ch[i]		= config->GetValue( Form( "BeamDump_%d.Channel", i ), (int)(i+9) );
 		
 		if( bd_sfp[i] < n_febex_sfp &&
 		    bd_board[i] < n_febex_board &&
@@ -280,21 +280,31 @@ void MiniballSettings::ReadSettings() {
 	
 	
 	// SPEDE detector mapping
-	spede_sfp.resize( n_bd_det );
-	spede_board.resize( n_bd_det );
-	spede_ch.resize( n_bd_det );
+	spede_sfp.resize( n_spede_seg );
+	spede_board.resize( n_spede_seg );
+	spede_ch.resize( n_spede_seg );
 	
-	for( unsigned int i = 0; i < n_bd_det; ++i ){
+	for( unsigned int i = 0; i < n_spede_seg; ++i ){
 		
-		spede_sfp[i]	= config->GetValue( Form( "Spede_%d.Sfp", i ), 0 );
-		spede_board[i]	= config->GetValue( Form( "Spede_%d.Board", i ), 6 );
-		spede_ch[i]		= config->GetValue( Form( "Spede_%d.Channel", i ), (int)i );
+		s = 1;
+		if( i < 16 ){
+			b = 8;
+			c = i;
+		}
+		else {
+			b = 9;
+			c = i-16;
+		}
+		
+		spede_sfp[i]	= config->GetValue( Form( "Spede_%d.Sfp", i ), s );
+		spede_board[i]	= config->GetValue( Form( "Spede_%d.Board", i ), b );
+		spede_ch[i]		= config->GetValue( Form( "Spede_%d.Channel", i ), c );
 		
 		if( spede_sfp[i] < n_febex_sfp &&
 		    spede_board[i] < n_febex_board &&
 		    spede_ch[i] < n_febex_ch ){
 			
-			spede_seg[bd_sfp[i]][bd_board[i]][bd_ch[i]] = i;
+			spede_seg[spede_sfp[i]][spede_board[i]][spede_ch[i]] = i;
 			
 		}
 		

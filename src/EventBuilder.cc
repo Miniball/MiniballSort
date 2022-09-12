@@ -72,11 +72,14 @@ void MiniballEventBuilder::StartFile(){
 
 	n_miniball		= 0;
 	n_cd			= 0;
+	n_bd			= 0;
+	n_spede			= 0;
 
 	gamma_ctr		= 0;
 	gamma_ab_ctr	= 0;
 	cd_ctr			= 0;
 	bd_ctr			= 0;
+	spede_ctr		= 0;
 
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 
@@ -140,6 +143,8 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 	gamma_evt = std::make_shared<GammaRayEvt>();
 	gamma_ab_evt = std::make_shared<GammaRayAddbackEvt>();
 	particle_evt = std::make_shared<ParticleEvt>();
+	spede_evt = std::make_shared<SpedeEvt>();
+	bd_evt = std::make_shared<BeamDumpEvt>();
 
 	// ------------------------------------------------------------------------ //
 	// Create output file and create events tree
@@ -194,6 +199,22 @@ void MiniballEventBuilder::Initialise(){
 	std::vector<unsigned char>().swap(cd_side_list);
 	std::vector<unsigned char>().swap(cd_strip_list);
 	
+	bd_en_list.clear();
+	bd_ts_list.clear();
+	bd_det_list.clear();
+	
+	std::vector<float>().swap(bd_en_list);
+	std::vector<unsigned long long>().swap(bd_ts_list);
+	std::vector<unsigned char>().swap(bd_det_list);
+
+	spede_en_list.clear();
+	spede_ts_list.clear();
+	spede_seg_list.clear();
+	
+	std::vector<float>().swap(spede_en_list);
+	std::vector<unsigned long long>().swap(spede_ts_list);
+	std::vector<unsigned char>().swap(spede_seg_list);
+
 	write_evts->ClearEvt();
 	
 	return;
@@ -251,7 +272,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		// assume this is above threshold initially
 		mythres = true;
 
-
 		// ------------------------------------------ //
 		// Find FEBEX data
 		// ------------------------------------------ //
@@ -287,6 +307,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				
 				// Increment counts and open the event
 				n_miniball++;
+				hit_ctr++;
 				event_open = true;
 				
 				mb_en_list.push_back( myenergy );
@@ -297,11 +318,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				
 			}
 			
-			// Is it a partile from the CD?
+			// Is it a particle from the CD?
 			else if( set->IsCD( mysfp, myboard, mych ) && mythres ) {
 				
 				// Increment counts and open the event
 				n_cd++;
+				hit_ctr++;
 				event_open = true;
 				
 				cd_en_list.push_back( myenergy );
@@ -313,6 +335,33 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				
 			}
 			
+			// Is it an electron from Spede?
+			else if( set->IsSpede( mysfp, myboard, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_spede++;
+				hit_ctr++;
+				event_open = true;
+				
+				spede_en_list.push_back( myenergy );
+				spede_ts_list.push_back( mytime );
+				spede_seg_list.push_back( set->GetSpedeSegment( mysfp, myboard, mych ) );
+				
+			}
+			
+			// Is it a gamma ray from the beam dumo?
+			else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_bd++;
+				hit_ctr++;
+				event_open = true;
+				
+				bd_en_list.push_back( myenergy );
+				bd_ts_list.push_back( mytime );
+				bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
+				
+			}
 
 			
 			// Is it the start event?
@@ -494,6 +543,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				//----------------------------------
 				GammaRayFinder();		// perform addback
 				ParticleFinder();		// sort out CD n/p correlations
+				BeamDumpFinder();		// sort out beam dump events
+				SpedeFinder();			// sort out Spede events
 
 				// ------------------------------------
 				// Add timing and fill the ISSEvts tree
@@ -501,8 +552,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				write_evts->SetEBIS( ebis_time );
 				write_evts->SetT1( t1_time );
 				if( write_evts->GetGammaRayMultiplicity() ||
-					write_evts->GetGammaRayAddbackMultiplicity() )
+					write_evts->GetGammaRayAddbackMultiplicity() ||
+					write_evts->GetParticleMultiplicity() ||
+				    write_evts->GetSpedeMultiplicity() ||
+				    write_evts->GetBeamDumpMultiplicity() )
 					output_tree->Fill();
+
 
 				// Clean up if the next event is going to make the tree full
 				if( output_tree->MemoryFull(30e6) )
@@ -621,8 +676,8 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
 			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
 			
-			// Skip is it's the core again
-			if( i == j ) continue;
+			// Skip if it's the core again
+			if( i == j || mb_seg_list.at(j) == 0 ) continue;
 			
 			// Increment the segment multiplicity and sum energy
 			seg_mul++;
@@ -635,6 +690,13 @@ void MiniballEventBuilder::GammaRayFinder() {
 				MaxSegId = mb_seg_list.at(j);
 				
 			}
+			
+			// Fill the segment gated spectra
+			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
+			
+			// Fill the time difference spectrum
+			mb_td_core_seg->Fill( mb_ts_list.at(i) - mb_ts_list.at(j) );
+			
 			
 		} // j: matching segments
 		
@@ -660,11 +722,9 @@ void MiniballEventBuilder::GammaRayFinder() {
 		MaxEnergy = AbSumEnergy;
 		MaxTime = write_evts->GetGammaRayEvt(i)->GetTime();
 		ab_mul = 1;	// this is already the first event
-		ab_index.clear();
-		std::vector<unsigned char>().swap( ab_index );
 		
 		// Loop to find a matching event for addback
-		for( unsigned int j = i+i; j < write_evts->GetGammaRayMultiplicity(); ++j ) {
+		for( unsigned int j = i+1; j < write_evts->GetGammaRayMultiplicity(); ++j ) {
 
 			// Make sure we are in the same cluster
 			// In the future we might consider a more intelligent
@@ -684,7 +744,8 @@ void MiniballEventBuilder::GammaRayFinder() {
 			// Then we can add them back
 			ab_mul++;
 			AbSumEnergy += write_evts->GetGammaRayEvt(j)->GetEnergy();
-			
+			ab_index.push_back(j);
+
 			// Is this bigger than the current maximum energy?
 			if( write_evts->GetGammaRayEvt(j)->GetEnergy() > MaxEnergy ){
 				
@@ -694,9 +755,21 @@ void MiniballEventBuilder::GammaRayFinder() {
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
 
 			}
+			
+			// Fill the time difference spectrum
+			mb_td_core_core->Fill( write_evts->GetGammaRayEvt(i)->GetTime() - write_evts->GetGammaRayEvt(j)->GetTime() );
 
 			
 		} // j: loop for matching addback
+
+		// Check we haven't already used this event
+		skip_event = false;
+		for( unsigned int k = 0; k < ab_index.size(); ++k ) {
+		
+			if( ab_index.at(k) == i ) skip_event = true;
+		
+		}
+		if( skip_event ) continue;
 
 		// Build the single crystal gamma-ray event
 		gamma_ab_ctr++;
@@ -766,11 +839,44 @@ void MiniballEventBuilder::ParticleFinder() {
 	
 }
 
+void MiniballEventBuilder::BeamDumpFinder(){
+
+	// Build individual beam dump events
+	// Loop over all the events in beam dump detectors
+	for( unsigned int i = 0; i < bd_en_list.size(); ++i ) {
+	
+		bd_evt->SetEnergy( bd_en_list.at(i) );
+		bd_evt->SetTime( bd_ts_list.at(i) );
+		bd_evt->SetDetector( bd_det_list.at(i) );
+		write_evts->AddEvt( bd_evt );
+		
+	}
+	
+	return;
+	
+}
+
+void MiniballEventBuilder::SpedeFinder(){
+
+	// Build individual Spede events
+	// Loop over all the events in Spede detector
+	for( unsigned int i = 0; i < spede_en_list.size(); ++i ) {
+	
+		spede_evt->SetEnergy( spede_en_list.at(i) );
+		spede_evt->SetTime( spede_ts_list.at(i) );
+		spede_evt->SetSegment( spede_seg_list.at(i) );
+		write_evts->AddEvt( spede_evt );
+
+	}
+
+	return;
+	
+}
 
 void MiniballEventBuilder::MakeEventHists(){
 	
 	std::string hname, htitle;
-	std::string dirname, maindirname, subdirname;
+	std::string dirname;
 	
 	// ----------------- //
 	// Timing histograms //
@@ -787,6 +893,50 @@ void MiniballEventBuilder::MakeEventHists(){
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	
+	dirname = "miniball";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+	
+	mb_td_core_seg  = new TH1F( "mb_td_core_seg",  "Time difference between core and segment in same crystal;#Delta t [ns]", 1e3, -1e3, 1e3 );
+	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 1e3, -1e3, 1e3 );
+
+	mb_en_core_seg.resize( set->GetNumberOfMiniballClusters() );
+	
+	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
+		
+		dirname = "miniball/cluster_" + std::to_string(i);
+		if( !output_file->GetDirectory( dirname.data() ) )
+			output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
+
+		mb_en_core_seg[i].resize( set->GetNumberOfMiniballCrystals() );
+
+		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
+			
+			dirname  = "miniball/cluster_" + std::to_string(i);
+			dirname += "/crystal_" + std::to_string(j);
+			if( !output_file->GetDirectory( dirname.data() ) )
+				output_file->mkdir( dirname.data() );
+			output_file->cd( dirname.data() );
+
+			mb_en_core_seg[i][j].resize( set->GetNumberOfMiniballSegments() );
+
+			for( unsigned int k = 0; k < set->GetNumberOfMiniballSegments(); ++k ) {
+				
+				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
+				hname += std::to_string(j) + "_" + std::to_string(k);
+				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
+				htitle += " core " + std::to_string(j) + ", gated by segment ";
+				htitle += std::to_string(k) + ";Energy (keV)";
+				mb_en_core_seg[i][j][k] = new TH1F( hname.data(), htitle.data(), 4096, -0.5, 4095.5 );
+				
+			} // k
+			
+		} // j
+		
+	} // i
+	
 	return;
 	
 }
@@ -802,5 +952,21 @@ void MiniballEventBuilder::CleanHists(){
 	delete pulser_freq;
 	delete ebis_freq;
 	delete t1_freq;
+	
+	delete mb_td_core_seg;
+	delete mb_td_core_core;
+	
+	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
+		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
+			for( unsigned int k = 0; k < set->GetNumberOfMiniballSegments(); ++k ) {
+	
+				delete mb_en_core_seg[i][j][k];
+				
+			}
+		}
+	}
+	
+	
+	return;
 	
 }

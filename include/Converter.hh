@@ -101,6 +101,7 @@ protected:
 	unsigned char my_ch_id;
 	unsigned char my_data_id;
 	unsigned char my_trig_id;
+	short my_hit_time;
 	bool my_fail, my_veto;
 	float my_energy;
 

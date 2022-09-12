@@ -110,8 +110,8 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				// Hit time negative is before trigger
 				// Hit time positive is after trigger
 				bool hit_time_sign = (val32 & 0x8000) >> 15;
-				short hit_time = val32 & 0x7ff;
-				if( hit_time_sign ) hit_time *= -1.0;
+				my_hit_time = val32 & 0x7ff;
+				if( hit_time_sign ) my_hit_time *= -1.0;
 
 				n_single_hits++;
 
@@ -150,7 +150,7 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				
 				// Make a FebexData item
 				febex_data->SetQint( my_adc_data_int );
-				febex_data->SetTime( my_tm_stp );
+				febex_data->SetTime( my_tm_stp + my_hit_time );
 				febex_data->SetSfp( my_sfp_id );
 				febex_data->SetBoard( my_board_id );
 				febex_data->SetChannel( my_hit_ch_id );
@@ -374,19 +374,25 @@ void MiniballMbsConverter::FinishFebexData(){
 	// Otherwise it is real data, so fill a FEBEX event
 	else if( flag_febex_data0 || flag_febex_trace ) {
 		
+		// Calibrate
+		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), febex_data->GetQint() );
+		febex_data->SetEnergy( my_energy );
+		if( febex_data->GetQint() > cal->FebexThreshold( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) )
+			febex_data->SetThreshold( true );
+		else
+			febex_data->SetThreshold( false );
+		
+		// Fill histograms
+		hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+		if( flag_febex_data0 ) hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+		else if( flag_febex_trace ) hfebex_mwd[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+		
 		// Set this data and fill event to tree
 		// Also add the time offset when we do this
 		febex_data->SetTime( time_corr );
 		data_packet->SetData( febex_data );
 		output_tree->Fill();
 
-		// Fill histograms
-		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), febex_data->GetQint() );
-		hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
-		
-		if( flag_febex_data0 ) hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
-		else if( flag_febex_trace ) hfebex_mwd[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
-		
 	}
 
 	// Fill histograms

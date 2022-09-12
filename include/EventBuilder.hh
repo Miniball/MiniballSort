@@ -70,6 +70,8 @@ public:
 	// Resolve multiplicities and coincidences etc
 	void GammaRayFinder();
 	void ParticleFinder();
+	void BeamDumpFinder();
+	void SpedeFinder();
 
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
@@ -164,20 +166,35 @@ private:
 	std::vector<unsigned char>			cd_side_list;	///< list of CD side IDs; 0 = p, 1 = n
 	std::vector<unsigned char>			cd_strip_list;	///< list of CD strip IDs
 
+	// Beam dumo detector specific variables
+	std::vector<float>					bd_en_list;		///< list of beam dump energies for ParticleFinder
+	std::vector<unsigned long long>		bd_ts_list;		///< list of beam dump timestamps for ParticleFinder
+	std::vector<unsigned char>			bd_det_list;	///< list of beam dump detector IDs
+
+	// Spede detector specific variables
+	std::vector<float>					spede_en_list;		///< list of Spede energies for ParticleFinder
+	std::vector<unsigned long long>		spede_ts_list;		///< list of Spede timestamps for ParticleFinder
+	std::vector<unsigned char>			spede_seg_list;		///< list of Spede segment IDs
+
 
 	// Counters
-	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr;
+	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr, spede_ctr;
 	unsigned long				n_entries, n_febex_data, n_info_data;
 	unsigned long				n_ebis, n_t1, n_pulser;
 	std::vector<unsigned long>	n_sfp;
 	std::vector<std::vector<unsigned long>>	n_board;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
-	unsigned long				n_miniball, n_cd;
+	unsigned long				n_miniball, n_cd, n_spede, n_bd;
 
 
 	// Timing histograms
 	TH1F *tdiff, *tdiff_clean;
 	TProfile *pulser_freq, *ebis_freq, *t1_freq;
+	
+	// Miniball histograms
+	TH1F *mb_td_core_seg;
+	TH1F *mb_td_core_core;
+	std::vector<std::vector<std::vector<TH1F*>>> mb_en_core_seg;
 
 	
 };

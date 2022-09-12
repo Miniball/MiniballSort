@@ -25,8 +25,8 @@ void MiniballEvts::ClearEvt() {
 	std::vector<BeamDumpEvt>().swap(bd_event);
 	std::vector<SpedeEvt>().swap(spede_event);
 
-	ebis = -999;
-	t1 = -999;
+	ebis = 0;
+	t1 = 0;
 
 	return;
 
