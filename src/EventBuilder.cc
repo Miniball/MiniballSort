@@ -898,8 +898,8 @@ void MiniballEventBuilder::MakeEventHists(){
 		output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
 	
-	mb_td_core_seg  = new TH1F( "mb_td_core_seg",  "Time difference between core and segment in same crystal;#Delta t [ns]", 1e3, -1e3, 1e3 );
-	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 1e3, -1e3, 1e3 );
+	mb_td_core_seg  = new TH1F( "mb_td_core_seg",  "Time difference between core and segment in same crystal;#Delta t [ns]", 500, -2495, 2495 );
+	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 500, -2495, 2495 );
 
 	mb_en_core_seg.resize( set->GetNumberOfMiniballClusters() );
 	
