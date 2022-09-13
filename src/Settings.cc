@@ -215,7 +215,7 @@ void MiniballSettings::ReadSettings() {
 					
 					s = 1;			// sfp number - all in SFP 1
 					b = j*2 + k;	// boards go 0-7
-					c = k;
+					c = l;
 					cd_sfp[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Sfp", i, j, l, side_str.data() ), s );
 					cd_board[i][j][k][l]	= config->GetValue( Form( "CD_%d_%d_%d.%s.Board", i, j, l, side_str.data() ), b );
 					cd_ch[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Channel", i, j, l, side_str.data() ), c );

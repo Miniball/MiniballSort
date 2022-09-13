@@ -533,9 +533,14 @@ int main( int argc, char *argv[] ){
 		std::string extension = input_names.at(0).substr( input_names.at(0).find_last_of(".")+1,
 														 input_names.at(0).length()-input_names.at(0).find_last_of(".")-1 );
 		
-		if( extension == "lmd" ) flag_mbs = true;
-		std::cout << "Assuming we have MBS data because of the .lmd extension" << std::endl;
+		if( extension == "lmd" ) {
+			
+			flag_mbs = true;
+			std::cout << "Assuming we have MBS data because of the .lmd extension" << std::endl;
+			std::cout << "Forcing the data block size to 32 kB" << std::endl;
 
+		}
+			
 	}
 	
 	// Check if we should be monitoring the input
@@ -617,7 +622,8 @@ int main( int argc, char *argv[] ){
 	mycal = std::make_shared<MiniballCalibration>( name_cal_file, myset );
 	myreact = std::make_shared<MiniballReaction>( name_react_file, myset );
 
-
+	// Force data block size for MBS data
+	if( flag_mbs ) myset->SetBlockSize( 0x8000 );
 	
 	//-------------------//
 	// Online monitoring //

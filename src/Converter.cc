@@ -259,6 +259,9 @@ void MiniballConverter::MakeHists() {
 		hfebex_ext->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 		
 	}
+	
+	// Hit time plot
+	hhit_time = new TH1F( "hhit_time", "Hit time distribution", 3200, -16000, 16000 );
 
 	return;
 	
@@ -271,9 +274,9 @@ unsigned long long MiniballConverter::SortTree(){
 	sorted_tree->Reset();
 	
 	// Load the full tree if possible
-	output_tree->SetMaxVirtualSize(2e9); // 2GB
-	sorted_tree->SetMaxVirtualSize(2e9); // 2GB
-	output_tree->LoadBaskets(1e9); 		 // Load 1 GB of data to memory
+	output_tree->SetMaxVirtualSize(200e6); // 200 MB
+	sorted_tree->SetMaxVirtualSize(200e6); // 200 MB
+	output_tree->LoadBaskets(200e6); 	 // Load 6 MB of data to memory
 	
 	// Check we have entries and build time-ordered index
 	if( output_tree->GetEntries() ){

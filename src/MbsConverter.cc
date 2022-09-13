@@ -80,6 +80,7 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 		my_tm_stp = data[pos++] & 0xFFFFFF;
 		my_tm_stp <<= 32;
 		my_tm_stp |= data[pos++];
+		my_tm_stp *= 10;
 		//std::cout << "my_tm_stp = " << my_tm_stp << std::endl;
 
 		for( UInt_t i = 0; i < nsamples; i++ ) {
@@ -110,8 +111,11 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				// Hit time negative is before trigger
 				// Hit time positive is after trigger
 				bool hit_time_sign = (val32 & 0x8000) >> 15;
-				my_hit_time = val32 & 0x7ff;
-				if( hit_time_sign ) my_hit_time *= -1.0;
+				my_hit_time = val32 & 0x7fff;
+				if( hit_time_sign ) my_hit_time *= -1;
+				my_hit_time *= 10;
+				
+				hhit_time->Fill( my_hit_time );
 
 				n_single_hits++;
 
@@ -325,7 +329,7 @@ void MiniballMbsConverter::FinishFebexData(){
 	
 	// Timestamp with offset
 	unsigned long long time_corr;
-	time_corr  = my_tm_stp;
+	time_corr  = febex_data->GetTime();
 	time_corr += cal->FebexTime( my_sfp_id, my_board_id, my_ch_id );
 
 	// Check if this is actually just a timestamp or info like event

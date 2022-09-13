@@ -64,6 +64,7 @@ public:
 	
 	
 	// Data settings
+	void SetBlockSize( unsigned int size ){ block_size = size; };
 	inline unsigned int GetBlockSize(){ return block_size; };
 	inline unsigned int IsFebexOnly(){ return flag_febex_only; };
 

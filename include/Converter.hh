@@ -101,7 +101,7 @@ protected:
 	unsigned char my_ch_id;
 	unsigned char my_data_id;
 	unsigned char my_trig_id;
-	short my_hit_time;
+	long my_hit_time;
 	bool my_fail, my_veto;
 	float my_energy;
 
@@ -135,6 +135,8 @@ protected:
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_cal;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_mwd;
+	
+	TH1F *hhit_time;
 
 	// 	Settings file
 	std::shared_ptr<MiniballSettings> set;
