@@ -83,7 +83,6 @@ public:
 		delete in_data;
 		log_file.close(); //?? to close or not to close?
 	}; ///< Closes the output files from this class
-	void CleanHists(); ///< Deletes histograms from memory and clears vectors that store histograms
 
 
 private:
@@ -197,7 +196,9 @@ private:
 	std::vector<std::vector<std::vector<TH1F*>>> mb_en_core_seg;
 
 	// CD histograms
+	std::vector<std::vector<TH2F*>> cd_pn_mult;
 	std::vector<std::vector<TH2F*>> cd_pen_id, cd_nen_id;
+	std::vector<std::vector<TH1F*>> cd_pn_td, cd_pp_td, cd_nn_td;
 	std::vector<std::vector<TH2F*>> cd_pn_1v1, cd_pn_1v2, cd_pn_2v1, cd_pn_2v2;
 
 };
