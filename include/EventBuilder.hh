@@ -196,6 +196,7 @@ private:
 	TH1F *mb_td_core_core;
 	std::vector<std::vector<std::vector<TH1F*>>> mb_en_core_seg;
 
+	// CD histograms
 	
 };
 

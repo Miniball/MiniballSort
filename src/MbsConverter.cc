@@ -48,7 +48,16 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 	flag_febex_trace = false;
 
 	// Check for padding - Liam
-	while( (data[pos++] & 0xFFFF0000) == 0xADD00000 ) {}
+	while( (data[pos++] & 0xFFFF0000) == 0xADD00000 ) {
+
+		// Make sure we can still read the channel ID and data header after this
+		if( pos + 2 >= ndata ) {
+			std::cerr << "No data, only padding in this event" << std::endl;
+			pos = ndata;
+			return;
+		}
+
+	}
 	pos--;
 	
 	// Padding - Nik
@@ -73,6 +82,13 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 		// Get the length in bytes
 		auto length = data[pos++];
 		nsamples = (length - 16) >> 3; // Length in 64-bit (8-byte) words
+		if( pos + 4 + 2*nsamples > ndata ) {
+			std::cerr << "Wrong number of data words (" << (int)nsamples+5;
+			std::cerr << ") for data remaning data size (";
+			std::cerr << ndata-pos << ")" << std::endl;
+			pos = ndata;
+			return;
+		}
 
 		// Get the spec header
 		auto specheader = data[pos++];
@@ -111,7 +127,7 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				// Hit time negative is before trigger
 				// Hit time positive is after trigger
 				bool hit_time_sign = (val32 & 0x8000) >> 15;
-				my_hit_time = val32 & 0x7fff;
+				my_hit_time = val32 & 0x1fff; // Nik 14/09/2022 confirms mask is 0x1fff by email
 				if( hit_time_sign ) my_hit_time *= -1;
 				my_hit_time *= 10;
 				
@@ -185,8 +201,14 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 
 		// Trace size
 		nsamples = (data[pos++]/4) - 2; // In 32-bit words - 2 samples per word?
-		//std::cout << "nsamples: " << nsamples << std::endl;
-		
+		if( pos + 2 + nsamples > ndata ) {
+			std::cerr << "Wrong number of trace samples (" << (int)nsamples+2;
+			std::cerr << ") for data remaning data size (";
+			std::cerr << ndata-pos << ")" << std::endl;
+			pos = ndata;
+			return;
+		}
+
 		// Trace header
 		unsigned int trace_header = data[pos++];
 		if( ((trace_header & 0xff000000) >> 24) != 0xaa ){
