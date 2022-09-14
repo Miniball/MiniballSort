@@ -487,20 +487,18 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 	std::cout << "Opening file: " << input_file_name << std::endl;
 	MBS mbs;
 	mbs.SetBufferSize( set->GetBlockSize() );
-	mbs.Open( input_file_name );
-	
-	// Need to define total number of MBS Events
-	unsigned long MBS_EVENTS = 1e6;
+	mbs.OpenFile( input_file_name );
 
 	// Loop over all the MBS Events.
-	unsigned long mbsevt = 0;
+	unsigned long mbsevt = 0, nblock = 0;
 	for( mbsevt = 0; ; mbsevt++ ){
 		
-		// Take one block each time and analyze it.
-		if( mbsevt % 200 == 0 ) {
+		// Calculate how many blocks we have used and progress
+		nblock = mbs.GetBufferCount();
+		if( nblock % 200 == 0 || nblock+1 == BLOCKS_NUM ) {
 			
 			// Percent complete
-			float percent = (float)(mbsevt+1)*100.0/(float)MBS_EVENTS;
+			float percent = (float)(nblock+1)*100.0/(float)BLOCKS_NUM;
 			
 			// Progress bar in GUI
 			if( _prog_ ){
@@ -531,7 +529,7 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 	} // loop - mbsevt < MBS_EVENTS
 	
 	// Close the file
-	mbs.Close();
+	mbs.CloseFile();
 	
 	// Print stats
 	std::cout << std::endl;

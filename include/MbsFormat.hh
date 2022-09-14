@@ -9,7 +9,14 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <cstdio>
 #include <sys/mman.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+
 
 // String
 struct cv_string {
@@ -169,7 +176,11 @@ class MBS {
 private:
 	
 	std::string filename;
+	std::string server;
+	unsigned short port;
 	FILE *fp;
+	UInt_t socket_id;
+	UInt_t server_id;
 	UInt_t current_buffer;
 	UInt_t pos;
 	MBSEvent evt;
@@ -190,9 +201,11 @@ public:
 	~MBS(){};
 	
 	// Open and close functions
-	void Open( std::string _filename );
-	void Close();
-	
+	void OpenFile( std::string _filename );
+	int OpenEventServer( std::string _server, unsigned short _port );
+	void CloseFile();
+	void CloseEventServer();
+
 	void SetBufferSize( unsigned int size ){ bufsize = size; };
 	
 	// Get number of buffers
@@ -200,16 +213,22 @@ public:
 		return( len ? len / bufsize - 1 : 0 );
 	};
 	
+	// Get the buffer count
+	UInt_t GetBufferCount(){ return current_buffer; };
+	
 	// Get the nth buffer
-	const UChar_t *GetBuffer( UInt_t i );
+	const UChar_t* GetBuffer( UInt_t i );
 	
 	// Get the next buffer
-	const UChar_t *GetNextBuffer() {
+	const UChar_t* GetNextBuffer() {
 		return( GetBuffer(++current_buffer) );
 	};
 	
+	// Get the next buffer from the stream
+	const UChar_t* GetBufferFromStream();
+	
 	// Get the next event
-	const MBSEvent *GetNextEvent();
+	const MBSEvent* GetNextEvent();
 	
 	// Show the file header
 	void ShowFileHeader() const {
