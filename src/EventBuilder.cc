@@ -805,6 +805,9 @@ void MiniballEventBuilder::ParticleFinder() {
 			nindex.clear();
 			std::vector<unsigned char>().swap(pindex);
 			std::vector<unsigned char>().swap(nindex);
+			int pmax_idx = 0, nmax_idx = 0;
+			float pmax_en = -999., nmax_en = -999.;
+			float psum_en, nsum_en;
 			
 			// Calculate p/n side multiplicities and get indicies
 			for( unsigned int k = 0; k < cd_en_list.size(); ++k ){
@@ -813,10 +816,36 @@ void MiniballEventBuilder::ParticleFinder() {
 				if( i != cd_det_list.at(k) || j != cd_sec_list.at(k) )
 					continue;
 
-				// Finally push back the multiplicity
-				if( cd_side_list.at(k) == 0 ) pindex.push_back(k);
-				else if( cd_side_list.at(k) == 1 ) nindex.push_back(k);
+				// Check max energy and push back the multiplicity
+				if( cd_side_list.at(k) == 0 ) {
+				
+					pindex.push_back(k);
 					
+					// Check if it is max energy
+					if( cd_en_list.at(k) > pmax_en ){
+					
+						pmax_en = cd_en_list.at(k);
+						pmax_idx = k;
+					
+					}
+
+				
+				} // p-side
+				
+				else if( cd_side_list.at(k) == 1 ) {
+					
+					nindex.push_back(k);
+				
+					// Check if it is max energy
+					if( cd_en_list.at(k) > nmax_en ){
+					
+						nmax_en = cd_en_list.at(k);
+						nmax_idx = k;
+					
+					}
+
+				} // n-side
+			
 			} // k: all CD events
 			
 			// ----------------------- //
@@ -825,7 +854,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			// 1 vs 1 - easiest situation
 			if( pindex.size() == 1 && nindex.size() == 1 ) {
 
-				cd_ctr++;
+				// Set event
 				particle_evt->SetEnergyP( cd_en_list.at( pindex[0] ) );
 				particle_evt->SetEnergyN( cd_en_list.at( nindex[0] ) );
 				particle_evt->SetTimeP( cd_ts_list.at( pindex[0] ) );
@@ -834,14 +863,251 @@ void MiniballEventBuilder::ParticleFinder() {
 				particle_evt->SetSector( j );
 				particle_evt->SetStripP( cd_strip_list.at( pindex[0] ) );
 				particle_evt->SetStripN( cd_strip_list.at( nindex[0] ) );
+
+				// Fill tree
 				write_evts->AddEvt( particle_evt );
-				
+				cd_ctr++;
+
+				// Fill histograms
 				cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex[0] ),
 									  cd_en_list.at( pindex[0] ) );
 				cd_nen_id[i][j]->Fill( cd_strip_list.at( nindex[0] ),
 									  cd_en_list.at( nindex[0] ) );
+				cd_pn_1v1[i][j]->Fill( cd_en_list.at( pindex[0] ),
+									  cd_en_list.at( nindex[0] ) );
 
 			} // 1 vs 1
+			
+			// 1 vs 2 - n-side charge sharing?
+			if( pindex.size() == 1 && nindex.size() == 2 ) {
+
+				// Neighbour strips
+				if( TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
+
+					// Simple sum of both energies, cross-talk not included yet
+					nsum_en  = cd_en_list.at( nindex.at(0) );
+					nsum_en += cd_en_list.at( nindex.at(1) );
+					
+					// Set event
+					particle_evt->SetEnergyP( cd_en_list.at( pindex[0] ) );
+					particle_evt->SetEnergyN( nsum_en );
+					particle_evt->SetTimeP( cd_ts_list.at( pindex[0] ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nmax_idx ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pindex[0] ) );
+					particle_evt->SetStripN( cd_strip_list.at( nmax_idx ) );
+
+					// Fill tree
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex[0] ),
+										  cd_en_list.at( pindex[0] ) );
+					cd_nen_id[i][j]->Fill( nsum_en,
+										  cd_en_list.at( nmax_idx ) );
+					cd_pn_1v2[i][j]->Fill( cd_en_list.at( pindex[0] ),
+										  cd_en_list.at( nindex[0] ) );
+					cd_pn_1v2[i][j]->Fill( cd_en_list.at( pindex[0] ),
+										  cd_en_list.at( nindex[1] ) );
+
+				} // neighbour strips
+				
+				// otherwise treat as 1 vs 1
+				else {
+					
+					// Set event
+					particle_evt->SetEnergyP( cd_en_list.at( pindex[0] ) );
+					particle_evt->SetEnergyN( cd_en_list.at( nmax_idx ) );
+					particle_evt->SetTimeP( cd_ts_list.at( pindex[0] ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nmax_idx ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pindex[0] ) );
+					particle_evt->SetStripN( cd_strip_list.at( nmax_idx ) );
+
+					// Fill tree
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex[0] ),
+										  cd_en_list.at( pindex[0] ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nmax_idx ),
+										  cd_en_list.at( nmax_idx ) );
+
+					
+				} // treat as 1 vs 1
+
+			} // 1 vs 2
+			
+			// 2 vs 1 - p-side charge sharing?
+			if( pindex.size() == 2 && nindex.size() == 1 ) {
+
+				// Neighbour strips
+				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 ) {
+
+					// Simple sum of both energies, cross-talk not included yet
+					psum_en  = cd_en_list.at( pindex.at(0) );
+					psum_en += cd_en_list.at( pindex.at(1) );
+					
+					// Set event
+					particle_evt->SetEnergyP( psum_en );
+					particle_evt->SetEnergyN( cd_en_list.at( nindex[0] ) );
+					particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nindex[0] ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+					particle_evt->SetStripN( cd_strip_list.at( nindex[0] ) );
+
+					// Fill tree
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( psum_en,
+										  cd_en_list.at( pmax_idx ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nindex[0] ),
+										  cd_en_list.at( nindex[0] ) );
+					cd_pn_2v1[i][j]->Fill( cd_en_list.at( pindex[0] ),
+										  cd_en_list.at( nindex[0] ) );
+					cd_pn_2v1[i][j]->Fill( cd_en_list.at( pindex[1] ),
+										  cd_en_list.at( nindex[0] ) );
+
+				} // neighbour strips
+
+				// otherwise treat as 1 vs 1
+				else {
+					
+					// Set event
+					particle_evt->SetEnergyP( cd_en_list.at( pmax_idx ) );
+					particle_evt->SetEnergyN( cd_en_list.at( nindex[0] ) );
+					particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nindex[0] ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+					particle_evt->SetStripN( cd_strip_list.at( nindex[0] ) );
+
+					// Fill tree
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pmax_idx ),
+										  cd_en_list.at( pmax_idx ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nindex[0] ),
+										  cd_en_list.at( nindex[0] ) );
+
+					
+				} // treat as 1 vs 1
+
+			} // 2 vs 1
+			
+			// 2 vs 2 - charge sharing on both or two particles?
+			if( pindex.size() == 2 && nindex.size() == 2 ) {
+
+				// Neighbour strips - p-side + n-side
+				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 &&
+				    TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
+
+					// Simple sum of both energies, cross-talk not included yet
+					psum_en  = cd_en_list.at( pindex.at(0) );
+					psum_en += cd_en_list.at( pindex.at(1) );
+					nsum_en  = cd_en_list.at( nindex.at(0) );
+					nsum_en += cd_en_list.at( nindex.at(1) );
+
+					// Set event
+					particle_evt->SetEnergyP( psum_en );
+					particle_evt->SetEnergyN( nsum_en );
+					particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nmax_idx ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+					particle_evt->SetStripN( cd_strip_list.at( nmax_idx ) );
+
+					// Fill tree
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pmax_idx ),
+										  psum_en );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nmax_idx ),
+										  nsum_en );
+					cd_pn_2v2[i][j]->Fill( cd_en_list.at( pindex[0] ),
+										  cd_en_list.at( nindex[0] ) );
+					cd_pn_2v2[i][j]->Fill( cd_en_list.at( pindex[0] ),
+										  cd_en_list.at( nindex[1] ) );
+					cd_pn_2v2[i][j]->Fill( cd_en_list.at( pindex[1] ),
+										  cd_en_list.at( nindex[0] ) );
+					cd_pn_2v2[i][j]->Fill( cd_en_list.at( pindex[1] ),
+										  cd_en_list.at( nindex[1] ) );
+
+				} // neighbour strips - p-side + n-side
+
+				// Neighbour strips - p-side only
+				else if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 ) {
+
+					// Simple sum of both energies, cross-talk not included yet
+					psum_en  = cd_en_list.at( pindex.at(0) );
+					psum_en += cd_en_list.at( pindex.at(1) );
+
+					// Set event
+					particle_evt->SetEnergyP( psum_en );
+					particle_evt->SetEnergyN( nmax_en );
+					particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nmax_idx ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+					particle_evt->SetStripN( cd_strip_list.at( nmax_idx ) );
+
+					// Fill tree
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pmax_idx ),
+										  psum_en );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nmax_idx ),
+										  cd_en_list.at( nmax_idx ) );
+					
+				} // neighbour strips - p-side only
+
+				// Neighbour strips - n-side only
+				if( TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
+
+					// Simple sum of both energies, cross-talk not included yet
+					nsum_en  = cd_en_list.at( nindex.at(0) );
+					nsum_en += cd_en_list.at( nindex.at(1) );
+
+					// Set event
+					particle_evt->SetEnergyP( cd_en_list.at( pmax_idx ) );
+					particle_evt->SetEnergyN( nsum_en );
+					particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nmax_idx ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+					particle_evt->SetStripN( cd_strip_list.at( nmax_idx ) );
+
+					// Fill tree
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pmax_idx ),
+										  cd_en_list.at( pmax_idx ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nmax_idx ),
+										  nsum_en );
+
+				} // neighbour strips - n-side only
+
+			} // 2 vs 2
 			
 		} // j: sector ID
 		
@@ -962,12 +1228,20 @@ void MiniballEventBuilder::MakeEventHists(){
 
 	cd_pen_id.resize( set->GetNumberOfCDDetectors() );
 	cd_nen_id.resize( set->GetNumberOfCDDetectors() );
+	cd_pn_1v1.resize( set->GetNumberOfCDDetectors() );
+	cd_pn_1v2.resize( set->GetNumberOfCDDetectors() );
+	cd_pn_2v1.resize( set->GetNumberOfCDDetectors() );
+	cd_pn_2v2.resize( set->GetNumberOfCDDetectors() );
 
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 		
 		cd_pen_id[i].resize( set->GetNumberOfCDSectors() );
 		cd_nen_id[i].resize( set->GetNumberOfCDSectors() );
-		
+		cd_pn_1v1[i].resize( set->GetNumberOfCDSectors() );
+		cd_pn_1v2[i].resize( set->GetNumberOfCDSectors() );
+		cd_pn_2v1[i].resize( set->GetNumberOfCDSectors() );
+		cd_pn_2v2[i].resize( set->GetNumberOfCDSectors() );
+
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 			
 			hname  = "cd_pen_id_" + std::to_string(i) + "_" + std::to_string(j);
@@ -975,7 +1249,7 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
 			cd_pen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
-									   400, 0, 200e3 );
+									   4000, 0, 2000e3 );
 			
 			hname  = "cd_nen_id_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD n-side energy for detector " + std::to_string(i);
@@ -983,8 +1257,35 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
 			cd_nen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
-									   400, 0, 200e3 );
+									   4000, 0, 2000e3 );
 			
+			hname  = "cd_pn_1v1_" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD p-side vs n-side energy, multiplicity 1v1";
+			htitle += "for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			cd_pn_1v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
+			
+			hname  = "cd_pn_1v2" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD p-side vs n-side energy, multiplicity 1v2";
+			htitle += "for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			cd_pn_1v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
+			
+			hname  = "cd_pn_2v1" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD p-side vs n-side energy, multiplicity 2v1";
+			htitle += "for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			cd_pn_2v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
+			
+			hname  = "cd_pn_2v2" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD p-side vs n-side energy, multiplicity 2v2";
+			htitle += "for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			cd_pn_2v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
 			
 		} // j
 		
