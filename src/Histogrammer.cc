@@ -181,11 +181,11 @@ void MiniballHistogrammer::MakeHists() {
 	
 	hname = "particle_xy_map_forward";
 	htitle = "Particle X-Y hit map (#theta < 90);x [mm];y [mm];Counts per mm^2";
-	particle_xy_map_forward = new TH2F( hname.data(), htitle.data(), 29, -45, 45, 29, -45, 45 );
+	particle_xy_map_forward = new TH2F( hname.data(), htitle.data(), 44, -45, 45, 44, -45, 45 );
 
 	hname = "particle_xy_map_backward";
 	htitle = "Particle X-Y hit map (#theta > 90);x [mm];y [mm];Counts per mm^2";
-	particle_xy_map_backward = new TH2F( hname.data(), htitle.data(), 29, -45, 45, 29, -45, 45 );
+	particle_xy_map_backward = new TH2F( hname.data(), htitle.data(), 44, -45, 45, 44, -45, 45 );
 
 	hname = "particle_theta_phi_map";
 	htitle = "Particle #theta-#phi hit map;#theta [mm];#phi [mm];Counts";
