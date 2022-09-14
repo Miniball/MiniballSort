@@ -955,9 +955,9 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	/// Function to loop over the sort tree and build array and recoil events
 
 	// Load the full tree if possible
-	output_tree->SetMaxVirtualSize(200e6);	// 200 MB
-	input_tree->SetMaxVirtualSize(200e6); 	// 200 MB
-	input_tree->LoadBaskets(200e6); 		// Load 200 MB of data to memory
+	//output_tree->SetMaxVirtualSize(200e6);	// 200 MB
+	//input_tree->SetMaxVirtualSize(200e6); 	// 200 MB
+	//input_tree->LoadBaskets(200e6); 		// Load 200 MB of data to memory
 
 	if( input_tree->LoadTree(0) < 0 ){
 		
@@ -980,8 +980,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	for( unsigned long i = 0; i < n_entries; ++i ) {
 		
 		// Current event data
-		if( input_tree->MemoryFull(30e6) )
-			input_tree->DropBaskets();
+		//if( input_tree->MemoryFull(30e6) )
+		//	input_tree->DropBaskets();
 		if( i == 0 ) input_tree->GetEntry(i);
 
 		// Get the time of the event
@@ -1289,8 +1289,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 
 				// Clean up if the next event is going to make the tree full
-				if( output_tree->MemoryFull(30e6) )
-					output_tree->DropBaskets();
+				//if( output_tree->MemoryFull(30e6) )
+				//	output_tree->DropBaskets();
 
 			}
 			
