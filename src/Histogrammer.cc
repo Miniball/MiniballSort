@@ -179,6 +179,18 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Particle energy singles, gated on target;Angle [deg];Energy [keV];Counts per 0.5 keV";
 	pE_theta_target = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
+	hname = "particle_xy_map_forward";
+	htitle = "Particle X-Y hit map (#theta < 90);x [mm];y [mm];Counts per mm^2";
+	particle_xy_map_forward = new TH2F( hname.data(), htitle.data(), 29, -45, 45, 29, -45, 45 );
+
+	hname = "particle_xy_map_backward";
+	htitle = "Particle X-Y hit map (#theta > 90);x [mm];y [mm];Counts per mm^2";
+	particle_xy_map_backward = new TH2F( hname.data(), htitle.data(), 29, -45, 45, 29, -45, 45 );
+
+	hname = "particle_theta_phi_map";
+	htitle = "Particle #theta-#phi hit map;#theta [mm];#phi [mm];Counts";
+	particle_theta_phi_map = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), 360, -0.5, 359.5 );
+
 	// Gamma-particle coincidences without addback
 	dirname = "GammaRayParticleCoincidences";
 	output_file->mkdir( dirname.data() );
@@ -606,9 +618,9 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 
-		gE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta(), g->GetEnergy(), weight );
-		gE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta(), react->DopplerCorrection( g, true ), weight );
-		gE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta(), react->DopplerCorrection( g, false ), weight );
+		gE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
+		gE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
+		gE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
 	}
 
@@ -619,9 +631,9 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 
-		gE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta(), g->GetEnergy(), weight );
-		gE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, true ), weight );
-		gE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, false ), weight );
+		gE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
+		gE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
+		gE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
 	}
 	
@@ -636,9 +648,9 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_2p_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_2p_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 
-		gE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta(), g->GetEnergy(), weight );
-		gE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, true ), weight );
-		gE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, false ), weight );
+		gE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
+		gE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
+		gE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 		
 	}
 	
@@ -680,9 +692,9 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 
-		aE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta(), g->GetEnergy(), weight );
-		aE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta(), react->DopplerCorrection( g, true ), weight );
-		aE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta(), react->DopplerCorrection( g, false ), weight );
+		aE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
+		aE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
+		aE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
 	}
 
@@ -693,9 +705,9 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 
-		aE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta(), g->GetEnergy(), weight );
-		aE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, true ), weight );
-		aE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, false ), weight );
+		aE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
+		aE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
+		aE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
 	}
 	
@@ -710,9 +722,9 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_2p_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_2p_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 
-		aE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta(), g->GetEnergy(), weight );
-		aE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, true ), weight );
-		aE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( g, false ), weight );
+		aE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
+		aE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
+		aE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 		
 	}
 	
@@ -754,9 +766,9 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 		eE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), weight );
 		eE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), weight );
 
-		eE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta(), e->GetEnergy(), weight );
-		eE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta(), react->DopplerCorrection( e, true ), weight );
-		eE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta(), react->DopplerCorrection( e, false ), weight );
+		eE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), e->GetEnergy(), weight );
+		eE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, true ), weight );
+		eE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, false ), weight );
 
 	}
 
@@ -767,9 +779,9 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 		eE_recoil_dc_ejectile->Fill( react->DopplerCorrection( e, true ), weight );
 		eE_recoil_dc_recoil->Fill( react->DopplerCorrection( e, false ), weight );
 
-		eE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta(), e->GetEnergy(), weight );
-		eE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( e, true ), weight );
-		eE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( e, false ), weight );
+		eE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), e->GetEnergy(), weight );
+		eE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, true ), weight );
+		eE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, false ), weight );
 
 	}
 	
@@ -784,9 +796,9 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 		eE_2p_dc_ejectile->Fill( react->DopplerCorrection( e, true ), weight );
 		eE_2p_dc_recoil->Fill( react->DopplerCorrection( e, false ), weight );
 
-		eE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta(), e->GetEnergy(), weight );
-		eE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( e, true ), weight );
-		eE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta(), react->DopplerCorrection( e, false ), weight );
+		eE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), e->GetEnergy(), weight );
+		eE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, true ), weight );
+		eE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, false ), weight );
 		
 	}
 	
@@ -835,14 +847,21 @@ unsigned long MiniballHistogrammer::FillHists() {
 			ebis_td_particle->Fill( (double)particle_evt->GetTime() - (double)read_evts->GetEBIS() );
 			
 			// Energy vs Angle plot no gates
-			pE_theta->Fill( react->GetParticleTheta( particle_evt ), particle_evt->GetEnergy() );
+			pE_theta->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+			particle_theta_phi_map->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(),
+										  react->GetParticlePhi( particle_evt ) * TMath::RadToDeg() );
+			if( react->GetParticleTheta( particle_evt ) < TMath::PiOver2() )
+				particle_xy_map_forward->Fill( react->GetParticleX( particle_evt ), react->GetParticleY( particle_evt ) );
+			else
+				particle_xy_map_backward->Fill( react->GetParticleX( particle_evt ), react->GetParticleY( particle_evt ) );
+
 			
 			// Energy vs angle plot, after cuts
 			if( EjectileCut( particle_evt ) )
-				pE_theta_beam->Fill( react->GetParticleTheta( particle_evt ), particle_evt->GetEnergy() );
+				pE_theta_beam->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
 			
 			if( RecoilCut( particle_evt ) )
-				pE_theta_target->Fill( react->GetParticleTheta( particle_evt ), particle_evt->GetEnergy() );
+				pE_theta_target->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
 			
 			
 			// Check for prompt coincidence with a gamma-ray
@@ -858,7 +877,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( PromptCoincidence( gamma_evt, particle_evt ) ){
 					
 					// Energy vs Angle plot with gamma-ray coincidence
-					pE_theta_coinc->Fill( react->GetParticleTheta( particle_evt ), particle_evt->GetEnergy() );
+					pE_theta_coinc->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
 					
 				} // if prompt
 				

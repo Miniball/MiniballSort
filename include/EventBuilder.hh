@@ -197,6 +197,7 @@ private:
 	std::vector<std::vector<std::vector<TH1F*>>> mb_en_core_seg;
 
 	// CD histograms
+	std::vector<std::vector<TH2F*>> cd_pen_id, cd_nen_id;
 	
 };
 

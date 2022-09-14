@@ -198,6 +198,15 @@ public:
 	inline float	GetParticlePhi( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Phi();
 	};
+	inline float	GetParticleX( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+		return GetParticleVector( det, sec, pid, nid ).X();
+	};
+	inline float	GetParticleY( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+		return GetParticleVector( det, sec, pid, nid ).Y();
+	};
+	inline float	GetParticleZ( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+		return GetParticleVector( det, sec, pid, nid ).Z();
+	};
 	inline TVector3	GetCDVector( std::shared_ptr<ParticleEvt> p ){
 		return GetCDVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
@@ -209,6 +218,15 @@ public:
 	};
 	inline float	GetParticlePhi( std::shared_ptr<ParticleEvt> p ){
 		return GetParticlePhi( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
+	};
+	inline float	GetParticleX( std::shared_ptr<ParticleEvt> p ){
+		return GetParticleX( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
+	};
+	inline float	GetParticleY( std::shared_ptr<ParticleEvt> p ){
+		return GetParticleY( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
+	};
+	inline float	GetParticleZ( std::shared_ptr<ParticleEvt> p ){
+		return GetParticleZ( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
 
 	// Miniball geometry functions

@@ -831,6 +831,11 @@ void MiniballEventBuilder::ParticleFinder() {
 				particle_evt->SetStripN( cd_strip_list.at( nindex[0] ) );
 				write_evts->AddEvt( particle_evt );
 				
+				cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex[0] ),
+									  cd_en_list.at( pindex[0] ) );
+				cd_nen_id[i][j]->Fill( cd_strip_list.at( nindex[0] ),
+									  cd_en_list.at( nindex[0] ) );
+
 			} // 1 vs 1
 			
 		} // j: sector ID
@@ -895,6 +900,9 @@ void MiniballEventBuilder::MakeEventHists(){
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	
+	// ------------------- //
+	// Miniball histograms //
+	// ------------------- //
 	dirname = "miniball";
 	if( !output_file->GetDirectory( dirname.data() ) )
 		output_file->mkdir( dirname.data() );
@@ -939,6 +947,44 @@ void MiniballEventBuilder::MakeEventHists(){
 		
 	} // i
 	
+	// ------------- //
+	// CD histograms //
+	// ------------- //
+	dirname = "cd";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
+	cd_pen_id.resize( set->GetNumberOfCDDetectors() );
+	cd_nen_id.resize( set->GetNumberOfCDDetectors() );
+
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
+		
+		cd_pen_id[i].resize( set->GetNumberOfCDSectors() );
+		cd_nen_id[i].resize( set->GetNumberOfCDSectors() );
+		
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
+			
+			hname  = "cd_pen_id_" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD p-side energy for sector " + std::to_string(i);
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			cd_pen_id[i][j] = new TH2F( hname.data(), htitle.data(),
+									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
+									   400, 0, 200e3 );
+			
+			hname  = "cd_nen_id_" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD n-side energy for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			cd_nen_id[i][j] = new TH2F( hname.data(), htitle.data(),
+									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
+									   400, 0, 200e3 );
+			
+			
+		} // j
+		
+	} // i
+	
 	return;
 	
 }
@@ -968,7 +1014,16 @@ void MiniballEventBuilder::CleanHists(){
 		}
 	}
 	
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 	
+			delete cd_pen_id[i][j];
+			delete cd_nen_id[i][j];
+
+		}
+	}
+	
+
 	return;
 	
 }

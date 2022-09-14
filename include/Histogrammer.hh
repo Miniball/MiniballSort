@@ -263,7 +263,7 @@ private:
 	const float EMAX = 1999.5;			// upper limit of energy in electron spectra
 	const unsigned int PBIN = 300;		// number of bins in particle spectra
 	const float PMIN = 0.0;				// lower limit of energy in particle spectra
-	const float PMAX = 1.2e6;			// upper limit of energy in particle spectra
+	const float PMAX = 400e3;			// upper limit of energy in particle spectra
 
 	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;
@@ -292,6 +292,7 @@ private:
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_beam, *pE_theta_target;
 	TH1F *particle_particle_td;
+	TH2F *particle_xy_map_forward, *particle_xy_map_backward, *particle_theta_phi_map;
 
 	// Particle-gamma coincidences with and without addback
 	TH1F *gamma_particle_td;
