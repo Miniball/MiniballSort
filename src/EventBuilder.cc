@@ -809,6 +809,11 @@ void MiniballEventBuilder::ParticleFinder() {
 			// Calculate p/n side multiplicities and get indicies
 			for( unsigned int k = 0; k < cd_en_list.size(); ++k ){
 				
+				// Test that we have the correct detector and quadrant
+				if( i != cd_det_list.at(k) || j != cd_sec_list.at(k) )
+					continue;
+
+				// Finally push back the multiplicity
 				if( cd_side_list.at(k) == 0 ) pindex.push_back(k);
 				else if( cd_side_list.at(k) == 1 ) nindex.push_back(k);
 					

@@ -198,7 +198,8 @@ private:
 
 	// CD histograms
 	std::vector<std::vector<TH2F*>> cd_pen_id, cd_nen_id;
-	
+	std::vector<std::vector<TH2F*>> cd_pn_1v1, cd_pn_1v2, cd_pn_2v1;
+
 };
 
 #endif
