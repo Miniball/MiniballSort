@@ -306,9 +306,9 @@ unsigned long long MiniballConverter::SortTree(){
 	sorted_tree->Reset();
 	
 	// Load the full tree if possible
-	output_tree->SetMaxVirtualSize(200e6); // 200 MB
-	sorted_tree->SetMaxVirtualSize(200e6); // 200 MB
-	output_tree->LoadBaskets(200e6); 	 // Load 6 MB of data to memory
+	//output_tree->SetMaxVirtualSize(200e6); // 200 MB
+	//sorted_tree->SetMaxVirtualSize(200e6); // 200 MB
+	//output_tree->LoadBaskets(200e6); 	 // Load 6 MB of data to memory
 	
 	// Check we have entries and build time-ordered index
 	if( output_tree->GetEntries() ){
@@ -334,17 +334,17 @@ unsigned long long MiniballConverter::SortTree(){
 		unsigned long long idx = att_index->GetIndex()[i];
 		
 		// Check if the input or output trees are filling
-		if( output_tree->MemoryFull(30e6) )
-			output_tree->DropBaskets();
-		if( sorted_tree->MemoryFull(30e6) )
-			sorted_tree->FlushBaskets();
+		//if( output_tree->MemoryFull(30e6) )
+		//	output_tree->DropBaskets();
+		//if( sorted_tree->MemoryFull(30e6) )
+		//	sorted_tree->FlushBaskets();
 		
 		// Get entry from unsorted tree and fill to sorted tree
 		output_tree->GetEntry( idx );
 		sorted_tree->Fill();
 
 		// Optimise filling tree
-		if( i == 100 ) sorted_tree->OptimizeBaskets(30e6);	 // sorted tree basket size max 30 MB
+		//if( i == 100 ) sorted_tree->OptimizeBaskets(30e6);	 // sorted tree basket size max 30 MB
 
 		// Progress bar
 		bool update_progress = false;
