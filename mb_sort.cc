@@ -9,27 +9,7 @@
 #include "DataSpy.hh"
 #include "MiniballGUI.hh"
 
-// ROOT include.
-#include <TTree.h>
-#include <TFile.h>
-#include <THttpServer.h>
-#include <TThread.h>
-#include <TGClient.h>
-#include <TApplication.h>
-
-// C++ include.
-#include <iostream>
-#include <stdio.h>
-#include <string>
-#include <vector>
-#include <sstream>
-#include <memory>
-
-// Command line interface
-#ifndef __COMMAND_LINE_INTERFACE_HH
-# include "CommandLineInterface.hh"
-#endif
-
+#include "mb_sort.hh"
 
 // Default parameters and name
 std::string output_name;
@@ -87,22 +67,53 @@ typedef struct thptr {
 
 // Server and controls for the GUI
 std::unique_ptr<THttpServer> serv;
-Bool_t bRunMon = kTRUE;
-Bool_t bFirstRun = kTRUE;
-std::string curFileMon;
 int port_num = 8030;
+
+// Pointers to the thread events TODO: sort out inhereted class stuff
+std::shared_ptr<MiniballConverter> conv_mon;
+std::shared_ptr<MiniballMbsConverter> conv_mbs_mon;
+std::shared_ptr<MiniballMidasConverter> conv_midas_mon;
+std::shared_ptr<MiniballEventBuilder> eb_mon;
+std::shared_ptr<MiniballHistogrammer> hist_mon;
+
+void reset_hists(){
+	conv_mon->ResetHists();
+}
+
+void stop_monitor(){
+	bRunMon = kFALSE;
+}
+
+void start_monitor(){
+	bRunMon = kTRUE;
+}
 
 // Function to call the monitoring loop
 void* monitor_run( void* ptr ){
 	
 	// Get the settings, file etc.
 	thptr *calfiles = (thptr*)ptr;
+	
+	// Load macros in thread
+	std::string rootline = ".L " + std::string(CUR_DIR) + "include/MonitorMacros.hh";
+	gROOT->ProcessLine( rootline.data() );
 
 	// This function is called to run when monitoring
-	MiniballMidasConverter conv_mon( calfiles->myset );
-	MiniballEventBuilder eb_mon( calfiles->myset );
-	MiniballHistogrammer hist_mon( calfiles->myreact, calfiles->myset );
+	if( flag_mbs ){
+		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( calfiles->myset );
+		conv_mon = conv_mbs_mon;
+	}
+	else {
+		conv_midas_mon = std::make_shared<MiniballMidasConverter>( calfiles->myset );
+		conv_mon = conv_midas_mon;
+	}
+	eb_mon = std::make_shared<MiniballEventBuilder>( calfiles->myset );
+	hist_mon = std::make_shared<MiniballHistogrammer>( calfiles->myreact, calfiles->myset );
+	//MiniballMidasConverter conv_mon( calfiles->myset );
+	//MiniballEventBuilder eb_mon( calfiles->myset );
+	//MiniballHistogrammer hist_mon( calfiles->myreact, calfiles->myset );
 
+	
 	// Data blocks for Data spy
 	if( flag_spy && ( myset->GetBlockSize() != 0x10000 && !flag_mbs ) ) {
 	
@@ -118,17 +129,17 @@ void* monitor_run( void* ptr ){
 	int spy_length = 0;
 
 	// Data/Event counters
-	int start_block = 0;
-	int nblocks = 0;
+	int start_block = 0, start_subevt = 0;
+	int nblocks = 0, nsubevts = 0;
 	unsigned long nbuild = 0;
 
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
-	if( flag_source ) conv_mon.SourceOnly();
-	conv_mon.AddCalibration( calfiles->mycal );
-	conv_mon.SetOutput( "monitor_singles.root" );
-	conv_mon.MakeTree();
-	conv_mon.MakeHists();
+	if( flag_source ) conv_mon->SourceOnly();
+	conv_mon->AddCalibration( calfiles->mycal );
+	conv_mon->SetOutput( "monitor_singles.root" );
+	conv_mon->MakeTree();
+	conv_mon->MakeHists();
 
 	// Update server settings
 	// title of web page
@@ -139,96 +150,109 @@ void* monitor_run( void* ptr ){
 	toptitle += " (" + std::to_string( mon_time ) + " s)";
 	serv->SetItemField("/", "_toptitle", toptitle.data() );
 
-	// While the sort is running, bRunMon is true
-	while( bRunMon ) {
+	// While the sort is running
+	while( true ) {
 		
-		// Convert - from file
-		if( !flag_spy ) {
+		// bRunMon can be set by the GUI
+		while( bRunMon ) {
 			
-			nblocks = conv_mon.ConvertFile( curFileMon, start_block );
-			start_block = nblocks;
+			// Convert - from MIDAS file
+			if( !flag_spy && !flag_mbs ) {
+				
+				nblocks = conv_midas_mon->ConvertFile( curFileMon, start_block );
+				start_block = nblocks;
 
-		}
-		
-		// Convert - from shared memory
-		else {
-		
-			// First check if we have data
-			std::cout << "Looking for data from DataSpy" << std::endl;
-			spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
-			if( spy_length == 0 && bFirstRun ) {
-				  std::cout << "No data yet on first pass" << std::endl;
-				  gSystem->Sleep( 2e3 );
-				  continue;
 			}
 
-			// Keep reading until we have all the data
-			while( spy_length ){
+			// Convert - from MBS file
+			else if( !flag_spy && flag_mbs ) {
+				
+				nsubevts = conv_mbs_mon->ConvertFile( curFileMon, start_subevt );
+				start_subevt = nsubevts;
+				
+			}
 			
-				std::cout << "Got some data from DataSpy" << std::endl;
-				nblocks = conv_mon.ConvertBlock( (char*)buffer, 0 );
-
-				// Read a new block
-				//gSystem->Sleep( 10 ); // wait 10 ms
+			// Convert - from shared memory
+			else if( flag_spy && !flag_mbs ){
+			
+				// First check if we have data
+				std::cout << "Looking for data from DataSpy" << std::endl;
 				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
+				if( spy_length == 0 && bFirstRun ) {
+					  std::cout << "No data yet on first pass" << std::endl;
+					  gSystem->Sleep( 2e3 );
+					  continue;
+				}
 
-			}
+				// Keep reading until we have all the data
+				while( spy_length ){
+				
+					std::cout << "Got some data from DataSpy" << std::endl;
+					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
 
-			// Sort the packets we just got, then do the rest of the analysis
-			conv_mon.SortTree();
-		
-		}
-										 
-		// Only do the rest if it is not a source run
-		if( !flag_source ) {
-		
-			// Event builder
-			if( bFirstRun ) {
-				eb_mon.SetOutput( "monitor_events.root" );
-				eb_mon.StartFile();
+					// Read a new block
+					//gSystem->Sleep( 10 ); // wait 10 ms
+					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
 
-			}
-			// TODO: This could be done better with smart pointers
-			TTree *sorted_tree = conv_mon.GetSortedTree()->CloneTree();
-			eb_mon.SetInputTree( sorted_tree );
-			eb_mon.GetTree()->Reset();
-			nbuild = eb_mon.BuildEvents();
-			delete sorted_tree;
+				}
+
+				// Sort the packets we just got, then do the rest of the analysis
+				conv_mon->SortTree();
 			
-			// Histogrammer
-			if( bFirstRun ) {
-				hist_mon.SetOutput( "monitor_hists.root" );
 			}
-			if( nbuild ) {
+											 
+			// Only do the rest if it is not a source run
+			if( !flag_source ) {
+			
+				// Event builder
+				if( bFirstRun ) {
+					eb_mon->SetOutput( "monitor_events.root" );
+					eb_mon->StartFile();
+
+				}
 				// TODO: This could be done better with smart pointers
-				TTree *evt_tree = eb_mon.GetTree()->CloneTree();
-				hist_mon.SetInputTree( evt_tree );
-				hist_mon.FillHists();
-				delete evt_tree;
+				TTree *sorted_tree = conv_mon->GetSortedTree()->CloneTree();
+				eb_mon->SetInputTree( sorted_tree );
+				eb_mon->GetTree()->Reset();
+				nbuild = eb_mon->BuildEvents();
+				delete sorted_tree;
+				
+				// Histogrammer
+				if( bFirstRun ) {
+					hist_mon->SetOutput( "monitor_hists.root" );
+				}
+				if( nbuild ) {
+					// TODO: This could be done better with smart pointers
+					TTree *evt_tree = eb_mon->GetTree()->CloneTree();
+					hist_mon->SetInputTree( evt_tree );
+					hist_mon->FillHists();
+					delete evt_tree;
+				}
+				
+				// If this was the first time we ran, do stuff?
+				if( bFirstRun ) {
+					
+					bFirstRun = kFALSE;
+					
+				}
+			
 			}
 			
-			// If this was the first time we ran, do stuff?
-			if( bFirstRun ) {
-				
-				bFirstRun = kFALSE;
-				
-			}
-		
-		}
-		
-		// This makes things unresponsive!
-		// Unless we are threading?
-		gSystem->Sleep( mon_time * 1e3 );
+			// This makes things unresponsive!
+			// Unless we are threading?
+			gSystem->Sleep( mon_time * 1e3 );
 
-	}
+		} // bRunMon
+		
+	} // always running
 	
-	// Close the dataSpy before exiting
+	// Close the dataSpy before exiting (no point really)
 	if( flag_spy ) myspy.Close( file_id );
 
-	// Close all outputs
-	conv_mon.CloseOutput();
-	eb_mon.CloseOutput();
-	hist_mon.CloseOutput();
+	// Close all outputs (we never reach here anyway)
+	conv_mon->CloseOutput();
+	eb_mon->CloseOutput();
+	hist_mon->CloseOutput();
 
 	return 0;
 
@@ -251,13 +275,15 @@ void start_http(){
 	serv->SetItemField("/","drawopt","[colz,hist]");
 	
 	// register simple start/stop commands
-	serv->RegisterCommand("/Start", "bRunMon=kTRUE;", "button;/usr/share/root/icons/ed_execute.png");
-	serv->RegisterCommand("/Stop",  "bRunMon=kFALSE;", "button;/usr/share/root/icons/ed_interrupt.png");
+	serv->RegisterCommand("/Start", "StartMonitor()");
+	serv->RegisterCommand("/Stop", "StopMonitor()");
+	serv->RegisterCommand("/Reset", "MonitorReset()");
 
 	// hide commands so the only show as buttons
-	serv->Hide("/Start");
-	serv->Hide("/Stop");
-		
+	//serv->Hide("/Start");
+	//serv->Hide("/Stop");
+	//serv->Hide("/Reset");
+
 	// Add data directory
 	if( datadir_name.size() > 0 ) serv->AddLocation( "data/", datadir_name.data() );
 	
@@ -630,7 +656,7 @@ int main( int argc, char *argv[] ){
 	//-------------------//
 	if( flag_monitor || flag_spy ) {
 		
-		if( flag_mbs ){
+		if( flag_mbs && flag_spy ){
 			
 			std::cout << "MBS data spy not yet supported (but it will be)" << std::endl;
 			return 0;
@@ -648,8 +674,8 @@ int main( int argc, char *argv[] ){
 		gSystem->ProcessEvents();
 
 		// Thread for the monitor process
-		TThread *th = new TThread( "monitor", monitor_run, &data );
-		th->Run();
+		TThread *th0 = new TThread( "monitor", monitor_run, &data );
+		th0->Run();
 
 		// wait until we finish
 		while( true ){

@@ -672,12 +672,18 @@ void MiniballEventBuilder::GammaRayFinder() {
 		// Loop again to find the matching segments
 		for( unsigned int j = 0; j < mb_en_list.size(); ++j ) {
 
+			// Skip if it's a core again, also fill time diff plot
+			if( i == j || mb_seg_list.at(j) == 0 ) {
+				
+				// Fill the time difference spectrum
+				mb_td_core_core->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
+				continue;
+			
+			}
+			
 			// Skip if it's not the same crystal and cluster
 			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
 			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
-			
-			// Skip if it's the core again
-			if( i == j || mb_seg_list.at(j) == 0 ) continue;
 			
 			// Increment the segment multiplicity and sum energy
 			seg_mul++;
@@ -695,7 +701,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
 			
 			// Fill the time difference spectrum
-			mb_td_core_seg->Fill( mb_ts_list.at(i) - mb_ts_list.at(j) );
+			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
 			
 			
 		} // j: matching segments
@@ -755,11 +761,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
 
 			}
-			
-			// Fill the time difference spectrum
-			mb_td_core_core->Fill( write_evts->GetGammaRayEvt(i)->GetTime() - write_evts->GetGammaRayEvt(j)->GetTime() );
 
-			
 		} // j: loop for matching addback
 
 		// Check we haven't already used this event
@@ -898,8 +900,8 @@ void MiniballEventBuilder::MakeEventHists(){
 		output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
 	
-	mb_td_core_seg  = new TH1F( "mb_td_core_seg",  "Time difference between core and segment in same crystal;#Delta t [ns]", 500, -2495, 2495 );
-	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 500, -2495, 2495 );
+	mb_td_core_seg  = new TH1F( "mb_td_core_seg",  "Time difference between core and segment in same crystal;#Delta t [ns]", 500, -2500, 2500 );
+	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 500, -2500, 2500 );
 
 	mb_en_core_seg.resize( set->GetNumberOfMiniballClusters() );
 	

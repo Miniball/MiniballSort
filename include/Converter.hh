@@ -43,6 +43,7 @@ public:
 	~MiniballConverter() {};
 
 	void MakeHists();
+	void ResetHists();
 	void MakeTree();
 	unsigned long long SortTree();
 

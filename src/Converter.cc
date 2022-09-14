@@ -267,6 +267,38 @@ void MiniballConverter::MakeHists() {
 	
 }
 
+void MiniballConverter::ResetHists() {
+
+	// Loop over FEBEX SFPs
+	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+
+		// Loop over each FEBEX board
+		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
+			
+			// Loop over channels of each FEBEX board
+			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
+				
+				hfebex[i][j][k]->Reset( "ICEMS" );
+				hfebex_cal[i][j][k]->Reset( "ICEMS" );
+				hfebex_mwd[i][j][k]->Reset( "ICEMS" );
+				
+			} // k - channel
+
+			hfebex_hit[i][j]->Reset( "ICEMS" );
+			hfebex_pause[i][j]->Reset( "ICEMS" );
+			hfebex_resume[i][j]->Reset( "ICEMS" );
+
+		} // j - board
+		
+	} // i - SFP
+	
+	hfebex_ext->Reset( "ICEMS" );
+	hhit_time->Reset( "ICEMS" );
+	
+	return;
+	
+}
+
 
 unsigned long long MiniballConverter::SortTree(){
 	

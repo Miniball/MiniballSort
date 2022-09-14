@@ -418,11 +418,11 @@ void MiniballMbsConverter::FinishFebexData(){
 
 // Function to run the conversion for a single file
 int MiniballMbsConverter::ConvertFile( std::string input_file_name,
-							 unsigned long start_block,
-							 long end_block ) {
+							 unsigned long start_subevt,
+							 long end_subevt ) {
 	
-	// Uncomment to force only a few blocks - debug
-	//end_block = 1000;
+	// Uncomment to force only a few subevts - debug
+	//end_subevt = 1000;
 	
 	// Read the file.
 	std::ifstream input_file( input_file_name, std::ios::in|std::ios::binary );
@@ -471,7 +471,8 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 	unsigned long MBS_EVENTS = 1e6;
 
 	// Loop over all the MBS Events.
-	for( unsigned long mbsevt = 0; ; mbsevt++ ){
+	unsigned long mbsevt = 0;
+	for( mbsevt = 0; ; mbsevt++ ){
 		
 		// Take one block each time and analyze it.
 		if( mbsevt % 200 == 0 ) {
@@ -498,8 +499,8 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 		ev = mbs.GetNextEvent();
 		if( !ev ) break;
 
-		// Check if we are before the start block or after the end block
-		if( mbsevt < start_block || ( (long)mbsevt > end_block && end_block > 0 ) )
+		// Check if we are before the start sub event or after the end sub events
+		if( mbsevt < start_subevt || ( (long)mbsevt > end_subevt && end_subevt > 0 ) )
 			continue;
 
 		// Process current block
@@ -515,7 +516,6 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 	std::cout << "Number of single hits = " << n_single_hits << std::endl;
 	std::cout << "Number of double hits = " << n_double_hits << std::endl;
 
-	
-	return BLOCKS_NUM;
+	return mbsevt;
 	
 }
