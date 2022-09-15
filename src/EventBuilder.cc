@@ -613,7 +613,8 @@ void MiniballEventBuilder::ParticleFinder() {
 			
 			
 			// Plot some interesting things, multiplcities and time differences
-			cd_pn_mult[i][j]->Fill( pindex.size(), nindex.size() );
+			if( pindex.size() || nindex.size() )
+				cd_pn_mult[i][j]->Fill( pindex.size(), nindex.size() );
 			for( unsigned int p1 = 0; p1 < pindex.size(); ++p1 ){
 
 				for( unsigned int n1 = 0; n1 < nindex.size(); ++n1 ){
