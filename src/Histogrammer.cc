@@ -189,7 +189,7 @@ void MiniballHistogrammer::MakeHists() {
 
 	hname = "particle_theta_phi_map";
 	htitle = "Particle #theta-#phi hit map;#theta [mm];#phi [mm];Counts";
-	particle_theta_phi_map = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), 360, -0.5, 359.5 );
+	particle_theta_phi_map = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), 180, -181, 181 );
 
 	// Gamma-particle coincidences without addback
 	dirname = "GammaRayParticleCoincidences";
