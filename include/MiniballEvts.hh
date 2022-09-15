@@ -20,6 +20,7 @@ public:
 
 	// Event set functions
 	inline void SetEnergy( float e ){ energy = e; };
+	inline void SetSegmentEnergy( float e ){ seg_energy = e; };
 	inline void SetTime( unsigned long long t ){ time = t; };
 	inline void SetCluster( unsigned char c ){ clu = c; };
 	inline void SetCrystal( unsigned char c ){ cry = c; };
@@ -27,6 +28,7 @@ public:
 	
 	// Return functions
 	inline float 				GetEnergy(){ return energy; };
+	inline float 				GetSegmentEnergy(){ return seg_energy; };
 	inline unsigned long long	GetTime(){ return time; };
 	inline unsigned char		GetCluster(){ return clu; };
 	inline unsigned char		GetCrystal(){ return cry; };
@@ -36,6 +38,7 @@ private:
 
 	// variables for gamma-ray event
 	float				energy;		///< energy in keV
+	float				seg_energy;	///< energy in keV for the hit segment
 	unsigned long long	time;		///< timestamp of event
 	unsigned char		clu;		///< cluster ID
 	unsigned char		cry;		///< crystal ID

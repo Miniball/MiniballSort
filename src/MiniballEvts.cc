@@ -27,6 +27,7 @@ void MiniballEvts::ClearEvt() {
 
 	ebis = 0;
 	t1 = 0;
+	sc = 0;
 
 	return;
 
@@ -37,6 +38,7 @@ void MiniballEvts::AddEvt( std::shared_ptr<GammaRayEvt> event ) {
 	// Make a copy of the event and push it back
 	GammaRayEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
+	fill_evt.SetSegmentEnergy( event->GetEnergy() );
 	fill_evt.SetTime( event->GetTime() );
 	fill_evt.SetCluster( event->GetCluster() );
 	fill_evt.SetCrystal( event->GetCrystal() );
@@ -51,6 +53,7 @@ void MiniballEvts::AddEvt( std::shared_ptr<GammaRayAddbackEvt> event ) {
 	// Make a copy of the event and push it back
 	GammaRayAddbackEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
+	fill_evt.SetSegmentEnergy( event->GetEnergy() );
 	fill_evt.SetTime( event->GetTime() );
 	fill_evt.SetCluster( event->GetCluster() );
 	fill_evt.SetCrystal( event->GetCrystal() );

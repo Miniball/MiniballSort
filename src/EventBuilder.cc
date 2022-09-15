@@ -416,7 +416,8 @@ void MiniballEventBuilder::GammaRayFinder() {
 	unsigned long long MaxTime; // time of event with maximum energy
 	unsigned char MaxSegId; // segment with maximum energy
 	unsigned char MaxCryId; // crystal with maximum energy
-	float MaxEnergy; // maximum segment energy
+	float MaxEnergy; // maximum core energy
+	float MaxSegEnergy; // maximum segment energy
 	float SegSumEnergy; // add segment energies
 	float AbSumEnergy; // add core energies for addback
 	unsigned char seg_mul; // segment multiplicity
@@ -432,7 +433,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 		
 		// Reset addback variables
 		MaxSegId = 0; // initialise as core (if no segment hit (dead), use core!)
-		MaxEnergy = 0.;
+		MaxSegEnergy = 0.;
 		SegSumEnergy = 0.;
 		seg_mul = 0;
 		
@@ -457,9 +458,9 @@ void MiniballEventBuilder::GammaRayFinder() {
 			SegSumEnergy += mb_en_list.at(j);
 			
 			// Is this bigger than the current maximum energy?
-			if( mb_en_list.at(j) > MaxEnergy ){
+			if( mb_en_list.at(j) > MaxSegEnergy ){
 				
-				MaxEnergy = mb_en_list.at(j);
+				MaxSegEnergy = mb_en_list.at(j);
 				MaxSegId = mb_seg_list.at(j);
 				
 			}
@@ -470,12 +471,12 @@ void MiniballEventBuilder::GammaRayFinder() {
 			// Fill the time difference spectrum
 			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
 			
-			
 		} // j: matching segments
 		
 		// Build the single crystal gamma-ray event
 		gamma_ctr++;
 		gamma_evt->SetEnergy( mb_en_list.at(i) );
+		gamma_evt->SetSegmentEnergy( MaxSegEnergy );
 		gamma_evt->SetCluster( mb_clu_list.at(i) );
 		gamma_evt->SetCrystal( mb_cry_list.at(i) );
 		gamma_evt->SetSegment( MaxSegId );
@@ -493,6 +494,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 		MaxCryId = write_evts->GetGammaRayEvt(i)->GetCrystal();
 		MaxSegId = write_evts->GetGammaRayEvt(i)->GetSegment();
 		MaxEnergy = AbSumEnergy;
+		MaxSegEnergy = write_evts->GetGammaRayEvt(i)->GetSegmentEnergy();
 		MaxTime = write_evts->GetGammaRayEvt(i)->GetTime();
 		ab_mul = 1;	// this is already the first event
 		
@@ -507,11 +509,8 @@ void MiniballEventBuilder::GammaRayFinder() {
 			
 			// Check we haven't already used this event
 			skip_event = false;
-			for( unsigned int k = 0; k < ab_index.size(); ++k ) {
-			
+			for( unsigned int k = 0; k < ab_index.size(); ++k )
 				if( ab_index.at(k) == j ) skip_event = true;
-			
-			}
 			if( skip_event ) continue;
 			
 			// Then we can add them back
@@ -523,6 +522,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( write_evts->GetGammaRayEvt(j)->GetEnergy() > MaxEnergy ){
 				
 				MaxEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
+				MaxSegEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
 				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCrystal();
 				MaxSegId = write_evts->GetGammaRayEvt(j)->GetSegment();
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
@@ -533,16 +533,14 @@ void MiniballEventBuilder::GammaRayFinder() {
 
 		// Check we haven't already used this event
 		skip_event = false;
-		for( unsigned int k = 0; k < ab_index.size(); ++k ) {
-		
+		for( unsigned int k = 0; k < ab_index.size(); ++k )
 			if( ab_index.at(k) == i ) skip_event = true;
-		
-		}
 		if( skip_event ) continue;
 
 		// Build the single crystal gamma-ray event
 		gamma_ab_ctr++;
 		gamma_ab_evt->SetEnergy( AbSumEnergy );
+		gamma_ab_evt->SetSegmentEnergy( MaxSegEnergy );
 		gamma_ab_evt->SetCluster( write_evts->GetGammaRayEvt(i)->GetCluster() );
 		gamma_ab_evt->SetCrystal( MaxCryId );
 		gamma_ab_evt->SetSegment( MaxSegId );
