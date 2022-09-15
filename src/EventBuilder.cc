@@ -620,7 +620,7 @@ void MiniballEventBuilder::ParticleFinder() {
 					
 				} // n1
 				
-				for( unsigned int p2 = p1+1; p2 < nindex.size(); ++p2 ){
+				for( unsigned int p2 = p1+1; p2 < pindex.size(); ++p2 ){
 					
 					cd_pp_td[i][j]->Fill( (double)cd_ts_list.at( pindex[p1] ) -
 										  (double)cd_ts_list.at( pindex[p2] ) );
@@ -681,8 +681,8 @@ void MiniballEventBuilder::ParticleFinder() {
 				if( TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
 
 					// Simple sum of both energies, cross-talk not included yet
-					nsum_en  = cd_en_list.at( nindex.at(0) );
-					nsum_en += cd_en_list.at( nindex.at(1) );
+					nsum_en  = cd_en_list.at( nindex[0] );
+					nsum_en += cd_en_list.at( nindex[1] );
 					
 					// Set event
 					particle_evt->SetEnergyP( cd_en_list.at( pindex[0] ) );
@@ -745,8 +745,8 @@ void MiniballEventBuilder::ParticleFinder() {
 				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 ) {
 
 					// Simple sum of both energies, cross-talk not included yet
-					psum_en  = cd_en_list.at( pindex.at(0) );
-					psum_en += cd_en_list.at( pindex.at(1) );
+					psum_en  = cd_en_list.at( pindex[0] );
+					psum_en += cd_en_list.at( pindex[1] );
 					
 					// Set event
 					particle_evt->SetEnergyP( psum_en );
@@ -810,10 +810,10 @@ void MiniballEventBuilder::ParticleFinder() {
 				    TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
 
 					// Simple sum of both energies, cross-talk not included yet
-					psum_en  = cd_en_list.at( pindex.at(0) );
-					psum_en += cd_en_list.at( pindex.at(1) );
-					nsum_en  = cd_en_list.at( nindex.at(0) );
-					nsum_en += cd_en_list.at( nindex.at(1) );
+					psum_en  = cd_en_list.at( pindex[0] );
+					psum_en += cd_en_list.at( pindex[1] );
+					nsum_en  = cd_en_list.at( nindex[0] );
+					nsum_en += cd_en_list.at( nindex[1] );
 
 					// Set event
 					particle_evt->SetEnergyP( psum_en );
@@ -1328,7 +1328,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 		}		
 		
-	} // End of main loop over TTree to process raw MIDAS data entries (for n_entries)
+	} // End of main loop over TTree to process raw FEBEX data entries (for n_entries)
 	
 	//--------------------------
 	// Clean up
@@ -1336,16 +1336,16 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 	ss_log << "\n MiniballEventBuilder finished..." << std::endl;
 	ss_log << "  FEBEX data packets = " << n_febex_data << std::endl;
-	//for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
-	//	std::cout << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
-	//	for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-	//		std::cout << "    Board " << j << " events = " << n_board[i][j] << std::endl;
+	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+		std::cout << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
+		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
+			std::cout << "    Board " << j << " events = " << n_board[i][j] << std::endl;
 	//		std::cout << "             pause = " << n_pause[i][j] << std::endl;
 	//		std::cout << "            resume = " << n_resume[i][j] << std::endl;
 	//		std::cout << "         dead time = " << (double)febex_dead_time[i][j]/1e9 << " s" << std::endl;
-	//		std::cout << "         live time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
-	//	}
-	//}
+			std::cout << "          run time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
+		}
+	}
 	ss_log << "  Info data packets = " << n_info_data << std::endl;
 	ss_log << "   Pulser events = " << n_pulser << std::endl;
 	ss_log << "   EBIS events = " << n_ebis << std::endl;
