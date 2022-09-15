@@ -164,6 +164,8 @@ void MiniballReaction::ReadReaction() {
 	Recoil.SetEx( config->GetValue( "RecoilEx", 0. ) );
 
 	// Get particle energy cut
+	bool ejectile_cut_flag = false;
+	bool recoil_cut_flag = false;
 	ejectilecutfile = config->GetValue( "EjectileCut.File", "NULL" );
 	ejectilecutname = config->GetValue( "EjectileCut.Name", "NULL" );
 	recoilcutfile = config->GetValue( "RecoilCut.File", "NULL" );
@@ -180,9 +182,10 @@ void MiniballReaction::ReadReaction() {
 		
 			if( !cut_file->GetListOfKeys()->Contains( ejectilecutname.data() ) )
 				std::cout << "Couldn't find " << ejectilecutname << " in " << ejectilecutfile << std::endl;
-			else
+			else {
 				ejectile_cut = (TCutG*)cut_file->Get( ejectilecutname.data() )->Clone();
-
+				ejectile_cut_flag = true;
+			}
 		}
 		
 		cut_file->Close();
@@ -200,9 +203,10 @@ void MiniballReaction::ReadReaction() {
 		
 			if( !cut_file->GetListOfKeys()->Contains( recoilcutname.data() ) )
 				std::cout << "Couldn't find " << recoilcutname << " in " << recoilcutfile << std::endl;
-			else
+			else {
 				recoil_cut = (TCutG*)cut_file->Get( recoilcutname.data() )->Clone();
-
+				recoil_cut_flag = true;
+			}
 		}
 		
 		cut_file->Close();
@@ -210,8 +214,8 @@ void MiniballReaction::ReadReaction() {
 	}
 
 	// Assign an empty cut file if none is given, so the code doesn't crash
-	if( ejectile_cut == nullptr ) ejectile_cut = new TCutG();
-	if( recoil_cut == nullptr ) recoil_cut = new TCutG();
+	if( !ejectile_cut_flag ) ejectile_cut = new TCutG();
+	if( !recoil_cut_flag ) recoil_cut = new TCutG();
 
 	
 	// EBIS time window

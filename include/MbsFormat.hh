@@ -180,7 +180,7 @@ private:
 	unsigned short port;
 	FILE *fp;
 	UInt_t socket_id;
-	UInt_t server_id;
+	Int_t server_id;
 	UInt_t current_buffer;
 	UInt_t pos;
 	MBSEvent evt;
