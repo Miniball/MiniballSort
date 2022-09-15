@@ -398,7 +398,7 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle  = "CD n-side vs n-side multiplicity ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
-			htitle += ";time difference (ns);Counts per 10 ns";
+			htitle += ";p-side miltiplicity;n-side miltiplicity";
 			cd_pn_mult[i][j] = new TH2F( hname.data(), htitle.data(), 10, -0.5, 9.5, 10, -0.5, 9.5 );
 			
 		} // j
