@@ -1098,7 +1098,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			spede_evt = read_evts->GetSpedeEvt(j);
 
 			// Singles
-			eE_singles->Fill( gamma_ab_evt->GetEnergy() );
+			eE_singles->Fill( spede_evt->GetEnergy() );
 			
 			// Check for events in the EBIS on-beam window
 			if( OnBeam( gamma_ab_evt ) ){
