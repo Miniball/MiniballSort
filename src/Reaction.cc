@@ -210,8 +210,8 @@ void MiniballReaction::ReadReaction() {
 	}
 
 	// Assign an empty cut file if none is given, so the code doesn't crash
-	if( !ejectile_cut ) ejectile_cut = new TCutG();
-	if( !recoil_cut ) recoil_cut = new TCutG();
+	if( ejectile_cut == nullptr ) ejectile_cut = new TCutG();
+	if( recoil_cut == nullptr ) recoil_cut = new TCutG();
 
 	
 	// EBIS time window
