@@ -137,7 +137,8 @@ private:
 	unsigned long long  t1_time, t1_prev;
 	unsigned long long  sc_time, sc_prev;
 	unsigned long long  pulser_time, pulser_prev;
-	double pulser_hz, ebis_hz, t1_hz, sc_hz;
+	double pulser_f, ebis_f, t1_f, sc_f;
+	double pulser_T, ebis_T, t1_T, sc_T;
 	std::vector<std::vector<unsigned long long>> pause_time, resume_time;
 	std::vector<std::vector<unsigned long long>> febex_dead_time;
 	std::vector<std::vector<unsigned long long>> febex_time_start, febex_time_stop;
@@ -189,8 +190,9 @@ private:
 
 	// Timing histograms
 	TH1F *tdiff, *tdiff_clean;
+	TH1F *pulser_period, *ebis_period, *t1_period, *sc_period;
 	TProfile *pulser_freq, *ebis_freq, *t1_freq, *sc_freq;
-	
+
 	// Miniball histograms
 	TH1F *mb_td_core_seg;
 	TH1F *mb_td_core_core;

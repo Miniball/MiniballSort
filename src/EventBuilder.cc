@@ -241,9 +241,13 @@ void MiniballEventBuilder::MakeEventHists(){
 	tdiff_clean = new TH1F( "tdiff_clean", "Time difference to first trigger without noise;#Delta t [ns]", 1e3, -10, 1e5 );
 
 	pulser_freq = new TProfile( "pulser_freq", "Frequency of pulser in FEBEX DAQ as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
+	pulser_period = new TH1F( "pulser_period", "Period of pulser in FEBEX DAQ;T [ns]", 10e3, 0, 10e9 );
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
+	ebis_period = new TH1F( "ebis_period", "Period of EBIS events;T [ns]", 10e3, 0, 10e9 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
+	t1_period = new TH1F( "t1_period", "Period of T1 events (p+ on ISOLDE target);T [ns]", 10e3, 0, 10e9 );
 	sc_freq = new TProfile( "sc_freq", "Frequency of SuperCycle events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
+	sc_period = new TH1F( "sc_period", "Period of SuperCycle events;T [ns]", 10e3, 0, 10e9 );
 
 	// ------------------- //
 	// Miniball histograms //
@@ -1124,8 +1128,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				TMath::Abs( (double)ebis_time - (double)info_data->GetTime() ) > 1e3 ) {
 				
 				ebis_time = info_data->GetTime();
-				ebis_hz = 1e9 / ( (double)ebis_time - (double)ebis_prev );
-				if( ebis_prev != 0 ) ebis_freq->Fill( ebis_time, ebis_hz );
+				ebis_T = (double)ebis_time - (double)ebis_prev;
+				ebis_f = 1e9 / ebis_T;
+				if( ebis_prev != 0 ) {
+					ebis_period->Fill( ebis_T );
+					ebis_freq->Fill( ebis_time, ebis_f );
+				}
 				ebis_prev = ebis_time;
 				n_ebis++;
 				
@@ -1136,8 +1144,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				TMath::Abs( (double)t1_time - (double)info_data->GetTime() ) > 1e3 ){
 				
 				t1_time = info_data->GetTime();
-				t1_hz = 1e9 / ( (double)t1_time - (double)t1_prev );
-				if( t1_prev != 0 ) t1_freq->Fill( t1_time, t1_hz );
+				t1_T = (double)t1_time - (double)t1_prev;
+				t1_f = 1e9 / t1_T;
+				if( t1_prev != 0 ) {
+					t1_period->Fill( t1_T );
+					t1_freq->Fill( t1_time, t1_f );
+				}
 				t1_prev = t1_time;
 				n_t1++;
 
@@ -1148,8 +1160,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				TMath::Abs( (double)sc_time - (double)info_data->GetTime() ) > 1e3 ){
 				
 				sc_time = info_data->GetTime();
-				sc_hz = 1e9 / ( (double)sc_time - (double)sc_prev );
-				if( sc_prev != 0 ) sc_freq->Fill( sc_time, sc_hz );
+				sc_T = (double)sc_time - (double)sc_prev;
+				sc_f = 1e9 / sc_T;
+				if( sc_prev != 0 ) {
+					sc_period->Fill( sc_T );
+					sc_freq->Fill( sc_time, sc_f );
+				}
 				sc_prev = sc_time;
 				n_sc++;
 
@@ -1159,9 +1175,13 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			if( info_data->GetCode() == set->GetPulserCode() ) {
 				
 				pulser_time = info_data->GetTime();
-				pulser_hz = 1e9 / ( (double)pulser_time - (double)pulser_prev );
-				if( pulser_prev != 0 ) pulser_freq->Fill( pulser_time, pulser_hz );
-
+				pulser_T = (double)pulser_time - (double)pulser_prev;
+				pulser_f = 1e9 / pulser_T;
+				if( pulser_prev != 0 ) {
+					pulser_period->Fill( pulser_T );
+					pulser_freq->Fill( pulser_time, pulser_f );
+				}
+				pulser_prev = pulser_time;
 				n_pulser++;
 
 			} // pulser code
