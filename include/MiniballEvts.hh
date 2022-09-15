@@ -216,9 +216,11 @@ public:
 	// ISOLDE timestamping
 	inline void SetEBIS( unsigned long t ){ ebis = t; return; };
 	inline void SetT1( unsigned long t ){ t1 = t; return; };
-	
+	inline void SetSC( unsigned long t ){ sc = t; return; };
+
 	inline unsigned long GetEBIS(){ return ebis; };
 	inline unsigned long GetT1(){ return t1; };
+	inline unsigned long GetSC(){ return sc; };
 
 	
 private:
@@ -226,6 +228,7 @@ private:
 	// variables for timestamping
 	unsigned long ebis;		///< absolute EBIS pulse time
 	unsigned long t1;		///< absolute proton pulse time
+	unsigned long sc;		///< absolute SuperCycle time
 
 	std::vector<GammaRayEvt> gamma_event;
 	std::vector<GammaRayAddbackEvt> gamma_ab_event;

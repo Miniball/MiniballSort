@@ -49,17 +49,21 @@ void MiniballSettings::ReadSettings() {
 	sync_code		= 4;
 	thsb_code		= 5;
 	pulser_sfp		= config->GetValue( "PulserSfp", 1 );
-	pulser_board	= config->GetValue( "PulserBoard", 1 );
-	pulser_ch		= config->GetValue( "PulserChannel", 13 );
+	pulser_board	= config->GetValue( "PulserBoard", 10 );
+	pulser_ch		= config->GetValue( "PulserChannel", 15 );
 	pulser_code		= 20;
 	ebis_sfp		= config->GetValue( "EBISSfp", 1 );
-	ebis_board		= config->GetValue( "EBISBoard", 1 );
-	ebis_ch			= config->GetValue( "EBISChannel", 14 );
+	ebis_board		= config->GetValue( "EBISBoard", 8 );
+	ebis_ch			= config->GetValue( "EBISChannel", 11 );
 	ebis_code		= 21;
 	t1_sfp			= config->GetValue( "T1Sfp", 1 );
-	t1_board		= config->GetValue( "T1Board", 1 );
-	t1_ch			= config->GetValue( "T1Channel", 15 );
+	t1_board		= config->GetValue( "T1Board", 8 );
+	t1_ch			= config->GetValue( "T1Channel", 13 );
 	t1_code			= 22;
+	sc_sfp			= config->GetValue( "SCSfp", 1 );
+	sc_board		= config->GetValue( "SCBoard", 8 );
+	sc_ch			= config->GetValue( "SCChannel", 15 );
+	sc_code			= 23;
 
 	
 	// Event builder
@@ -256,8 +260,8 @@ void MiniballSettings::ReadSettings() {
 	for( unsigned int i = 0; i < n_bd_det; ++i ){
 		
 		bd_sfp[i]		= config->GetValue( Form( "BeamDump_%d.Sfp", i ), 1 );
-		bd_board[i]		= config->GetValue( Form( "BeamDump_%d.Board", i ), 9 );
-		bd_ch[i]		= config->GetValue( Form( "BeamDump_%d.Channel", i ), (int)(i+9) );
+		bd_board[i]		= config->GetValue( Form( "BeamDump_%d.Board", i ), 10 );
+		bd_ch[i]		= config->GetValue( Form( "BeamDump_%d.Channel", i ), (int)(i+0) );
 		
 		if( bd_sfp[i] < n_febex_sfp &&
 		    bd_board[i] < n_febex_board &&

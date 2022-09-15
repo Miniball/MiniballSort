@@ -62,6 +62,7 @@ void MiniballEventBuilder::StartFile(){
 	pulser_prev		= 0;
 	ebis_prev		= 0;
 	t1_prev			= 0;
+	sc_prev			= 0;
 
 	n_febex_data	= 0;
 	n_info_data		= 0;
@@ -69,6 +70,7 @@ void MiniballEventBuilder::StartFile(){
 	n_pulser		= 0;
 	n_ebis			= 0;
 	n_t1			= 0;
+	n_sc			= 0;
 
 	n_miniball		= 0;
 	n_cd			= 0;
@@ -241,7 +243,8 @@ void MiniballEventBuilder::MakeEventHists(){
 	pulser_freq = new TProfile( "pulser_freq", "Frequency of pulser in FEBEX DAQ as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
-	
+	sc_freq = new TProfile( "sc_freq", "Frequency of SuperCycle events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
+
 	// ------------------- //
 	// Miniball histograms //
 	// ------------------- //
@@ -1137,6 +1140,18 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 			} // T1 code
 			
+			// Update SuperCycle time
+			if( info_data->GetCode() == set->GetSCCode() &&
+				TMath::Abs( (double)sc_time - (double)info_data->GetTime() ) > 1e3 ){
+				
+				sc_time = info_data->GetTime();
+				sc_hz = 1e9 / ( (double)sc_time - (double)sc_prev );
+				if( sc_prev != 0 ) sc_freq->Fill( sc_time, sc_hz );
+				sc_prev = sc_time;
+				n_sc++;
+
+			} // SuperCycle code
+			
 			// Update pulser time
 			if( info_data->GetCode() == set->GetPulserCode() ) {
 				
@@ -1280,6 +1295,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				// ------------------------------------
 				write_evts->SetEBIS( ebis_time );
 				write_evts->SetT1( t1_time );
+				write_evts->SetSC( sc_time );
 				if( write_evts->GetGammaRayMultiplicity() ||
 					write_evts->GetGammaRayAddbackMultiplicity() ||
 					write_evts->GetParticleMultiplicity() ||
@@ -1350,6 +1366,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	ss_log << "   Pulser events = " << n_pulser << std::endl;
 	ss_log << "   EBIS events = " << n_ebis << std::endl;
 	ss_log << "   T1 events = " << n_t1 << std::endl;
+	ss_log << "   SuperCycle events = " << n_sc << std::endl;
 	ss_log << "  Tree entries = " << output_tree->GetEntries() << std::endl;
 	ss_log << "   Miniball triggers = " << n_miniball << std::endl;
 	ss_log << "    Gamma singles events = " << gamma_ctr << std::endl;

@@ -58,6 +58,11 @@ public:
 	inline unsigned int GetT1Channel(){ return t1_ch; };
 	inline unsigned int GetT1Code(){ return t1_code; };
 
+	inline unsigned int GetSCSfp(){ return sc_sfp; };
+	inline unsigned int GetSCBoard(){ return sc_board; };
+	inline unsigned int GetSCChannel(){ return sc_ch; };
+	inline unsigned int GetSCCode(){ return sc_code; };
+
 
 	// Event builder
 	inline double GetEventWindow(){ return event_window; };
@@ -198,7 +203,11 @@ private:
 	unsigned int t1_board;				///< Location of the T1 signal in the FEBEX system (board)
 	unsigned int t1_ch;					///< Location of the T1 signal in the FEBEX system (channel)
 	unsigned int t1_code;				///< Info code when we have a T1 event in InfoData packets
-	
+	unsigned int sc_sfp;				///< Location of the SuperCycle signal in the FEBEX system (sfp)
+	unsigned int sc_board;				///< Location of the SuperCycle signal in the FEBEX system (board)
+	unsigned int sc_ch;					///< Location of the SuperCycle signal in the FEBEX system (channel)
+	unsigned int sc_code;				///< Info code when we have a SuperCycle event in InfoData packets
+
 	
 	// Event builder
 	double event_window;			///< Event builder time window in ns
