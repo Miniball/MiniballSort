@@ -352,7 +352,7 @@ void MiniballMbsConverter::FinishFebexData(){
 	// Timestamp with offset
 	unsigned long long time_corr;
 	time_corr  = febex_data->GetTime();
-	time_corr += cal->FebexTime( my_sfp_id, my_board_id, my_ch_id );
+	time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
 	// Check if this is actually just a timestamp or info like event
 	flag_febex_info = false;
