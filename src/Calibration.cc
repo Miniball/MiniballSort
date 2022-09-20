@@ -121,7 +121,7 @@ MiniballCalibration::MiniballCalibration( std::string filename, std::shared_ptr<
 
 void MiniballCalibration::ReadCalibration() {
 
-	std::unique_ptr<TEnv> config( new TEnv( fInputFile.data() ) );
+	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
 	default_MWD_Decay		= 14000.0;
 	default_MWD_Rise		= 25;
