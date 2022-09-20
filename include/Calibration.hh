@@ -128,7 +128,6 @@ class MiniballCalibration : public TObject {
 
 public:
 
-	MiniballCalibration();
 	MiniballCalibration( std::string filename, std::shared_ptr<MiniballSettings> myset );
 	~MiniballCalibration() {};
 	void ReadCalibration();
@@ -148,6 +147,8 @@ public:
 private:
 
 	std::string fInputFile;
+	TRandom *fRand;
+
 	
 	std::shared_ptr<MiniballSettings> set;
 

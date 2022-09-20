@@ -110,21 +110,12 @@ void FebexMWD::DoMWD() {
 	
 }
 
-
-
-MiniballCalibration::MiniballCalibration() {
-
-	SetFile( "dummy" );
-	set = std::make_shared<MiniballSettings>();
-	ReadCalibration();
-
-}
-
 MiniballCalibration::MiniballCalibration( std::string filename, std::shared_ptr<MiniballSettings> myset ) {
 
 	SetFile( filename );
 	set = myset;
 	ReadCalibration();
+	fRand = new TRandom();
 		
 }
 
@@ -212,7 +203,6 @@ void MiniballCalibration::ReadCalibration() {
 float MiniballCalibration::FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned int raw ) {
 	
 	float energy, raw_rand;
-	TRandom *fRand = new TRandom();
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
 	    board < set->GetNumberOfFebexBoards() &&
@@ -234,8 +224,6 @@ float MiniballCalibration::FebexEnergy( unsigned int sfp, unsigned int board, un
 		else return energy;
 		
 	}
-	
-	delete fRand;
 	
 	return -1;
 	
