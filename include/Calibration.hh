@@ -147,7 +147,7 @@ public:
 private:
 
 	std::string fInputFile;
-	TRandom *fRand;
+	std::unique_ptr<TRandom> fRand;
 
 	
 	std::shared_ptr<MiniballSettings> set;
