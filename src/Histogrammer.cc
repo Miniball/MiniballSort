@@ -910,7 +910,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( event_used ) continue;
 				
 				// Do a two-particle cut and check that they are coincident
-				// particle_evt (k) is beam and particle_evt2 (l) is target
+				// particle_evt (j) is beam and particle_evt2 (k) is target
 				else if( TwoParticleCut( particle_evt, particle_evt2 ) ){
 					
 					react->IdentifyEjectile( particle_evt );
@@ -922,7 +922,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 				} // 2-particle check
 				
-				// particle_evt2 (l) is beam and particle_evt (k) is target
+				// particle_evt2 (k) is beam and particle_evt (j) is target
 				else if( TwoParticleCut( particle_evt2, particle_evt ) ){
 					
 					react->IdentifyEjectile( particle_evt2 );
@@ -949,8 +949,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // ejectile event
 
-			else if( RecoilCut( particle_evt ) &&
-			   PromptCoincidence( gamma_evt, particle_evt ) ) {
+			else if( RecoilCut( particle_evt ) ) {
 				
 				react->IdentifyRecoil( particle_evt );
 				react->CalculateEjectile();
