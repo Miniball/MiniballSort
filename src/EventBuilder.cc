@@ -570,7 +570,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			nindex.clear();
 			std::vector<unsigned char>().swap(pindex);
 			std::vector<unsigned char>().swap(nindex);
-			int pmax_idx = 0, nmax_idx = 0;
+			int pmax_idx = -1, nmax_idx = -1;
 			float pmax_en = -999., nmax_en = -999.;
 			float psum_en, nsum_en;
 			
@@ -912,6 +912,25 @@ void MiniballEventBuilder::ParticleFinder() {
 				} // neighbour strips - n-side only
 
 			} // 2 vs 2
+			
+			// Everything else, just take the max energy for now
+			else if( pmax_idx >= 0 && nmax_idx >= 0 ){
+				
+				// Set event
+				particle_evt->SetEnergyP( pmax_en );
+				particle_evt->SetEnergyN( nmax_en );
+				particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+				particle_evt->SetTimeN( cd_ts_list.at( nmax_idx ) );
+				particle_evt->SetDetector( i );
+				particle_evt->SetSector( j );
+				particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+				particle_evt->SetStripN( cd_strip_list.at( nmax_idx ) );
+
+				// Fill tree
+				write_evts->AddEvt( particle_evt );
+				cd_ctr++;
+				
+			}
 			
 		} // j: sector ID
 		
