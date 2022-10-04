@@ -167,9 +167,9 @@ void MiniballReaction::ReadReaction() {
 	bool ejectile_cut_flag = false;
 	bool recoil_cut_flag = false;
 	ejectilecutfile = config->GetValue( "EjectileCut.File", "NULL" );
-	ejectilecutname = config->GetValue( "EjectileCut.Name", "NULL" );
+	ejectilecutname = config->GetValue( "EjectileCut.Name", "CUTG" );
 	recoilcutfile = config->GetValue( "RecoilCut.File", "NULL" );
-	recoilcutname = config->GetValue( "RecoilCut.Name", "NULL" );
+	recoilcutname = config->GetValue( "RecoilCut.Name", "CUTG" );
 
 	// Check if beam cut is given by the user
 	if( ejectilecutfile != "NULL" ) {
