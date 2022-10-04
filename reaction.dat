@@ -65,6 +65,7 @@
 # EBIS time windows
 #EBIS.On: 1.20e6		# slow extraction is about 1.2 ms
 #EBIS.Off: 2.52e7		# Off window is 20 times the On window
+EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 
 # Particle and Gamma coincidence time windows
 #ParticleGamma_Prompt.Min: -300		# lower limit of particle-gamma prompt window

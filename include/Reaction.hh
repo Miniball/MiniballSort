@@ -317,7 +317,8 @@ public:
 	// Get EBIS times
 	inline double GetEBISOnTime(){ return EBIS_On; };
 	inline double GetEBISOffTime(){ return EBIS_Off; };
-	inline double GetEBISRatio(){ return EBIS_On / ( EBIS_Off - EBIS_On ); };
+	inline double GetEBISTimeRatio(){ return EBIS_On / ( EBIS_Off - EBIS_On ); };
+	inline double GetEBISFillRatio(){ return EBIS_ratio; };
 
 	// Get particle gamma coincidence times
 	inline double GetParticleGammaPromptTime( unsigned char i ){
@@ -463,6 +464,7 @@ private:
 	// EBIS time windows
 	double EBIS_On;		///< beam on max time in ns
 	double EBIS_Off;	///< beam off max time in ns
+	double EBIS_ratio;	///< ratio of ebis on/off as measured
 	
 	// Particle and Gamma coincidences windows
 	int pg_prompt[2];	// particle-gamma prompt

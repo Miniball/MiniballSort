@@ -899,7 +899,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			for( unsigned int k = j+1; k < read_evts->GetParticleMultiplicity(); ++k ){
 				
 				// Get second particle event
-				particle_evt2 = read_evts->GetParticleEvt(j);
+				particle_evt2 = read_evts->GetParticleEvt(k);
 
 				// Time differences and fill symmetrically
 				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
@@ -986,7 +986,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 			else if( OffBeam( gamma_evt ) ){
 				
-				gE_singles_ebis->Fill( gamma_evt->GetEnergy(), -1.0 * react->GetEBISRatio() );
+				gE_singles_ebis->Fill( gamma_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
 				gE_singles_ebis_off->Fill( gamma_evt->GetEnergy() );
 				
 			} // ebis off
@@ -1050,7 +1050,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 			else if( OffBeam( gamma_ab_evt ) ){
 				
-				aE_singles_ebis->Fill( gamma_ab_evt->GetEnergy(), -1.0 * react->GetEBISRatio() );
+				aE_singles_ebis->Fill( gamma_ab_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
 				aE_singles_ebis_off->Fill( gamma_ab_evt->GetEnergy() );
 				
 			} // ebis off
@@ -1110,7 +1110,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 			else if( OffBeam( gamma_ab_evt ) ){
 				
-				eE_singles_ebis->Fill( spede_evt->GetEnergy(), -1.0 * react->GetEBISRatio() );
+				eE_singles_ebis->Fill( spede_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
 				eE_singles_ebis_off->Fill( spede_evt->GetEnergy() );
 				
 			} // ebis off
