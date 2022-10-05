@@ -261,7 +261,7 @@ void MiniballReaction::ReadReaction() {
 	cd_dist.resize( set->GetNumberOfCDDetectors() );
 	cd_offset.resize( set->GetNumberOfCDDetectors() );
 	dead_layer.resize( set->GetNumberOfCDDetectors() );
-	float d_tmp;
+	double d_tmp;
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 	
 		if( i == 0 ) d_tmp = 32.0; // standard CD
@@ -498,8 +498,8 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	Ejectile.SetPhi( GetParticlePhi(p) );
 
 	// Calculate the centre of mass angle
-	float maxang = TMath::ASin( 1. / ( GetTau() * GetEpsilon() ) );
-	float y = GetEpsilon() * GetTau();
+	double maxang = TMath::ASin( 1. / ( GetTau() * GetEpsilon() ) );
+	double y = GetEpsilon() * GetTau();
 	if( GetTau() * GetEpsilon() > 1 && GetParticleTheta(p) > maxang )
 		y *= TMath::Sin( maxang );
 	else
@@ -530,8 +530,8 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	Recoil.SetPhi( GetParticlePhi(p) );
 
 	// Calculate the centre of mass angle
-	float maxang = TMath::ASin( 1. / GetEpsilon() );
-	float y = GetEpsilon();
+	double maxang = TMath::ASin( 1. / GetEpsilon() );
+	double y = GetEpsilon();
 	if( GetParticleTheta(p) > maxang )
 		y *= TMath::Sin( maxang );
 	else
@@ -552,7 +552,7 @@ void MiniballReaction::CalculateEjectile(){
 	Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
 	
 	// Energy of the ejectile from the centre of mass angle
-	float En = TMath::Power( GetTau() * GetEpsilon(), 2.0 ) + 1.0;
+	double En = TMath::Power( GetTau() * GetEpsilon(), 2.0 ) + 1.0;
 	En += 2.0 * GetTau() * GetEpsilon() * TMath::Cos( Ejectile.GetThetaCoM() );
 	En *= TMath::Power( Target.GetMass() / ( Target.GetMass() + Beam.GetMass() ), 2.0 );
 	En *= GetEnergyPrime();
@@ -561,10 +561,10 @@ void MiniballReaction::CalculateEjectile(){
 	
 	// Angle from the centre of mass angle
 	// y = tan(theta_lab)
-	float y = TMath::Sin( Ejectile.GetThetaCoM() );
+	double y = TMath::Sin( Ejectile.GetThetaCoM() );
 	y /= TMath::Cos( Ejectile.GetThetaCoM() ) + GetTau() * GetEpsilon();
 	
-	float Th = TMath::ATan(y);
+	double Th = TMath::ATan(y);
 	if( Th < 0. ) Th += TMath::Pi();
 	
 	Ejectile.SetTheta( Th );
@@ -580,7 +580,7 @@ void MiniballReaction::CalculateRecoil(){
 	Recoil.SetThetaCoM( TMath::Pi() - Ejectile.GetThetaCoM() );
 
 	// Energy of the recoil from the centre of mass angle
-	float En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
+	double En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
 	En += 2.0 * GetEpsilon() * TMath::Cos( Recoil.GetThetaCoM() );
 	En *= Target.GetMass() * Beam.GetMass() / TMath::Power( Target.GetMass() + Beam.GetMass(), 2.0 );
 	En *= GetEnergyPrime();
@@ -589,10 +589,10 @@ void MiniballReaction::CalculateRecoil(){
 
 	// Angle from the centre of mass angle
 	// y = tan(theta_lab)
-	float y = TMath::Sin( Recoil.GetThetaCoM() );
+	double y = TMath::Sin( Recoil.GetThetaCoM() );
 	y /= TMath::Cos( Recoil.GetThetaCoM() ) + GetEpsilon();
 	
-	float Th = TMath::ATan(y);
+	double Th = TMath::ATan(y);
 	if( Th < 0. ) Th += TMath::Pi();
 
 	Recoil.SetTheta( Th );
