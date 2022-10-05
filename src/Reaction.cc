@@ -470,6 +470,7 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
 
+	/// TODO: A proper kinematic shift for electrons, which have mass
 	/// Returns Doppler corrected electron energy for given particle and SPEDE combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
 	MiniballParticle *p;

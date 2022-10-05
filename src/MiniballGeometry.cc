@@ -6,7 +6,7 @@ ClassImp(MiniballGeometry)
 void MiniballGeometry::SetCluTheta( double user_theta ) {
 
 	// Set the user value
-	theta = user_theta;
+	theta = user_theta * TMath::DegToRad();
 
 	return;
 
@@ -15,7 +15,7 @@ void MiniballGeometry::SetCluTheta( double user_theta ) {
 void MiniballGeometry::SetCluPhi( double user_phi ) {
 	
 	// Set the user value
-	phi = user_phi;
+	phi = user_phi * TMath::DegToRad();
 
 	return;
 
@@ -24,7 +24,7 @@ void MiniballGeometry::SetCluPhi( double user_phi ) {
 void MiniballGeometry::SetCluAlpha( double user_alpha ) {
 
 	// Set the user value
-	alpha = user_alpha;
+	alpha = user_alpha * TMath::DegToRad();
 
 	return;
 

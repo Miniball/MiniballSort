@@ -63,79 +63,79 @@ class MiniballGeometry : public TObject {
 
 	/// Get the theta angle of the crystal with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
-	/// \return theta of cry in beam reference (degrees)
+	/// \return theta of cry in beam reference (radians)
 	double GetCryTheta( unsigned char cry );
 
 	/// Get the phi angle of the crystal with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
-	/// \return phi of cry in beam reference (degrees)
+	/// \return phi of cry in beam reference (radians)
 	double GetCryPhi( unsigned char cry );
 
 	/// Get a unit vector pointing towards the core
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
-	/// \return phi of segment in beam reference (degrees)
+	/// \return TVector3 of the crystal  position with respect to the nominal centre
 	TVector3 GetCryVector( unsigned char cry );
 
 	/// Get the theta angle of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
-	/// \return theta of segment in beam reference (degrees)
+	/// \return theta of segment in beam reference (radians)
 	double GetSegTheta( unsigned char cry, unsigned char seg );
 
 	/// Get the phi angle of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
-	/// \return phi of segment in beam reference (degrees)
+	/// \return phi of segment in beam reference (radians)
 	double GetSegPhi( unsigned char cry, unsigned char seg );
 
 	/// Get a unit vector pointing towards the segment
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
-	/// \return phi of segment in beam reference (degrees)
+	/// \return TVector3 of the segment position with respect to the nominal centre
 	TVector3 GetSegVector( unsigned char cry, unsigned char seg );
 
-	/// Get theta of a vector in Miniball system (return deg)
+	/// Get theta of a vector in Miniball system (return radians)
 	/// \param v vector from target to detector
-	/// \return theta in the Miniball system (degrees)
+	/// \return theta in the Miniball system (radians)
 	inline double MBTheta( TVector3 &v ) {
-		double mytheta = v.Phi() * TMath::RadToDeg();
-		double myphi = v.Theta() * TMath::RadToDeg();
+		double mytheta = v.Phi();
+		double myphi = v.Theta();
 		if( mytheta < 0 ) {
-			myphi = 360 - myphi;
+			myphi = TMath::TwoPi() - myphi;
 			mytheta = - mytheta;
 		}
 		return mytheta;
 	};
 
-	/// Get phi of a vector in Miniball system (return deg)
+	/// Get phi of a vector in Miniball system (return radians)
 	/// \param v vector from target to detector
-	/// \return phi in the Miniball system (degrees)
+	/// \return phi in the Miniball system (radians)
 	inline double MBPhi( TVector3 &v ) {
-		double mytheta = v.Phi() * TMath::RadToDeg();
-		double myphi = v.Theta() * TMath::RadToDeg();
+		double mytheta = v.Phi();
+		double myphi = v.Theta();
 		if( mytheta < 0 ) {
-			myphi = 360 - myphi;
+			myphi = TMath::TwoPi() - myphi;
 			mytheta = -mytheta;
 		}
 		return myphi;
 	};
 	
-	/// Get true theta of a vector (return deg)
+	/// Get true theta of a vector (return radians)
 	/// \param v vector from target to detector
-	/// \return theta in the beam system (degrees)
+	/// \return theta in the beam system (radians)
 	inline double TrueTheta( TVector3 &v ) {
 		return TMath::ACos( v.x() / v.Mag() ) * TMath::RadToDeg();
 	};
 	
-	/// Get the true phi of a vector (return deg)
+	/// Get the true phi of a vector (return radians)
 	/// \param v vector from target to detector
-	/// \return phi in the beam system (degrees)
+	/// \return phi in the beam system (radians)
 	inline double TruePhi( TVector3 &v ) {
 		TVector3 v2( -v.y(), v.z(), v.x() );
-		double phi = v2.Phi() * TMath::RadToDeg();
-		if( phi < 0 ) phi += 360;
-		phi -= 90;
-		if( phi < 0 ) phi += 360;
+		double phi = v2.Phi();
+		if( phi < 0 ) phi += TMath::TwoPi();
+		phi -= TMath::PiOver2();
+		if( phi < 0 ) phi += TMath::TwoPi();
 		return phi;
 	};
 	
@@ -146,9 +146,9 @@ class MiniballGeometry : public TObject {
 	const unsigned char nseg = 6;
 
 	// Current values of theta, phi, alpha and r
-	double theta;	///< theta angle in deg
-	double phi;		///< phi angle in deg
-	double alpha;	///< alpha angle in deg
+	double theta;	///< theta angle in radians
+	double phi;		///< phi angle in radians
+	double alpha;	///< alpha angle in radians
 	double r; 		///< distance from target to detector in mm
 	double z; 		///< distance from target to origin (beam direction is positive) in mm
 	
