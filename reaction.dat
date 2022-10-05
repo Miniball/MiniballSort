@@ -38,15 +38,15 @@
 
 
 # Miniball Detector geometry
-#Miniball_0.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
-#Miniball_0.Phi:	0.0		# Phi of cluster 0 in Miniball frame of reference
-#Miniball_0.Alpha:	0.0		# Alpha of cluster 0 in Miniball frame of reference
-#Miniball_0.R:		0.0		# Distance from cluster 0 to origin, i.e. nominal target position
+#MiniballCluster_0.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
+#MiniballCluster_0.Phi:		0.0		# Phi of cluster 0 in Miniball frame of reference
+#MiniballCluster_0.Alpha:	0.0		# Alpha of cluster 0 in Miniball frame of reference
+#MiniballCluster_0.R:		0.0		# Distance from cluster 0 to origin, i.e. nominal target position
 #...
-#Miniball_7.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
-#Miniball_7.Phi:	0.0		# Phi of cluster 0 in Miniball frame of reference
-#Miniball_7.Alpha:	0.0		# Alpha of cluster 0 in Miniball frame of reference
-#Miniball_7.R:		0.0		# Distance from cluster 0 to origin, i.e. nominal target position
+#MiniballCluster_7.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
+#MiniballCluster_7.Phi:		0.0		# Phi of cluster 0 in Miniball frame of reference
+#MiniballCluster_7.Alpha:	0.0		# Alpha of cluster 0 in Miniball frame of reference
+#MiniballCluster_7.R:		0.0		# Distance from cluster 0 to origin, i.e. nominal target position
 
 ## CD Detector geometry
 #CD_0.Distance: 32.0		# Target to CD distance in mm (forwards CD = 32.0)
