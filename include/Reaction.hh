@@ -97,7 +97,7 @@ public:
 		double beta2 = 0.25 * GetMass() + 1.5 * GetEnergy();
 		beta2  = TMath::Sqrt( beta2 * GetMass() );
 		beta2 -= 0.5 * GetMass();
-		return TMath::Sqrt( beta2 / 0.75 * GetMass() );
+		return TMath::Sqrt( beta2 / ( 0.75 * GetMass() ) );
 	};
 	inline double		GetGamma(){
 		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
