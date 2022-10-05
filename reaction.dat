@@ -101,7 +101,7 @@ EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 
 
 ## Particle cut files
-#EjectileCut_0.File: NULL		# ROOT file containing the ejectile-(beam-)like energy vs angle cut in Coulex
-#EjectileCut_0.Name: CUTG		# name of the TCutG object inside the ROOT file
-#RecoilCut_0.File: NULL			# ROOT file containing the recoil-(target-)like energy vs angle cut in Coulex
-#RecoilCut_0.Name: CUTG			# name of the TCutG object inside the ROOT file
+#EjectileCut.File: NULL		# ROOT file containing the ejectile-(beam-)like energy vs angle cut in Coulex
+#EjectileCut.Name: CUTG		# name of the TCutG object inside the ROOT file
+#RecoilCut.File: NULL			# ROOT file containing the recoil-(target-)like energy vs angle cut in Coulex
+#RecoilCut.Name: CUTG			# name of the TCutG object inside the ROOT file
