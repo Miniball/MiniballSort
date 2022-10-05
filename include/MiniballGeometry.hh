@@ -124,7 +124,7 @@ class MiniballGeometry : public TObject {
 	/// \param v vector from target to detector
 	/// \return theta in the beam system (radians)
 	inline double TrueTheta( TVector3 &v ) {
-		return TMath::ACos( v.x() / v.Mag() ) * TMath::RadToDeg();
+		return TMath::ACos( v.x() / v.Mag() );
 	};
 	
 	/// Get the true phi of a vector (return radians)
