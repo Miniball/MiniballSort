@@ -7,7 +7,7 @@ MBS::MBS() {
 	len = 0;
 	current = -1;
 	bufsize = 0x8000; // default buffer size
-
+	
 }
 
 // Open the file
@@ -48,7 +48,7 @@ void MBS::OpenFile( std::string _filename ){
 	
 	// Store filename
 	filename = _filename;
-		
+	
 }
 
 // Close the file
@@ -69,22 +69,22 @@ int MBS::OpenEventServer( std::string _server, unsigned short _port ){
 	
 	// Create to the socket
 	struct sockaddr_in serv_addr;
-    if( !(socket_id = socket( AF_INET, SOCK_STREAM, 0 )) ){
-	
+	if( !(socket_id = socket( AF_INET, SOCK_STREAM, 0 )) ){
+		
 		std::cerr << "Socket creation failed" << std::endl;
 		return -1;
 		
 	}
 	
 	// Make the address of the server
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons( port );
-    if( inet_pton( AF_INET, server.data(), &serv_addr.sin_addr ) <= 0 ) {
-
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons( port );
+	if( inet_pton( AF_INET, server.data(), &serv_addr.sin_addr ) <= 0 ) {
+		
 		std::cerr << "Invalid server address " << server << std::endl;
 		return -1;
-
-    }
+		
+	}
 	
 	// Connect to the server
 	if( (server_id = connect( socket_id, (struct sockaddr*)&serv_addr,
@@ -96,7 +96,7 @@ int MBS::OpenEventServer( std::string _server, unsigned short _port ){
 	}
 	
 	return 0;
-
+	
 }
 
 void MBS::CloseEventServer() {
@@ -121,43 +121,55 @@ const MBSEvent* MBS::GetNextEvent() {
 	// Return nullptr if we've reached the end of the file
 	if( pos + bufsize >= len ) return(nullptr);
 	
+	// Check if we need another buffer
+	if( pos >= current_buffer * bufsize + used )
+		if( !GetNextBuffer() ) return(nullptr);
+	
+	// Clear old data
+	evt.Clear();
+	
 	// Event header (16 bytes)
-	s_vehe *eh = (s_vehe *)(ptr + pos);
+	UInt_t *val32 = (UInt_t *)(ptr + pos);
+	UInt_t elen = val32[0];
 	pos += sizeof(s_evhe); // Advance to trigger/counter
 	
-	// Copy payload of event
-	evt.Clear();
-	for( UInt_t i = 0; i < eh->l_dlen * 2; i += 4 ) {
-		UInt_t *val32 = (UInt_t *)(ptr + pos + i);
-		evt.Store(*val32);
-	}
-	pos += eh->l_dlen * 2; // Advance past this data
+	// Subevent header (8 bytes)
+	UInt_t slen = val32[4];
 	
-	// If we are not at the end of the buffer, that's all
-	if( pos != current_buffer * bufsize + used ) return(&evt);
-	
-	// Check if event was truncated by end of buffer
-	if( bh->h_end == 1 ) {
+	// Handle the special case, where the subevent header is in the
+	// next buffer
+	if( elen <= 4 ) {
+		
+		for( UInt_t i = 2; i < 4; i++ )
+			evt.Store(val32[i]);
 		
 		// Next buffer
 		if( !GetNextBuffer() ) return(nullptr);
+		val32 = (UInt_t *)(ptr + pos);
+		elen = val32[0];
+		slen = val32[2];
+		pos += 8;
 		
-		// Event header (8 bytes)
-		s_evhe *eh = (s_evhe *)(ptr + pos);
-		pos += sizeof(s_evhe); // Advance past event header
-		
-		// Add rest of payload
-		for (UInt_t i = 0; i < eh->l_dlen * 2; i += 4) {
-			UInt_t *val32 = (UInt_t *)(ptr + pos + i);
-			evt.Store(*val32);
-		}
-		pos += eh->l_dlen * 2; // Advance past this data
-		if( pos != current_buffer * bufsize + used ) return(&evt);
-
 	}
 	
-	// Next buffer
-	if( !GetNextBuffer() ) return(nullptr);
+	
+	// Copy payload of event (without event header)
+	for( UInt_t i = 2; i < elen / 2 + 2; i++ )
+		evt.Store(val32[i]);
+	pos += elen * 2; // Advance past this data
+	
+	// Check if there's more data in the next buffer
+	while( evt.GetNData() < slen / 2 + 2 ) { // Yes, there's more data
+		
+		// Next buffer
+		if( !GetNextBuffer() ) return(nullptr);
+		val32 = (UInt_t *)(ptr + pos);
+		elen = val32[0];
+		for( UInt_t i = 2; i < elen / 2 + 2; i++ )
+			evt.Store(val32[i]);
+		pos += elen * 2 + 8; // Advance past this data
+		
+	}
 	
 	return(&evt);
 	
