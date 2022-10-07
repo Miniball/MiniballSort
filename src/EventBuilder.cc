@@ -1390,16 +1390,17 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	// Clean up
 	//--------------------------
 
+	std::stringstream ss_log;
 	ss_log << "\n MiniballEventBuilder finished..." << std::endl;
 	ss_log << "  FEBEX data packets = " << n_febex_data << std::endl;
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
-		std::cout << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
+		ss_log << "   SFP " << i << " events = " << n_sfp[i] << std::endl;
 		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-			std::cout << "    Board " << j << " events = " << n_board[i][j] << std::endl;
-	//		std::cout << "             pause = " << n_pause[i][j] << std::endl;
-	//		std::cout << "            resume = " << n_resume[i][j] << std::endl;
-	//		std::cout << "         dead time = " << (double)febex_dead_time[i][j]/1e9 << " s" << std::endl;
-			std::cout << "          run time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
+			ss_log << "    Board " << j << " events = " << n_board[i][j] << std::endl;
+	//		ss_log << "             pause = " << n_pause[i][j] << std::endl;
+	//		ss_log << "            resume = " << n_resume[i][j] << std::endl;
+	//		ss_log << "         dead time = " << (double)febex_dead_time[i][j]/1e9 << " s" << std::endl;
+			ss_log << "          run time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
 		}
 	}
 	ss_log << "  Info data packets = " << n_info_data << std::endl;

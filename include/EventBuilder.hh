@@ -116,7 +116,6 @@ private:
 	std::shared_ptr<TGProgressBar> prog;
 	
 	// Log file
-	std::stringstream ss_log;
 	std::ofstream log_file; ///< Log file for recording the results of the MiniballEventBuilder
 	
 	// Flag to know we've opened a file on disk
