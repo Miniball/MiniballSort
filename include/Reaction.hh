@@ -490,7 +490,7 @@ private:
 
 	// CD detector things
 	std::vector<float> cd_dist;		///< distance from target to CD detector in mm
-	std::vector<float> cd_offset;	///< phi rotation of the CD in radians
+	std::vector<float> cd_offset;	///< phi rotation of the CD in degrees
 	std::vector<float> dead_layer;	///< dead layer thickness in mm
 
 	// Miniball detector things

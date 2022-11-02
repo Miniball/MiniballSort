@@ -107,7 +107,7 @@ void MBS::CloseEventServer() {
 
 const UChar_t* MBS::GetBufferFromStream(){
 	
-	// TODO: This is not correct!!
+	// TODO: This is not correct, probably!!
 	read( socket_id, &ptr, bufsize );
 	
 	return ptr;

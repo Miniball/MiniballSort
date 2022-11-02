@@ -51,8 +51,8 @@
 ## CD Detector geometry
 #CD_0.Distance: 32.0		# Target to CD distance in mm (forwards CD = 32.0)
 #CD_1.Distance: -64.0		# Target to CD distance in mm (backwards CD = -64.0)
-#CD_0.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, clockwise wrt beam direction
-#CD_1.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, anit-clockwise wrt beam direction because theta > 90 deg
+#CD_0.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, clockwise wrt beam direction (in deg)
+#CD_1.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, anti-clockwise wrt beam direction because theta > 90 deg (in deg)
 #CD_0.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
 #CD_1.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
 
