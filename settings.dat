@@ -21,15 +21,18 @@
 #------------------------#
 # Triggers, pulsers, etc #
 #------------------------#
-#PulserSfp: 1					# Location of the pulser in the DAQ
-#PulserBoard: 1
-#PulserChannel: 13
-#EBISSfp: 1						# Location of the EBIS signal in the DAQ
-#EBISBoard: 1
-#EBISChannel: 14
-#T1Sfp: 1						# Location of the T1 signal in the DAQ
-#T1Board: 1
-#T1Channel: 15
+#Pulser.Sfp: 1					# Location of the pulser in the DAQ
+#Pulser.Board: 8
+#Pulser.Channel: 12
+#EBIS.Sfp: 1					# Location of the EBIS signal in the DAQ
+#EBIS.Board: 8
+#EBIS.Channel: 11
+#T1.Sfp: 1						# Location of the T1 signal in the DAQ
+#T1.Board: 8
+#T1.Channel: 13
+#SC.Sfp: 1						# Location of the SC signal in the DAQ
+#SC.Board: 8
+#SC.Channel: 15
 
 
 #-------------#

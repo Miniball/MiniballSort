@@ -48,21 +48,21 @@ void MiniballSettings::ReadSettings() {
 	resume_code		= 3;
 	sync_code		= 4;
 	thsb_code		= 5;
-	pulser_sfp		= config->GetValue( "PulserSfp", 1 );
-	pulser_board	= config->GetValue( "PulserBoard", 10 );
-	pulser_ch		= config->GetValue( "PulserChannel", 15 );
+	pulser_sfp		= config->GetValue( "Pulser.Sfp", 1 );
+	pulser_board	= config->GetValue( "Pulser.Board", 8 );
+	pulser_ch		= config->GetValue( "Pulser.Channel", 12 );
 	pulser_code		= 20;
-	ebis_sfp		= config->GetValue( "EBISSfp", 1 );
-	ebis_board		= config->GetValue( "EBISBoard", 8 );
-	ebis_ch			= config->GetValue( "EBISChannel", 11 );
+	ebis_sfp		= config->GetValue( "EBIS.Sfp", 1 );
+	ebis_board		= config->GetValue( "EBIS.Board", 8 );
+	ebis_ch			= config->GetValue( "EBIS.Channel", 11 );
 	ebis_code		= 21;
-	t1_sfp			= config->GetValue( "T1Sfp", 1 );
-	t1_board		= config->GetValue( "T1Board", 8 );
-	t1_ch			= config->GetValue( "T1Channel", 13 );
+	t1_sfp			= config->GetValue( "T1.Sfp", 1 );
+	t1_board		= config->GetValue( "T1.Board", 8 );
+	t1_ch			= config->GetValue( "T1.Channel", 13 );
 	t1_code			= 22;
-	sc_sfp			= config->GetValue( "SCSfp", 1 );
-	sc_board		= config->GetValue( "SCBoard", 8 );
-	sc_ch			= config->GetValue( "SCChannel", 15 );
+	sc_sfp			= config->GetValue( "SC.Sfp", 1 );
+	sc_board		= config->GetValue( "SC.Board", 8 );
+	sc_ch			= config->GetValue( "SC.Channel", 15 );
 	sc_code			= 23;
 
 	
