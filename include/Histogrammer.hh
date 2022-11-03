@@ -12,6 +12,7 @@
 #include <TTree.h>
 #include <TMath.h>
 #include <TChain.h>
+#include <TRandom.h>
 #include <TProfile.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -245,6 +246,9 @@ private:
 	
 	// Counters
 	unsigned long n_entries;
+	
+	// Random number
+	TRandom rand;
 	
 	//------------//
 	// Histograms //

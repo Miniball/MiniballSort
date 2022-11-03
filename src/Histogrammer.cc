@@ -181,11 +181,11 @@ void MiniballHistogrammer::MakeHists() {
 	
 	hname = "particle_xy_map_forward";
 	htitle = "Particle X-Y hit map (#theta < 90);x [mm];y [mm];Counts per mm^2";
-	particle_xy_map_forward = new TH2F( hname.data(), htitle.data(), 44, -45, 45, 44, -45, 45 );
+	particle_xy_map_forward = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
 
 	hname = "particle_xy_map_backward";
 	htitle = "Particle X-Y hit map (#theta > 90);x [mm];y [mm];Counts per mm^2";
-	particle_xy_map_backward = new TH2F( hname.data(), htitle.data(), 44, -45, 45, 44, -45, 45 );
+	particle_xy_map_backward = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
 
 	hname = "particle_theta_phi_map";
 	htitle = "Particle #theta-#phi hit map;#theta [mm];#phi [mm];Counts";
@@ -847,13 +847,16 @@ unsigned long MiniballHistogrammer::FillHists() {
 			ebis_td_particle->Fill( (double)particle_evt->GetTime() - (double)read_evts->GetEBIS() );
 			
 			// Energy vs Angle plot no gates
+			float pid = particle_evt->GetStripP() + rand.Rndm() - 0.5; // randomise strip number
+			float nid = particle_evt->GetStripN() + rand.Rndm() - 0.5; // randomise strip number
+			TVector3 pvec = react->GetCDVector( particle_evt->GetDetector(), particle_evt->GetSector(), pid, nid );
 			pE_theta->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
 			particle_theta_phi_map->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(),
 										  react->GetParticlePhi( particle_evt ) * TMath::RadToDeg() );
 			if( react->GetParticleTheta( particle_evt ) < TMath::PiOver2() )
-				particle_xy_map_forward->Fill( react->GetParticleX( particle_evt ), react->GetParticleY( particle_evt ) );
+				particle_xy_map_forward->Fill( pvec.X(), pvec.Y() );
 			else
-				particle_xy_map_backward->Fill( react->GetParticleX( particle_evt ), react->GetParticleY( particle_evt ) );
+				particle_xy_map_backward->Fill( pvec.X(), pvec.Y() );
 
 			
 			// Energy vs angle plot, after cuts
