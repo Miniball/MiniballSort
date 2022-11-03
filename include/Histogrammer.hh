@@ -261,9 +261,9 @@ private:
 	const unsigned int EBIN = 200;		// number of bins in electron spectra
 	const float EMIN = -0.5;			// lower limit of energy in electron spectra
 	const float EMAX = 1999.5;			// upper limit of energy in electron spectra
-	const unsigned int PBIN = 300;		// number of bins in particle spectra
+	const unsigned int PBIN = 2000;		// number of bins in particle spectra
 	const float PMIN = 0.0;				// lower limit of energy in particle spectra
-	const float PMAX = 400e3;			// upper limit of energy in particle spectra
+	const float PMAX = 2000e3;			// upper limit of energy in particle spectra
 
 	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;
