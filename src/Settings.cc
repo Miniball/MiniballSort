@@ -41,7 +41,10 @@ void MiniballSettings::ReadSettings() {
 	n_bd_det		= config->GetValue( "NumberOfBeamDumpDetectors", 1 );
 	
 	// SPEDE initialisation
-	n_spede_seg		= config->GetValue( "NumberOfSpedeSegments", 1 );
+	n_spede_seg		= config->GetValue( "NumberOfSpedeSegments", 24 );
+	
+	// IonChamber initialisation
+	n_ic_layer		= config->GetValue( "NumberOfIonChamberLayers", 2 );
 	
 	// Info code initialisation
 	pause_code		= 2;
@@ -85,6 +88,7 @@ void MiniballSettings::ReadSettings() {
 	cd_strip.resize( n_febex_sfp );
 	bd_det.resize( n_febex_sfp );
 	spede_seg.resize( n_febex_sfp );
+	ic_layer.resize( n_febex_sfp );
 
 	for( unsigned int i = 0; i < n_febex_sfp; ++i ){
 
@@ -97,6 +101,7 @@ void MiniballSettings::ReadSettings() {
 		cd_strip[i].resize( n_febex_board );
 		bd_det[i].resize( n_febex_board );
 		spede_seg[i].resize( n_febex_board );
+		ic_layer[i].resize( n_febex_board );
 
 		for( unsigned int j = 0; j < n_febex_board; ++j ){
 
@@ -109,6 +114,7 @@ void MiniballSettings::ReadSettings() {
 			cd_strip[i][j].resize( n_febex_ch );
 			bd_det[i][j].resize( n_febex_ch );
 			spede_seg[i][j].resize( n_febex_ch );
+			ic_layer[i][j].resize( n_febex_ch );
 
 			for( unsigned int k = 0; k < n_febex_ch; ++k ){
 
@@ -120,7 +126,8 @@ void MiniballSettings::ReadSettings() {
 				cd_side[i][j][k]	= -1;
 				cd_strip[i][j][k]	= -1;
 				bd_det[i][j][k]     = -1;
-				spede_seg[i][j][k]     = -1;
+				spede_seg[i][j][k]  = -1;
+				ic_layer[i][j][k]   = -1;
 
 			} // k: febex ch
 			
@@ -322,6 +329,36 @@ void MiniballSettings::ReadSettings() {
 		
 		
 	} // i: SPEDE detector
+	
+	// IonChamber detector mapping
+	ic_sfp.resize( n_ic_layer );
+	ic_board.resize( n_ic_layer );
+	ic_ch.resize( n_ic_layer );
+	
+	for( unsigned int i = 0; i < n_bd_det; ++i ){
+		
+		ic_sfp[i]		= config->GetValue( Form( "IonChamber_%d.Sfp", i ), 1 );
+		ic_board[i]		= config->GetValue( Form( "IonChamber_%d.Board", i ), 10 );
+		ic_ch[i]		= config->GetValue( Form( "IonChamber_%d.Channel", i ), (int)(i+0) );
+		
+		if( ic_sfp[i] < n_febex_sfp &&
+		    ic_board[i] < n_febex_board &&
+		    ic_ch[i] < n_febex_ch ){
+			
+			ic_layer[ic_sfp[i]][ic_board[i]][ic_ch[i]] = i;
+			
+		}
+		
+		else {
+			
+			std::cerr << "Dodgy IonChamber settings: sfp = " << ic_sfp[i];
+			std::cerr << ", board = " << ic_board[i];
+			std::cerr << ", channel = " << ic_ch[i] << std::endl;
+			
+		}
+		
+		
+	} // i: IonChamber detector
 	
 	
 	// Finished

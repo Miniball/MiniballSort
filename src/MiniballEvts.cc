@@ -5,6 +5,7 @@ ClassImp(GammaRayAddbackEvt)
 ClassImp(ParticleEvt)
 ClassImp(BeamDumpEvt)
 ClassImp(SpedeEvt)
+ClassImp(IonChamberEvt)
 ClassImp(MiniballEvts)
 
 
@@ -18,12 +19,14 @@ void MiniballEvts::ClearEvt() {
 	particle_event.clear();
 	bd_event.clear();
 	spede_event.clear();
+	ic_event.clear();
 
 	std::vector<GammaRayEvt>().swap(gamma_event);
 	std::vector<GammaRayAddbackEvt>().swap(gamma_ab_event);
 	std::vector<ParticleEvt>().swap(particle_event);
 	std::vector<BeamDumpEvt>().swap(bd_event);
 	std::vector<SpedeEvt>().swap(spede_event);
+	std::vector<IonChamberEvt>().swap(ic_event);
 
 	ebis = 0;
 	t1 = 0;
@@ -101,6 +104,19 @@ void MiniballEvts::AddEvt( std::shared_ptr<SpedeEvt> event ) {
 	fill_evt.SetSegment( event->GetSegment() );
 
 	spede_event.push_back( fill_evt );
+	
+}
+
+void MiniballEvts::AddEvt( std::shared_ptr<IonChamberEvt> event ) {
+	
+	// Make a copy of the event and push it back
+	IonChamberEvt fill_evt;
+	fill_evt.SetEnergies( event->GetEnergies() );
+	fill_evt.SetdETime( event->GetdETime() );
+	fill_evt.SetETime( event->GetETime() );
+	fill_evt.SetIDs( event->GetIDs() );
+
+	ic_event.push_back( fill_evt );
 	
 }
 

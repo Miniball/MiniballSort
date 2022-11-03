@@ -15,6 +15,7 @@
 #pragma link C++ class ParticleEvt+;
 #pragma link C++ class BeamDumpEvt+;
 #pragma link C++ class SpedeEvt+;
+#pragma link C++ class IonChamberEvt+;
 #pragma link C++ class MiniballDataPackets+;
 #pragma link C++ class FebexData+;
 #pragma link C++ class InfoData+;

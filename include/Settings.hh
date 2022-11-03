@@ -185,6 +185,15 @@ private:
 	std::vector<unsigned int> spede_ch;						///< A list of channel numbers for each SPEDE segment
 	std::vector<std::vector<std::vector<int>>> spede_seg;	///< A channel map for the SPEDE segments (-1 if not a SPEDE, otherwise segment number)
 
+	// IonChamber settings
+	unsigned int n_ic_layer;								///< Number of IonChamber layers, usually 2, dE (gas) and E (Si)
+
+	// SPEDE electronics mapping
+	std::vector<unsigned int> ic_sfp;						///< A list of SFP numbers for each IonChamber segment
+	std::vector<unsigned int> ic_board;						///< A list of board numbers for each IonChamber segment
+	std::vector<unsigned int> ic_ch;						///< A list of channel numbers for each IonChamber segment
+	std::vector<std::vector<std::vector<int>>> ic_layer;	///< A channel map for the IonChamber segments (-1 if not a IonChamber, otherwise layer number, i.e dE (gas) = 0, E (Si) = 1)
+
 
 	// Info code settings
 	unsigned int sync_code;				///< Medium significant bits of the timestamp are here

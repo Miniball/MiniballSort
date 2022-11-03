@@ -410,3 +410,16 @@
 #Spede_23.Sfp: 0
 #Spede_23.Board: 6
 #Spede_23.Channel: 7
+
+
+#-------------------#
+# IonChamber things #
+#-------------------#
+#NumberOfIonChamberLayers: 24		# Number of layers in the IonChamber usually 2, dE (gas = 0) and E (Si = 1)
+
+#IonChamber_0.Sfp: 1
+#IonChamber_0.Board: 9
+#IonChamber_0.Channel: 12
+#IonChamber_1.Sfp: 1
+#IonChamber_1.Board: 9
+#IonChamber_1.Channel: 14

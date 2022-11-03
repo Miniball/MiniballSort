@@ -172,6 +172,75 @@ private:
 
 };
 
+class IonChamberEvt : public TObject {
+
+public:
+		
+	// setup functions
+	IonChamberEvt() {};
+	~IonChamberEvt() {};
+
+	inline void AddIonChamber( float myenergy, unsigned char myid ){
+		energy.push_back( myenergy );
+		id.push_back( myid );
+	};
+
+	inline void SetdETime( unsigned long t ){ detime = t; };
+	inline void SetETime( unsigned long t ){ etime = t; };
+	inline void	SetEnergies( std::vector<float> x ){ energy = x; };
+	inline void	SetIDs( std::vector<unsigned char> x ){ id = x; };
+
+	inline unsigned long	GetTime(){ return detime; };
+	inline unsigned long	GetdETime(){ return detime; };
+	inline unsigned long	GetETime(){ return etime; };
+	inline std::vector<float>			GetEnergies(){ return energy; };
+	inline std::vector<unsigned char>	GetIDs(){ return id; };
+
+	inline float GetEnergy( unsigned char i ){
+		if( i < energy.size() ) return energy.at(i);
+		else return 0;
+	};
+	
+	inline float GetEnergyLoss( unsigned char start = 0, unsigned char stop = 0 ){
+		float total = 0;
+		for( unsigned int j = 0; j < energy.size(); ++j )
+			if( GetID(j) >= start && GetID(j) <= stop )
+				total += energy.at(j);
+		return total;
+	};
+
+	inline float GetEnergyRest( unsigned char start = 1, unsigned char stop = 1 ){
+		float total = 0;
+		for( unsigned int j = 0; j < energy.size(); ++j )
+			if( GetID(j) >= start && GetID(j) <= stop )
+				total += energy.at(j);
+		return total;
+	};
+	
+	inline float GetEnergyTotal( unsigned char start = 0, unsigned char stop = 1 ){
+		float total = 0;
+		for( unsigned int j = 0; j < energy.size(); ++j )
+			if( GetID(j) >= start && GetID(j) <= stop )
+				total += energy.at(j);
+		return total;
+	};
+
+	inline int GetID( unsigned char i ){
+		if( i < id.size() ) return id.at(i);
+		else return -1;
+	};
+
+private:
+
+	std::vector<float>			energy;	///< differential energy list
+	std::vector<unsigned char>	id;		///< differential id list, i.e. dE = 0, E = 1, for example
+	unsigned long				detime;	///< time stamp of gas event
+	unsigned long				etime;	///< time stamp of silicon event
+
+	ClassDef( IonChamberEvt, 1 )
+
+};
+
 
 class MiniballEvts : public TObject {
 
@@ -186,12 +255,14 @@ public:
 	void AddEvt( std::shared_ptr<ParticleEvt> event );
 	void AddEvt( std::shared_ptr<BeamDumpEvt> event );
 	void AddEvt( std::shared_ptr<SpedeEvt> event );
+	void AddEvt( std::shared_ptr<IonChamberEvt> event );
 
 	inline unsigned int GetGammaRayMultiplicity(){ return gamma_event.size(); };
 	inline unsigned int GetGammaRayAddbackMultiplicity(){ return gamma_ab_event.size(); };
 	inline unsigned int GetParticleMultiplicity(){ return particle_event.size(); };
 	inline unsigned int GetBeamDumpMultiplicity(){ return bd_event.size(); };
 	inline unsigned int GetSpedeMultiplicity(){ return spede_event.size(); };
+	inline unsigned int GetIonChamberMultiplicity(){ return ic_event.size(); };
 
 	inline std::shared_ptr<GammaRayEvt> GetGammaRayEvt( unsigned int i ){
 		if( i < gamma_event.size() ) return std::make_shared<GammaRayEvt>( gamma_event.at(i) );
@@ -211,6 +282,10 @@ public:
 	};
 	inline std::shared_ptr<SpedeEvt> GetSpedeEvt( unsigned int i ){
 		if( i < spede_event.size() ) return std::make_shared<SpedeEvt>( spede_event.at(i) );
+		else return nullptr;
+	};
+	inline std::shared_ptr<IonChamberEvt> GetIonChamberEvt( unsigned int i ){
+		if( i < ic_event.size() ) return std::make_shared<IonChamberEvt>( ic_event.at(i) );
 		else return nullptr;
 	};
 
@@ -238,8 +313,9 @@ private:
 	std::vector<ParticleEvt> particle_event;
 	std::vector<BeamDumpEvt> bd_event;
 	std::vector<SpedeEvt> spede_event;
+	std::vector<IonChamberEvt> ic_event;
 
-	ClassDef( MiniballEvts, 1 )
+	ClassDef( MiniballEvts, 2 )
 	
 };
 
