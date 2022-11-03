@@ -18,6 +18,7 @@
 #include "TFile.h"
 #include "TCutG.h"
 #include "TVector3.h"
+#include "TRandom.h"
 //#include "TError.h"
 #include "TCanvas.h"
 #include "TGraph.h"
@@ -252,7 +253,7 @@ public:
 	// SPEDE and electron geometry
 	inline float	GetSpedeDistance(){ return spede_dist; };
 	inline float	GetSpedePhiOffset(){ return spede_offset; };
-	TVector3		GetSpedeVector( unsigned char seg );
+	TVector3		GetSpedeVector( unsigned char seg, bool random = false );
 	TVector3		GetElectronVector( unsigned char seg );
 	inline float	GetElectronTheta( unsigned char seg ){
 		return GetElectronVector(seg).Theta();
@@ -500,6 +501,9 @@ private:
 	// SPEDE things
 	float spede_dist;	///< distance from target to SPEDE detector
 	float spede_offset;	///< phi rotation of the SPEDE detector
+	
+	// Random numbers
+	TRandom rand;
 
 	// Cuts
 	std::string ejectilecutfile, ejectilecutname;

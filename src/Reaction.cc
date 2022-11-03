@@ -396,21 +396,25 @@ TVector3 MiniballReaction::GetParticleVector( unsigned char det, unsigned char s
 
 }
 
-TVector3 MiniballReaction::GetSpedeVector( unsigned char seg ){
+TVector3 MiniballReaction::GetSpedeVector( unsigned char seg, bool random ){
 
 	// Calculate the vertical distance from axis
-	float x = 0.0;
-	if( seg < 8 ) x = 25.2;			// distance to centre of first ring
-	else if( seg < 16 ) x = 34.3;	// distance to centre of second ring
-	else if( seg < 24 ) x = 41.4;	// distance to centre of third ring
+	float x = 10.0;								// inner radius = 10.0 mm
+	float mult = 0.5;							// go to the centre of each ring
+	if( random ) mult = rand.Rndm();			// go to a random point along each ring
+	if( seg < 8 ) x += 5.15 * mult;				// width of first ring = 5.2 mm including 0.05 mm inter-strip region
+	else if( seg < 16 ) x += 5.2 + 3.85 * mult;	// width of second ring = 3.9 mm including 0.05 mm inter-strip region
+	else if( seg < 24 ) x += 9.1 + 3.15 * mult;	// width of third ring = 3.2 mm
 
 	// Create a TVector3 to handle the angles
 	TVector3 vec( x, 0, spede_dist );
 
 	// Rotate appropriately
-	float phi = TMath::Pi() / 8.0;			// rotate by half of one slice
-	phi += (seg%8) * TMath::Pi() / 4.0;		// rotate every 8 slices
-	
+	if( random ) mult = rand.Rndm();					// get a new random point for the phi angle
+	float phi = (float)(seg%8) * TMath::Pi() / 4.0;		// rotate every 8 slices
+	phi += 0.98 * mult * TMath::Pi() / 8.0; 			// rotate by half of one slice or random part thereof
+	phi += 0.01 * TMath::Pi() / 8.0; 					// add a small slice for the interstrip region
+
 	return vec;
 	
 }

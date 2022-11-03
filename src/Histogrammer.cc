@@ -157,6 +157,10 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Electron energy singles EBIS off;Energy [keV];Counts keV";
 	eE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
 
+	hname = "electron_xy_map";
+	htitle = "Electron X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
+	electron_xy_map = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
+
 
 	// CD singles histograms
 	dirname = "ParticleSpectra";
@@ -1091,9 +1095,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 		} // j: gamma ray
 		
 
-		// ------------------------------------------ //
-		// Loop over gamma-ray events without addback //
-		// ------------------------------------------ //
+		// ---------------------------------- //
+		// Loop over electron events in SPEDE //
+		// ---------------------------------- //
 		for( unsigned int j = 0; j < read_evts->GetSpedeMultiplicity(); ++j ){
 						
 			// Get SPEDE event
@@ -1103,14 +1107,14 @@ unsigned long MiniballHistogrammer::FillHists() {
 			eE_singles->Fill( spede_evt->GetEnergy() );
 			
 			// Check for events in the EBIS on-beam window
-			if( OnBeam( gamma_ab_evt ) ){
+			if( OnBeam( spede_evt ) ){
 				
 				eE_singles_ebis->Fill( spede_evt->GetEnergy() );
 				eE_singles_ebis_on->Fill( spede_evt->GetEnergy() );
 				
 			} // ebis on
 			
-			else if( OffBeam( gamma_ab_evt ) ){
+			else if( OffBeam( spede_evt ) ){
 				
 				eE_singles_ebis->Fill( spede_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
 				eE_singles_ebis_off->Fill( spede_evt->GetEnergy() );
@@ -1119,6 +1123,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 			// Particle-electron coincidence spectra
 			FillParticleElectronHists( spede_evt );
+			
+			// SPEDE hitmap
+			TVector3 evec = react->GetSpedeVector( spede_evt->GetSegment(), true );
+			electron_xy_map->Fill( evec.Y(), evec.X() );
 			
 			// Loop over other SPEDE events
 			for( unsigned int k = j+1; k < read_evts->GetSpedeMultiplicity(); ++k ){

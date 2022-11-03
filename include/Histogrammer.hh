@@ -274,6 +274,7 @@ private:
 
 	// Electron singles
 	TH1F *eE_singles, *eE_singles_ebis, *eE_singles_ebis_on, *eE_singles_ebis_off;
+	TH2F *electron_xy_map;
 
 	// Gamma-ray coincidence matrices with and without addback
 	TH1F *gamma_gamma_td;
