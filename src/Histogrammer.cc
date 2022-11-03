@@ -180,11 +180,11 @@ void MiniballHistogrammer::MakeHists() {
 	pE_theta_target = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
 	hname = "particle_xy_map_forward";
-	htitle = "Particle X-Y hit map (#theta < 90);x [mm];y [mm];Counts per mm^2";
+	htitle = "Particle X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
 	particle_xy_map_forward = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
 
 	hname = "particle_xy_map_backward";
-	htitle = "Particle X-Y hit map (#theta > 90);x [mm];y [mm];Counts per mm^2";
+	htitle = "Particle X-Y hit map (#theta > 90);y (horizontal) [mm];x (vertical);Counts per mm^2";
 	particle_xy_map_backward = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
 
 	hname = "particle_theta_phi_map";
@@ -854,9 +854,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 			particle_theta_phi_map->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(),
 										  react->GetParticlePhi( particle_evt ) * TMath::RadToDeg() );
 			if( react->GetParticleTheta( particle_evt ) < TMath::PiOver2() )
-				particle_xy_map_forward->Fill( pvec.X(), pvec.Y() );
+				particle_xy_map_forward->Fill( pvec.Y(), pvec.X() );
 			else
-				particle_xy_map_backward->Fill( pvec.X(), pvec.Y() );
+				particle_xy_map_backward->Fill( pvec.Y(), pvec.X() );
 
 			
 			// Energy vs angle plot, after cuts
