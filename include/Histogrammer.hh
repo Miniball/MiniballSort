@@ -236,6 +236,7 @@ private:
 	std::shared_ptr<ParticleEvt> particle_evt, particle_evt2;
 	std::shared_ptr<BeamDumpEvt> bd_evt, bd_evt2;
 	std::shared_ptr<SpedeEvt> spede_evt, spede_evt2;
+	std::shared_ptr<IonChamberEvt> ic_evt;
 
 	// Output file
 	TFile *output_file;
@@ -336,6 +337,10 @@ private:
 	std::vector<TH1F*> bdE_singles_det;
 	TH1F *bd_bd_td;
 	TH2F *bdE_bdE;
+	
+	// IonChamber histograms
+	TH1F *ic_dE, *ic_E;
+	TH2F *ic_dE_E;
 
 };
 

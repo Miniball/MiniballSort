@@ -120,3 +120,19 @@ void MiniballEvts::AddEvt( std::shared_ptr<IonChamberEvt> event ) {
 	
 }
 
+void IonChamberEvt::ClearEvt() {
+	
+	// Clear the ionisation chamber event ready for a new one
+	energy.clear();
+	id.clear();
+	
+	std::vector<float>().swap(energy);
+	std::vector<unsigned char>().swap(id);
+
+	detime = 0;
+	etime = 0;
+	
+	return;
+	
+}
+

@@ -48,6 +48,14 @@
 #EventWindow: 3e3 # in ns. Default is 3 µs
 
 
+#-------------#
+# Hit windows #
+#-------------#
+#MiniballCrystalHitWindow: 400		# for core-segment coincidences
+#MiniballAddbackHitWindow: 400		# for core-core coincidences, i.e. addback
+#CDHitWindow: 200					# for p-n or p-p, or n-n coincidences
+#IonChamberHitWindow: 500			# for gas-silicon coincidences
+
 #-----------------#
 # Miniball things #
 #-----------------#

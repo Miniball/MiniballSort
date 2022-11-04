@@ -70,7 +70,14 @@ void MiniballSettings::ReadSettings() {
 
 	
 	// Event builder
-	event_window		= config->GetValue( "EventWindow", 3e3 );
+	event_window	= config->GetValue( "EventWindow", 3e3 );
+
+	// Hit windows for complex events
+	mb_hit_window	= config->GetValue( "MiniballCrystalHitWindow", 400. );
+	ab_hit_window	= config->GetValue( "MiniballAddbackHitWindow", 400. );
+	cd_hit_window	= config->GetValue( "CDHitWindow", 150. );
+	ic_hit_window	= config->GetValue( "IonChamberHitWindow", 500. );
+
 	
 	// Data things
 	block_size			= config->GetValue( "DataBlockSize", 0x10000 );
@@ -462,6 +469,31 @@ int MiniballSettings::GetSpedeSegment( unsigned int sfp, unsigned int board, uns
 	else {
 		
 		std::cerr << "Bad SPEDE event: sfp = " << sfp;
+		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", channel = " << ch << std::endl;
+		return -1;
+		
+	}
+	
+}
+
+bool MiniballSettings::IsIonChamber( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return true if this is a IonChamber event
+	if( ic_layer[sfp][board][ch] >= 0 ) return true;
+	else return false;
+	
+}
+
+int MiniballSettings::GetIonChamberLayer( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return the IonChamber layer ID by the FEBEX SFP, Board number and Channel number
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
+		return ic_layer[sfp][board][ch];
+	
+	else {
+		
+		std::cerr << "Bad IonChamber event: sfp = " << sfp;
 		std::cerr << ", board = " << board << std::endl;
 		std::cerr << ", channel = " << ch << std::endl;
 		return -1;

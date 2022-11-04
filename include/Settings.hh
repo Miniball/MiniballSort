@@ -90,7 +90,9 @@ public:
 	inline int GetMiniballSegment( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetMiniballID( sfp, board, ch, mb_segment );
 	};
-	
+	inline double GetMiniballCrystalHitWindow(){ return mb_hit_window; };
+	inline double GetMiniballAddbackHitWindow(){ return mb_hit_window; };
+
 
 	// CD detector
 	inline unsigned int GetNumberOfCDDetectors(){ return n_cd_det; };
@@ -113,6 +115,7 @@ public:
 	inline int GetCDStrip( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetCDID( sfp, board, ch, cd_strip );
 	};
+	inline double GetCDHitWindow(){ return cd_hit_window; };
 
 	
 	// Beam dump detector
@@ -126,6 +129,13 @@ public:
 	bool IsSpede( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch );
 
+	
+	// IonChamber
+	inline unsigned int GetNumberOfIonChamberLayers(){ return n_ic_layer; };
+	bool IsIonChamber( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetIonChamberLayer( unsigned int sfp, unsigned int board, unsigned int ch );
+	inline double GetIonChamberHitWindow(){ return ic_hit_window; };
+	
 	ClassDef( MiniballSettings, 1 )
 
 private:
@@ -221,6 +231,12 @@ private:
 	// Event builder
 	double event_window;			///< Event builder time window in ns
 	
+	// Hit windows for complex events
+	double mb_hit_window;			///< Prompt time for correlated Miniball events in crystal, i.e. segmen-core events
+	double ab_hit_window;			///< Prompt time for correlated Miniball events in cluster, i.e. addback events
+	double cd_hit_window;			///< Prompt time for correlated CD events
+	double ic_hit_window;			///< Prompt time for correlated ionchamber events
+
 	// Data format
 	unsigned int block_size;		///< not yet implemented, needs C++ style reading of data files
 	bool flag_febex_only;			///< when there is only FEBEX data in the file

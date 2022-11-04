@@ -584,6 +584,25 @@ void MiniballHistogrammer::MakeHists() {
 		
 	}
 	
+	
+	// Ionisation chamber histograms
+	dirname = "IonChamber";
+	output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+	
+	hname = "ic_dE";
+	htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Counts";
+	ic_dE = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
+	
+	hname = "ic_E";
+	htitle = "Ionisation chamber;Energy loss in rest of the layers (Si) (Gas) (arb. units);Counts";
+	ic_E = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
+	
+	hname = "ic_dE_E";
+	htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Energy loss in rest of the layers (Si) (arb. units);Counts";
+	ic_dE_E = new TH2F( hname.data(), htitle.data(), 4096, 0, 10000, 4096, 0, 10000 );
+	
+	
 	return;
 	
 }
@@ -1252,6 +1271,23 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 		} // j: beam dump
 		
+		
+		// ---------------------------- //
+		// Loop over ion chamber events //
+		// ---------------------------- //
+		for( unsigned int j = 0; j < read_evts->GetIonChamberMultiplicity(); ++j ){
+
+			// Get ion chamber event
+			ic_evt = read_evts->GetIonChamberEvt(j);
+			
+			// Single spectra
+			ic_dE->Fill( ic_evt->GetEnergyLoss() );
+			ic_E->Fill( ic_evt->GetEnergyRest() );
+			
+			// 2D plot
+			ic_dE_E->Fill( ic_evt->GetEnergyRest(), ic_evt->GetEnergyLoss() );
+
+		} // j: ion chamber
 		
 		// Progress bar
 		bool update_progress = false;

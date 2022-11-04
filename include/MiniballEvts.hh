@@ -184,6 +184,8 @@ public:
 		energy.push_back( myenergy );
 		id.push_back( myid );
 	};
+	
+	void ClearEvt();
 
 	inline void SetdETime( unsigned long t ){ detime = t; };
 	inline void SetETime( unsigned long t ){ etime = t; };

@@ -76,12 +76,14 @@ void MiniballEventBuilder::StartFile(){
 	n_cd			= 0;
 	n_bd			= 0;
 	n_spede			= 0;
+	n_ic			= 0;
 
 	gamma_ctr		= 0;
 	gamma_ab_ctr	= 0;
 	cd_ctr			= 0;
 	bd_ctr			= 0;
 	spede_ctr		= 0;
+	ic_ctr			= 0;
 
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 
@@ -147,6 +149,7 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 	particle_evt = std::make_shared<ParticleEvt>();
 	spede_evt = std::make_shared<SpedeEvt>();
 	bd_evt = std::make_shared<BeamDumpEvt>();
+	ic_evt = std::make_shared<IonChamberEvt>();
 
 	// ------------------------------------------------------------------------ //
 	// Create output file and create events tree
@@ -216,6 +219,14 @@ void MiniballEventBuilder::Initialise(){
 	std::vector<float>().swap(spede_en_list);
 	std::vector<unsigned long long>().swap(spede_ts_list);
 	std::vector<unsigned char>().swap(spede_seg_list);
+
+	ic_en_list.clear();
+	ic_ts_list.clear();
+	ic_id_list.clear();
+	
+	std::vector<float>().swap(ic_en_list);
+	std::vector<unsigned long long>().swap(ic_ts_list);
+	std::vector<unsigned char>().swap(ic_id_list);
 
 	write_evts->ClearEvt();
 	
@@ -405,6 +416,20 @@ void MiniballEventBuilder::MakeEventHists(){
 		
 	} // i
 	
+	
+	// --------------------- //
+	// IonChamber histograms //
+	// --------------------- //
+	dirname = "ic";
+	if( !output_file->GetDirectory( dirname.data() ) )
+		output_file->mkdir( dirname.data() );
+	output_file->cd( dirname.data() );
+
+	ic_td = new TH1F( "ic_td", "Time difference between signals in the ion chamber;#Delta t [ns]", 499, -2495, 2495 );
+	ic_dE = new TH1F( "ic_dE", "Ionisation chamber;Energy in first layer (Gas) (arb. units);Counts", 4096, 0, 10000 );
+	ic_E = new TH1F( "ic_E", "Ionisation chamber;Energy in final layer (Si) (arb. units);Counts", 4096, 0, 10000 );
+	ic_dE_E = new TH2F( "ic_dE_E", "Ionisation chamber;Rest energy, E (arb. units);Energy Loss, dE (arb. units);Counts", 4096, 0, 10000, 4096, 0, 10000 );
+
 	return;
 	
 }
@@ -976,6 +1001,86 @@ void MiniballEventBuilder::SpedeFinder(){
 	
 }
 
+void MiniballEventBuilder::IonChamberFinder(){
+
+	// Build individual ion chamber events
+	// Checks to prevent re-using events
+	std::vector<unsigned int> index;
+	std::vector<unsigned int> layer;
+	bool flag_skip;
+	
+	// Loop over IonChamber events
+	for( unsigned int i = 0; i < ic_en_list.size(); ++i ) {
+
+		ic_evt->ClearEvt();
+
+		if( ic_id_list[i] == 0 ){
+			
+			ic_evt->SetdETime( ic_ts_list[i] );
+			ic_dE->Fill( ic_en_list[i] );
+	
+		}
+	
+		else if( ic_id_list[i] == set->GetNumberOfIonChamberLayers()-1 ){
+		
+			ic_evt->SetETime( ic_ts_list[i] );
+			ic_E->Fill( ic_en_list[i] );
+	
+		}
+
+		ic_evt->AddIonChamber( ic_en_list[i], ic_id_list[i] );
+		index.push_back( i );
+		layer.push_back( ic_id_list[i] );
+		
+		// Look for matching events in other layers
+		for( unsigned int j = 0; j < ic_en_list.size(); ++j ) {
+
+			// Can't be coincident with itself
+			if( i == j ) continue;
+
+			// Time difference plot
+			ic_td->Fill( (double)ic_ts_list[i] - (double)ic_ts_list[j] );
+			
+			// Check if we already used this hit
+			flag_skip = false;
+			for( unsigned int k = 0; k < index.size(); ++k ) {
+				if( index[k] == j ) flag_skip = true;
+				if( layer[k] == ic_id_list[j] ) flag_skip = true;
+			}
+			
+			// Found a match
+			if( ic_id_list[j] != ic_id_list[i] && !flag_skip &&
+			   TMath::Abs( (double)ic_ts_list[i] - (double)ic_ts_list[j] ) < set->GetIonChamberHitWindow() ){
+				
+				index.push_back( j );
+				layer.push_back( ic_id_list[j] );
+				ic_evt->AddIonChamber( ic_en_list[j], ic_id_list[j] );
+				
+				if( ic_id_list[j] == 0 )
+					ic_evt->SetdETime( ic_ts_list[j] );
+				else if( ic_id_list[j] == set->GetNumberOfIonChamberLayers()-1 )
+					ic_evt->SetETime( ic_ts_list[j] );
+
+			}
+			
+		}
+		
+		// Histogram the Ionchamber
+		ic_dE_E->Fill( ic_evt->GetEnergyRest(), ic_evt->GetEnergyLoss() );
+
+		// Fill the tree and get ready for next ion chamber event
+		write_evts->AddEvt( ic_evt );
+		ic_ctr++;
+					
+	}
+	
+
+	
+	return;
+	
+}
+
+
 
 unsigned long MiniballEventBuilder::BuildEvents() {
 	
@@ -1108,7 +1213,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				
 			}
 			
-			// Is it a gamma ray from the beam dumo?
+			// Is it a gamma ray from the beam dump?
 			else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
 				
 				// Increment counts and open the event
@@ -1119,6 +1224,20 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				bd_en_list.push_back( myenergy );
 				bd_ts_list.push_back( mytime );
 				bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
+				
+			}
+			
+			// Is it an IonChamber event
+			else if( set->IsIonChamber( mysfp, myboard, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_ic++;
+				hit_ctr++;
+				event_open = true;
+				
+				ic_en_list.push_back( myenergy );
+				ic_ts_list.push_back( mytime );
+				ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
 				
 			}
 
@@ -1332,6 +1451,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				ParticleFinder();		// sort out CD n/p correlations
 				BeamDumpFinder();		// sort out beam dump events
 				SpedeFinder();			// sort out Spede events
+				IonChamberFinder();		// sort out beam dump events
 
 				// ------------------------------------
 				// Add timing and fill the ISSEvts tree
@@ -1343,6 +1463,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					write_evts->GetGammaRayAddbackMultiplicity() ||
 					write_evts->GetParticleMultiplicity() ||
 				    write_evts->GetSpedeMultiplicity() ||
+				    write_evts->GetIonChamberMultiplicity() ||
 				    write_evts->GetBeamDumpMultiplicity() )
 					output_tree->Fill();
 
@@ -1421,6 +1542,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	ss_log << "    Electron events = " << spede_ctr << std::endl;
 	ss_log << "   Beam dump triggers = " << n_bd << std::endl;
 	ss_log << "    Beam dump gamma events = " << bd_ctr << std::endl;
+	ss_log << "   IonChamber triggers = " << n_ic << std::endl;
+	ss_log << "    IonChamber ion events = " << ic_ctr << std::endl;
 
 	std::cout << ss_log.str();
 	if( log_file.is_open() && flag_input_file ) log_file << ss_log.str();

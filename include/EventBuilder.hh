@@ -72,6 +72,7 @@ public:
 	void ParticleFinder();
 	void BeamDumpFinder();
 	void SpedeFinder();
+	void IonChamberFinder();
 
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
@@ -103,6 +104,7 @@ private:
 	std::shared_ptr<ParticleEvt> particle_evt;
 	std::shared_ptr<SpedeEvt> spede_evt;
 	std::shared_ptr<BeamDumpEvt> bd_evt;
+	std::shared_ptr<IonChamberEvt> ic_evt;
 
 	// Do calibration
 	std::shared_ptr<MiniballCalibration> cal;
@@ -166,25 +168,30 @@ private:
 	std::vector<unsigned char>			cd_side_list;	///< list of CD side IDs; 0 = p, 1 = n
 	std::vector<unsigned char>			cd_strip_list;	///< list of CD strip IDs
 
-	// Beam dumo detector specific variables
-	std::vector<float>					bd_en_list;		///< list of beam dump energies for ParticleFinder
-	std::vector<unsigned long long>		bd_ts_list;		///< list of beam dump timestamps for ParticleFinder
+	// Beam dump detector specific variables
+	std::vector<float>					bd_en_list;		///< list of beam dump energies for BeamDumpFinder
+	std::vector<unsigned long long>		bd_ts_list;		///< list of beam dump timestamps for BeamDumpFinder
 	std::vector<unsigned char>			bd_det_list;	///< list of beam dump detector IDs
 
 	// Spede detector specific variables
-	std::vector<float>					spede_en_list;		///< list of Spede energies for ParticleFinder
-	std::vector<unsigned long long>		spede_ts_list;		///< list of Spede timestamps for ParticleFinder
+	std::vector<float>					spede_en_list;		///< list of Spede energies for ElectronFinder
+	std::vector<unsigned long long>		spede_ts_list;		///< list of Spede timestamps for ElectronFinder
 	std::vector<unsigned char>			spede_seg_list;		///< list of Spede segment IDs
+
+	// IonChamber detector specific variables
+	std::vector<float>					ic_en_list;		///< list of IonChamber energies for IonChamberFinder
+	std::vector<unsigned long long>		ic_ts_list;		///< list of IonChamber timestamps for IonChamberFinder
+	std::vector<unsigned char>			ic_id_list;		///< list of IonChamber layer IDs
 
 
 	// Counters
-	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr, spede_ctr;
+	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr, spede_ctr, ic_ctr;
 	unsigned long				n_entries, n_febex_data, n_info_data;
 	unsigned long				n_ebis, n_t1, n_sc, n_pulser;
 	std::vector<unsigned long>	n_sfp;
 	std::vector<std::vector<unsigned long>>	n_board;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
-	unsigned long				n_miniball, n_cd, n_spede, n_bd;
+	unsigned long				n_miniball, n_cd, n_spede, n_bd, n_ic;
 
 
 	// Timing histograms
@@ -203,6 +210,11 @@ private:
 	std::vector<std::vector<TH1F*>> cd_pn_td, cd_pp_td, cd_nn_td;
 	std::vector<std::vector<TH2F*>> cd_pn_1v1, cd_pn_1v2, cd_pn_2v1, cd_pn_2v2;
 
+	// Ion chamber histograms
+	TH2F *ic_dE_E;
+	TH1F *ic_dE, *ic_E;
+	TH1F *ic_td;
+	
 };
 
 #endif
