@@ -412,8 +412,8 @@ TVector3 MiniballReaction::GetSpedeVector( unsigned char seg, bool random ){
 	// Rotate appropriately
 	if( random ) mult = rand.Rndm();					// get a new random point for the phi angle
 	float phi = (float)(seg%8) * TMath::Pi() / 4.0;		// rotate every 8 slices
-	phi += 0.98 * mult * TMath::Pi() / 8.0; 			// rotate by half of one slice or random part thereof
-	phi += 0.01 * TMath::Pi() / 8.0; 					// add a small slice for the interstrip region
+	phi += 0.98 * mult * TMath::Pi() / 4.0; 			// rotate by half of one slice or random part thereof
+	phi += 0.01 * TMath::Pi() / 4.0; 					// add a small slice for the interstrip region
 
 	vec.SetPhi( phi );
 	
