@@ -237,19 +237,25 @@ public:
 	inline float	GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegPhi( cry, seg );
 	};
-	inline float	GetGammaTheta( std::shared_ptr<GammaRayEvt> g ){
-		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	inline float	GetGammaX( unsigned char clu, unsigned char cry, unsigned char seg ){
+		return mb_geo[clu].GetSegX( cry, seg );
 	};
-	inline float	GetGammaTheta( std::shared_ptr<GammaRayAddbackEvt> g ){
+	inline float	GetGammaY( unsigned char clu, unsigned char cry, unsigned char seg ){
+		return mb_geo[clu].GetSegY( cry, seg );
+	};
+	inline float	GetGammaTheta( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
 	inline float	GetGammaPhi( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaPhi( std::shared_ptr<GammaRayAddbackEvt> g ){
-		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	inline float	GetGammaX( std::shared_ptr<GammaRayEvt> g ){
+		return GetGammaX( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	
+	inline float	GetGammaY( std::shared_ptr<GammaRayEvt> g ){
+		return GetGammaY( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	};
+
 	// SPEDE and electron geometry
 	inline float	GetSpedeDistance(){ return spede_dist; };
 	inline float	GetSpedePhiOffset(){ return spede_offset; };
@@ -292,7 +298,11 @@ public:
 		return etot;
 	};
 	inline double GetBeta(){
-		return TMath::Sqrt( 2.0 * Beam.GetEnergy() / Beam.GetMass() );
+		double beta2 = 0.25 * Beam.GetMass() + 1.5 * Beam.GetEnergy();
+		beta2  = TMath::Sqrt( beta2 * Beam.GetMass() );
+		beta2 -= 0.5 * Beam.GetMass();
+		return TMath::Sqrt( beta2 / ( 0.75 * Beam.GetMass() ) );
+		//return TMath::Sqrt( 2.0 * Beam.GetEnergy() / Beam.GetMass() );
 	};
 	inline double GetGamma(){
 		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );

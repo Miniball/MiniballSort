@@ -88,6 +88,18 @@ class MiniballGeometry : public TObject {
 	/// \return phi of segment in beam reference (radians)
 	double GetSegPhi( unsigned char cry, unsigned char seg );
 
+	/// Get the x position of a segment with respect to the beam
+	/// \param cry number of the MB Ge crystal counting from 0 to 2
+	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
+	/// \return x position of segment in beam reference (mm)
+	double GetSegX( unsigned char cry, unsigned char seg );
+
+	/// Get the y position of a segment with respect to the beam
+	/// \param cry number of the MB Ge crystal counting from 0 to 2
+	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
+	/// \return y position of segment in beam reference (mm)
+	double GetSegY( unsigned char cry, unsigned char seg );
+
 	/// Get a unit vector pointing towards the segment
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -139,6 +151,22 @@ class MiniballGeometry : public TObject {
 		return phi;
 	};
 	
+	/// Get the true x position of a vector (return mm)
+	/// \param v vector from target to detector
+	/// \return x position in the beam system (mm)
+	inline double TrueX( TVector3 &v ) {
+		TVector3 v2( -v.y(), v.z(), v.x() );
+		return v2.X();
+	};
+	
+	/// Get the true y position of a vector (return mm)
+	/// \param v vector from target to detector
+	/// \return y position in the beam system (mm)
+	inline double TrueY( TVector3 &v ) {
+		TVector3 v2( -v.y(), v.z(), v.x() );
+		return v2.Y();
+	};
+		
 	private:
 	
 	// Segments etc

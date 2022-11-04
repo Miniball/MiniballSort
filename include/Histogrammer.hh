@@ -272,7 +272,8 @@ private:
 	// Gamma-rays with and without addback
 	TH1F *gE_singles, *gE_singles_ebis, *gE_singles_ebis_on, *gE_singles_ebis_off;
 	TH1F *aE_singles, *aE_singles_ebis, *aE_singles_ebis_on, *aE_singles_ebis_off;
-
+	TH2F *gamma_xy_map_forward, *gamma_xy_map_backward;
+	
 	// Electron singles
 	TH1F *eE_singles, *eE_singles_ebis, *eE_singles_ebis_on, *eE_singles_ebis_off;
 	TH2F *electron_xy_map;
@@ -292,7 +293,8 @@ private:
 	TH2F *aE_eE, *aE_eE_ebis_on;
 
 	// Particles
-	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_beam, *pE_theta_target;
+	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_ejectile, *pE_theta_recoil;
+	TProfile *pBeta_theta_ejectile, *pBeta_theta_recoil;
 	TH1F *particle_particle_td;
 	TH2F *particle_xy_map_forward, *particle_xy_map_backward, *particle_theta_phi_map;
 
@@ -308,6 +310,10 @@ private:
 	TH1F *electron_particle_td;
 	TH1F *eE_prompt, *eE_prompt_1p, *eE_prompt_2p;
 	TH1F *eE_random, *eE_random_1p, *eE_random_2p;
+
+	// Gamma-ray energy versus cos(theta)
+	TH2F *gE_costheta_ejectile, *gE_costheta_recoil;
+	TH2F *aE_costheta_ejectile, *aE_costheta_recoil;
 
 	// Doppler-corrected gamma-rays without addback
 	TH1F *gE_ejectile_dc_none, *gE_ejectile_dc_ejectile, *gE_ejectile_dc_recoil;

@@ -96,6 +96,14 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy with addback singles EBIS off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 
+	hname = "gamma_xy_map_forward";
+	htitle = "Gamma-ray X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts";
+	gamma_xy_map_forward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+
+	hname = "gamma_xy_map_backward";
+	htitle = "Gamma-ray X-Y hit map (#theta > 90);y (horizontal) [mm];x (vertical) [mm];Counts";
+	gamma_xy_map_backward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+
 	// Gamma-ray coincidence histograms
 	dirname = "CoincidenceMatrices";
 	output_file->mkdir( dirname.data() );
@@ -181,13 +189,21 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Particle energy in coincidence with a gamma ray;Angle [deg];Energy [keV];Counts per 0.5 keV";
 	pE_theta_coinc = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
-	hname = "pE_theta_beam";
-	htitle = "Particle energy singles, gated on beam;Angle [deg];Energy [keV];Counts per 0.5 keV";
-	pE_theta_beam = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	hname = "pE_theta_ejectile";
+	htitle = "Particle energy singles, gated on ejectile;Angle [deg];Energy [keV];Counts per 0.5 keV";
+	pE_theta_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
-	hname = "pE_theta_target";
-	htitle = "Particle energy singles, gated on target;Angle [deg];Energy [keV];Counts per 0.5 keV";
-	pE_theta_target = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	hname = "pE_theta_recoil";
+	htitle = "Particle energy singles, gated on recoil;Angle [deg];Energy [keV];Counts per 0.5 keV";
+	pE_theta_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	
+	hname = "pBeta_theta_ejectile";
+	htitle = "Reconstructed ejectile velocity;Angle [deg];#beta [c];Counts per 0.5 keV";
+	pBeta_theta_ejectile = new TProfile( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data() );
+	
+	hname = "pBeta_theta_recoil";
+	htitle = "Reconstructed recoil velocity;Angle [deg];#beta [c];Counts per 0.5 keV";
+	pBeta_theta_recoil = new TProfile( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data() );
 	
 	hname = "particle_xy_map_forward";
 	htitle = "Particle X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
@@ -274,6 +290,16 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	gE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+
+	hname = "gE_costheta_ejectile";
+	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray;";
+	htitle += ";Energy [keV];cos(#theta_p#gamma)";
+	gE_costheta_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+
+	hname = "gE_costheta_recoil";
+	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray;";
+	htitle += ";Energy [keV];cos(#theta_p#gamma)";
+	gE_costheta_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
 
 	hname = "gE_vs_theta_ejectile_dc_none";
 	htitle = "Gamma-ray energy, gated on the ejectile with random subtraction;";
@@ -393,6 +419,16 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	aE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+
+	hname = "aE_costheta_ejectile";
+	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray;";
+	htitle += ";Energy [keV];cos(#theta_p#gamma)";
+	aE_costheta_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+
+	hname = "aE_costheta_recoil";
+	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between recoil and gamma-ray;";
+	htitle += ";Energy [keV];cos(#theta_p#gamma)";
+	aE_costheta_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
 
 	hname = "aE_vs_theta_ejectile_dc_none";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile with random subtraction;";
@@ -643,6 +679,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 	// Ejectile-gated spectra
 	if( react->IsEjectileDetected() ) {
 		
+		gE_costheta_ejectile->Fill( g->GetEnergy(), react->CosTheta( g, true ), weight );
+
 		gE_ejectile_dc_none->Fill( g->GetEnergy(), weight );
 		gE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
@@ -656,6 +694,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 	// Recoil-gated spectra
 	if( react->IsRecoilDetected() ) {
 		
+		gE_costheta_recoil->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
+
 		gE_recoil_dc_none->Fill( g->GetEnergy(), weight );
 		gE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
@@ -713,10 +753,12 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_prompt_1p->Fill( g->GetEnergy() );
 	else if( react->IsEjectileDetected() != react->IsRecoilDetected() )
 		aE_random_1p->Fill( g->GetEnergy() );
-
+	
 	// Ejectile-gated spectra
 	if( react->IsEjectileDetected() ) {
 		
+		aE_costheta_ejectile->Fill( g->GetEnergy(), react->CosTheta( g, true ), weight );
+
 		aE_ejectile_dc_none->Fill( g->GetEnergy(), weight );
 		aE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
@@ -730,6 +772,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 	// Recoil-gated spectra
 	if( react->IsRecoilDetected() ) {
 		
+		aE_costheta_recoil->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
+
 		aE_recoil_dc_none->Fill( g->GetEnergy(), weight );
 		aE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
@@ -889,12 +933,19 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 			
 			// Energy vs angle plot, after cuts
-			if( EjectileCut( particle_evt ) )
-				pE_theta_beam->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+			if( EjectileCut( particle_evt ) ) {
+				
+				pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+				pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
+				
+			}
 			
-			if( RecoilCut( particle_evt ) )
-				pE_theta_target->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+			if( RecoilCut( particle_evt ) ) {
 			
+				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+				pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
+
+			}
 			
 			// Check for prompt coincidence with a gamma-ray
 			for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
@@ -1023,6 +1074,12 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // ebis off
 			
+			// Gamma-ray hit map
+			if( react->GetGammaTheta( gamma_evt ) < TMath::PiOver2() )
+				gamma_xy_map_forward->Fill( react->GetGammaY( gamma_evt ), react->GetGammaX( gamma_evt ) );
+			else
+				gamma_xy_map_backward->Fill( react->GetGammaY( gamma_evt ), react->GetGammaX( gamma_evt ) );
+
 			// Particle-gamma coincidence spectra
 			FillParticleGammaHists( gamma_evt );
 

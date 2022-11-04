@@ -66,21 +66,39 @@ double MiniballGeometry::GetSegPhi( unsigned char cry, unsigned char seg ) {
 	
 }
 
+double MiniballGeometry::GetSegX( unsigned char cry, unsigned char seg ) {
+	
+	// New method of returning x in true coordinate system
+	// Check if user is asking for the core or a segment
+	if( seg == 0 ) return TrueX( cry_offset[cry] );
+	else return TrueX( seg_offset[cry][seg-1] );
+	
+}
+
+double MiniballGeometry::GetSegY( unsigned char cry, unsigned char seg ) {
+	
+	// New method of returning y in true coordinate system
+	// Check if user is asking for the core or a segment
+	if( seg == 0 ) return TrueY( cry_offset[cry] );
+	else return TrueY( seg_offset[cry][seg-1] );
+	
+}
+
 TVector3 MiniballGeometry::GetSegVector( unsigned char cry, unsigned char seg ) {
 	
 	// Return a unit vector pointing to the segment
 	TVector3 vec( 1, 0, 0 );
 	
 	if( seg == 0 ) {
-		vec.SetTheta( TruePhi( cry_offset[cry] ) );
+		vec.SetTheta( TrueTheta( cry_offset[cry] ) );
 		vec.SetPhi( TruePhi( cry_offset[cry] ) );
 	}
 	else {
-		vec.SetTheta( TruePhi( seg_offset[cry][seg-1] ) );
+		vec.SetTheta( TrueTheta( seg_offset[cry][seg-1] ) );
 		vec.SetPhi( TruePhi( seg_offset[cry][seg-1] ) );
 	}
 	return vec;
-	
+		
 }
 
 double MiniballGeometry::GetCryTheta( unsigned char cry ) {
