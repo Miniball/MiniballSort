@@ -28,6 +28,12 @@ void MiniballHistogrammer::MakeHists() {
 	gamma_particle_td = new TH1F( hname.data(), htitle.data(),
 								 1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
 
+	hname = "gamma_particle_E_vs_td";
+	htitle = "Gamma-ray - Particle time difference versus gamma-ray energy;#Deltat;Gamma-ray energy (keV);Counts";
+	gamma_particle_E_vs_td = new TH2F( hname.data(), htitle.data(),
+								 200, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50,
+								 GBIN/4., 0., 2000. );
+
 	hname = "gamma_gamma_td";
 	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat;Counts";
 	gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
@@ -898,7 +904,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 				// Time differences
 				gamma_particle_td->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
-				
+				gamma_particle_E_vs_td->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime(), gamma_evt->GetEnergy() );
+
 				// Check for prompt coincidence
 				if( PromptCoincidence( gamma_evt, particle_evt ) ){
 					

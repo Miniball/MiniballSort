@@ -109,7 +109,7 @@ public:
 	inline double		GetThetaCoM(){ return ThetaCoM; };
 	inline double		GetPhi(){ return Phi; };
 	inline TVector3		GetVector(){
-		TVector3 vec(1,0,0);
+		TVector3 vec( 1, 0, 0 );
 		vec.SetTheta( GetTheta() );
 		vec.SetPhi( GetPhi() );
 		return vec;
