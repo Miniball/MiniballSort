@@ -423,7 +423,7 @@
 #-------------------#
 # IonChamber things #
 #-------------------#
-#NumberOfIonChamberLayers: 24		# Number of layers in the IonChamber usually 2, dE (gas = 0) and E (Si = 1)
+#NumberOfIonChamberLayers: 2		# Number of layers in the IonChamber usually 2, dE (gas = 0) and E (Si = 1)
 
 #IonChamber_0.Sfp: 1
 #IonChamber_0.Board: 9
