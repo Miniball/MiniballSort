@@ -1033,9 +1033,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		// ------------------------------------------ //
 		if( in_data->IsFebex() ) {
 			
-			// Increment event counter
-			n_febex_data++;
-			
+			// Get the data
 			febex_data = in_data->GetFebexData();
 			mysfp = febex_data->GetSfp();
 			myboard = febex_data->GetBoard();
@@ -1057,6 +1055,11 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				mythres = febex_data->IsOverThreshold();
 
 			}
+			
+			// Increment event counters
+			n_febex_data++;
+			n_sfp[mysfp]++;
+			n_board[mysfp][myboard]++;
 			
 			// Is it a gamma ray from Miniball?
 			if( set->IsMiniball( mysfp, myboard, mych ) && mythres ) {
