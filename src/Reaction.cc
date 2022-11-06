@@ -579,7 +579,7 @@ void MiniballReaction::CalculateEjectile(){
 	if( Th < 0. ) Th += TMath::Pi();
 	
 	Ejectile.SetTheta( Th );
-	Ejectile.SetPhi( TMath::Pi() - Recoil.GetPhi() );
+	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
 	ejectile_detected = false;
 
 }
@@ -607,7 +607,7 @@ void MiniballReaction::CalculateRecoil(){
 	if( Th < 0. ) Th += TMath::Pi();
 
 	Recoil.SetTheta( Th );
-	Recoil.SetPhi( TMath::Pi() - Ejectile.GetPhi() );
+	Recoil.SetPhi( TMath::Pi() + Ejectile.GetPhi() );
 	recoil_detected = false;
 
 }
