@@ -109,7 +109,7 @@ void MiniballGeometry::SetupCluster() {
 	
 	if( theta > TMath::PiOver2() ) {
 		myphi = -myphi;
-		alpha = alpha - TMath::Pi();
+		myalpha = alpha - TMath::Pi();
 	}
 	
 	// Rotate cluster to appropriate angle
