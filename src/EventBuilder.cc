@@ -361,28 +361,28 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 100 keV";
-			cd_pn_1v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 400e3, 400, 0, 400e3 );
+			cd_pn_1v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
 			
 			hname  = "cd_pn_1v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 1v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 100 keV";
-			cd_pn_1v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 400e3, 400, 0, 400e3 );
+			cd_pn_1v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
 			
 			hname  = "cd_pn_2v1_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v1";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 100 keV";
-			cd_pn_2v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 400e3, 400, 0, 400e3 );
+			cd_pn_2v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
 			
 			hname  = "cd_pn_2v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 100 keV";
-			cd_pn_2v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 400e3, 400, 0, 400e3 );
+			cd_pn_2v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
 			
 			hname  = "cd_pn_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side time difference ";
