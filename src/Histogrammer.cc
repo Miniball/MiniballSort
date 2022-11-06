@@ -300,13 +300,11 @@ void MiniballHistogrammer::MakeHists() {
 	gE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 
 	hname = "gE_costheta_ejectile";
-	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray;";
-	htitle += ";Energy [keV];cos(#theta_p#gamma)";
+	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray;Energy [keV];cos(#theta_p#gamma)";
 	gE_costheta_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
 
 	hname = "gE_costheta_recoil";
-	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray;";
-	htitle += ";Energy [keV];cos(#theta_p#gamma)";
+	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray;Energy [keV];cos(#theta_p#gamma)";
 	gE_costheta_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
 
 	hname = "gE_vs_theta_ejectile_dc_none";
