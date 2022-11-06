@@ -446,7 +446,7 @@ double MiniballReaction::CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile
 
 	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
 
-	return gvec.Cross( p->GetVector() ).CosTheta();
+	return TMath::Cos( gvec.Angle( p->GetVector() ) );
 	
 }
 
@@ -460,8 +460,8 @@ double MiniballReaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) 
 
 	TVector3 evec = GetElectronVector( s->GetSegment() );
 	
-	return evec.Cross( p->GetVector() ).CosTheta();
-	
+	return TMath::Cos( evec.Angle( p->GetVector() ) );
+
 }
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
