@@ -523,6 +523,12 @@ void MiniballEventBuilder::GammaRayFinder() {
 		MaxTime = write_evts->GetGammaRayEvt(i)->GetTime();
 		ab_mul = 1;	// this is already the first event
 		
+		// Check we haven't already used this event
+		skip_event = false;
+		for( unsigned int k = 0; k < ab_index.size(); ++k )
+			if( ab_index.at(k) == i ) skip_event = true;
+		if( skip_event ) continue;
+
 		// Loop to find a matching event for addback
 		for( unsigned int j = i+1; j < write_evts->GetGammaRayMultiplicity(); ++j ) {
 
@@ -555,12 +561,6 @@ void MiniballEventBuilder::GammaRayFinder() {
 			}
 
 		} // j: loop for matching addback
-
-		// Check we haven't already used this event
-		skip_event = false;
-		for( unsigned int k = 0; k < ab_index.size(); ++k )
-			if( ab_index.at(k) == i ) skip_event = true;
-		if( skip_event ) continue;
 
 		// Build the single crystal gamma-ray event
 		gamma_ab_ctr++;
@@ -657,8 +657,6 @@ void MiniballEventBuilder::ParticleFinder() {
 					
 					cd_pp_td[i][j]->Fill( (double)cd_ts_list.at( pindex[p1] ) -
 										  (double)cd_ts_list.at( pindex[p2] ) );
-					cd_pp_td[i][j]->Fill( (double)cd_ts_list.at( pindex[p2] ) -
-										  (double)cd_ts_list.at( pindex[p1] ) );
 					
 				} // p2
 				
@@ -670,8 +668,6 @@ void MiniballEventBuilder::ParticleFinder() {
 					
 					cd_nn_td[i][j]->Fill( (double)cd_ts_list.at( nindex[n1] ) -
 										  (double)cd_ts_list.at( nindex[n2] ) );
-					cd_nn_td[i][j]->Fill( (double)cd_ts_list.at( nindex[n2] ) -
-										  (double)cd_ts_list.at( nindex[n1] ) );
 
 				} // n2
 
