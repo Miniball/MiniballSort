@@ -362,14 +362,14 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	phi += cd_offset[det]; // left edge of first strip
 	if( set->GetNumberOfCDNStrips() == 12 )	{			// standard CD
 	
-		phi -= 3.5; // move the centre of first strip to zero degrees
+		phi += 3.5; // move the centre of first strip to zero degrees
 		phi += nid * 7.0;
 	
 	}
 	
 	else if( set->GetNumberOfCDNStrips() == 16 ) {		// CREX and TREX
 		
-		phi -= 1.75; // centre of first strip
+		phi += 1.75; // centre of first strip
 		if( nid < 4 ) phi += nid * 3.5; // first 4 strips singles (=4 nid)
 		else if( nid < 12 ) phi += 14. + ( nid - 4 ) * 7.0; // middle 16 strips doubles (=8 nids)
 		else phi += 70. + ( nid - 12 ) * 3.5; // last 4 strips singles (=4 nid)
