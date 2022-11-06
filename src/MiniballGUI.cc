@@ -512,18 +512,9 @@ void MiniballGUI::gui_convert(){
 	//------------------------//
 	MiniballMidasConverter conv_midas( myset );
 	MiniballMbsConverter conv_mbs( myset );
-	if( flag_mbs ) {
-		
-		conv_mbs.AddCalibration( mycal );
-		conv_mbs.AddProgressBar( prog_conv );
-	
-	}
-	else {
-		
-		conv_midas.AddCalibration( mycal );
-		conv_midas.AddProgressBar( prog_conv );
-	
-	}
+
+	if( flag_mbs ) conv_mbs.AddProgressBar( prog_conv );
+	else conv_midas.AddProgressBar( prog_conv );
 
 	std::cout << "\n +++ Miniball Analysis:: processing MiniballMidasConverter +++" << std::endl;
 
@@ -538,14 +529,25 @@ void MiniballGUI::gui_convert(){
 	for( unsigned int i = 0; i < filelist.size(); i++ ){
 			
 		name_input_file = filelist.at(i);
-		if( flag_source ) name_output_file = filelist.at(i) + "_source.root";
-		else name_output_file = filelist.at(i) + ".root";
+		name_output_file = name_input_file( 0, name_input_file.Last('.') );
+		if( flag_source ) name_output_file = name_output_file + "_source.root";
+		else name_output_file = name_output_file + ".root";
 		
 		force_convert.push_back( false );
 		
 		// Skip the file if it's deleted
 		if( !filestatus.at(i) ) continue;
 
+		// If input doesn't exist, skip it
+		ftest.open( name_input_file.Data() );
+		if( !ftest.is_open() ) {
+
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+
+		}
+		else ftest.close();
+		
 		// If input doesn't exist, skip it
 		ftest.open( name_input_file.Data() );
 		if( !ftest.is_open() ) {
@@ -589,8 +591,9 @@ void MiniballGUI::gui_convert(){
 				conv_mbs.SetOutput( name_output_file.Data() );
 				conv_mbs.MakeTree();
 				conv_mbs.MakeHists();
+				conv_mbs.AddCalibration( mycal );
 				conv_mbs.ConvertFile( name_input_file.Data() );
-			
+
 			}
 			else {
 				
@@ -598,6 +601,7 @@ void MiniballGUI::gui_convert(){
 				conv_midas.SetOutput( name_output_file.Data() );
 				conv_midas.MakeTree();
 				conv_midas.MakeHists();
+				conv_midas.AddCalibration( mycal );
 				conv_midas.ConvertFile( name_input_file.Data() );
 				
 			}
@@ -670,9 +674,11 @@ void MiniballGUI::gui_build(){
 	// Do event builder for each file individually
 	for( unsigned int i = 0; i < filelist.size(); i++ ){
 
-		name_input_file = filelist.at(i) + ".root";
-		name_output_file = filelist.at(i) + "_events.root";
-
+		name_input_file = filelist.at(i);
+		name_input_file = name_input_file( 0, name_input_file.Last('.') );
+		name_output_file = name_input_file + "_events.root";
+		name_input_file += ".root";
+	
 		// Skip the file if it's deleted
 		if( !filestatus.at(i) ) continue;
 
@@ -762,7 +768,9 @@ void MiniballGUI::gui_hist(){
 		// Skip the file if it's deleted
 		if( !filestatus.at(i) ) continue;
 		
-		name_input_file = filelist.at(i) + "_events.root";
+		name_input_file = filelist.at(i);
+		name_input_file = name_input_file( 0, name_input_file.Last('.') );
+		name_input_file += "_events.root";
 		name_hist_files.push_back( name_input_file.Data() );
 
 	}

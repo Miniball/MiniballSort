@@ -312,7 +312,8 @@ void do_convert() {
 		name_input_file = input_names.at(i);
 		name_output_file = name_input_file.substr( 0,
 								name_input_file.find_last_of(".") );
-		name_output_file += ".root";
+		if( flag_source ) name_output_file = name_output_file + "_source.root";
+		else name_output_file = name_output_file + ".root";
 
 		force_convert.push_back( false );
 
@@ -348,6 +349,7 @@ void do_convert() {
 			
 			if( flag_mbs ) {
 			
+				if( flag_source ) conv_mbs.SourceOnly();
 				conv_mbs.SetOutput( name_output_file );
 				conv_mbs.MakeTree();
 				conv_mbs.MakeHists();
@@ -362,6 +364,7 @@ void do_convert() {
 			
 			else {
 				
+				if( flag_source ) conv_midas.SourceOnly();
 				conv_midas.SetOutput( name_output_file );
 				conv_midas.MakeTree();
 				conv_midas.MakeHists();
