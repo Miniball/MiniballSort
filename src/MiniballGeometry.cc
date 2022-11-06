@@ -113,22 +113,22 @@ void MiniballGeometry::SetupCluster() {
 	}
 	
 	// Rotate cluster to appropriate angle
-	clu_offset.RotateZ( mytheta );
 	clu_offset.RotateX( myphi );
+	clu_offset.RotateZ( mytheta );
 
 	// Rotate crystal to appropriate angle
 	for( unsigned char i = 0; i < ncry; i++ ) {
 		cry_offset[i].RotateY( myalpha );
-		cry_offset[i].RotateZ( mytheta );
 		cry_offset[i].RotateX( myphi );
+		cry_offset[i].RotateZ( mytheta );
 	}
 
 	// Rotate segments to appropriate angle
 	for( unsigned char i = 0; i < ncry; i++ ) {
 		for( unsigned char j = 0; j < nseg; j++ ) {
 			seg_offset[i][j].RotateY( myalpha );
-			seg_offset[i][j].RotateZ( mytheta );
 			seg_offset[i][j].RotateX( myphi );
+			seg_offset[i][j].RotateZ( mytheta );
 		}
 	}
 	
