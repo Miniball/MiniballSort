@@ -97,21 +97,17 @@ void MiniballGeometry::SetupCluster() {
 	// Offsets - We start looking at detector face along Y axis
 	double myalpha, myphi, mytheta;
 	
-	myalpha = alpha;
 	if( phi > TMath::Pi() ) {
-		mytheta = theta - TMath::TwoPi();
-		myphi = phi - 3. * TMath::PiOver2();
+		myalpha = alpha;
+		myphi = TMath::PiOver2() - phi;
+		mytheta = theta - TMath::Pi();
 	}
 	else {
-		mytheta = -theta;
-		myphi = TMath::PiOver2() - phi;
-	}
-	
-	if( theta > TMath::PiOver2() ) {
-		myphi = -myphi;
 		myalpha = alpha - TMath::Pi();
+		myphi = TMath::PiOver2() - phi;
+		mytheta = -theta;
 	}
-	
+
 	// Rotate cluster to appropriate angle
 	clu_offset.RotateX( myphi );
 	clu_offset.RotateZ( mytheta );
