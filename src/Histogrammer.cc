@@ -97,12 +97,20 @@ void MiniballHistogrammer::MakeHists() {
 	aE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 
 	hname = "gamma_xy_map_forward";
-	htitle = "Gamma-ray X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts";
+	htitle = "Gamma-ray X-Y hit map (forward: z > 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xy_map_forward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
 
 	hname = "gamma_xy_map_backward";
-	htitle = "Gamma-ray X-Y hit map (#theta > 90);y (horizontal) [mm];x (vertical) [mm];Counts";
+	htitle = "Gamma-ray X-Y hit map (backwards: z < 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xy_map_backward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+
+	hname = "gamma_xz_map_left";
+	htitle = "Gamma-ray X-Z hit map (left: y < 0);z (horizontal) [mm];x (vertical) [mm];Counts";
+	gamma_xz_map_left = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+
+	hname = "gamma_xz_map_right";
+	htitle = "Gamma-ray X-Z hit map (right: y > 0);z (horizontal) [mm];x (vertical) [mm];Counts";
+	gamma_xz_map_right = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
 
 	// Gamma-ray coincidence histograms
 	dirname = "CoincidenceMatrices";
@@ -1074,11 +1082,17 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // ebis off
 			
-			// Gamma-ray hit map
+			// Gamma-ray X-Y hit map
 			if( react->GetGammaZ( gamma_evt ) > 0 )
 				gamma_xy_map_forward->Fill( react->GetGammaY( gamma_evt ), react->GetGammaX( gamma_evt ) );
 			else
 				gamma_xy_map_backward->Fill( react->GetGammaY( gamma_evt ), react->GetGammaX( gamma_evt ) );
+
+			// Gamma-ray X-Z hit map
+			if( react->GetGammaY( gamma_evt ) > 0 )
+				gamma_xz_map_right->Fill( react->GetGammaZ( gamma_evt ), react->GetGammaX( gamma_evt ) );
+			else
+				gamma_xz_map_left->Fill( react->GetGammaZ( gamma_evt ), react->GetGammaX( gamma_evt ) );
 
 			// Particle-gamma coincidence spectra
 			FillParticleGammaHists( gamma_evt );
