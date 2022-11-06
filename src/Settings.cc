@@ -166,7 +166,7 @@ void MiniballSettings::ReadSettings() {
 				d = i*3 + j;			// Crystal ordering: 0-23
 				s = 0;					// spread 24 crystals over 1 SFPs
 				b = d/2;				// 2 crystals per board
-				c = k + 9*(d&0x1);		// odd crystals starts at ch8
+				c = k + 9*(d&0x1);		// odd crystals starts at ch9
 				mb_sfp[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Sfp", i, j, k ), s );
 				mb_board[i][j][k]	= config->GetValue( Form( "Miniball_%d_%d_%d.Board", i, j, k ), b );
 				mb_ch[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Channel", i, j, k ), c );

@@ -1075,7 +1075,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			} // ebis off
 			
 			// Gamma-ray hit map
-			if( react->GetGammaTheta( gamma_evt ) < TMath::PiOver2() )
+			if( react->GetGammaZ( gamma_evt ) > 0 )
 				gamma_xy_map_forward->Fill( react->GetGammaY( gamma_evt ), react->GetGammaX( gamma_evt ) );
 			else
 				gamma_xy_map_backward->Fill( react->GetGammaY( gamma_evt ), react->GetGammaX( gamma_evt ) );

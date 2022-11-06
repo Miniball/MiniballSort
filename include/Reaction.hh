@@ -243,6 +243,9 @@ public:
 	inline float	GetGammaY( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegY( cry, seg );
 	};
+	inline float	GetGammaZ( unsigned char clu, unsigned char cry, unsigned char seg ){
+		return mb_geo[clu].GetSegZ( cry, seg );
+	};
 	inline float	GetGammaTheta( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
@@ -254,6 +257,9 @@ public:
 	};
 	inline float	GetGammaY( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaY( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
+	};
+	inline float	GetGammaZ( std::shared_ptr<GammaRayEvt> g ){
+		return GetGammaZ( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
 
 	// SPEDE and electron geometry

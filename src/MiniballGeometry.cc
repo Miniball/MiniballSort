@@ -3,130 +3,6 @@
 
 ClassImp(MiniballGeometry)
 
-void MiniballGeometry::SetCluTheta( double user_theta ) {
-
-	// Set the user value
-	theta = user_theta * TMath::DegToRad();
-
-	return;
-
-}
-
-void MiniballGeometry::SetCluPhi( double user_phi ) {
-	
-	// Set the user value
-	phi = user_phi * TMath::DegToRad();
-
-	return;
-
-}
-
-void MiniballGeometry::SetCluAlpha( double user_alpha ) {
-
-	// Set the user value
-	alpha = user_alpha * TMath::DegToRad();
-
-	return;
-
-}
-
-void MiniballGeometry::SetCluR( double user_r ) {
-
-	// Set the user value (mm)
-	r = user_r;
-	
-	return;
-	
-}
-
-void MiniballGeometry::SetCluZ( double user_z ) {
-
-	// Set the user value (mm)
-	z = user_z;
-	
-	return;
-	
-}
-
-double MiniballGeometry::GetSegTheta( unsigned char cry, unsigned char seg ) {
-
-	// New method of returning theta in true coordinate system
-	// Check if user is asking for the core or a segment
-	if( seg == 0 ) return TrueTheta( cry_offset[cry] );
-	else return TrueTheta( seg_offset[cry][seg-1] );
-
-}
-
-double MiniballGeometry::GetSegPhi( unsigned char cry, unsigned char seg ) {
-	
-	// New method of returning phi in true coordinate system
-	// Check if user is asking for the core or a segment
-	if( seg == 0 ) return TruePhi( cry_offset[cry] );
-	else return TruePhi( seg_offset[cry][seg-1] );
-	
-}
-
-double MiniballGeometry::GetSegX( unsigned char cry, unsigned char seg ) {
-	
-	// New method of returning x in true coordinate system
-	// Check if user is asking for the core or a segment
-	if( seg == 0 ) return TrueX( cry_offset[cry] );
-	else return TrueX( seg_offset[cry][seg-1] );
-	
-}
-
-double MiniballGeometry::GetSegY( unsigned char cry, unsigned char seg ) {
-	
-	// New method of returning y in true coordinate system
-	// Check if user is asking for the core or a segment
-	if( seg == 0 ) return TrueY( cry_offset[cry] );
-	else return TrueY( seg_offset[cry][seg-1] );
-	
-}
-
-TVector3 MiniballGeometry::GetSegVector( unsigned char cry, unsigned char seg ) {
-	
-	// Return a unit vector pointing to the segment
-	TVector3 vec( 1, 0, 0 );
-	
-	if( seg == 0 ) {
-		vec.SetTheta( TrueTheta( cry_offset[cry] ) );
-		vec.SetPhi( TruePhi( cry_offset[cry] ) );
-	}
-	else {
-		vec.SetTheta( TrueTheta( seg_offset[cry][seg-1] ) );
-		vec.SetPhi( TruePhi( seg_offset[cry][seg-1] ) );
-	}
-	return vec;
-		
-}
-
-double MiniballGeometry::GetCryTheta( unsigned char cry ) {
-	
-	// Return theta from segment offset
-	return TrueTheta( cry_offset[cry] );
-
-}
-
-double MiniballGeometry::GetCryPhi( unsigned char cry ) {
-	
-	// Return phi from segment offset
-	return TruePhi( cry_offset[cry] );
-
-}
-
-TVector3 MiniballGeometry::GetCryVector( unsigned char cry ) {
-	
-	// Return a unit vector pointing to the segment
-	TVector3 vec( 1, 0, 0 );
-	
-	vec.SetTheta( TruePhi( cry_offset[cry] ) );
-	vec.SetPhi( TruePhi( cry_offset[cry] ) );
-
-	return vec;
-	
-}
-
 void MiniballGeometry::SetupCluster( double user_theta, double user_phi, double user_alpha, double user_r, double user_z ) {
 
 	// Set the user value
@@ -135,9 +11,7 @@ void MiniballGeometry::SetupCluster( double user_theta, double user_phi, double 
 	alpha = user_alpha * TMath::DegToRad();
 	r = user_r;
 	z = user_z;
-
-	if( phi > TMath::Pi() ) theta = TMath::Pi() - theta;
-
+	
 	// Resize arrays
 	cry_offset.resize( ncry );
 	seg_offset.resize( ncry );
@@ -188,30 +62,30 @@ void MiniballGeometry::SetupCluster() {
 	Double_t R = DIST_CORE_CORNER * 0.5; // average distance from centre of capsule to centre of segment
 	
 	cry_offset[0].SetXYZ( 0,                                 r+9, -DIST_CORE_CORNER);
-	cry_offset[1].SetXYZ(-DIST_CORE_CORNER * ROOTTHREEOVER2, r+9,  DIST_CORE_CORNER / 2);
-	cry_offset[2].SetXYZ( DIST_CORE_CORNER * ROOTTHREEOVER2, r+9,  DIST_CORE_CORNER / 2);
+	cry_offset[1].SetXYZ( DIST_CORE_CORNER * ROOTTHREEOVER2, r+9,  DIST_CORE_CORNER / 2);
+	cry_offset[2].SetXYZ(-DIST_CORE_CORNER * ROOTTHREEOVER2, r+9,  DIST_CORE_CORNER / 2);
 	
 	// Offset from centre of a detector to centre of a segment
-	seg_offset[0][0].SetXYZ(-R * ROOTTHREEOVER2, 0.0, -R / 2 );
-	seg_offset[0][1].SetXYZ(-R * ROOTTHREEOVER2, 0.0,  R / 2 );
+	seg_offset[0][0].SetXYZ( R * ROOTTHREEOVER2, 0.0, -R / 2 );
+	seg_offset[0][1].SetXYZ( R * ROOTTHREEOVER2, 0.0,  R / 2 );
 	seg_offset[0][2].SetXYZ( 0.0,                0.0, -R     );
-	seg_offset[0][3].SetXYZ( R * ROOTTHREEOVER2, 0.0, -R / 2 );
+	seg_offset[0][3].SetXYZ(-R * ROOTTHREEOVER2, 0.0, -R / 2 );
 	seg_offset[0][4].SetXYZ( 0.0,                0.0,  R     );
-	seg_offset[0][5].SetXYZ( R * ROOTTHREEOVER2, 0.0,  R / 2 );
+	seg_offset[0][5].SetXYZ(-R * ROOTTHREEOVER2, 0.0,  R / 2 );
 	
 	seg_offset[1][0].SetXYZ( 0.0,                0.0,  R     );
-	seg_offset[1][1].SetXYZ( R * ROOTTHREEOVER2, 0.0,  R / 2 );
-	seg_offset[1][2].SetXYZ(-R * ROOTTHREEOVER2, 0.0,  R / 2 );
-	seg_offset[1][3].SetXYZ(-R * ROOTTHREEOVER2, 0.0, -R / 2 );
-	seg_offset[1][4].SetXYZ( R * ROOTTHREEOVER2, 0.0, -R / 2 );
+	seg_offset[1][1].SetXYZ(-R * ROOTTHREEOVER2, 0.0,  R / 2 );
+	seg_offset[1][2].SetXYZ( R * ROOTTHREEOVER2, 0.0,  R / 2 );
+	seg_offset[1][3].SetXYZ( R * ROOTTHREEOVER2, 0.0, -R / 2 );
+	seg_offset[1][4].SetXYZ(-R * ROOTTHREEOVER2, 0.0, -R / 2 );
 	seg_offset[1][5].SetXYZ( 0.0,                0.0, -R     );
 	
-	seg_offset[2][0].SetXYZ( R * ROOTTHREEOVER2, 0.0, -R / 2 );
+	seg_offset[2][0].SetXYZ(-R * ROOTTHREEOVER2, 0.0, -R / 2 );
 	seg_offset[2][1].SetXYZ( 0.0,                0.0, -R     );
-	seg_offset[2][2].SetXYZ( R * ROOTTHREEOVER2, 0.0,  R / 2 );
+	seg_offset[2][2].SetXYZ(-R * ROOTTHREEOVER2, 0.0,  R / 2 );
 	seg_offset[2][3].SetXYZ( 0.0,                0.0,  R     );
-	seg_offset[2][4].SetXYZ(-R * ROOTTHREEOVER2, 0.0, -R / 2 );
-	seg_offset[2][5].SetXYZ(-R * ROOTTHREEOVER2, 0.0,  R / 2 );
+	seg_offset[2][4].SetXYZ( R * ROOTTHREEOVER2, 0.0, -R / 2 );
+	seg_offset[2][5].SetXYZ( R * ROOTTHREEOVER2, 0.0,  R / 2 );
 #endif
 	
    	// Add the segment offsets to the detector offsets, so now
@@ -220,42 +94,47 @@ void MiniballGeometry::SetupCluster() {
 		for( unsigned char j = 0; j < nseg; j++ )
 			seg_offset[i][j] += cry_offset[i];
 
-	// Offsets
-	double myalpha, mytheta, myphi;
-	if( phi < TMath::Pi() ) {
-		myalpha = alpha;
-		myphi = TMath::Pi() / 2. + phi;
-		mytheta = TMath::Pi() / 2. + theta;
+	// Offsets - We start looking at detector face along Y axis
+	double myalpha, myphi, mytheta;
+	
+	myalpha = alpha;
+	if( phi > TMath::Pi() ) {
+		mytheta = theta - TMath::TwoPi();
+		myphi = phi - 3. * TMath::PiOver2();
 	}
 	else {
-		myalpha = alpha - TMath::Pi();
-		myphi = TMath::Pi() / 2. + phi;
-		mytheta = TMath::Pi() / 2. + theta;
+		mytheta = -theta;
+		myphi = TMath::PiOver2() - phi;
 	}
-
+	
+	if( theta > TMath::PiOver2() ) {
+		myphi = -myphi;
+		alpha = alpha - TMath::Pi();
+	}
+	
 	// Rotate cluster to appropriate angle
-	clu_offset.RotateY(myalpha);
-	clu_offset.RotateX(myphi);
-	clu_offset.RotateZ(mytheta);
-		
+	clu_offset.RotateZ( mytheta );
+	clu_offset.RotateX( myphi );
+
 	// Rotate crystal to appropriate angle
 	for( unsigned char i = 0; i < ncry; i++ ) {
-		cry_offset[i].RotateY(myalpha);
-		cry_offset[i].RotateX(myphi);
-		cry_offset[i].RotateZ(mytheta);
+		cry_offset[i].RotateY( myalpha );
+		cry_offset[i].RotateZ( mytheta );
+		cry_offset[i].RotateX( myphi );
 	}
 
 	// Rotate segments to appropriate angle
 	for( unsigned char i = 0; i < ncry; i++ ) {
 		for( unsigned char j = 0; j < nseg; j++ ) {
-			seg_offset[i][j].RotateY(myalpha);
-			seg_offset[i][j].RotateX(myphi);
-			seg_offset[i][j].RotateZ(mytheta);
+			seg_offset[i][j].RotateY( myalpha );
+			seg_offset[i][j].RotateZ( mytheta );
+			seg_offset[i][j].RotateX( myphi );
 		}
 	}
 	
+	
 	// Shift Miniball so that target it as origin
-	mbzoffset.SetXYZ( -1.0*z, 0.0, 0.0 );
+	mbzoffset.SetXYZ( 0.0, -z, 0.0 );
 	clu_offset += mbzoffset;
 	for( unsigned char i = 0; i < ncry; i++ ) {
 		cry_offset[i] += mbzoffset;
