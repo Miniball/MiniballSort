@@ -440,13 +440,13 @@ double MiniballReaction::CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile
 
 	/// Returns the CosTheta angle between particle and gamma ray.
 	/// @param ejectile true for and to the ejectile or false for recoil
-	MiniballParticle *p;
-	if( ejectile ) p = &Ejectile;
-	else p = &Recoil;
+	MiniballParticle p;
+	if( ejectile ) p = Ejectile;
+	else p = Recoil;
 
 	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
 
-	return TMath::Cos( gvec.Angle( p->GetVector() ) );
+	return TMath::Cos( gvec.Angle( p.GetVector() ) );
 	
 }
 
@@ -454,13 +454,13 @@ double MiniballReaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) 
 
 	/// Returns the CosTheta angle between particle and electron.
 	/// @param ejectile true for and to the ejectile or false for recoil
-	MiniballParticle *p;
-	if( ejectile ) p = &Ejectile;
-	else p = &Recoil;
+	MiniballParticle p;
+	if( ejectile ) p = Ejectile;
+	else p = Recoil;
 
 	TVector3 evec = GetElectronVector( s->GetSegment() );
 	
-	return TMath::Cos( evec.Angle( p->GetVector() ) );
+	return TMath::Cos( evec.Angle( p.GetVector() ) );
 
 }
 
@@ -468,12 +468,12 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool
 
 	/// Returns Doppler corrected gamma-ray energy for given particle and gamma combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
-	MiniballParticle *p;
-	if( ejectile ) p = &Ejectile;
-	else p = &Recoil;
+	MiniballParticle p;
+	if( ejectile ) p = Ejectile;
+	else p = Recoil;
 	
-	double corr = 1. - p->GetBeta() * CosTheta( g, ejectile );
-	corr *= p->GetGamma();
+	double corr = 1. - p.GetBeta() * CosTheta( g, ejectile );
+	corr *= p.GetGamma();
 	
 	return corr * g->GetEnergy();
 	
@@ -484,12 +484,12 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ej
 	/// TODO: A proper kinematic shift for electrons, which have mass
 	/// Returns Doppler corrected electron energy for given particle and SPEDE combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
-	MiniballParticle *p;
-	if( ejectile ) p = &Ejectile;
-	else p = &Recoil;
+	MiniballParticle p;
+	if( ejectile ) p = Ejectile;
+	else p = Recoil;
 	
-	double corr = 1. - p->GetBeta() * CosTheta( s, ejectile );
-	corr *= p->GetGamma();
+	double corr = 1. - p.GetBeta() * CosTheta( s, ejectile );
+	corr *= p.GetGamma();
 	
 	return corr * s->GetEnergy();
 	
