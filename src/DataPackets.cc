@@ -105,7 +105,7 @@ void FebexData::ClearData(){
 	energy = -999.;
 	veto = false;
 	fail = false;
-	thres = false;
+	thres = true;
 	pileup = false;
 
 	return;
