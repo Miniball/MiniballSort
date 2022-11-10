@@ -107,10 +107,14 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gamma_xz_map_left";
 	htitle = "Gamma-ray X-Z hit map (left: y < 0);z (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xz_map_left = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
-
+	
 	hname = "gamma_xz_map_right";
 	htitle = "Gamma-ray X-Z hit map (right: y > 0);z (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xz_map_right = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+	
+	hname = "gamma_theta_phi_map";
+	htitle = "Gamma-ray #theta-#phi hit map;#theta [degrees];#phi [degrees];Counts";
+	gamma_theta_phi_map = new TH2F( hname.data(), htitle.data(), 180, -180., 180., 180, -180., 180. );
 
 	// Gamma-ray coincidence histograms
 	dirname = "CoincidenceMatrices";
@@ -1092,6 +1096,13 @@ unsigned long MiniballHistogrammer::FillHists() {
 			else
 				gamma_xz_map_left->Fill( react->GetGammaZ( gamma_evt ), react->GetGammaX( gamma_evt ) );
 
+			// Gamma-ray theta-phi map
+			double theta = react->GetGammaTheta( gamma_evt );
+			double phi = react->GetGammaPhi( gamma_evt );
+			if( theta < 0 ) theta += TMath::Pi();
+			if( phi < 0 ) phi += TMath::TwoPi();
+			gamma_theta_phi_map->Fill( theta, phi );
+			
 			// Particle-gamma coincidence spectra
 			FillParticleGammaHists( gamma_evt );
 

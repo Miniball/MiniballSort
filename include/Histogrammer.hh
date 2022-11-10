@@ -274,6 +274,7 @@ private:
 	TH1F *aE_singles, *aE_singles_ebis, *aE_singles_ebis_on, *aE_singles_ebis_off;
 	TH2F *gamma_xy_map_forward, *gamma_xy_map_backward;
 	TH2F *gamma_xz_map_left, *gamma_xz_map_right;
+	TH2F *gamma_theta_phi_map;
 
 	// Electron singles
 	TH1F *eE_singles, *eE_singles_ebis, *eE_singles_ebis_on, *eE_singles_ebis_off;
