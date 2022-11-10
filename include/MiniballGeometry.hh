@@ -2,14 +2,15 @@
 #define __MINIBALLGEOMETRY_HH
 
 #include <vector>
+#include <iostream>
 
 #include <TObject.h>
 #include <TVector3.h>
 #include <TMath.h>
 
 #define ROOTTHREEOVER2 0.8660254
-
-#define DIST_CORE_CORNER 34
+#define DIST_CORE_CORNER 34.0
+#define NOMINAL_CLUSTER_DIST 400.0
 
 /// Functions to convert Miniball angles read from the frame
 
@@ -79,7 +80,7 @@ class MiniballGeometry : public TObject {
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \return TVector3 of the crystal  position with respect to the nominal centre
 	inline TVector3 GetCryVector( unsigned char cry ){
-		return cry_offset[cry];
+		return GetSegVector(cry,0);
 	};
 
 	/// Get the theta angle of a segment with respect to the beam
@@ -127,19 +128,14 @@ class MiniballGeometry : public TObject {
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
 	/// \return TVector3 of the segment position with respect to the nominal centre
 	inline TVector3 GetSegVector( unsigned char cry, unsigned char seg ){
-		TVector3 vec;
-		if( seg == 0 ) vec.SetXYZ( cry_offset[cry].Z(), cry_offset[cry].X(), cry_offset[cry].Y() );
-		else vec.SetXYZ( seg_offset[cry][seg-1].Z(), seg_offset[cry][seg-1].X(), seg_offset[cry][seg-1].Y() );
-		return vec;
-		//if( seg == 0 ) return cry_offset[cry];
-		//else return seg_offset[cry][seg-1];
+		return seg_offset[cry][seg];
 	};
 
 	private:
 	
 	// Segments etc
 	const unsigned char ncry = 3;
-	const unsigned char nseg = 6;
+	const unsigned char nseg = 7; // 6 segments plus core
 
 	// Current values of theta, phi, alpha and r
 	double theta;	///< theta angle in radians
@@ -149,13 +145,11 @@ class MiniballGeometry : public TObject {
 	double z; 		///< distance from target to origin (beam direction is positive) in mm
 	
 	// Geometry
-	TVector3 clu_offset;							///< vector for cluster centre
-	std::vector<TVector3> cry_offset;				///< vector for crystal centre
-	std::vector<std::vector<TVector3>> seg_offset;	///< vector for segment centre
+	std::vector<std::vector<TVector3>> seg_offset;	///< vector for segment centre (0 = core)
 	TVector3 mbzoffset;								///< Offset of target from origin in direction of beam in mm.
 													///< This shift is independent of the CD detector distance which is relative.
 
-	ClassDef( MiniballGeometry, 1 );
+	ClassDef( MiniballGeometry, 2 );
 	
 };
 
