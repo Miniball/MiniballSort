@@ -74,7 +74,9 @@ public:
   
   double operator() (const double *p) {
     //change angles
-    //p[0] = theta1, p[1] = phi1, p[2] = alpha1, p[3] = r1, etc.
+    //p[0] = beta
+    //p[1] = theta1, p[2] = phi1, p[3] = alpha1, p[4] = r1, 
+    //p[5] = theta2, p[6] = phi2, p[7] = alpha2, p[8] = r2, etc.    
     int indx = 1;    
     for (int clu=0; clu<8; ++clu) {
       if (cluster[clu] == 0) { continue; }
