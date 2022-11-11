@@ -2,8 +2,10 @@
 
 #include "TCanvas.h"
 #include "TGraph.h"
+#include "TMultiGraph.h"
 #include "TGraphErrors.h"
 #include "TF1.h"
+#include "TLegend.h"
 #include "Math/Functor.h"
 #include "Math/Factory.h"
 #include "Math/Minimizer.h"
@@ -119,6 +121,8 @@ int main(int argc, const char **argv) {
   ff.LoadExpEnergies(argv[3]);
   ff.eref = 440.2;
 
+  TFile *file = new TFile("MiniballAngleFits.root", "recreate");
+
   //set up parameters, bounds
   std::vector<double> pars(1+7*4);
   std::vector<std::string> names(1+7*4);
@@ -196,11 +200,20 @@ int main(int argc, const char **argv) {
 
   //print fit + residuals to pdf
   TGraphErrors *engraph = new TGraphErrors();
+  engraph->SetName("engraph; Experimental energies; Channel index; Energy [keV]");
   TGraph *calcgraph = new TGraph();
+  calcgraph->SetName("calcgraph; Calculated energies; Channel index; Energy [keV]");
   TGraphErrors *resgraph = new TGraphErrors();
+  resgraph->SetName("resgraph; Residuals; Channel index; Energy [keV]"");");
+  TGraphErrors *corrgraph = new TGraphErrors();
+  corrgraph->SetName("corrgraph; Doppler-corrected energies; Channel index; Energy [keV]"");");
 
+  
   engraph->GetXaxis()->SetTitle("Channel index");
   engraph->GetYaxis()->SetTitle("Energy [keV]");
+
+  corrgraph->GetXaxis()->SetTitle("Channel index");
+  corrgraph->GetYaxis()->SetTitle("Doppler-corrected energy [keV]");
 
   resgraph->GetXaxis()->SetTitle("Channel index");
   resgraph->GetYaxis()->SetTitle("Energy Residual [keV]");
@@ -219,6 +232,10 @@ int main(int argc, const char **argv) {
 
         engraph->AddPoint(indx, ff.energy[clu][cry][seg]);
         engraph->SetPointError(engraph->GetN()-1, 0, ff.err[clu][cry][seg]);
+
+        corrgraph->AddPoint(indx, ff.energy[clu][cry][seg]*corr);
+        corrgraph->SetPointError(engraph->GetN()-1, 0, ff.err[clu][cry][seg]);
+        
         calcgraph->AddPoint(indx, edop);
         resgraph->AddPoint(indx, edop - ff.energy[clu][cry][seg]);
         resgraph->SetPointError(resgraph->GetN()-1, 0, ff.err[clu][cry][seg]);
@@ -232,18 +249,151 @@ int main(int argc, const char **argv) {
   engraph->SetMarkerColor(kRed);
   engraph->SetLineColor(kRed);
   engraph->Draw("AP");
+  engraph->Write();
   calcgraph->SetMarkerStyle(kFullCircle);
   calcgraph->SetMarkerSize(0.5);
   calcgraph->Draw("P");
+  calcgraph->Write();
+
+  TLegend *leg = new TLegend(0.1,0.75,0.3,0.9);
+  leg->AddEntry(engraph, "Experimental energies");
+  leg->AddEntry(calcgraph, "Calculated energies");
+  leg->Draw();
 
   c1->Print("position_cal.pdf(");
 
   resgraph->SetMarkerStyle(kFullCircle);
   resgraph->SetMarkerSize(0.5);
   resgraph->Draw("AP");
+  resgraph->Write();
+  TF1 *func = new TF1("func", "[0]", 0, 168);
+  func->SetParameter(0, 0.0);
+  func->Draw("same");
 
+  c1->Print("position_cal.pdf");
+
+  corrgraph->SetMarkerStyle(kFullCircle);
+  corrgraph->SetMarkerSize(0.5);
+  corrgraph->Draw("AP");
+  corrgraph->Write();
+  func->SetParameter(0, ff.eref);
+  func->Draw("same");
+
+  c1->Print("position_cal.pdf");
+
+  //print theta-phi map of crystals + segments
+
+  int colors[8] = {632, 416, 600, 400, 616, 432, 800, 900};
+  
+  TMultiGraph *tp_mg = new TMultiGraph();
+  tp_mg->SetName("theta_phi_map"); 
+  TGraph *theta_phi[8][3];
+  for (int clu = 0; clu < 8; ++clu) {
+    if (ff.cluster[clu] == 0) { continue; }
+    for (int cry = 0; cry < 3; ++cry) {
+      theta_phi[clu][cry] = new TGraph();
+      for (int seg = 0; seg < 7; ++seg) {
+        double theta = ff.myreact->GetGammaTheta(clu,cry,seg)*180./TMath::Pi();
+        double phi = ff.myreact->GetGammaPhi(clu,cry,seg)*180./TMath::Pi();
+        theta_phi[clu][cry]->AddPoint(theta, phi);
+      }
+      theta_phi[clu][cry]->SetMarkerSize(1.0);
+      theta_phi[clu][cry]->SetMarkerStyle(kFullCircle);
+      theta_phi[clu][cry]->SetMarkerColor(colors[clu]+cry);
+      tp_mg->Add(theta_phi[clu][cry]);
+    }
+  }
+  tp_mg->Draw("AP");
+  tp_mg->GetXaxis()->SetLimits(0,180);
+  tp_mg->GetYaxis()->SetLimits(-180,180);
+  tp_mg->GetXaxis()->SetTitle("Reaction Theta [deg]");
+  tp_mg->GetYaxis()->SetTitle("Reaction Phi [deg]");
+  tp_mg->Write();
+  c1->Print("position_cal.pdf");
+
+  TMultiGraph *xy_f_mg = new TMultiGraph();
+  TMultiGraph *xy_b_mg = new TMultiGraph();
+  TMultiGraph *xz_r_mg = new TMultiGraph();
+  TMultiGraph *xz_l_mg = new TMultiGraph();
+  xy_f_mg->SetName("xy_f_mg");
+  xy_b_mg->SetName("xy_b_mg");
+  xz_r_mg->SetName("xz_r_mg");
+  xz_l_mg->SetName("xz_l_mg");
+  TGraph *xy_f[8][3];
+  TGraph *xy_b[8][3];
+  TGraph *xz_l[8][3];
+  TGraph *xz_r[8][3];
+  for (int clu = 0; clu < 8; ++clu) {
+    if (ff.cluster[clu] == 0) { continue; }
+    for (int cry = 0; cry < 3; ++cry) {
+      xy_f[clu][cry] = new TGraph();
+      xy_b[clu][cry] = new TGraph();
+      xz_r[clu][cry] = new TGraph();
+      xz_l[clu][cry] = new TGraph();
+      for (int seg = 0; seg < 7; ++seg) {
+        double x = ff.myreact->GetGammaX(clu,cry,seg);
+        double y = ff.myreact->GetGammaY(clu,cry,seg);
+        double z = ff.myreact->GetGammaZ(clu,cry,seg);
+        if (z > 0) {
+          xy_f[clu][cry]->AddPoint(y,x);
+        }
+        else {
+          xy_b[clu][cry]->AddPoint(y,x);
+        }
+
+        if (y > 0) {
+          xz_r[clu][cry]->AddPoint(z,x);
+        }
+        else {
+          xz_l[clu][cry]->AddPoint(z,x);  
+        }        
+      }
+      xy_f[clu][cry]->SetMarkerSize(1.0);
+      xy_f[clu][cry]->SetMarkerStyle(kFullCircle);
+      xy_f[clu][cry]->SetMarkerColor(colors[clu]+cry);
+      xy_b[clu][cry]->SetMarkerSize(1.0);
+      xy_b[clu][cry]->SetMarkerStyle(kFullCircle);
+      xy_b[clu][cry]->SetMarkerColor(colors[clu]+cry);
+      xz_r[clu][cry]->SetMarkerSize(1.0);
+      xz_r[clu][cry]->SetMarkerStyle(kFullCircle);
+      xz_r[clu][cry]->SetMarkerColor(colors[clu]+cry);
+      xz_l[clu][cry]->SetMarkerSize(1.0);
+      xz_l[clu][cry]->SetMarkerStyle(kFullCircle);
+      xz_l[clu][cry]->SetMarkerColor(colors[clu]+cry);
+      
+      xy_f_mg->Add(xy_f[clu][cry]);
+      xy_b_mg->Add(xy_b[clu][cry]);
+      xz_r_mg->Add(xz_r[clu][cry]);
+      xz_l_mg->Add(xz_l[clu][cry]);   
+    }
+  }
+  xy_f_mg->Draw("AP");
+  xy_f_mg->GetYaxis()->SetTitle("x [mm]");
+  xy_f_mg->GetXaxis()->SetTitle("y [mm]");
+  xy_f_mg->Write();
+  c1->Print("position_cal.pdf");
+
+  xy_b_mg->Draw("AP");
+  xy_b_mg->GetYaxis()->SetTitle("x [mm]");
+  xy_b_mg->GetXaxis()->SetTitle("y [mm]");
+  xy_b_mg->Write();
+  c1->Print("position_cal.pdf");
+
+  xz_r_mg->Draw("AP");
+  xz_r_mg->GetYaxis()->SetTitle("x [mm]");
+  xz_r_mg->GetXaxis()->SetTitle("z [mm]");
+  xz_r_mg->Write();
+  c1->Print("position_cal.pdf");
+
+  xz_l_mg->Draw("AP");
+  xz_l_mg->GetYaxis()->SetTitle("x [mm]");
+  xz_l_mg->GetXaxis()->SetTitle("z [mm]");
+  xz_l_mg->Write();
   c1->Print("position_cal.pdf)");
 
+  file->Write();
+  file->Close();
+  
   //print final results to terminal
   std::cout << "fitted beta = " << min->X()[0] << std::endl;
   indx = 1;
