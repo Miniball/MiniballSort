@@ -74,4 +74,8 @@ void plot_dead_time( std::string filename = "test/R4_13.root", unsigned char sfp
 
 	} // i
 	
+	// Draw it
+	h->Draw();
+	c->SetLogy();
+	
 }
