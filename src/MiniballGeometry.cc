@@ -98,9 +98,9 @@ void MiniballGeometry::SetupCluster() {
 		}
 	}
 	
-	std::cout << "X_A = " << seg_offset[0][0].X() << ", ";
-	std::cout << "X_B = " << seg_offset[1][0].X() << ", ";
-	std::cout << "X_C = " << seg_offset[2][0].X() << std::endl;
+	//std::cout << "X_A = " << seg_offset[0][0].X() << ", ";
+	//std::cout << "X_B = " << seg_offset[1][0].X() << ", ";
+	//std::cout << "X_C = " << seg_offset[2][0].X() << std::endl;
 
 
 	//std::cout << "X = " << seg_offset[0][0].X() << ", ";
