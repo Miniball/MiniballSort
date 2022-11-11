@@ -114,7 +114,7 @@ void MiniballHistogrammer::MakeHists() {
 	
 	hname = "gamma_theta_phi_map";
 	htitle = "Gamma-ray #theta-#phi hit map;#theta [degrees];#phi [degrees];Counts";
-	gamma_theta_phi_map = new TH2F( hname.data(), htitle.data(), 180, -180., 180., 180, -180., 180. );
+	gamma_theta_phi_map = new TH2F( hname.data(), htitle.data(), 180, 0., 180., 360, 0., 360. );
 
 	// Gamma-ray coincidence histograms
 	dirname = "CoincidenceMatrices";
@@ -1101,7 +1101,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			double phi = react->GetGammaPhi( gamma_evt );
 			if( theta < 0 ) theta += TMath::Pi();
 			if( phi < 0 ) phi += TMath::TwoPi();
-			gamma_theta_phi_map->Fill( theta, phi );
+			gamma_theta_phi_map->Fill( theta*TMath::RadToDeg(), phi*TMath::RadToDeg() );
 			
 			// Particle-gamma coincidence spectra
 			FillParticleGammaHists( gamma_evt );
