@@ -51,6 +51,7 @@ public:
 
 	void	SetInputFile( std::string input_file_name );
 	void	SetInputTree( TTree *user_tree );
+	void	SetMBSInfoTree( TTree *user_tree );
 	void	SetOutput( std::string output_file_name );
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
@@ -80,8 +81,10 @@ public:
 		output_tree->ResetBranchAddresses();
 		output_file->Close();
 		input_tree->ResetBranchAddresses();
+		mbsinfo_tree->ResetBranchAddresses();
 		input_file->Close();
 		delete in_data;
+		delete mbs_info;
 		log_file.close(); //?? to close or not to close?
 	}; ///< Closes the output files from this class
 
@@ -91,7 +94,9 @@ private:
 	/// Input tree
 	TFile *input_file;
 	TTree *input_tree;
+	TTree *mbsinfo_tree;
 	MiniballDataPackets *in_data;
+	MBSInfoPackets *mbs_info;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 
@@ -145,12 +150,16 @@ private:
 	std::vector<std::vector<unsigned long long>> febex_time_start, febex_time_stop;
 
 	// Data variables - generic
-	unsigned char		mysfp;		///< sfp number
-	unsigned char		myboard;	///< febex board number
-	unsigned char		mych;		///< channel number
-	unsigned long long	mytime;		///< absolute timestamp
-	float 				myenergy;	///< calibrated energy
-	bool				mythres;	///< above threshold?
+	unsigned char		mysfp;			///< sfp number
+	unsigned char		myboard;		///< febex board number
+	unsigned char		mych;			///< channel number
+	unsigned long long	mytime;			///< absolute timestamp
+	long				myhittime;		///< hit time with respect to event time
+	unsigned long long	myeventid;		///< MBS event id
+	unsigned long long	preveventid;	///< previous MBS event id
+	unsigned long long	myeventtime;	///< MBS event time
+	float 				myenergy;		///< calibrated energy
+	bool				mythres;		///< above threshold?
 
 
 	// Miniball specific variables

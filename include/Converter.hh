@@ -56,6 +56,7 @@ public:
 	};
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
+	inline TTree* GetMbsInfo(){ return mbsinfo_tree; };
 	inline TTree* GetSortedTree(){ return sorted_tree; };
 
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){ cal = mycal; };
@@ -85,7 +86,9 @@ protected:
 	bool flag_febex_info;
 	
 	// Interpretated variables
+	unsigned long long my_good_tm_stp;
 	unsigned long long my_tm_stp;
+	unsigned long long my_event_id;
 	unsigned long my_tm_stp_lsb;
 	unsigned long my_tm_stp_msb;
 	unsigned long my_tm_stp_hsb;
@@ -112,7 +115,8 @@ protected:
 
 	
 	// Data types
-	std::shared_ptr<MiniballDataPackets> data_packet = 0;
+	std::unique_ptr<MBSInfoPackets> mbsinfo_packet = 0;
+	std::unique_ptr<MiniballDataPackets> data_packet = 0;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 	
@@ -120,6 +124,7 @@ protected:
 	TFile *output_file;
 	TTree *output_tree;
 	TTree *sorted_tree;
+	TTree *mbsinfo_tree;
 
 	// Counters
 	std::vector<std::vector<unsigned long>> ctr_febex_hit;		// hits on each Febex module

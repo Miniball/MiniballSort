@@ -119,7 +119,8 @@ class MBSEvent {
 private:
 
 	std::vector<UInt_t> data;
-	
+	ULong_t eventid;
+
 public:
 	
 	// Get the trigger
@@ -145,6 +146,12 @@ public:
 		return( &data[2] );
 	};
 	
+	// Get event id
+	ULong_t GetEventID() const { return eventid; };
+
+	// set event id
+	void SetEventID( unsigned long long id ){ eventid = id; };
+
 	// Store the data - first the trigger, then the counter, then the actual
 	// event data
 	void Store( UInt_t datum ) {
@@ -184,7 +191,10 @@ private:
 	UInt_t current_buffer;
 	UInt_t pos;
 	MBSEvent evt;
+	s_filhe *fh;
 	s_bufhe *bh;
+	//s_vehe *eh;
+	//s_evhe *sh;
 	UInt_t used; // Bytes used in buffer including header
 
 	const UChar_t *ptr;
@@ -231,12 +241,12 @@ public:
 	const MBSEvent* GetNextEvent();
 	
 	// Show the file header
-	void ShowFileHeader() const {
+	void ShowFileHeader() {
 		if(!fp) return;
-		s_filhe *fh = (s_filhe *)ptr;
+		fh = (s_filhe *)ptr;
 		fh->Show();
 	};
-		
+			
 };
 
 #endif

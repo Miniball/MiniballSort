@@ -53,17 +53,22 @@ void MiniballConverter::MakeTree() {
 	const int splitLevel = 2; // don't split branches = 0, full splitting = 99
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
 	output_tree = new TTree( "mb", "mb" );
+	mbsinfo_tree = new TTree( "mbsinfo", "mbsinfo" );
 	data_packet = std::make_unique<MiniballDataPackets>();
+	mbsinfo_packet = std::make_unique<MBSInfoPackets>();
 	output_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
-
+	mbsinfo_tree->Branch( "mbsinfo", "MBSInfoPackets", mbsinfo_packet.get(), sizeof(MBSInfoPackets), 0 );
+	
 	sorted_tree = (TTree*)output_tree->CloneTree(0);
 	sorted_tree->SetName("mb_sort");
 	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
 	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
 	output_tree->SetDirectory( output_file->GetDirectory("/") );
+	mbsinfo_tree->SetDirectory( output_file->GetDirectory("/") );
 	
 	output_tree->SetAutoFlush(-10e6);
 	sorted_tree->SetAutoFlush(-10e6);
+	mbsinfo_tree->SetAutoFlush(-10e6);
 
 	febex_data = std::make_shared<FebexData>();
 	info_data = std::make_shared<InfoData>();
@@ -304,6 +309,9 @@ unsigned long long MiniballConverter::SortTree(){
 	
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();
+	
+	// Make the index for the MBS info tree
+	mbsinfo_tree->BuildIndex( "mbsinfo.GetEventID()" );
 	
 	// Load the full tree if possible
 	//output_tree->SetMaxVirtualSize(200e6); // 200 MB

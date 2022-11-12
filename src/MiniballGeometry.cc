@@ -97,24 +97,7 @@ void MiniballGeometry::SetupCluster() {
 			seg_offset[i][j].RotateX( mytheta );
 		}
 	}
-	
-	std::cout << "X_A = " << seg_offset[0][0].X() << ", ";
-	std::cout << "X_B = " << seg_offset[1][0].X() << ", ";
-	std::cout << "X_C = " << seg_offset[2][0].X() << std::endl;
 
-
-	//std::cout << "X = " << seg_offset[0][0].X() << ", ";
-	//std::cout << "Y = " << seg_offset[0][0].Y() << ", ";
-	//std::cout << "Z = " << seg_offset[0][0].Z() << std::endl;
-
-	//std::cout << "theta = " << theta*TMath::RadToDeg() << ", ";
-	//std::cout << "phi = " << phi*TMath::RadToDeg() << ", ";
-	//std::cout << "alpha = " << alpha*TMath::RadToDeg() << std::endl;
-	//std::cout << "mytheta = " << mytheta*TMath::RadToDeg() << ", ";
-	//std::cout << "myphi = " << myphi*TMath::RadToDeg() << ", ";
-	//std::cout << "myalpha = " << myalpha*TMath::RadToDeg() << std::endl;
-
-	
 	// Shift Miniball so that target it as origin
 	mbzoffset.SetXYZ( -z, 0.0, 0.0 );
 	for( unsigned char i = 0; i < ncry; i++ ) {

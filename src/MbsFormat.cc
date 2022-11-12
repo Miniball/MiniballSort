@@ -40,7 +40,7 @@ void MBS::OpenFile( std::string _filename ){
 	}
 	
 	// File header
-	s_filhe *fh = (s_filhe *)ptr;
+	fh = (s_filhe *)ptr;
 	fh->Show();
 	
 	// Set to first buffer with real data (i.e. skipping file header)
@@ -130,11 +130,16 @@ const MBSEvent* MBS::GetNextEvent() {
 	
 	// Event header (16 bytes)
 	UInt_t *val32 = (UInt_t *)(ptr + pos);
-	UInt_t elen = val32[0];
+	UInt_t elen = val32[0]; // l_dlen of event header
+	evt.SetEventID( val32[3] ); // l_count of event header
+	//eh = (s_vehe *)(ptr + pos);
+	//UInt_t elen = eh->l_dlen;
 	pos += sizeof(s_evhe); // Advance to trigger/counter
 	
 	// Subevent header (8 bytes)
-	UInt_t slen = val32[4];
+	UInt_t slen = val32[4];  // l_dlen of subevent header
+	//sh = (s_evhe *)(ptr + pos);
+	//UInt_t slen = sh->l_dlen;
 	
 	// Handle the special case, where the subevent header is in the
 	// next buffer
