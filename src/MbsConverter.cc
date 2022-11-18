@@ -468,6 +468,9 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 		
 	}
 
+	// Reset counters to zero for every file
+	StartFile();
+
 	// Calculate the size of the file.
 	input_file.seekg( 0, input_file.end );
 	unsigned long long size_end = input_file.tellg();

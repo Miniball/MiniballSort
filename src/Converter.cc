@@ -13,19 +13,12 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	ctr_febex_pause.resize( set->GetNumberOfFebexSfps() );
 	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
 
-	ctr_febex_ext = 0;	// pulser trigger
-
 	// Start counters at zero
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 				
-		// Start counters at zero
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-					
-			ctr_febex_hit[i].push_back(0);	// hits on each module
-			ctr_febex_pause[i].push_back(0);
-			ctr_febex_resume[i].push_back(0);
-			
-		}
+		ctr_febex_hit[i].resize( set->GetNumberOfFebexBoards() );
+		ctr_febex_pause[i].resize( set->GetNumberOfFebexBoards() );
+		ctr_febex_resume[i].resize( set->GetNumberOfFebexBoards() );
 
 	}
 	
@@ -35,6 +28,28 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	// No progress bar by default
 	_prog_ = false;
 
+}
+
+void MiniballConverter::StartFile(){
+	
+	// Start counters at zero
+	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+				
+		// Start counters at zero
+		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
+					
+			ctr_febex_hit[i][j] = 0;	// hits on each module
+			ctr_febex_pause[i][j] = 0;
+			ctr_febex_resume[i][j] = 0;
+			
+		}
+
+	}
+
+	ctr_febex_ext = 0;	// pulser trigger
+
+	return;
+	
 }
 
 void MiniballConverter::SetOutput( std::string output_file_name ){

@@ -45,6 +45,7 @@ public:
 	void MakeHists();
 	void ResetHists();
 	void MakeTree();
+	void StartFile();
 	unsigned long long SortTree();
 
 	void SetOutput( std::string output_file_name );
