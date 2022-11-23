@@ -287,7 +287,8 @@ void MiniballEventBuilder::MakeEventHists(){
 	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 499, -2495, 2495 );
 
 	mb_en_core_seg.resize( set->GetNumberOfMiniballClusters() );
-	
+	mb_en_core_seg_ebis_on.resize( set->GetNumberOfMiniballClusters() );
+
 	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
 		
 		dirname = "miniball/cluster_" + std::to_string(i);
@@ -296,6 +297,7 @@ void MiniballEventBuilder::MakeEventHists(){
 		output_file->cd( dirname.data() );
 
 		mb_en_core_seg[i].resize( set->GetNumberOfMiniballCrystals() );
+		mb_en_core_seg_ebis_on[i].resize( set->GetNumberOfMiniballCrystals() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
 			
@@ -306,6 +308,7 @@ void MiniballEventBuilder::MakeEventHists(){
 			output_file->cd( dirname.data() );
 
 			mb_en_core_seg[i][j].resize( set->GetNumberOfMiniballSegments() );
+			mb_en_core_seg_ebis_on[i][j].resize( set->GetNumberOfMiniballSegments() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfMiniballSegments(); ++k ) {
 				
@@ -315,6 +318,14 @@ void MiniballEventBuilder::MakeEventHists(){
 				htitle += " core " + std::to_string(j) + ", gated by segment ";
 				htitle += std::to_string(k) + ";Energy (keV)";
 				mb_en_core_seg[i][j][k] = new TH1F( hname.data(), htitle.data(), 4096, -0.5, 4095.5 );
+				
+				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
+				hname += std::to_string(j) + "_" + std::to_string(k);
+				hname += "_ebis_on";
+				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
+				htitle += " core " + std::to_string(j) + ", gated by segment ";
+				htitle += std::to_string(k) + " gated by EBIS time (1.5 ms);Energy (keV)";
+				mb_en_core_seg_ebis_on[i][j][k] = new TH1F( hname.data(), htitle.data(), 4096, -0.5, 4095.5 );
 				
 			} // k
 			
@@ -480,6 +491,15 @@ void MiniballEventBuilder::GammaRayFinder() {
 		// Loop again to find the matching segments
 		for( unsigned int j = 0; j < mb_en_list.size(); ++j ) {
 
+			// Skip if it's not the same crystal and cluster
+			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
+			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
+			
+			// Fill the segment spectra with core energies
+			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
+			if( mb_ts_list.at(j) - ebis_time < 1.5e6 )
+				mb_en_core_seg_ebis_on[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
+
 			// Skip if it's a core again, also fill time diff plot
 			if( i == j || mb_seg_list.at(j) == 0 ) {
 				
@@ -488,10 +508,6 @@ void MiniballEventBuilder::GammaRayFinder() {
 				continue;
 			
 			}
-			
-			// Skip if it's not the same crystal and cluster
-			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
-			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
 			
 			// Increment the segment multiplicity and sum energy
 			seg_mul++;
@@ -504,9 +520,6 @@ void MiniballEventBuilder::GammaRayFinder() {
 				MaxSegId = mb_seg_list.at(j);
 				
 			}
-			
-			// Fill the segment gated spectra
-			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
 			
 			// Fill the time difference spectrum
 			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
