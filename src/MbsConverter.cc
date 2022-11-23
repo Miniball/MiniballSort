@@ -180,7 +180,7 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				febex_data->SetVeto( 0 );
 				febex_data->SetPileUp( more_than_1_hit_in_cha );
 				
-				if( my_sfp_id == 1 ) my_good_tm_stp = my_tm_stp;
+				if( my_sfp_id == 0 ) my_good_tm_stp = my_tm_stp;
 				
 				// Close the data packet and clean up
 				FinishFebexData();
