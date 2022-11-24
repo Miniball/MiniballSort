@@ -180,6 +180,19 @@ const MBSEvent* MBS::GetNextEvent() {
 	
 };
 
+// Get the next event
+const MBSEvent* MBS::GetNextEventFromStream() {
+
+	// Clear old data
+	evt.Clear();
+
+	// Need to do stuff here
+	
+	return(&evt);
+
+	
+}
+
 // Get the nth buffer
 const UChar_t* MBS::GetBuffer( UInt_t i ) {
 	

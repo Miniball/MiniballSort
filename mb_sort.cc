@@ -7,6 +7,7 @@
 #include "Reaction.hh"
 #include "Histogrammer.hh"
 #include "DataSpy.hh"
+#include "MbsFormat.hh"
 #include "MiniballGUI.hh"
 
 #include "mb_sort.hh"
@@ -122,11 +123,17 @@ void* monitor_run( void* ptr ){
 		exit(1);
 	
 	}
+	
+	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
 	long long buffer[8*1024];
 	int file_id = 0; ///> TapeServer volume = /dev/file/<id> ... <id> = 0 on issdaqpc2
-	if( flag_spy ) myspy.Open( file_id ); /// open the data spy
+	if( flag_spy && !flag_mbs ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
+	
+	// GSI MBS EventServer
+	MBS mbs;
+	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8030 );
 
 	// Data/Event counters
 	int start_block = 0, start_subevt = 0;
@@ -172,7 +179,7 @@ void* monitor_run( void* ptr ){
 				
 			}
 			
-			// Convert - from shared memory
+			// Convert - from MIDAS shared memory
 			else if( flag_spy && !flag_mbs ){
 			
 				// First check if we have data
@@ -201,6 +208,18 @@ void* monitor_run( void* ptr ){
 			
 			}
 											 
+			// Convert - from MBS event server
+			else if( flag_spy && flag_mbs ){
+				
+				// First check if we have data
+				std::cout << "Looking for data from MBSEventServer" << std::endl;
+				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
+				conv_mbs_mon->ProcessBlock(0);
+				conv_mon->SortTree();
+
+			}
+
+
 			// Only do the rest if it is not a source run
 			if( !flag_source ) {
 			
@@ -247,7 +266,8 @@ void* monitor_run( void* ptr ){
 	} // always running
 	
 	// Close the dataSpy before exiting (no point really)
-	if( flag_spy ) myspy.Close( file_id );
+	if( flag_spy && !flag_mbs ) myspy.Close( file_id );
+	if( flag_spy && flag_mbs ) mbs.CloseEventServer();
 
 	// Close all outputs (we never reach here anyway)
 	conv_mon->CloseOutput();

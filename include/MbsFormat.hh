@@ -237,8 +237,11 @@ public:
 	// Get the next buffer from the stream
 	const UChar_t* GetBufferFromStream();
 	
-	// Get the next event
+	// Get the next event from file
 	const MBSEvent* GetNextEvent();
+	
+	// Get the next event from stream
+	const MBSEvent* GetNextEventFromStream();
 	
 	// Show the file header
 	void ShowFileHeader() {

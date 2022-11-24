@@ -34,6 +34,8 @@ public:
 	bool GetFebexChanID( unsigned int x );
 	void FinishFebexData();
 
+	void SetMBSEvent( const MBSEvent *myev ){ ev = myev; };
+
 
 private:
 
