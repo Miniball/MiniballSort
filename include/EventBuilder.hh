@@ -211,8 +211,8 @@ private:
 	// Miniball histograms
 	TH1F *mb_td_core_seg;
 	TH1F *mb_td_core_core;
-	std::vector<std::vector<std::vector<TH1F*>>> mb_en_core_seg;
-	std::vector<std::vector<std::vector<TH1F*>>> mb_en_core_seg_ebis_on;
+	std::vector<std::vector<TH2F*>> mb_en_core_seg;
+	std::vector<std::vector<TH2F*>> mb_en_core_seg_ebis_on;
 
 	// CD histograms
 	std::vector<std::vector<TH2F*>> cd_pn_mult;

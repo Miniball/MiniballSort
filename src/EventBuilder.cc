@@ -300,34 +300,20 @@ void MiniballEventBuilder::MakeEventHists(){
 		mb_en_core_seg_ebis_on[i].resize( set->GetNumberOfMiniballCrystals() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
-			
-			dirname  = "miniball/cluster_" + std::to_string(i);
-			dirname += "/crystal_" + std::to_string(j);
-			if( !output_file->GetDirectory( dirname.data() ) )
-				output_file->mkdir( dirname.data() );
-			output_file->cd( dirname.data() );
 
-			mb_en_core_seg[i][j].resize( set->GetNumberOfMiniballSegments() );
-			mb_en_core_seg_ebis_on[i][j].resize( set->GetNumberOfMiniballSegments() );
-
-			for( unsigned int k = 0; k < set->GetNumberOfMiniballSegments(); ++k ) {
-				
 				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
-				hname += std::to_string(j) + "_" + std::to_string(k);
+				hname += std::to_string(j);
 				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
 				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += std::to_string(k) + ";Energy (keV)";
-				mb_en_core_seg[i][j][k] = new TH1F( hname.data(), htitle.data(), 4096, -0.5, 4095.5 );
+				htitle += ";segment ID;Energy (keV)";
+				mb_en_core_seg[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
 				
 				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
-				hname += std::to_string(j) + "_" + std::to_string(k);
-				hname += "_ebis_on";
+				hname += std::to_string(j) + "_ebis_on";
 				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
 				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += std::to_string(k) + " gated by EBIS time (1.5 ms);Energy (keV)";
-				mb_en_core_seg_ebis_on[i][j][k] = new TH1F( hname.data(), htitle.data(), 4096, -0.5, 4095.5 );
-				
-			} // k
+				htitle += " gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
+				mb_en_core_seg_ebis_on[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
 			
 		} // j
 		
@@ -496,9 +482,9 @@ void MiniballEventBuilder::GammaRayFinder() {
 			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
 			
 			// Fill the segment spectra with core energies
-			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
+			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
 			if( mb_ts_list.at(j) - ebis_time < 1.5e6 )
-				mb_en_core_seg_ebis_on[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
+				mb_en_core_seg_ebis_on[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
 
 			// Skip if it's a core again, also fill time diff plot
 			if( i == j || mb_seg_list.at(j) == 0 ) {
