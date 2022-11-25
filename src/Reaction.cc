@@ -487,12 +487,19 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ej
 	if( ejectile ) p = Ejectile;
 	else p = Recoil;
 	
-	double corr = TMath::Power( s->GetEnergy(), 2.0 );
-	corr += 2.0 * e_mass * s->GetEnergy();
-	corr  = TMath::Sqrt( corr );
-	corr *= s->GetEnergy() + e_mass - p.GetBeta() * CosTheta( s, ejectile );
-	corr *= p.GetGamma();
-	corr -= e_mass;
+	// Joonas version
+	double corr=((s->GetEnergy() + e_mass - p.GetBeta() * CosTheta( s, ejectile ) *
+							 TMath::Sqrt(s->GetEnergy() * s->GetEnergy() + 2.0 * e_mass * s->GetEnergy())) /
+							 TMath::Sqrt(1.0 - p.GetBeta() * p.GetBeta())) - e_mass;
+	return corr;
+	
+	// Liam version
+	//double corr = TMath::Power( s->GetEnergy(), 2.0 );
+	//corr += 2.0 * e_mass * s->GetEnergy();
+	//corr  = TMath::Sqrt( corr );
+	//corr *= s->GetEnergy() + e_mass - p.GetBeta() * CosTheta( s, ejectile );
+	//corr *= p.GetGamma();
+	//corr -= e_mass;
 	
 	return corr;
 	
