@@ -481,17 +481,20 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
 
-	/// TODO: A proper kinematic shift for electrons, which have mass
 	/// Returns Doppler corrected electron energy for given particle and SPEDE combination.
 	/// @param ejectile true for ejectile Doppler correction or false for recoil
 	MiniballParticle p;
 	if( ejectile ) p = Ejectile;
 	else p = Recoil;
 	
-	double corr = 1. - p.GetBeta() * CosTheta( s, ejectile );
+	double corr = TMath::Power( s->GetEnergy(), 2.0 );
+	corr += 2.0 * e_mass * s->GetEnergy();
+	corr  = TMath::Sqrt( corr );
+	corr *= s->GetEnergy() + e_mass - p.GetBeta() * CosTheta( s, ejectile );
 	corr *= p.GetGamma();
+	corr -= e_mass;
 	
-	return corr * s->GetEnergy();
+	return corr;
 	
 }
 
