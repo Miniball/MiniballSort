@@ -174,18 +174,18 @@ public:
 	MBSInfoPackets() {};
 	~MBSInfoPackets() {};
 	
-	inline unsigned long long	GetTime(){ return time; };
+	inline long long			GetTime(){ return time; };
 	inline unsigned long long	GetEventID(){ return eventid; };
 
-	inline void SetTime( unsigned long long t ){ time = t; };
+	inline void SetTime( long long t ){ time = t; };
 	inline void SetEventID( unsigned long long id ){ eventid = id; };
 
 	protected:
 	
-	unsigned long long	time;		///< timestamp of info event
+	long long			time;		///< timestamp of info event
 	unsigned long long	eventid;	///< timestamp of info event
 
-	ClassDef( MBSInfoPackets, 1 )
+	ClassDef( MBSInfoPackets, 2 )
 	
 };
 
