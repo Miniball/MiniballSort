@@ -259,7 +259,7 @@ private:
 	const unsigned int GBIN = 8000;		// number of bins in gamma spectra
 	const float GMIN = -0.25;			// lower limit of energy in gamma spectra
 	const float GMAX = 3999.75;			// upper limit of energy in gamma spectra
-	const unsigned int EBIN = 200;		// number of bins in electron spectra
+	const unsigned int EBIN = 2000;		// number of bins in electron spectra
 	const float EMIN = -0.5;			// lower limit of energy in electron spectra
 	const float EMAX = 1999.5;			// upper limit of energy in electron spectra
 	const unsigned int PBIN = 2000;		// number of bins in particle spectra
