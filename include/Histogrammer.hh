@@ -247,6 +247,7 @@ private:
 	
 	// Counters
 	unsigned long n_entries;
+	int SpedeRing = -1;
 	
 	// Random number
 	TRandom rand;
@@ -333,6 +334,9 @@ private:
 	TH2F *aE_vs_theta_recoil_dc_none,   *aE_vs_theta_recoil_dc_ejectile,   *aE_vs_theta_recoil_dc_recoil;
 	TH2F *aE_vs_theta_2p_dc_none,       *aE_vs_theta_2p_dc_ejectile,       *aE_vs_theta_2p_dc_recoil;
 
+	// Electron energy versus cos(theta)
+	TH2F *eE_costheta_ejectile, *eE_costheta_recoil;
+  
 	// Doppler-corrected electrons
 	TH1F *eE_ejectile_dc_none, *eE_ejectile_dc_ejectile, *eE_ejectile_dc_recoil;
 	TH1F *eE_recoil_dc_none,   *eE_recoil_dc_ejectile,   *eE_recoil_dc_recoil;
@@ -340,6 +344,8 @@ private:
 	TH2F *eE_vs_theta_ejectile_dc_none, *eE_vs_theta_ejectile_dc_ejectile, *eE_vs_theta_ejectile_dc_recoil;
 	TH2F *eE_vs_theta_recoil_dc_none,   *eE_vs_theta_recoil_dc_ejectile,   *eE_vs_theta_recoil_dc_recoil;
 	TH2F *eE_vs_theta_2p_dc_none,       *eE_vs_theta_2p_dc_ejectile,       *eE_vs_theta_2p_dc_recoil;
+	TH2F *ring_eE_vs_ejectile_dc_none, *ring_eE_vs_ejectile_dc_ejectile, *ring_eE_vs_ejectile_dc_recoil;
+	TH2F *ring_eE_vs_recoil_dc_none,   *ring_eE_vs_recoil_dc_ejectile,   *ring_eE_vs_recoil_dc_recoil;
 
 	// Beam-dump histograms
 	TH1F *bdE_singles;
