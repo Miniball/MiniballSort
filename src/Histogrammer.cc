@@ -934,7 +934,7 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 
 	}
 	
-	// Two particle spectra
+	// Two-particle spectra
 	if( react->IsEjectileDetected() && react->IsRecoilDetected() ){
 		
 		// Prompt and random spectra

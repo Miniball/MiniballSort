@@ -630,8 +630,24 @@ int main( int argc, char *argv[] ){
 	// Check we have a Settings file
 	if( name_set_file.length() > 0 ) {
 		
-		std::cout << "Settings file: " << name_set_file << std::endl;
+		// Test if the file exists
+		std::ifstream ftest;
+		ftest.open( name_set_file.data() );
+		if( !ftest.is_open() ) {
+			
+			std::cout << name_set_file << " does not exist.";
+			std::cout << " Using defaults" << std::endl;
+			name_set_file = "dummy";
+
+		}
 		
+		else {
+		
+			ftest.close();
+			std::cout << "Settings file: " << name_set_file << std::endl;
+		
+		}
+
 	}
 	else {
 		
@@ -643,8 +659,24 @@ int main( int argc, char *argv[] ){
 	// Check we have a calibration file
 	if( name_cal_file.length() > 0 ) {
 		
-		std::cout << "Calibration file: " << name_cal_file << std::endl;
-		overwrite_cal = true;
+		// Test if the file exists
+		std::ifstream ftest;
+		ftest.open( name_cal_file.data() );
+		if( !ftest.is_open() ) {
+			
+			std::cout << name_cal_file << " does not exist.";
+			std::cout << " Using defaults" << std::endl;
+			name_set_file = "dummy";
+
+		}
+		
+		else {
+			
+			ftest.close();
+			std::cout << "Calibration file: " << name_cal_file << std::endl;
+			overwrite_cal = true;
+			
+		}
 
 	}
 	else {
@@ -657,8 +689,24 @@ int main( int argc, char *argv[] ){
 	// Check we have a reaction file
 	if( name_react_file.length() > 0 ) {
 		
-		std::cout << "Reaction file: " << name_react_file << std::endl;
+		// Test if the file exists
+		std::ifstream ftest;
+		ftest.open( name_react_file.data() );
+		if( !ftest.is_open() ) {
+			
+			std::cout << name_react_file << " does not exist.";
+			std::cout << " Using defaults" << std::endl;
+			name_set_file = "dummy";
+
+		}
 		
+		else {
+		
+			ftest.close();
+			std::cout << "Reaction file: " << name_react_file << std::endl;
+
+		}
+
 	}
 	else {
 		
