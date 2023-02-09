@@ -319,15 +319,40 @@ void MiniballConverter::ResetHists() {
 	
 }
 
+void MiniballConverter::BuildMbsIndex(){
+	
+	// Make the index for the MBS info tree
+	mbsinfo_tree->BuildIndex( "mbsinfo.GetEventID()" );
+
+	return;
+	
+}
+
+void MiniballConverter::BodgeMidasSort(){
+	
+	// Bodge the time maybe?
+	
+	// Loop on entries and fill sorted tree
+	for( long long i = 0; i < output_tree->GetEntries(); ++i ) {
+
+		output_tree->GetEntry(i);
+		sorted_tree->Fill();
+
+	}
+	
+	// Reset the output tree so it's empty after we've finished
+	output_tree->FlushBaskets();
+	output_tree->Reset();
+
+	return;
+	
+}
 
 unsigned long long MiniballConverter::SortTree(){
 	
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();
-	
-	// Make the index for the MBS info tree
-	mbsinfo_tree->BuildIndex( "mbsinfo.GetEventID()" );
-	
+
 	// Load the full tree if possible
 	//output_tree->SetMaxVirtualSize(200e6); // 200 MB
 	//sorted_tree->SetMaxVirtualSize(200e6); // 200 MB

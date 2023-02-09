@@ -46,6 +46,8 @@ public:
 	void ResetHists();
 	void MakeTree();
 	void StartFile();
+	void BuildMbsIndex();
+	void BodgeMidasSort();
 	unsigned long long SortTree();
 
 	void SetOutput( std::string output_file_name );

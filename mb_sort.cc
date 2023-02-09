@@ -377,7 +377,10 @@ void do_convert() {
 				conv_mbs.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) conv_mbs.SortTree();
+				if( !flag_source ){
+					conv_mbs.BuildMbsIndex();
+					conv_mbs.SortTree();
+				}
 				conv_mbs.CloseOutput();
 				
 			}
@@ -392,7 +395,10 @@ void do_convert() {
 				conv_midas.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) conv_midas.SortTree();
+				if( !flag_source ) {
+					//conv_midas.SortTree();
+					conv_midas.BodgeMidasSort();
+				}
 				conv_midas.CloseOutput();
 				
 			}
