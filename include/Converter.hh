@@ -107,7 +107,7 @@ protected:
 	unsigned char my_data_id;
 	unsigned char my_trig_id;
 	long my_hit_time;
-	bool my_fail, my_veto;
+	bool my_pileup;
 	float my_energy;
 
 	// For traces
