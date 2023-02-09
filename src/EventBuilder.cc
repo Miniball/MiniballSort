@@ -567,7 +567,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( write_evts->GetGammaRayEvt(j)->GetEnergy() > MaxEnergy ){
 				
 				MaxEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
-				MaxSegEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
+				MaxSegEnergy = write_evts->GetGammaRayEvt(j)->GetSegmentEnergy();
 				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCrystal();
 				MaxSegId = write_evts->GetGammaRayEvt(j)->GetSegment();
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
@@ -1168,8 +1168,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		// check time stamp monotonically increases!
 		if( time_prev > mytime ) {
 			
-			std::cout << "Out of order event in file ";
-			std::cout << input_tree->GetName() << std::endl;
+			//std::cout << "Out of order event in file ";
+			//std::cout << input_tree->GetName() << std::endl;
 			
 		}
 			
