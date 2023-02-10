@@ -277,9 +277,8 @@ void MiniballMidasConverter::ProcessFebexData(){
 	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb; // commented out 09/02/2023
 	//my_tm_stp = my_tm_stp_lsb; // matching Vic's format of 09/02/2023
 	
-	// FEBEX timestamps are what precision?
-	// Can we multiply here to get to ns
-	//my_tm_stp = my_tm_stp*20;
+	// FEBEX timestamps are in 10ns precision?
+	my_tm_stp = my_tm_stp*10;
 	
 	// First of the data items
 	if( !flag_febex_data0 && !flag_febex_data1 &&
