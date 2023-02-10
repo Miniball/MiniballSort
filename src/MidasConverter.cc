@@ -207,7 +207,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 
 	// reconstruct time stamp= MSB+LSB
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
-	my_tm_stp = ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
+	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
 
 	// Make a FebexData item
 	febex_data->SetTime( my_tm_stp );
@@ -556,7 +556,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 
 		info_data->SetSfp( my_sfp_id );
 		info_data->SetBoard( my_board_id );
-		info_data->SetTime( my_tm_stp );
+		info_data->SetTime( my_tm_stp*10 ); // timestamp in 10 ns ticks
 		info_data->SetCode( my_info_code );
 		data_packet->SetData( info_data );
 		output_tree->Fill();
