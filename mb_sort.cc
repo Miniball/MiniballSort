@@ -396,8 +396,8 @@ void do_convert() {
 
 				// Sort the tree before writing and closing
 				if( !flag_source ) {
-					//conv_midas.SortTree();
-					conv_midas.BodgeMidasSort();
+					conv_midas.SortTree();
+					//conv_midas.BodgeMidasSort();
 				}
 				conv_midas.CloseOutput();
 				

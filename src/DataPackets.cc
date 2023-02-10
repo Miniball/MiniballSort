@@ -9,9 +9,9 @@ FebexData::FebexData( long long t, unsigned long long id,
 					unsigned int qi, Float16_t qh, unsigned short qs,
 				    std::vector<unsigned short> tr,
 					unsigned char s, unsigned char b, unsigned char c,
-				    bool th, bool v, bool f, bool p ) :
+				    bool th, bool p ) :
 					time(t), eventid(id), Qint(qi), Qhalf(qh), Qshort(qs), trace(tr),
-					sfp(s), board(b), ch(c), thres(th), veto(v), fail(f), pileup(p) {}
+					sfp(s), board(b), ch(c), thres(th), pileup(p) {}
 
 InfoData::InfoData( long long t, unsigned long long id, unsigned char c,
 				    unsigned char s, unsigned char b ) :
@@ -37,8 +37,6 @@ void MiniballDataPackets::SetData( std::shared_ptr<FebexData> data ){
 	fill_data.SetChannel( data->GetChannel() );
 	fill_data.SetEnergy( data->GetEnergy() );
 	fill_data.SetThreshold( data->IsOverThreshold() );
-	fill_data.SetVeto( data->IsVeto() );
-	fill_data.SetFail( data->IsFail() );
 	fill_data.SetPileUp( data->IsPileUp() );
 
 	febex_packets.push_back( fill_data );
@@ -116,8 +114,6 @@ void FebexData::ClearData(){
 	board = 255;
 	ch = 255;
 	energy = -999.;
-	veto = false;
-	fail = false;
 	thres = true;
 	pileup = false;
 

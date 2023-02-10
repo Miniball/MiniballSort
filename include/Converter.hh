@@ -98,6 +98,7 @@ protected:
 	unsigned int my_info_field;
 	unsigned char my_info_code;
 	unsigned char my_type;
+	unsigned short my_tdiff_data;
 	unsigned short my_adc_data;
 	unsigned short my_adc_data_lsb;
 	unsigned short my_adc_data_hsb;

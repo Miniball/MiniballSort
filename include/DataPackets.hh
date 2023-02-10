@@ -16,7 +16,7 @@ public:
 			  unsigned int qi, Float16_t qh, unsigned short qs,
 			  std::vector<unsigned short> tr,
 			  unsigned char s, unsigned char b, unsigned char c,
-			  bool th, bool v, bool f, bool p );
+			  bool th, bool p );
 	~FebexData() {};
 
 	inline long long			GetTime() { return time; };
@@ -30,8 +30,6 @@ public:
 	inline unsigned char		GetChannel() { return ch; };
 	inline float				GetEnergy() { return energy; };
 	inline bool					IsOverThreshold() { return thres; };
-	inline bool					IsVeto() { return veto; };
-	inline bool					IsFail() { return fail; };
 	inline bool					IsPileUp() { return pileup; };
 	inline std::vector<unsigned short> GetTrace() { return trace; };
 	inline TGraph* GetTraceGraph() {
@@ -65,8 +63,6 @@ public:
 	inline void	SetChannel( unsigned char c ) { ch = c; };
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetThreshold( bool t ){ thres = t; };
-	inline void SetVeto( bool v ){ veto = v; };
-	inline void SetFail( bool f ){ fail = f; };
 	inline void SetPileUp( bool p ){ pileup = p; };
 
 	inline void ClearTrace() { trace.clear(); };
@@ -85,8 +81,6 @@ protected:
 	unsigned char				board;		///< board ID of the event
 	unsigned char				ch;			///< channel ID of the event
 	bool						thres;		///< is the energy over threshold?
-	bool						veto;		///< veto bit from data stream
-	bool						fail;		///< fail bit from data stream
 	bool						pileup;		///< pileup flag from data stream
 
 	

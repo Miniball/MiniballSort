@@ -173,12 +173,12 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 bool MiniballMidasConverter::GetFebexChanID(){
 	
 	// ADCchannelIdent are bits 28:16 of word_0
-	// sfp_id= bit 12:10, board_id= bit 9:6, data_id= bit 5:4, ch_id= bit 3:0
+	// sfp_id= bit 11:10, board_id= bit 9:6, data_id= bit 5:4, ch_id= bit 3:0
 	// data_id: fast mode readout: =0 16 bit integer; =1 16 bit float;
 	//				=2 32 bit float (low 16 bits); =3 32 bit float (high 16 bits)
 	// 			standard mode readout: 0= 16 bit integer
-	unsigned int ADCchanIdent = (word_0 >> 16) & 0x1FFF; // 13 bits from 16
-	my_sfp_id = (ADCchanIdent >> 10) & 0x0007; // 3 bits from 10
+	unsigned int ADCchanIdent = (word_0 >> 16) & 0x0FFF; // 12 bits from 16
+	my_sfp_id = (ADCchanIdent >> 10) & 0x0003; // 2 bits from 10
 	my_board_id = (ADCchanIdent >> 6) & 0x000F; // 4 bits from 6
 	my_data_id = (ADCchanIdent >> 4) & 0x0003; // 2 bits from 4
 	my_ch_id = ADCchanIdent & 0x000F; // 4 bits from 0
@@ -214,9 +214,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	febex_data->SetSfp( my_sfp_id );
 	febex_data->SetBoard( my_board_id );
 	febex_data->SetChannel( my_ch_id );
-	febex_data->SetFail( 0 );
-	febex_data->SetVeto( 0 );
-	febex_data->SetPileUp( 0 );
+	febex_data->SetPileUp( false );
 
 	// sample length
 	nsamples = word_0 & 0xFFFF; // 16 bits from 0
@@ -268,9 +266,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 	// Febex data format
 	my_adc_data = word_0 & 0xFFFF; // 16 bits from 0
 	
-	// Fail and veto bits (not used in FEBEX?)
-	//my_veto = (word_0 >> 28) & 0x0001;
-	//my_fail = (word_0 >> 29) & 0x0001;
+	// Pileup bit from James' firmware
 	my_pileup = (word_0 >> 29) & 0x0001;
 
 	// Channel ID, etc
@@ -278,8 +274,8 @@ void MiniballMidasConverter::ProcessFebexData(){
 	
 	// reconstruct time stamp= MSB+LSB
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
-	//my_tm_stp = ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb; // commented out 09/02/2023
-	my_tm_stp = my_tm_stp_lsb; // matching Vic's format of 09/02/2023
+	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb; // commented out 09/02/2023
+	//my_tm_stp = my_tm_stp_lsb; // matching Vic's format of 09/02/2023
 	
 	// FEBEX timestamps are what precision?
 	// Can we multiply here to get to ns
@@ -294,8 +290,6 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		//febex_data->SetFail( my_fail );
-		//febex_data->SetVeto( my_veto );
 		febex_data->SetPileUp( my_pileup );
 
 	}
@@ -315,8 +309,6 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		//febex_data->SetFail( my_fail );
-		//febex_data->SetVeto( my_veto );
 		febex_data->SetPileUp( my_pileup );
 
 	}
@@ -338,26 +330,40 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		//febex_data->SetFail( my_fail );
-		//febex_data->SetVeto( my_veto );
 		febex_data->SetPileUp( my_pileup );
 
 	}
 	
-	// 32-bit integer (low 16 bits)
+	// 16-bit integer (energy but rebinned)
 	if( my_data_id == 0 ) {
 		
-		my_adc_data_lsb = my_adc_data&0xFFFF;
+		my_adc_data = my_adc_data&0xFFFF;
+		febex_data->SetQhalf( my_adc_data );
 		flag_febex_data0 = true;
 
 	}
 	
-	// 32-bit integer (high 16 bits)
-	// In Vic's format of 09/02/2023, this is actually some time difference?
+	// 16-bit integer (time difference to previous data group)
 	if( my_data_id == 1 ) {
 		
-		my_adc_data_hsb = my_adc_data&0xFFFF;
+		my_tdiff_data = my_adc_data&0xFFFF;
 		flag_febex_data1 = true;
+
+	}
+	
+	// 32-bit integer (low 16 bits of energy)
+	if( my_data_id == 2 ) {
+		
+		my_adc_data_lsb = my_adc_data&0xFFFF;
+		flag_febex_data2 = true;
+
+	}
+	
+	// 32-bit integer (high 16 bits of energy)
+	if( my_data_id == 3 ) {
+		
+		my_adc_data_hsb = my_adc_data&0xFFFF;
+		flag_febex_data3 = true;
 
 	}
 
@@ -383,10 +389,10 @@ void MiniballMidasConverter::FinishFebexData(){
 		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
 		// Combine the two halfs of the 32-bit integer point ADC energy
-		//my_adc_data_int = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
+		my_adc_data_int = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
 		
 		// Bodge to match Vic's data format on 09/02/2023
-		my_adc_data_int = my_adc_data_lsb & 0xFFFF;
+		//my_adc_data_int = my_adc_data_lsb & 0xFFFF;
 
 		// Calibrate and set energies
 		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), my_adc_data_int );
