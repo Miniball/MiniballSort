@@ -298,7 +298,8 @@ void MiniballMidasConverter::ProcessFebexData(){
 	// already occured before we found traces. This means that there
 	// is not trace data. So set the flag to be true and finish the
 	// event with an empty trace.
-	else if( flag_febex_data0 && flag_febex_data1 &&
+	// Note 10/02/2022, we don't always get data type 1
+	else if( flag_febex_data0 &&
 			 flag_febex_data2 && flag_febex_data3 ){
 		
 		// Finish up the previous event
@@ -315,7 +316,8 @@ void MiniballMidasConverter::ProcessFebexData(){
 	
 	// If we're in standard readout mode, the next event will be with
 	// data_id of 0 again. So we close the event by faking a full set
-	else if( flag_febex_data0 && !flag_febex_data1 && my_data_id == 0 ){
+	else if( flag_febex_data0 && !flag_febex_data2 &&
+			 !flag_febex_data3 && my_data_id == 0 ){
 		
 		// Fake all other data items
 		flag_febex_data1 = true;
@@ -382,7 +384,9 @@ void MiniballMidasConverter::FinishFebexData(){
 
 	// James says (22/08/2022) that we only get the 32-bit integer now
 	// Update, Carl reports that the two halves are in data_id = 0, 1, not 2, 3 as documented
-	if( ( flag_febex_data0 && flag_febex_data1 ) || flag_febex_trace ){
+	// Update again on 10/02/2022, Vic has made edits to the format and we get 0, 2 and 3 always
+	// if( ( flag_febex_data0 && flag_febex_data1 ) || flag_febex_trace ){
+	if( ( flag_febex_data0 && flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
 
 		// Add the time offset to this channel
 		time_corr  = febex_data->GetTime();
@@ -453,7 +457,6 @@ void MiniballMidasConverter::FinishFebexData(){
 			// Set this data and fill event to tree
 			// Also add the time offset when we do this
 			febex_data->SetTime( time_corr );
-			febex_data->SetQint( my_adc_data_int );
 			data_packet->SetData( febex_data );
 			output_tree->Fill();
 
