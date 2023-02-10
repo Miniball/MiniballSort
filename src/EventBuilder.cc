@@ -718,7 +718,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			} // 1 vs 1
 			
 			// 1 vs 2 - n-side charge sharing?
-			if( pindex.size() == 1 && nindex.size() == 2 ) {
+			else if( pindex.size() == 1 && nindex.size() == 2 ) {
 
 				// Neighbour strips
 				if( TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
@@ -782,7 +782,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			} // 1 vs 2
 			
 			// 2 vs 1 - p-side charge sharing?
-			if( pindex.size() == 2 && nindex.size() == 1 ) {
+			else if( pindex.size() == 2 && nindex.size() == 1 ) {
 
 				// Neighbour strips
 				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 ) {
@@ -846,7 +846,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			} // 2 vs 1
 			
 			// 2 vs 2 - charge sharing on both or two particles?
-			if( pindex.size() == 2 && nindex.size() == 2 ) {
+			else if( pindex.size() == 2 && nindex.size() == 2 ) {
 
 				// Neighbour strips - p-side + n-side
 				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 &&
