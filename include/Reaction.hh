@@ -340,12 +340,12 @@ public:
 
 	// Get particle gamma coincidence times
 	inline double GetParticleGammaPromptTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return pg_prompt[i];
 		else return 0;
 	};
 	inline double GetParticleGammaRandomTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return pg_random[i];
 		else return 0;
 	};
@@ -356,12 +356,12 @@ public:
 		return pg_ratio;
 	};
 	inline double GetGammaGammaPromptTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return gg_prompt[i];
 		else return 0;
 	};
 	inline double GetGammaGammaRandomTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return gg_random[i];
 		else return 0;
 	};
@@ -372,12 +372,12 @@ public:
 		return gg_ratio;
 	};
 	inline double GetParticleParticlePromptTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
-		if( i < 2 ) return pg_prompt[i];
+		// i = 0 for lower limit and i = 1 for upper limit
+		if( i < 2 ) return pp_prompt[i];
 		else return 0;
 	};
 	inline double GetParticleParticleRandomTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return pp_random[i];
 		else return 0;
 	};
@@ -388,12 +388,12 @@ public:
 		return pp_ratio;
 	};
 	inline double GetGammaElectronPromptTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return ge_prompt[i];
 		else return 0;
 	};
 	inline double GetGammaElectronRandomTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return ge_random[i];
 		else return 0;
 	};
@@ -404,12 +404,12 @@ public:
 		return ge_ratio;
 	};
 	inline double GetElectronElectronPromptTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return ee_prompt[i];
 		else return 0;
 	};
 	inline double GetElectronElectronRandomTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return ee_random[i];
 		else return 0;
 	};
@@ -420,12 +420,12 @@ public:
 		return ee_ratio;
 	};
 	inline double GetParticleElectronPromptTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return pe_prompt[i];
 		else return 0;
 	};
 	inline double GetParticleElectronRandomTime( unsigned char i ){
-		// i = 0 for lower limite and i = 1 for upper limit
+		// i = 0 for lower limit and i = 1 for upper limit
 		if( i < 2 ) return pe_random[i];
 		else return 0;
 	};

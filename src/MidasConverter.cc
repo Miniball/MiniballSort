@@ -542,7 +542,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 
 	// Resume
 	if( my_info_code == set->GetResumeCode() ) {
-         
+
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
 		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
 		hfebex_resume[my_sfp_id][my_board_id]->Fill( ctr_febex_resume[my_sfp_id][my_board_id], my_tm_stp, 1 );

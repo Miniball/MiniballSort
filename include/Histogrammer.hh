@@ -214,8 +214,8 @@ public:
 	}
 	inline bool TwoParticleCut( std::shared_ptr<ParticleEvt> p1, std::shared_ptr<ParticleEvt> p2 ){
 		if( EjectileCut(p1) && RecoilCut(p2) && PromptCoincidence( p1, p2 ) &&
-		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) < 1.1*TMath::Pi() &&
-		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) > 0.9*TMath::Pi() )
+		    TMath::Abs( react->GetParticleVector(p1).DeltaPhi( react->GetParticleVector(p2) ) ) < 1.5*TMath::Pi() &&
+		    TMath::Abs( react->GetParticleVector(p1).DeltaPhi( react->GetParticleVector(p2) ) ) > 0.5*TMath::Pi() )
 			return true;
 		else return false;
 	}

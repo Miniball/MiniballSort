@@ -1064,7 +1064,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Time differences and fill symmetrically
 				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
 				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
-				
+
 				// Don't try to make more particle events
 				// if we already got one?
 				if( event_used ) continue;
@@ -1096,8 +1096,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 			} // k: second particle
 			
-			// If we found a particle and used it, then we need to
-			// stop so we don't fill the gamma-spectra more than once
+			// If we found a 2-particle event and used it, then we need to
+			// stop so we don't "overwrite" the event
 			if( event_used ) continue;
 
 			// Otherwise we can build a one particle event
