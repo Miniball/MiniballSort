@@ -1315,7 +1315,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 			// If we found a particle and used it, then we need to
 			// stop so we don't fill the gamma-spectra more than once
-			if( event_used ) continue;
+			if( event_used ) break;
 
 			// Otherwise we can build a one particle event
 			else if( EjectileCut( particle_evt ) ) {
