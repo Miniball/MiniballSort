@@ -551,8 +551,8 @@ void MiniballMidasConverter::ProcessInfoData(){
     }
 
 	// Create an info event and fill the tree for external triggers and pause/resume
-	//if( my_info_code == set->GetPauseCode() ||
-	//    my_info_code == set->GetResumeCode() ) {
+	if( my_info_code != set->GetSyncCode() &&
+	    my_info_code != set->GetTimestampCode() ) {
 
 		info_data->SetSfp( my_sfp_id );
 		info_data->SetBoard( my_board_id );
@@ -562,7 +562,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 		output_tree->Fill();
 		info_data->Clear();
 
-	//}
+	}
 
 	return;
 	
