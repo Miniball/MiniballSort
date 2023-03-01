@@ -97,7 +97,7 @@ void MiniballGeometry::SetupCluster() {
 			seg_offset[i][j].RotateX( mytheta );
 		}
 	}
-
+  
 	// Shift Miniball so that target it as origin
 	mbzoffset.SetXYZ( -z, 0.0, 0.0 );
 	for( unsigned char i = 0; i < ncry; i++ ) {

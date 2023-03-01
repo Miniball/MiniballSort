@@ -232,6 +232,9 @@ public:
 	};
 
 	// Miniball geometry functions
+  inline void   SetupCluster(unsigned char clu, double user_theta, double user_phi, double user_alpha, double user_r, double user_z) {
+    mb_geo[clu].SetupCluster(user_theta, user_phi, user_alpha, user_r, user_z);
+  }
 	inline float	GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegTheta( cry, seg );
 	};

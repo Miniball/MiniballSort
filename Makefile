@@ -88,7 +88,7 @@ DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 
  
 .PHONY : all
-all: $(BIN_DIR)/mb_sort $(LIB_DIR)/libmb_sort.so
+all: $(BIN_DIR)/mb_sort $(LIB_DIR)/libmb_sort.so $(BIN_DIR)/mb_angle_fit
  
 $(LIB_DIR)/libmb_sort.so: mb_sort.o $(OBJECTS) mb_sortDict.o
 	mkdir -p $(LIB_DIR)
@@ -98,7 +98,14 @@ $(BIN_DIR)/mb_sort: mb_sort.o $(OBJECTS) mb_sortDict.o
 	mkdir -p $(BIN_DIR)
 	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS)
 
+$(BIN_DIR)/mb_angle_fit: mb_angle_fit.o $(OBJECTS) mb_angle_fitDict.o
+	mkdir -p $(BIN_DIR)
+	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS)
+
 mb_sort.o: mb_sort.cc
+	$(CC) $(CFLAGS) $(INCLUDES) $^
+
+mb_angle_fit.o: mb_angle_fit.cc
 	$(CC) $(CFLAGS) $(INCLUDES) $^
 
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.cc $(INC_DIR)/%.hh
@@ -111,9 +118,18 @@ mb_sortDict.o: mb_sortDict.cc mb_sortDict$(DICTEXT) $(INC_DIR)/RootLinkDef.h
 	cp $(basename $@)$(DICTEXT) $(LIB_DIR)/
 	cp $(basename $@)$(DICTEXT) $(BIN_DIR)/
 
+mb_angle_fitDict.o: mb_angle_fitDict.cc mb_angle_fitDict$(DICTEXT) $(INC_DIR)/RootLinkDef.h
+	mkdir -p $(BIN_DIR)
+	mkdir -p $(LIB_DIR)
+	$(CC) -fPIC $(CFLAGS) $(INCLUDES) -c $<
+	cp $(basename $@)$(DICTEXT) $(LIB_DIR)/
+	cp $(basename $@)$(DICTEXT) $(BIN_DIR)/
+
 mb_sortDict.cc: $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 	$(ROOTDICT) -f $@ -c $(INCLUDES) $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 
+mb_angle_fitDict.cc: $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
+	$(ROOTDICT) -f $@ -c $(INCLUDES) $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 
 clean:
 	rm -vf $(BIN_DIR)/mb_sort $(SRC_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*.gch *.o $(BIN_DIR)/*.pcm *.pcm $(BIN_DIR)/*Dict* *Dict* $(LIB_DIR)/*
