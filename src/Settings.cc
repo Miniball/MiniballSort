@@ -49,8 +49,8 @@ void MiniballSettings::ReadSettings() {
 	// Info code initialisation
 	pause_code		= 2;
 	resume_code		= 3;
-	sync_code		= 4;
-	thsb_code		= 5;
+	sync_code		= 7;
+	thsb_code		= 8;
 	pulser_sfp		= config->GetValue( "Pulser.Sfp", 1 );
 	pulser_board	= config->GetValue( "Pulser.Board", 8 );
 	pulser_ch		= config->GetValue( "Pulser.Channel", 12 );

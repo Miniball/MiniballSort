@@ -47,7 +47,11 @@ public:
 	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );
 	void FillParticleGammaHists( std::shared_ptr<GammaRayAddbackEvt> g );
 	void FillParticleElectronHists( std::shared_ptr<SpedeEvt> s );
-	
+	void FillParticleGammaGammaHists( std::shared_ptr<GammaRayEvt> g1, std::shared_ptr<GammaRayEvt> g2 );
+	void FillParticleGammaGammaHists( std::shared_ptr<GammaRayAddbackEvt> g1, std::shared_ptr<GammaRayAddbackEvt> g2 );
+	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g );
+	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayAddbackEvt> g );
+
 	void SetInputFile( std::vector<std::string> input_file_names );
 	void SetInputFile( std::string input_file_name );
 	void SetInputTree( TTree *user_tree );
@@ -214,8 +218,8 @@ public:
 	}
 	inline bool TwoParticleCut( std::shared_ptr<ParticleEvt> p1, std::shared_ptr<ParticleEvt> p2 ){
 		if( EjectileCut(p1) && RecoilCut(p2) && PromptCoincidence( p1, p2 ) &&
-		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) < 1.1*TMath::Pi() &&
-		    TMath::Abs( react->GetParticlePhi(p1) - react->GetParticlePhi(p2) ) > 0.9*TMath::Pi() )
+		    TMath::Abs( react->GetParticleVector(p1).DeltaPhi( react->GetParticleVector(p2) ) ) < 1.5*TMath::Pi() &&
+		    TMath::Abs( react->GetParticleVector(p1).DeltaPhi( react->GetParticleVector(p2) ) ) > 0.5*TMath::Pi() )
 			return true;
 		else return false;
 	}
@@ -247,6 +251,7 @@ private:
 	
 	// Counters
 	unsigned long n_entries;
+	int SpedeRing;
 	
 	// Random number
 	TRandom rand;
@@ -256,10 +261,10 @@ private:
 	//------------//
 	
 	// Histogram limits
-	const unsigned int GBIN = 8000;		// number of bins in gamma spectra
-	const float GMIN = -0.25;			// lower limit of energy in gamma spectra
-	const float GMAX = 3999.75;			// upper limit of energy in gamma spectra
-	const unsigned int EBIN = 200;		// number of bins in electron spectra
+	const unsigned int GBIN = 4000;		// number of bins in gamma spectra
+	const float GMIN = -0.5;			// lower limit of energy in gamma spectra
+	const float GMAX = 1999.5;			// upper limit of energy in gamma spectra
+	const unsigned int EBIN = 2000;		// number of bins in electron spectra
 	const float EMIN = -0.5;			// lower limit of energy in electron spectra
 	const float EMAX = 1999.5;			// upper limit of energy in electron spectra
 	const unsigned int PBIN = 2000;		// number of bins in particle spectra
@@ -324,6 +329,8 @@ private:
 	TH2F *gE_vs_theta_ejectile_dc_none, *gE_vs_theta_ejectile_dc_ejectile, *gE_vs_theta_ejectile_dc_recoil;
 	TH2F *gE_vs_theta_recoil_dc_none,   *gE_vs_theta_recoil_dc_ejectile,   *gE_vs_theta_recoil_dc_recoil;
 	TH2F *gE_vs_theta_2p_dc_none,       *gE_vs_theta_2p_dc_ejectile,       *gE_vs_theta_2p_dc_recoil;
+	TH2F *ggE_ejectile_dc_none, *ggE_ejectile_dc_ejectile, *ggE_ejectile_dc_recoil;
+	TH2F *ggE_recoil_dc_none,   *ggE_recoil_dc_ejectile,   *ggE_recoil_dc_recoil;
 
 	// Doppler-corrected gamma-rays with addback
 	TH1F *aE_ejectile_dc_none, *aE_ejectile_dc_ejectile, *aE_ejectile_dc_recoil;
@@ -332,7 +339,12 @@ private:
 	TH2F *aE_vs_theta_ejectile_dc_none, *aE_vs_theta_ejectile_dc_ejectile, *aE_vs_theta_ejectile_dc_recoil;
 	TH2F *aE_vs_theta_recoil_dc_none,   *aE_vs_theta_recoil_dc_ejectile,   *aE_vs_theta_recoil_dc_recoil;
 	TH2F *aE_vs_theta_2p_dc_none,       *aE_vs_theta_2p_dc_ejectile,       *aE_vs_theta_2p_dc_recoil;
+	TH2F *aaE_ejectile_dc_none, *aaE_ejectile_dc_ejectile, *aaE_ejectile_dc_recoil;
+	TH2F *aaE_recoil_dc_none,   *aaE_recoil_dc_ejectile,   *aaE_recoil_dc_recoil;
 
+	// Electron energy versus cos(theta)
+	TH2F *eE_costheta_ejectile, *eE_costheta_recoil;
+  
 	// Doppler-corrected electrons
 	TH1F *eE_ejectile_dc_none, *eE_ejectile_dc_ejectile, *eE_ejectile_dc_recoil;
 	TH1F *eE_recoil_dc_none,   *eE_recoil_dc_ejectile,   *eE_recoil_dc_recoil;
@@ -340,6 +352,12 @@ private:
 	TH2F *eE_vs_theta_ejectile_dc_none, *eE_vs_theta_ejectile_dc_ejectile, *eE_vs_theta_ejectile_dc_recoil;
 	TH2F *eE_vs_theta_recoil_dc_none,   *eE_vs_theta_recoil_dc_ejectile,   *eE_vs_theta_recoil_dc_recoil;
 	TH2F *eE_vs_theta_2p_dc_none,       *eE_vs_theta_2p_dc_ejectile,       *eE_vs_theta_2p_dc_recoil;
+	TH2F *ring_eE_vs_ejectile_dc_none, *ring_eE_vs_ejectile_dc_ejectile, *ring_eE_vs_ejectile_dc_recoil;
+	TH2F *ring_eE_vs_recoil_dc_none,   *ring_eE_vs_recoil_dc_ejectile,   *ring_eE_vs_recoil_dc_recoil;
+	TH2F *egE_ejectile_dc_none, *egE_ejectile_dc_ejectile, *egE_ejectile_dc_recoil;
+	TH2F *egE_recoil_dc_none,   *egE_recoil_dc_ejectile,   *egE_recoil_dc_recoil;
+	TH2F *eaE_ejectile_dc_none, *eaE_ejectile_dc_ejectile, *eaE_ejectile_dc_recoil;
+	TH2F *eaE_recoil_dc_none,   *eaE_recoil_dc_ejectile,   *eaE_recoil_dc_recoil;
 
 	// Beam-dump histograms
 	TH1F *bdE_singles;

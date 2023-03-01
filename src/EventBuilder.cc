@@ -14,6 +14,9 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 	// Progress bar starts as false
 	_prog_ = false;
 
+	// Start at MBS event 0
+	preveventid = 0;
+
 	// ------------------------------- //
 	// Initialise variables and flags  //
 	// ------------------------------- //
@@ -123,6 +126,7 @@ void MiniballEventBuilder::SetInputFile( std::string input_file_name ) {
 	
 	// Set the input tree
 	SetInputTree( (TTree*)input_file->Get("mb_sort") );
+	SetMBSInfoTree( (TTree*)input_file->Get("mbsinfo") );
 	StartFile();
 
 	return;
@@ -138,6 +142,17 @@ void MiniballEventBuilder::SetInputTree( TTree *user_tree ){
 
 	return;
 	
+}
+
+void MiniballEventBuilder::SetMBSInfoTree( TTree *user_tree ){
+
+	// Find the tree and set branch addresses
+	mbsinfo_tree = user_tree;
+	mbs_info = nullptr;
+	mbsinfo_tree->SetBranchAddress( "mbsinfo", &mbs_info );
+
+	return;
+
 }
 
 void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
@@ -272,7 +287,8 @@ void MiniballEventBuilder::MakeEventHists(){
 	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 499, -2495, 2495 );
 
 	mb_en_core_seg.resize( set->GetNumberOfMiniballClusters() );
-	
+	mb_en_core_seg_ebis_on.resize( set->GetNumberOfMiniballClusters() );
+
 	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
 		
 		dirname = "miniball/cluster_" + std::to_string(i);
@@ -281,27 +297,23 @@ void MiniballEventBuilder::MakeEventHists(){
 		output_file->cd( dirname.data() );
 
 		mb_en_core_seg[i].resize( set->GetNumberOfMiniballCrystals() );
+		mb_en_core_seg_ebis_on[i].resize( set->GetNumberOfMiniballCrystals() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
-			
-			dirname  = "miniball/cluster_" + std::to_string(i);
-			dirname += "/crystal_" + std::to_string(j);
-			if( !output_file->GetDirectory( dirname.data() ) )
-				output_file->mkdir( dirname.data() );
-			output_file->cd( dirname.data() );
 
-			mb_en_core_seg[i][j].resize( set->GetNumberOfMiniballSegments() );
-
-			for( unsigned int k = 0; k < set->GetNumberOfMiniballSegments(); ++k ) {
-				
 				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
-				hname += std::to_string(j) + "_" + std::to_string(k);
+				hname += std::to_string(j);
 				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
 				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += std::to_string(k) + ";Energy (keV)";
-				mb_en_core_seg[i][j][k] = new TH1F( hname.data(), htitle.data(), 4096, -0.5, 4095.5 );
+				htitle += ";segment ID;Energy (keV)";
+				mb_en_core_seg[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
 				
-			} // k
+				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
+				hname += std::to_string(j) + "_ebis_on";
+				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
+				htitle += " core " + std::to_string(j) + ", gated by segment ";
+				htitle += " gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
+				mb_en_core_seg_ebis_on[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
 			
 		} // j
 		
@@ -465,6 +477,15 @@ void MiniballEventBuilder::GammaRayFinder() {
 		// Loop again to find the matching segments
 		for( unsigned int j = 0; j < mb_en_list.size(); ++j ) {
 
+			// Skip if it's not the same crystal and cluster
+			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
+			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
+			
+			// Fill the segment spectra with core energies
+			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
+			if( mb_ts_list.at(j) - ebis_time < 1.5e6 )
+				mb_en_core_seg_ebis_on[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
+
 			// Skip if it's a core again, also fill time diff plot
 			if( i == j || mb_seg_list.at(j) == 0 ) {
 				
@@ -473,10 +494,6 @@ void MiniballEventBuilder::GammaRayFinder() {
 				continue;
 			
 			}
-			
-			// Skip if it's not the same crystal and cluster
-			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
-			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
 			
 			// Increment the segment multiplicity and sum energy
 			seg_mul++;
@@ -489,9 +506,6 @@ void MiniballEventBuilder::GammaRayFinder() {
 				MaxSegId = mb_seg_list.at(j);
 				
 			}
-			
-			// Fill the segment gated spectra
-			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)][mb_seg_list.at(j)]->Fill( mb_en_list.at(i) );
 			
 			// Fill the time difference spectrum
 			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
@@ -553,7 +567,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( write_evts->GetGammaRayEvt(j)->GetEnergy() > MaxEnergy ){
 				
 				MaxEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
-				MaxSegEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
+				MaxSegEnergy = write_evts->GetGammaRayEvt(j)->GetSegmentEnergy();
 				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCrystal();
 				MaxSegId = write_evts->GetGammaRayEvt(j)->GetSegment();
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
@@ -704,7 +718,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			} // 1 vs 1
 			
 			// 1 vs 2 - n-side charge sharing?
-			if( pindex.size() == 1 && nindex.size() == 2 ) {
+			else if( pindex.size() == 1 && nindex.size() == 2 ) {
 
 				// Neighbour strips
 				if( TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
@@ -768,7 +782,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			} // 1 vs 2
 			
 			// 2 vs 1 - p-side charge sharing?
-			if( pindex.size() == 2 && nindex.size() == 1 ) {
+			else if( pindex.size() == 2 && nindex.size() == 1 ) {
 
 				// Neighbour strips
 				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 ) {
@@ -832,7 +846,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			} // 2 vs 1
 			
 			// 2 vs 2 - charge sharing on both or two particles?
-			if( pindex.size() == 2 && nindex.size() == 2 ) {
+			else if( pindex.size() == 2 && nindex.size() == 2 ) {
 
 				// Neighbour strips - p-side + n-side
 				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 &&
@@ -1101,6 +1115,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	std::cout << " Event Building: number of entries in input tree = ";
 	std::cout << n_entries << std::endl;
 
+	std::cout << "\tnumber of MBS Events/triggers in input tree = ";
+	std::cout << mbsinfo_tree->GetEntries() << std::endl;
 	
 	// ------------------------------------------------------------------------ //
 	// Main loop over TTree to find events
@@ -1110,19 +1126,61 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		// Current event data
 		//if( input_tree->MemoryFull(30e6) )
 		//	input_tree->DropBaskets();
-		if( i == 0 ) input_tree->GetEntry(i);
+
+		// First event, yes please!
+		if( i == 0 ){
+
+			input_tree->GetEntry(i);
+			myeventid = in_data->GetEventID();
+			myeventtime = in_data->GetTime();
+
+			// Try to get the MBS info event with the index
+			if( mbsinfo_tree->GetEntryWithIndex( myeventid ) < 0 ) {
+
+				// Look for the matches MBS Info event if we didn't match automatically
+				for( long j = 0; j < mbsinfo_tree->GetEntries(); ++j ){
+
+					mbsinfo_tree->GetEntry(j);
+					if( mbs_info->GetEventID() == myeventid ) {
+						myeventtime = mbs_info->GetTime();
+						break;
+					}
+
+					// Panic if we failed!
+					if( j+1 == mbsinfo_tree->GetEntries() ) {
+						std::cerr << "Didn't find matching MBS Event IDs at start of the file: ";
+						std::cerr << myeventid << std::endl;
+					}
+
+				}
+
+			}
+
+			std::cout << "MBS Trigger time = " << myeventtime << std::endl;
+
+		}
 
 		// Get the time of the event
-		mytime = in_data->GetTime();
-				
+		mytime = in_data->GetTime(); // this is normal
+		//myhittime = in_data->GetTime();	// this is for is697
+		//mytime = myeventtime + myhittime; // this is for is697
+		
 		// check time stamp monotonically increases!
 		if( time_prev > mytime ) {
 			
-			std::cout << "Out of order event in file ";
-			std::cout << input_tree->GetName() << std::endl;
+			//std::cout << "Out of order event in file ";
+			//std::cout << input_tree->GetName() << std::endl;
 			
 		}
 			
+		// check event id is increasing
+		//if( preveventid > myeventid ) {
+
+		//	std::cout << "Out of order event " << myeventid;
+		//	std::cout << " < " << preveventid << std::endl;
+
+		//}
+
 		// record time of this event
 		time_prev = mytime;
 		
@@ -1409,8 +1467,52 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		//------------------------------
 		
 		if( input_tree->GetEntry(i+1) ) {
-						
-			time_diff = in_data->GetTime() - time_first;
+			
+			// Get the next MBS event ID
+			preveventid = myeventid;
+			myeventid = in_data->GetEventID();
+
+			// If the next MBS event ID is the same, carry on
+			// If not, we have to go look for the next trigger time
+			if( myeventid != preveventid ) {
+
+				// Close the event
+				flag_close_event = true;
+
+				// And find the next MBS event ID
+				if( mbsinfo_tree->GetEntryWithIndex( myeventid ) < 0 ) {
+
+					std::cerr << "MBS Event " << myeventid << " not found by index, looking up manually" << std::endl;
+
+					// Look for the matches MBS Info event if we didn't match automatically
+					for( long j = 0; j < mbsinfo_tree->GetEntries(); ++j ){
+
+						mbsinfo_tree->GetEntry(j);
+						if( mbs_info->GetEventID() == myeventid ) {
+							myeventtime = mbs_info->GetTime();
+							break;
+						}
+
+						// Panic if we failed!
+						if( j+1 == mbsinfo_tree->GetEntries() ) {
+							std::cerr << "Didn't find matching MBS Event IDs at start of the file: ";
+							std::cerr << myeventid << std::endl;
+						}
+					}
+
+				}
+
+				else myeventtime = mbs_info->GetTime();
+
+			}
+
+			// BELOW IS THE TIME-ORDERED METHOD!
+
+			// Get next time
+			//myhittime = in_data->GetTime();
+			//mytime = myhittime + myeventtime;
+			mytime = in_data->GetTime();
+			time_diff = mytime - time_first;
 
 			// window = time_stamp_first + time_window
 			if( time_diff > build_window )

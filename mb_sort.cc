@@ -7,6 +7,7 @@
 #include "Reaction.hh"
 #include "Histogrammer.hh"
 #include "DataSpy.hh"
+#include "MbsFormat.hh"
 #include "MiniballGUI.hh"
 
 #include "mb_sort.hh"
@@ -122,11 +123,17 @@ void* monitor_run( void* ptr ){
 		exit(1);
 	
 	}
+	
+	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
 	long long buffer[8*1024];
 	int file_id = 0; ///> TapeServer volume = /dev/file/<id> ... <id> = 0 on issdaqpc2
-	if( flag_spy ) myspy.Open( file_id ); /// open the data spy
+	if( flag_spy && !flag_mbs ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
+	
+	// GSI MBS EventServer
+	MBS mbs;
+	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8030 );
 
 	// Data/Event counters
 	int start_block = 0, start_subevt = 0;
@@ -172,7 +179,7 @@ void* monitor_run( void* ptr ){
 				
 			}
 			
-			// Convert - from shared memory
+			// Convert - from MIDAS shared memory
 			else if( flag_spy && !flag_mbs ){
 			
 				// First check if we have data
@@ -201,6 +208,18 @@ void* monitor_run( void* ptr ){
 			
 			}
 											 
+			// Convert - from MBS event server
+			else if( flag_spy && flag_mbs ){
+				
+				// First check if we have data
+				std::cout << "Looking for data from MBSEventServer" << std::endl;
+				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
+				conv_mbs_mon->ProcessBlock(0);
+				conv_mon->SortTree();
+
+			}
+
+
 			// Only do the rest if it is not a source run
 			if( !flag_source ) {
 			
@@ -247,7 +266,8 @@ void* monitor_run( void* ptr ){
 	} // always running
 	
 	// Close the dataSpy before exiting (no point really)
-	if( flag_spy ) myspy.Close( file_id );
+	if( flag_spy && !flag_mbs ) myspy.Close( file_id );
+	if( flag_spy && flag_mbs ) mbs.CloseEventServer();
 
 	// Close all outputs (we never reach here anyway)
 	conv_mon->CloseOutput();
@@ -357,7 +377,10 @@ void do_convert() {
 				conv_mbs.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) conv_mbs.SortTree();
+				if( !flag_source ){
+					conv_mbs.BuildMbsIndex();
+					conv_mbs.SortTree();
+				}
 				conv_mbs.CloseOutput();
 				
 			}
@@ -372,7 +395,10 @@ void do_convert() {
 				conv_midas.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) conv_midas.SortTree();
+				if( !flag_source ) {
+					conv_midas.SortTree();
+					//conv_midas.BodgeMidasSort();
+				}
 				conv_midas.CloseOutput();
 				
 			}
@@ -610,8 +636,24 @@ int main( int argc, char *argv[] ){
 	// Check we have a Settings file
 	if( name_set_file.length() > 0 ) {
 		
-		std::cout << "Settings file: " << name_set_file << std::endl;
+		// Test if the file exists
+		std::ifstream ftest;
+		ftest.open( name_set_file.data() );
+		if( !ftest.is_open() ) {
+			
+			std::cout << name_set_file << " does not exist.";
+			std::cout << " Using defaults" << std::endl;
+			name_set_file = "dummy";
+
+		}
 		
+		else {
+		
+			ftest.close();
+			std::cout << "Settings file: " << name_set_file << std::endl;
+		
+		}
+
 	}
 	else {
 		
@@ -623,8 +665,24 @@ int main( int argc, char *argv[] ){
 	// Check we have a calibration file
 	if( name_cal_file.length() > 0 ) {
 		
-		std::cout << "Calibration file: " << name_cal_file << std::endl;
-		overwrite_cal = true;
+		// Test if the file exists
+		std::ifstream ftest;
+		ftest.open( name_cal_file.data() );
+		if( !ftest.is_open() ) {
+			
+			std::cout << name_cal_file << " does not exist.";
+			std::cout << " Using defaults" << std::endl;
+			name_set_file = "dummy";
+
+		}
+		
+		else {
+			
+			ftest.close();
+			std::cout << "Calibration file: " << name_cal_file << std::endl;
+			overwrite_cal = true;
+			
+		}
 
 	}
 	else {
@@ -637,8 +695,24 @@ int main( int argc, char *argv[] ){
 	// Check we have a reaction file
 	if( name_react_file.length() > 0 ) {
 		
-		std::cout << "Reaction file: " << name_react_file << std::endl;
+		// Test if the file exists
+		std::ifstream ftest;
+		ftest.open( name_react_file.data() );
+		if( !ftest.is_open() ) {
+			
+			std::cout << name_react_file << " does not exist.";
+			std::cout << " Using defaults" << std::endl;
+			name_set_file = "dummy";
+
+		}
 		
+		else {
+		
+			ftest.close();
+			std::cout << "Reaction file: " << name_react_file << std::endl;
+
+		}
+
 	}
 	else {
 		

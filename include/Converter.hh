@@ -45,6 +45,9 @@ public:
 	void MakeHists();
 	void ResetHists();
 	void MakeTree();
+	void StartFile();
+	void BuildMbsIndex();
+	void BodgeMidasSort();
 	unsigned long long SortTree();
 
 	void SetOutput( std::string output_file_name );
@@ -56,6 +59,7 @@ public:
 	};
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
+	inline TTree* GetMbsInfo(){ return mbsinfo_tree; };
 	inline TTree* GetSortedTree(){ return sorted_tree; };
 
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){ cal = mycal; };
@@ -85,13 +89,16 @@ protected:
 	bool flag_febex_info;
 	
 	// Interpretated variables
+	unsigned long long my_good_tm_stp;
 	unsigned long long my_tm_stp;
+	unsigned long long my_event_id;
 	unsigned long my_tm_stp_lsb;
 	unsigned long my_tm_stp_msb;
 	unsigned long my_tm_stp_hsb;
 	unsigned int my_info_field;
 	unsigned char my_info_code;
 	unsigned char my_type;
+	unsigned short my_tdiff_data;
 	unsigned short my_adc_data;
 	unsigned short my_adc_data_lsb;
 	unsigned short my_adc_data_hsb;
@@ -103,7 +110,7 @@ protected:
 	unsigned char my_data_id;
 	unsigned char my_trig_id;
 	long my_hit_time;
-	bool my_fail, my_veto;
+	bool my_pileup;
 	float my_energy;
 
 	// For traces
@@ -112,7 +119,8 @@ protected:
 
 	
 	// Data types
-	std::shared_ptr<MiniballDataPackets> data_packet = 0;
+	std::unique_ptr<MBSInfoPackets> mbsinfo_packet = 0;
+	std::unique_ptr<MiniballDataPackets> data_packet = 0;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 	
@@ -120,6 +128,7 @@ protected:
 	TFile *output_file;
 	TTree *output_tree;
 	TTree *sorted_tree;
+	TTree *mbsinfo_tree;
 
 	// Counters
 	std::vector<std::vector<unsigned long>> ctr_febex_hit;		// hits on each Febex module

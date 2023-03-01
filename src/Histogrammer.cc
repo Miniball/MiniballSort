@@ -356,6 +356,36 @@ void MiniballHistogrammer::MakeHists() {
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
 
+	hname = "ggE_ejectile_dc_none";
+	htitle = "Gamma-gamma matrix, gated on the ejectile with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	ggE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "ggE_ejectile_dc_ejectile";
+	htitle = "Gamma-gamma matrix, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	ggE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "ggE_ejectile_dc_recoil";
+	htitle = "Gamma-gamma matrix, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	ggE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "ggE_recoil_dc_none";
+	htitle = "Gamma-gamma matrix, gated on the recoil with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	ggE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "ggE_recoil_dc_ejectile";
+	htitle = "Gamma-gamma matrix, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	ggE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "ggE_recoil_dc_recoil";
+	htitle = "Gamma-gamma matrix, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	ggE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
 	// Gamma-particle coincidences with addback
 	dirname = "GammaRayAddbackParticleCoincidences";
 	output_file->mkdir( dirname.data() );
@@ -485,6 +515,35 @@ void MiniballHistogrammer::MakeHists() {
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
 
+	hname = "aaE_ejectile_dc_none";
+	htitle = "Gamma-gamma matrix with addback, gated on the ejectile with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	aaE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "aaE_ejectile_dc_ejectile";
+	htitle = "Gamma-gamma matrix with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	aaE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "aaE_ejectile_dc_recoil";
+	htitle = "Gamma-gamma matrix with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	aaE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "aaE_recoil_dc_none";
+	htitle = "Gamma-gamma matrix with addback, gated on the recoil with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	aaE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "aaE_recoil_dc_ejectile";
+	htitle = "Gamma-gamma matrix with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	aaE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+
+	hname = "aaE_recoil_dc_recoil";
+	htitle = "Gamma-gamma matrix with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	aaE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
 
 	//  Electron-particle coincidences
 	dirname = "ElectronParticleCoincidences";
@@ -605,6 +664,106 @@ void MiniballHistogrammer::MakeHists() {
 	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 	eE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
 
+  
+	hname = "eE_costheta_ejectile";
+	htitle = "Electron energy versus cos(#theta) of angle between ejectile and electron;";
+	htitle += "Energy [keV];cos(#theta_pe)";
+	eE_costheta_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
+
+	hname = "eE_costheta_recoil";
+	htitle = "Electron energy versus cos(#theta) of angle between recoil and electron;";
+	htitle += "Energy [keV];cos(#theta_pe)";
+	eE_costheta_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
+
+	hname = "ring_eE_vs_ejectile_dc_none";
+	htitle = "Electron energy, gated on the ejectile with random subtraction;";
+	htitle += "Energy [keV];Ring;Counts per keV per ring";
+	ring_eE_vs_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+
+	hname = "ring_eE_vs_ejectile_dc_ejectile";
+	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Energy [keV];Ring;Counts per keV per ring";
+	ring_eE_vs_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+
+	hname = "ring_eE_vs_ejectile_dc_recoil";
+	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Energy [keV];Ring;Counts per keV per ring";
+	ring_eE_vs_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+
+	hname = "ring_eE_vs_recoil_dc_none";
+	htitle = "Electron energy, gated on the recoil with random subtraction;";
+	htitle += "Energy [keV];Ring;Counts per keV per ring";
+	ring_eE_vs_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+
+	hname = "ring_eE_vs_recoil_dc_ejectile";
+	htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Energy [keV];Ring;Counts per keV per ring";
+	ring_eE_vs_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+
+	hname = "ring_eE_vs_recoil_dc_recoil";
+	htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Energy [keV];Ring;Counts per keV per ring";
+	ring_eE_vs_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+  
+	hname = "egE_ejectile_dc_none";
+	htitle = "Electron-gamma matrix without addback, gated on the ejectile with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	egE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "egE_ejectile_dc_ejectile";
+	htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	egE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "egE_ejectile_dc_recoil";
+	htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	egE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "egE_recoil_dc_none";
+	htitle = "Electron-gamma matrix without addback, gated on the recoil with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	egE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "egE_recoil_dc_ejectile";
+	htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	egE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "egE_recoil_dc_recoil";
+	htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	egE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "eaE_ejectile_dc_none";
+	htitle = "Electron-gamma matrix with addback, gated on the ejectile with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	eaE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "eaE_ejectile_dc_ejectile";
+	htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	eaE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "eaE_ejectile_dc_recoil";
+	htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	eaE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "eaE_recoil_dc_none";
+	htitle = "Electron-gamma matrix with addback, gated on the recoil with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	eaE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "eaE_recoil_dc_ejectile";
+	htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	eaE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+
+	hname = "eaE_recoil_dc_recoil";
+	htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+	eaE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
 
 
 	// Beam dump histograms
@@ -716,7 +875,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 
 	}
 	
-	// Two particle spectra
+	// Two-particle spectra
 	if( react->IsEjectileDetected() && react->IsRecoilDetected() ){
 		
 		// Prompt and random spectra
@@ -794,7 +953,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 
 	}
 	
-	// Two particle spectra
+	// Two-particle spectra
 	if( react->IsEjectileDetected() && react->IsRecoilDetected() ){
 		
 		// Prompt and random spectra
@@ -845,6 +1004,8 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 	// Ejectile-gated spectra
 	if( react->IsEjectileDetected() ) {
 		
+		eE_costheta_ejectile->Fill( e->GetEnergy(), react->CosTheta( e, true ), weight );
+		
 		eE_ejectile_dc_none->Fill( e->GetEnergy(), weight );
 		eE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), weight );
 		eE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), weight );
@@ -852,11 +1013,21 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 		eE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), e->GetEnergy(), weight );
 		eE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, true ), weight );
 		eE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, false ), weight );
+    
+		if( e->GetSegment() < 8 ) SpedeRing = 0;
+		else if( e->GetSegment() < 16 ) SpedeRing = 1;
+		else if( e->GetSegment() < 24 ) SpedeRing = 2;
+    
+		ring_eE_vs_ejectile_dc_none->Fill( e->GetEnergy(), SpedeRing, weight );
+		ring_eE_vs_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), SpedeRing, weight );
+		ring_eE_vs_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), SpedeRing, weight );
 
 	}
 
 	// Recoil-gated spectra
 	if( react->IsRecoilDetected() ) {
+		
+		eE_costheta_recoil->Fill( e->GetEnergy(), react->CosTheta( e, false ), weight );
 		
 		eE_recoil_dc_none->Fill( e->GetEnergy(), weight );
 		eE_recoil_dc_ejectile->Fill( react->DopplerCorrection( e, true ), weight );
@@ -865,10 +1036,18 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 		eE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), e->GetEnergy(), weight );
 		eE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, true ), weight );
 		eE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, false ), weight );
-
+    
+		if( e->GetSegment() < 8 ) SpedeRing = 0;
+		else if( e->GetSegment() < 16 ) SpedeRing = 1;
+		else if( e->GetSegment() < 24 ) SpedeRing = 2;
+		
+		ring_eE_vs_recoil_dc_none->Fill( e->GetEnergy(), SpedeRing, weight );
+		ring_eE_vs_recoil_dc_ejectile->Fill( react->DopplerCorrection( e, true ), SpedeRing, weight );
+		ring_eE_vs_recoil_dc_recoil->Fill( react->DopplerCorrection( e, false ), SpedeRing, weight );
+ 
 	}
 	
-	// Two particle spectra
+	// Two-particle spectra
 	if( react->IsEjectileDetected() && react->IsRecoilDetected() ){
 		
 		// Prompt and random spectra
@@ -887,6 +1066,110 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 	
 	return;
 
+}
+
+// Particle-Gamma-Gamma coincidences without addback
+void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRayEvt> g1, std::shared_ptr<GammaRayEvt> g2 ) {
+
+	// Work out the weight if it's prompt or random
+	bool prompt = false;
+	bool random = false;
+	float weight;
+	if( PromptCoincidence( g1, react->GetParticleTime() ) ) {
+		prompt = true;
+		weight = 1.0;
+	}
+	else if( RandomCoincidence( g1, react->GetParticleTime() ) ){
+		random = true;
+		weight = -1.0 * react->GetParticleGammaFillRatio();
+	}
+	else return; // outside of either window, quit now
+
+	// Gamma-gamma
+	ggE_ejectile_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
+	ggE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
+	ggE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
+
+	return;
+	
+}
+
+// Particle-Gamma-Gamma coincidences with addback
+void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRayAddbackEvt> g1, std::shared_ptr<GammaRayAddbackEvt> g2 ) {
+
+	// Work out the weight if it's prompt or random
+	bool prompt = false;
+	bool random = false;
+	float weight;
+	if( PromptCoincidence( g1, react->GetParticleTime() ) ) {
+		prompt = true;
+		weight = 1.0;
+	}
+	else if( RandomCoincidence( g1, react->GetParticleTime() ) ){
+		random = true;
+		weight = -1.0 * react->GetParticleGammaFillRatio();
+	}
+	else return; // outside of either window, quit now
+
+	// Gamma-gamma
+	aaE_ejectile_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
+	aaE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
+	aaE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
+
+	return;
+	
+}
+
+// Particle-Electron-Gamma coincidences without addback
+void MiniballHistogrammer::FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> e, std::shared_ptr<GammaRayEvt> g ) {
+
+	// Work out the weight if it's prompt or random
+	bool prompt = false;
+	bool random = false;
+	float weight;
+	if( PromptCoincidence( e, react->GetParticleTime() ) ) {
+		prompt = true;
+		weight = 1.0;
+	}
+	else if( RandomCoincidence( e, react->GetParticleTime() ) ){
+		random = true;
+		weight = -1.0 * react->GetParticleElectronFillRatio();
+	}
+	else return; // outside of either window, quit now
+
+	// Gamma-gamma
+	egE_ejectile_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
+	egE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
+	egE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
+
+	return;
+	
+}
+
+// Particle-Electron-Gamma coincidences with addback
+void MiniballHistogrammer::FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> e, std::shared_ptr<GammaRayAddbackEvt> g ) {
+
+	// Work out the weight if it's prompt or random
+	bool prompt = false;
+	bool random = false;
+	float weight;
+	if( PromptCoincidence( e, react->GetParticleTime() ) ) {
+		prompt = true;
+		weight = 1.0;
+	}
+	else if( RandomCoincidence( e, react->GetParticleTime() ) ){
+		random = true;
+		weight = -1.0 * react->GetParticleElectronFillRatio();
+	}
+	else return; // outside of either window, quit now
+
+	// Gamma-gamma
+	eaE_ejectile_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
+	eaE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
+	eaE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
+
+	return;
+	
 }
 
 unsigned long MiniballHistogrammer::FillHists() {
@@ -1032,7 +1315,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 			// If we found a particle and used it, then we need to
 			// stop so we don't fill the gamma-spectra more than once
-			if( event_used ) continue;
+			if( event_used ) break;
 
 			// Otherwise we can build a one particle event
 			else if( EjectileCut( particle_evt ) ) {
@@ -1132,8 +1415,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 						
 					} // On Beam
 					
-					// TODO: Add particle gated gamma-gamma matrices
-					
+					// Particle-gamma-gamma coincidence spectra
+					FillParticleGammaGammaHists( gamma_evt, gamma_evt2 );
+
 				} // if prompt
 				
 			} // k: second gamma-ray
@@ -1192,7 +1476,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 						
 					} // On Beam
 					
-					// TODO: Add particle gated gamma-gamma matrices
+					// Particle-gamma-gamma coincidence spectra
+					FillParticleGammaGammaHists( gamma_ab_evt, gamma_ab_evt2 );
 
 				} // if prompt
 				
@@ -1264,7 +1549,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // k: second electron
 
-			// Loop over other gamma events
+			// Loop over gamma events
 			for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
 				
 				// Get gamma-ray event
@@ -1278,23 +1563,24 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( PromptCoincidence( gamma_evt, spede_evt ) ) {
 					
 					// Fill
-					gE_eE->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
+					gE_eE->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
 					
 					// Apply EBIS condition
 					if( OnBeam( gamma_evt ) && OnBeam( spede_evt ) ) {
 						
 						// Fill
-						gE_eE_ebis_on->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
+						gE_eE_ebis_on->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
 						
 					} // On Beam
 					
-					// TODO: Add particle gated gamma-electron matrices
+					// Particle-electron-gamma coincidence spectra
+					FillParticleElectronGammaHists( spede_evt, gamma_evt );
 
 				} // if prompt
 				
 			} // k: gamma without addback
 
-			// Loop over other gamma events
+			// Loop over gamma addback events
 			for( unsigned int k = 0; k < read_evts->GetGammaRayAddbackMultiplicity(); ++k ){
 				
 				// Get gamma-ray event
@@ -1314,8 +1600,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 						
 					} // On Beam
 					
-					// TODO: Add particle gated gamma-electron matrices
-					
+					// Particle-electron-gamma coincidence spectra
+					FillParticleElectronGammaHists( spede_evt, gamma_ab_evt );
+
 				} // if prompt
 				
 			} // k: gamma with addback

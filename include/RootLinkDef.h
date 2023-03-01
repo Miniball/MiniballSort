@@ -19,6 +19,7 @@
 #pragma link C++ class MiniballDataPackets+;
 #pragma link C++ class FebexData+;
 #pragma link C++ class InfoData+;
+#pragma link C++ class MBSInfoPackets+;
 #pragma link C++ class MiniballReaction+;
 #pragma link C++ class MiniballParticle+;
 #pragma link C++ class MiniballGUI+;

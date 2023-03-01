@@ -172,7 +172,7 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 
 bool MiniballMidasConverter::GetFebexChanID(){
 	
-	// ADCchannelIdent are bits 27:16 of word_0
+	// ADCchannelIdent are bits 28:16 of word_0
 	// sfp_id= bit 11:10, board_id= bit 9:6, data_id= bit 5:4, ch_id= bit 3:0
 	// data_id: fast mode readout: =0 16 bit integer; =1 16 bit float;
 	//				=2 32 bit float (low 16 bits); =3 32 bit float (high 16 bits)
@@ -207,16 +207,14 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 
 	// reconstruct time stamp= MSB+LSB
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
-	my_tm_stp = ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
+	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
 
 	// Make a FebexData item
 	febex_data->SetTime( my_tm_stp );
 	febex_data->SetSfp( my_sfp_id );
 	febex_data->SetBoard( my_board_id );
 	febex_data->SetChannel( my_ch_id );
-	febex_data->SetFail( 0 );
-	febex_data->SetVeto( 0 );
-	febex_data->SetPileUp( 0 );
+	febex_data->SetPileUp( false );
 
 	// sample length
 	nsamples = word_0 & 0xFFFF; // 16 bits from 0
@@ -268,20 +266,19 @@ void MiniballMidasConverter::ProcessFebexData(){
 	// Febex data format
 	my_adc_data = word_0 & 0xFFFF; // 16 bits from 0
 	
-	// Fail and veto bits (not used in FEBEX?)
-	my_veto = (word_0 >> 28) & 0x0001;
-	my_fail = (word_0 >> 29) & 0x0001;
+	// Pileup bit from James' firmware
+	my_pileup = (word_0 >> 29) & 0x0001;
 
 	// Channel ID, etc
 	if( !GetFebexChanID() ) return;
 	
 	// reconstruct time stamp= MSB+LSB
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
-	my_tm_stp = ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
+	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb; // commented out 09/02/2023
+	//my_tm_stp = my_tm_stp_lsb; // matching Vic's format of 09/02/2023
 	
-	// FEBEX timestamps are what precision?
-	// Can we multiply here to get to ns
-	//my_tm_stp = my_tm_stp*20;
+	// FEBEX timestamps are in 10ns precision?
+	my_tm_stp = my_tm_stp*10;
 	
 	// First of the data items
 	if( !flag_febex_data0 && !flag_febex_data1 &&
@@ -292,9 +289,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		febex_data->SetFail( my_fail );
-		febex_data->SetVeto( my_veto );
-		febex_data->SetPileUp( false ); // not implemented in the MIDAS firmware
+		febex_data->SetPileUp( my_pileup );
 
 	}
 	
@@ -302,7 +297,8 @@ void MiniballMidasConverter::ProcessFebexData(){
 	// already occured before we found traces. This means that there
 	// is not trace data. So set the flag to be true and finish the
 	// event with an empty trace.
-	else if( flag_febex_data0 && flag_febex_data1 &&
+	// Note 10/02/2022, we don't always get data type 1
+	else if( flag_febex_data0 &&
 			 flag_febex_data2 && flag_febex_data3 ){
 		
 		// Finish up the previous event
@@ -313,15 +309,14 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		febex_data->SetFail( my_fail );
-		febex_data->SetVeto( my_veto );
-		febex_data->SetPileUp( false ); // not implemented in the MIDAS firmware
+		febex_data->SetPileUp( my_pileup );
 
 	}
 	
 	// If we're in standard readout mode, the next event will be with
 	// data_id of 0 again. So we close the event by faking a full set
-	else if( flag_febex_data0 && !flag_febex_data1 && my_data_id == 0 ){
+	else if( flag_febex_data0 && !flag_febex_data2 &&
+			 !flag_febex_data3 && my_data_id == 0 ){
 		
 		// Fake all other data items
 		flag_febex_data1 = true;
@@ -336,51 +331,42 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		febex_data->SetFail( my_fail );
-		febex_data->SetVeto( my_veto );
-		febex_data->SetPileUp( false ); // not implemented in the MIDAS firmware
+		febex_data->SetPileUp( my_pileup );
 
 	}
 	
-	// 16-bit integer (short) energy
+	// 16-bit integer (energy but rebinned)
 	if( my_data_id == 0 ) {
 		
-		febex_data->SetQshort( my_adc_data );
-		febex_data->SetEnergy( my_energy );
-
-		// Check if it's over threshold
-		if( my_adc_data > cal->FebexThreshold( my_sfp_id, my_board_id, my_ch_id ) )
-			febex_data->SetThreshold( true );
-		else febex_data->SetThreshold( false );
-
+		my_adc_data = my_adc_data&0xFFFF;
+		febex_data->SetQhalf( my_adc_data );
 		flag_febex_data0 = true;
 
 	}
 	
-	// 16-bit float
+	// 16-bit integer (time difference to previous data group)
 	if( my_data_id == 1 ) {
 		
-		febex_data->SetQhalf( (Float16_t)(my_adc_data&0xFFFF) );
+		my_tdiff_data = my_adc_data&0xFFFF;
 		flag_febex_data1 = true;
 
 	}
-
-	// 32-bit float (low 16 bits)
+	
+	// 32-bit integer (low 16 bits of energy)
 	if( my_data_id == 2 ) {
 		
 		my_adc_data_lsb = my_adc_data&0xFFFF;
 		flag_febex_data2 = true;
 
 	}
-
-	// 32-bit float (high 16 bits)
+	
+	// 32-bit integer (high 16 bits of energy)
 	if( my_data_id == 3 ) {
 		
 		my_adc_data_hsb = my_adc_data&0xFFFF;
 		flag_febex_data3 = true;
 
 	}
-
 
 	return;
 
@@ -396,7 +382,10 @@ void MiniballMidasConverter::FinishFebexData(){
 	//    flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
 
 	// James says (22/08/2022) that we only get the 32-bit integer now
-	if( ( flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
+	// Update, Carl reports that the two halves are in data_id = 0, 1, not 2, 3 as documented
+	// Update again on 10/02/2022, Vic has made edits to the format and we get 0, 2 and 3 always
+	// if( ( flag_febex_data0 && flag_febex_data1 ) || flag_febex_trace ){
+	if( ( flag_febex_data0 && flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
 
 		// Add the time offset to this channel
 		time_corr  = febex_data->GetTime();
@@ -405,6 +394,19 @@ void MiniballMidasConverter::FinishFebexData(){
 		// Combine the two halfs of the 32-bit integer point ADC energy
 		my_adc_data_int = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
 		
+		// Bodge to match Vic's data format on 09/02/2023
+		//my_adc_data_int = my_adc_data_lsb & 0xFFFF;
+
+		// Calibrate and set energies
+		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), my_adc_data_int );
+		febex_data->SetQint( my_adc_data_int );
+		febex_data->SetEnergy( my_energy );
+
+		// Check if it's over threshold
+		if( my_adc_data > cal->FebexThreshold( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) )
+			febex_data->SetThreshold( true );
+		else febex_data->SetThreshold( false );
+
 		// Check if this is actually just a timestamp or info like event
 		flag_febex_info = false;
 		if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
@@ -437,7 +439,7 @@ void MiniballMidasConverter::FinishFebexData(){
 		}
 
 		// If this is a timestamp, fill an info event
-		if( flag_febex_info ) {
+		if( flag_febex_info && febex_data->IsOverThreshold() ) {
 		
 			info_data->SetTime( time_corr );
 			info_data->SetSfp( febex_data->GetSfp() );
@@ -454,7 +456,6 @@ void MiniballMidasConverter::FinishFebexData(){
 			// Set this data and fill event to tree
 			// Also add the time offset when we do this
 			febex_data->SetTime( time_corr );
-			febex_data->SetQint( my_adc_data_int );
 			data_packet->SetData( febex_data );
 			output_tree->Fill();
 
@@ -468,7 +469,7 @@ void MiniballMidasConverter::FinishFebexData(){
 	}
 
 	// missing something
-	else if( my_tm_stp != febex_data->GetTime() ) {
+	else if( (long long)my_tm_stp != febex_data->GetTime() ) {
 		
 		std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
 		std::cout << " Qshort        = " << flag_febex_data0 << std::endl;
@@ -541,7 +542,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 
 	// Resume
 	if( my_info_code == set->GetResumeCode() ) {
-         
+
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
 		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
 		hfebex_resume[my_sfp_id][my_board_id]->Fill( ctr_febex_resume[my_sfp_id][my_board_id], my_tm_stp, 1 );
@@ -550,18 +551,18 @@ void MiniballMidasConverter::ProcessInfoData(){
     }
 
 	// Create an info event and fill the tree for external triggers and pause/resume
-	//if( my_info_code == set->GetPauseCode() ||
-	//    my_info_code == set->GetResumeCode() ) {
+	if( my_info_code != set->GetSyncCode() &&
+	    my_info_code != set->GetTimestampCode() ) {
 
 		info_data->SetSfp( my_sfp_id );
 		info_data->SetBoard( my_board_id );
-		info_data->SetTime( my_tm_stp );
+		info_data->SetTime( my_tm_stp*10 ); // timestamp in 10 ns ticks
 		info_data->SetCode( my_info_code );
 		data_packet->SetData( info_data );
 		output_tree->Fill();
 		info_data->Clear();
 
-	//}
+	}
 
 	return;
 	
@@ -627,6 +628,9 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	std::cout << "Converting MIDAS file: " << input_file_name;
 	std::cout << " from block " << start_block << std::endl;
 	
+	// Reset counters to zero for every file
+	StartFile();
+
 	// Calculate the size of the file.
 	input_file.seekg( 0, input_file.end );
 	unsigned long long size_end = input_file.tellg();

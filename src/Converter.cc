@@ -13,19 +13,12 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	ctr_febex_pause.resize( set->GetNumberOfFebexSfps() );
 	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
 
-	ctr_febex_ext = 0;	// pulser trigger
-
 	// Start counters at zero
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 				
-		// Start counters at zero
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-					
-			ctr_febex_hit[i].push_back(0);	// hits on each module
-			ctr_febex_pause[i].push_back(0);
-			ctr_febex_resume[i].push_back(0);
-			
-		}
+		ctr_febex_hit[i].resize( set->GetNumberOfFebexBoards() );
+		ctr_febex_pause[i].resize( set->GetNumberOfFebexBoards() );
+		ctr_febex_resume[i].resize( set->GetNumberOfFebexBoards() );
 
 	}
 	
@@ -35,6 +28,28 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	// No progress bar by default
 	_prog_ = false;
 
+}
+
+void MiniballConverter::StartFile(){
+	
+	// Start counters at zero
+	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+				
+		// Start counters at zero
+		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
+					
+			ctr_febex_hit[i][j] = 0;	// hits on each module
+			ctr_febex_pause[i][j] = 0;
+			ctr_febex_resume[i][j] = 0;
+			
+		}
+
+	}
+
+	ctr_febex_ext = 0;	// pulser trigger
+
+	return;
+	
 }
 
 void MiniballConverter::SetOutput( std::string output_file_name ){
@@ -53,17 +68,22 @@ void MiniballConverter::MakeTree() {
 	const int splitLevel = 2; // don't split branches = 0, full splitting = 99
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
 	output_tree = new TTree( "mb", "mb" );
+	mbsinfo_tree = new TTree( "mbsinfo", "mbsinfo" );
 	data_packet = std::make_unique<MiniballDataPackets>();
+	mbsinfo_packet = std::make_unique<MBSInfoPackets>();
 	output_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
-
+	mbsinfo_tree->Branch( "mbsinfo", "MBSInfoPackets", mbsinfo_packet.get(), sizeof(MBSInfoPackets), 0 );
+	
 	sorted_tree = (TTree*)output_tree->CloneTree(0);
 	sorted_tree->SetName("mb_sort");
 	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
 	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
 	output_tree->SetDirectory( output_file->GetDirectory("/") );
+	mbsinfo_tree->SetDirectory( output_file->GetDirectory("/") );
 	
 	output_tree->SetAutoFlush(-10e6);
 	sorted_tree->SetAutoFlush(-10e6);
+	mbsinfo_tree->SetAutoFlush(-10e6);
 
 	febex_data = std::make_shared<FebexData>();
 	info_data = std::make_shared<InfoData>();
@@ -299,12 +319,40 @@ void MiniballConverter::ResetHists() {
 	
 }
 
+void MiniballConverter::BuildMbsIndex(){
+	
+	// Make the index for the MBS info tree
+	mbsinfo_tree->BuildIndex( "mbsinfo.GetEventID()" );
+
+	return;
+	
+}
+
+void MiniballConverter::BodgeMidasSort(){
+	
+	// Bodge the time maybe?
+	
+	// Loop on entries and fill sorted tree
+	for( long long i = 0; i < output_tree->GetEntries(); ++i ) {
+
+		output_tree->GetEntry(i);
+		sorted_tree->Fill();
+
+	}
+	
+	// Reset the output tree so it's empty after we've finished
+	output_tree->FlushBaskets();
+	output_tree->Reset();
+
+	return;
+	
+}
 
 unsigned long long MiniballConverter::SortTree(){
 	
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();
-	
+
 	// Load the full tree if possible
 	//output_tree->SetMaxVirtualSize(200e6); // 200 MB
 	//sorted_tree->SetMaxVirtualSize(200e6); // 200 MB
