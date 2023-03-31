@@ -49,3 +49,6 @@ srim/*.pdf
 
 # Test data
 test/*
+
+# Utils
+utils/mb_angle_fit
