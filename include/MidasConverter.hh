@@ -12,7 +12,9 @@ class MiniballMidasConverter : public MiniballConverter {
 public:
 	
 	MiniballMidasConverter( std::shared_ptr<MiniballSettings> myset )
-		: MiniballConverter( myset ) {};
+		: MiniballConverter( myset ) {
+			mbs_data = false;
+		};
 	~MiniballMidasConverter() {};
 
 	int ConvertFile( std::string input_file_name,

@@ -823,14 +823,12 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 
 	// Work out the weight if it's prompt or random
 	bool prompt = false;
-	bool random = false;
 	float weight;
 	if( PromptCoincidence( g, react->GetParticleTime() ) ) {
 		prompt = true;
 		weight = 1.0;
 	}
 	else if( RandomCoincidence( g, react->GetParticleTime() ) ){
-		random = true;
 		weight = -1.0 * react->GetParticleGammaFillRatio();
 	}
 	else return; // outside of either window, quit now
@@ -901,14 +899,12 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 
 	// Work out the weight if it's prompt or random
 	bool prompt = false;
-	bool random = false;
 	float weight;
 	if( PromptCoincidence( g, react->GetParticleTime() ) ) {
 		prompt = true;
 		weight = 1.0;
 	}
 	else if( RandomCoincidence( g, react->GetParticleTime() ) ){
-		random = true;
 		weight = -1.0 * react->GetParticleGammaFillRatio();
 	}
 	else return; // outside of either window, quit now
@@ -979,14 +975,12 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 
 	// Work out the weight if it's prompt or random
 	bool prompt = false;
-	bool random = false;
 	float weight;
 	if( PromptCoincidence( e, react->GetParticleTime() ) ) {
 		prompt = true;
 		weight = 1.0;
 	}
 	else if( RandomCoincidence( e, react->GetParticleTime() ) ){
-		random = true;
 		weight = -1.0 * react->GetParticleElectronFillRatio();
 	}
 	else return; // outside of either window, quit now
@@ -1072,15 +1066,11 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRayEvt> g1, std::shared_ptr<GammaRayEvt> g2 ) {
 
 	// Work out the weight if it's prompt or random
-	bool prompt = false;
-	bool random = false;
 	float weight;
 	if( PromptCoincidence( g1, react->GetParticleTime() ) ) {
-		prompt = true;
 		weight = 1.0;
 	}
 	else if( RandomCoincidence( g1, react->GetParticleTime() ) ){
-		random = true;
 		weight = -1.0 * react->GetParticleGammaFillRatio();
 	}
 	else return; // outside of either window, quit now
@@ -1098,15 +1088,11 @@ void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRay
 void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRayAddbackEvt> g1, std::shared_ptr<GammaRayAddbackEvt> g2 ) {
 
 	// Work out the weight if it's prompt or random
-	bool prompt = false;
-	bool random = false;
 	float weight;
 	if( PromptCoincidence( g1, react->GetParticleTime() ) ) {
-		prompt = true;
 		weight = 1.0;
 	}
 	else if( RandomCoincidence( g1, react->GetParticleTime() ) ){
-		random = true;
 		weight = -1.0 * react->GetParticleGammaFillRatio();
 	}
 	else return; // outside of either window, quit now
@@ -1124,15 +1110,11 @@ void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRay
 void MiniballHistogrammer::FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> e, std::shared_ptr<GammaRayEvt> g ) {
 
 	// Work out the weight if it's prompt or random
-	bool prompt = false;
-	bool random = false;
 	float weight;
 	if( PromptCoincidence( e, react->GetParticleTime() ) ) {
-		prompt = true;
 		weight = 1.0;
 	}
 	else if( RandomCoincidence( e, react->GetParticleTime() ) ){
-		random = true;
 		weight = -1.0 * react->GetParticleElectronFillRatio();
 	}
 	else return; // outside of either window, quit now
@@ -1150,15 +1132,11 @@ void MiniballHistogrammer::FillParticleElectronGammaHists( std::shared_ptr<Spede
 void MiniballHistogrammer::FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> e, std::shared_ptr<GammaRayAddbackEvt> g ) {
 
 	// Work out the weight if it's prompt or random
-	bool prompt = false;
-	bool random = false;
 	float weight;
 	if( PromptCoincidence( e, react->GetParticleTime() ) ) {
-		prompt = true;
 		weight = 1.0;
 	}
 	else if( RandomCoincidence( e, react->GetParticleTime() ) ){
-		random = true;
 		weight = -1.0 * react->GetParticleElectronFillRatio();
 	}
 	else return; // outside of either window, quit now

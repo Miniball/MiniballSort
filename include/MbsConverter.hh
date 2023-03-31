@@ -21,6 +21,7 @@ public:
 			data = nullptr;
 			n_double_hits = 0;
 			n_single_hits = 0;
+			mbs_data = true;
 	};
 	~MiniballMbsConverter() {};
 	

@@ -625,12 +625,12 @@ int main( int argc, char *argv[] ){
 	
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
+
+		if( bool( input_names.size() ) )
+			output_name = input_names.at(0) + "_hists.root";
 		
-		output_name = input_names.at(0);
-		output_name = output_name.substr( 0,
-								output_name.find_last_of(".") );
-		output_name += "_hists.root";
-	
+		else output_name = "spy_hists.root";
+
 	}
 	
 	// Check we have a Settings file

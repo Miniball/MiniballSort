@@ -25,7 +25,7 @@ struct cv_string {
 };
 
 // File header
-typedef struct {
+typedef struct s_filhe {
 	UInt_t l_dlen;
 	UShort_t i_type;
 	UShort_t i_subtype;
@@ -69,7 +69,7 @@ typedef struct {
 } s_filhe;
 
 // Buffer header
-typedef struct {
+typedef struct s_bufhe {
 	UInt_t l_dlen;       // Length of data field in 16-bit words
 	UShort_t i_type;     // Type
 	UShort_t i_subtype;  // Subtype
@@ -91,7 +91,7 @@ typedef struct {
 } s_bufhe;
 
 // Event header
-typedef struct {
+typedef struct s_vehe {
 	UInt_t l_dlen;       // Length of data in 16-bit words
 	UShort_t i_type;     // Type
 	UShort_t i_subtype;  // Subtype
@@ -105,7 +105,7 @@ typedef struct {
 } s_vehe;
 
 // Subevent header
-typedef struct {
+typedef struct s_evhe {
 	UInt_t l_dlen;       // Length of data in 16-bit words
 	UShort_t i_type;     // Type
 	UShort_t i_subtype;  // Subtype

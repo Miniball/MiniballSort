@@ -27,7 +27,11 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	
 	// No progress bar by default
 	_prog_ = false;
-
+	
+	// Maximum ADC value depends on MBS or MIDAS
+	if( mbs_data ) qmax = 1 << 23;
+	else qmax = 1 << 30;
+	
 }
 
 void MiniballConverter::StartFile(){
@@ -156,7 +160,7 @@ void MiniballConverter::MakeHists() {
 				else {
 					
 					hfebex[i][j][k] = new TH1F( hname.data(), htitle.data(),
-											32768, 0, 1 << 23 );
+											32768, 0, qmax );
 					
 					hfebex[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 					

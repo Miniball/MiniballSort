@@ -116,6 +116,11 @@ protected:
 	// For traces
 	unsigned int nsamples;
 
+	// Flag depending on the data type
+	bool mbs_data;
+	
+	// Maximum size of the ADC value
+	int qmax;
 
 	
 	// Data types
