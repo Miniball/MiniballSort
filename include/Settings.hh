@@ -74,6 +74,10 @@ public:
 	inline unsigned int IsFebexOnly(){ return flag_febex_only; };
 
 
+	// Are we rejecting pileup
+	inline double GetPileupRejection(){ return pileup_reject; };
+	
+
 	// Miniball array
 	inline unsigned int GetNumberOfMiniballClusters(){ return n_mb_cluster; };
 	inline unsigned int GetNumberOfMiniballCrystals(){ return n_mb_crystal; };
@@ -241,6 +245,9 @@ private:
 	unsigned int block_size;		///< not yet implemented, needs C++ style reading of data files
 	bool flag_febex_only;			///< when there is only FEBEX data in the file
 
+	// Pile-up rejection
+	bool pileup_reject;
+	
 	
 };
 

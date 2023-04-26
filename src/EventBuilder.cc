@@ -198,13 +198,15 @@ void MiniballEventBuilder::Initialise(){
 	mb_clu_list.clear();
 	mb_cry_list.clear();
 	mb_seg_list.clear();
-	
+	mb_pu_list.clear();
+
 	std::vector<float>().swap(mb_en_list);
 	std::vector<unsigned long long>().swap(mb_ts_list);
 	std::vector<unsigned char>().swap(mb_clu_list);
 	std::vector<unsigned char>().swap(mb_cry_list);
 	std::vector<unsigned char>().swap(mb_seg_list);
-	
+	std::vector<bool>().swap(mb_pu_list);
+
 	cd_en_list.clear();
 	cd_ts_list.clear();
 	cd_det_list.clear();
@@ -1156,7 +1158,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 			}
 
-			std::cout << "MBS Trigger time = " << myeventtime << std::endl;
+			//std::cout << "MBS Trigger time = " << myeventtime << std::endl;
 
 		}
 
@@ -1168,8 +1170,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		// check time stamp monotonically increases!
 		if( time_prev > mytime ) {
 			
-			//std::cout << "Out of order event in file ";
-			//std::cout << input_tree->GetName() << std::endl;
+			std::cout << "Out of order event in file ";
+			std::cout << input_tree->GetName() << std::endl;
 			
 		}
 			
@@ -1197,6 +1199,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			mysfp = febex_data->GetSfp();
 			myboard = febex_data->GetBoard();
 			mych = febex_data->GetChannel();
+			mypileup = febex_data->IsPileUp();
 			if( overwrite_cal ) {
 				
 				myenergy = cal->FebexEnergy( mysfp, myboard, mych,
@@ -1233,6 +1236,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
 				mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
 				mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
+				mb_pu_list.push_back( mypileup );
 				
 			}
 			
@@ -1244,12 +1248,16 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				hit_ctr++;
 				event_open = true;
 				
-				cd_en_list.push_back( myenergy );
-				cd_ts_list.push_back( mytime );
-				cd_det_list.push_back( set->GetCDDetector( mysfp, myboard, mych ) );
-				cd_sec_list.push_back( set->GetCDSector( mysfp, myboard, mych ) );
-				cd_side_list.push_back( set->GetCDSide( mysfp, myboard, mych ) );
-				cd_strip_list.push_back( set->GetCDStrip( mysfp, myboard, mych ) );
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					cd_en_list.push_back( myenergy );
+					cd_ts_list.push_back( mytime );
+					cd_det_list.push_back( set->GetCDDetector( mysfp, myboard, mych ) );
+					cd_sec_list.push_back( set->GetCDSector( mysfp, myboard, mych ) );
+					cd_side_list.push_back( set->GetCDSide( mysfp, myboard, mych ) );
+					cd_strip_list.push_back( set->GetCDStrip( mysfp, myboard, mych ) );
+					
+				}
 				
 			}
 			
@@ -1261,9 +1269,13 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				hit_ctr++;
 				event_open = true;
 				
-				spede_en_list.push_back( myenergy );
-				spede_ts_list.push_back( mytime );
-				spede_seg_list.push_back( set->GetSpedeSegment( mysfp, myboard, mych ) );
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					spede_en_list.push_back( myenergy );
+					spede_ts_list.push_back( mytime );
+					spede_seg_list.push_back( set->GetSpedeSegment( mysfp, myboard, mych ) );
+					
+				}
 				
 			}
 			
@@ -1275,9 +1287,13 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				hit_ctr++;
 				event_open = true;
 				
-				bd_en_list.push_back( myenergy );
-				bd_ts_list.push_back( mytime );
-				bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					bd_en_list.push_back( myenergy );
+					bd_ts_list.push_back( mytime );
+					bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
+					
+				}
 				
 			}
 			
@@ -1289,9 +1305,13 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				hit_ctr++;
 				event_open = true;
 				
-				ic_en_list.push_back( myenergy );
-				ic_ts_list.push_back( mytime );
-				ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					ic_en_list.push_back( myenergy );
+					ic_ts_list.push_back( mytime );
+					ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
+					
+				}
 				
 			}
 

@@ -84,6 +84,9 @@ void MiniballSettings::ReadSettings() {
 	flag_febex_only		= config->GetValue( "FebexOnlyData", true );
 
 	
+	// Pileup rejection
+	pileup_reject		= config->GetValue( "PileUpRejection", false );
+	
 	
 	// Electronics mapping
 	mb_cluster.resize( n_febex_sfp );

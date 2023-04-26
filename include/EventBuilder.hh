@@ -160,6 +160,7 @@ private:
 	unsigned long long	myeventtime;	///< MBS event time
 	float 				myenergy;		///< calibrated energy
 	bool				mythres;		///< above threshold?
+	bool				mypileup;		///< pileup flag?
 
 
 	// Miniball specific variables
@@ -168,6 +169,7 @@ private:
 	std::vector<unsigned char>			mb_clu_list;	///< list of cluster IDs
 	std::vector<unsigned char>			mb_cry_list;	///< list of crystal IDs
 	std::vector<unsigned char>			mb_seg_list;	///< list of segment IDs
+	std::vector<bool>					mb_pu_list;		///< list of pileup flags
 
 	// CD detector specific variables
 	std::vector<float>					cd_en_list;		///< list of CD energies for ParticleFinder

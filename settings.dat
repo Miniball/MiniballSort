@@ -48,6 +48,12 @@
 #EventWindow: 3e3 # in ns. Default is 3 µs
 
 
+#-------------------#
+# Pile-up Rejection #
+#-------------------#
+#PileUpRejection: false
+
+
 #-------------#
 # Hit windows #
 #-------------#
