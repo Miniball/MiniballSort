@@ -2,6 +2,8 @@
 
 Sort code for Miniball data using the new FEBEX/MIDAS DAQ from the 2022 campaign onwards. Also now updated to take data from the MBS DAQ.
 
+Please cite the code using the DOI if you use it for your publications: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7867979.svg)](https://doi.org/10.5281/zenodo.7867979)
+
 ## Download
 
 ```bash
