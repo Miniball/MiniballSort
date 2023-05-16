@@ -251,7 +251,6 @@ private:
 	
 	// Counters
 	unsigned long n_entries;
-	int SpedeRing;
 	
 	// Random number
 	TRandom rand;
@@ -352,8 +351,8 @@ private:
 	TH2F *eE_vs_theta_ejectile_dc_none, *eE_vs_theta_ejectile_dc_ejectile, *eE_vs_theta_ejectile_dc_recoil;
 	TH2F *eE_vs_theta_recoil_dc_none,   *eE_vs_theta_recoil_dc_ejectile,   *eE_vs_theta_recoil_dc_recoil;
 	TH2F *eE_vs_theta_2p_dc_none,       *eE_vs_theta_2p_dc_ejectile,       *eE_vs_theta_2p_dc_recoil;
-	TH2F *ring_eE_vs_ejectile_dc_none, *ring_eE_vs_ejectile_dc_ejectile, *ring_eE_vs_ejectile_dc_recoil;
-	TH2F *ring_eE_vs_recoil_dc_none,   *ring_eE_vs_recoil_dc_ejectile,   *ring_eE_vs_recoil_dc_recoil;
+	TH2F *eE_vs_ejectile_dc_none_segment, *eE_vs_ejectile_dc_ejectile_segment, *eE_vs_ejectile_dc_recoil_segment;
+	TH2F *eE_vs_recoil_dc_none_segment,   *eE_vs_recoil_dc_ejectile_segment,   *eE_vs_recoil_dc_recoil_segment;
 	TH2F *egE_ejectile_dc_none, *egE_ejectile_dc_ejectile, *egE_ejectile_dc_recoil;
 	TH2F *egE_recoil_dc_none,   *egE_recoil_dc_ejectile,   *egE_recoil_dc_recoil;
 	TH2F *eaE_ejectile_dc_none, *eaE_ejectile_dc_ejectile, *eaE_ejectile_dc_recoil;

@@ -675,35 +675,35 @@ void MiniballHistogrammer::MakeHists() {
 	htitle += "Energy [keV];cos(#theta_pe)";
 	eE_costheta_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
 
-	hname = "ring_eE_vs_ejectile_dc_none";
+	hname = "eE_vs_ejectile_dc_none_segment";
 	htitle = "Electron energy, gated on the ejectile with random subtraction;";
-	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	ring_eE_vs_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+	htitle += "Energy [keV];Ring;Counts per keV per segment";
+	eE_vs_ejectile_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
 
-	hname = "ring_eE_vs_ejectile_dc_ejectile";
+	hname = "eE_vs_ejectile_dc_ejectile_segment";
 	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	ring_eE_vs_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+	eE_vs_ejectile_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
 
-	hname = "ring_eE_vs_ejectile_dc_recoil";
+	hname = "eE_vs_ejectile_dc_recoil_segment";
 	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	ring_eE_vs_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+	eE_vs_ejectile_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
 
-	hname = "ring_eE_vs_recoil_dc_none";
+	hname = "eE_vs_recoil_dc_none_segment";
 	htitle = "Electron energy, gated on the recoil with random subtraction;";
 	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	ring_eE_vs_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+	eE_vs_recoil_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
 
-	hname = "ring_eE_vs_recoil_dc_ejectile";
+	hname = "eE_vs_recoil_dc_ejectile_segment";
 	htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	ring_eE_vs_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+	eE_vs_recoil_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
 
-	hname = "ring_eE_vs_recoil_dc_recoil";
+	hname = "eE_vs_recoil_dc_recoil_segment";
 	htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	ring_eE_vs_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 3, -0.5, 2.5 );
+	eE_vs_recoil_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
   
 	hname = "egE_ejectile_dc_none";
 	htitle = "Electron-gamma matrix without addback, gated on the ejectile with random subtraction;";
@@ -1008,13 +1008,9 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 		eE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, true ), weight );
 		eE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, false ), weight );
     
-		if( e->GetSegment() < 8 ) SpedeRing = 0;
-		else if( e->GetSegment() < 16 ) SpedeRing = 1;
-		else if( e->GetSegment() < 24 ) SpedeRing = 2;
-    
-		ring_eE_vs_ejectile_dc_none->Fill( e->GetEnergy(), SpedeRing, weight );
-		ring_eE_vs_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), SpedeRing, weight );
-		ring_eE_vs_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), SpedeRing, weight );
+		eE_vs_ejectile_dc_none_segment->Fill( e->GetEnergy(), e->GetSegment(), weight );
+		eE_vs_ejectile_dc_ejectile_segment->Fill( react->DopplerCorrection( e, true ), e->GetSegment(), weight );
+		eE_vs_ejectile_dc_recoil_segment->Fill( react->DopplerCorrection( e, false ), e->GetSegment(), weight );
 
 	}
 
@@ -1031,13 +1027,9 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 		eE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, true ), weight );
 		eE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( e, false ), weight );
     
-		if( e->GetSegment() < 8 ) SpedeRing = 0;
-		else if( e->GetSegment() < 16 ) SpedeRing = 1;
-		else if( e->GetSegment() < 24 ) SpedeRing = 2;
-		
-		ring_eE_vs_recoil_dc_none->Fill( e->GetEnergy(), SpedeRing, weight );
-		ring_eE_vs_recoil_dc_ejectile->Fill( react->DopplerCorrection( e, true ), SpedeRing, weight );
-		ring_eE_vs_recoil_dc_recoil->Fill( react->DopplerCorrection( e, false ), SpedeRing, weight );
+		eE_vs_recoil_dc_none_segment->Fill( e->GetEnergy(), e->GetSegment(), weight );
+		eE_vs_recoil_dc_ejectile_segment->Fill( react->DopplerCorrection( e, true ), e->GetSegment(), weight );
+		eE_vs_recoil_dc_recoil_segment->Fill( react->DopplerCorrection( e, false ), e->GetSegment(), weight );
  
 	}
 	
