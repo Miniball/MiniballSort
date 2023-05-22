@@ -29,8 +29,8 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	_prog_ = false;
 	
 	// Maximum ADC value depends on MBS or MIDAS
-	if( mbs_data ) qmax = 1 << 23;
-	else qmax = 1 << 30;
+	if( mbs_data ) qmax_default = 1 << 23;
+	else qmax_default = 1 << 30;
 	
 }
 
@@ -153,6 +153,11 @@ void MiniballConverter::MakeHists() {
 				htitle += ", channel " + std::to_string(k);
 
 				htitle += ";Charge value;Counts";
+				
+				// Check if we have a 32-bit integer or 16-bit integer
+				unsigned long qmax;
+				if( cal->FebexType( i, j, k ) == "Qshort" ) qmax = 1 << 16;
+				else qmax = qmax_default;
 				
 				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
 					hfebex[i][j][k] = (TH1F*)output_file->Get( hname.data() );

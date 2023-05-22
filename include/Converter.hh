@@ -120,7 +120,7 @@ protected:
 	bool mbs_data;
 	
 	// Maximum size of the ADC value
-	int qmax;
+	int qmax_default;
 
 	
 	// Data types
