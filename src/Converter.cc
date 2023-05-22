@@ -155,7 +155,7 @@ void MiniballConverter::MakeHists() {
 				htitle += ";Charge value;Counts";
 				
 				// Check if we have a 32-bit integer or 16-bit integer
-				unsigned long qmax;
+				int qmax;
 				if( cal->FebexType( i, j, k ) == "Qshort" ) qmax = 1 << 16;
 				else qmax = qmax_default;
 				

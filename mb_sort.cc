@@ -371,9 +371,9 @@ void do_convert() {
 			
 				if( flag_source ) conv_mbs.SourceOnly();
 				conv_mbs.SetOutput( name_output_file );
+				conv_mbs.AddCalibration( mycal );
 				conv_mbs.MakeTree();
 				conv_mbs.MakeHists();
-				conv_mbs.AddCalibration( mycal );
 				conv_mbs.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
@@ -389,9 +389,9 @@ void do_convert() {
 				
 				if( flag_source ) conv_midas.SourceOnly();
 				conv_midas.SetOutput( name_output_file );
+				conv_midas.AddCalibration( mycal );
 				conv_midas.MakeTree();
 				conv_midas.MakeHists();
-				conv_midas.AddCalibration( mycal );
 				conv_midas.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
