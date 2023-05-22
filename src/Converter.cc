@@ -342,7 +342,7 @@ void MiniballConverter::BodgeMidasSort(){
 	// Bodge the time maybe?
 	
 	// Loop on entries and fill sorted tree
-	for( long long i = 0; i < output_tree->GetEntries(); ++i ) {
+	for( long long int i = 0; i < output_tree->GetEntries(); ++i ) {
 
 		output_tree->GetEntry(i);
 		sorted_tree->Fill();
@@ -357,7 +357,7 @@ void MiniballConverter::BodgeMidasSort(){
 	
 }
 
-unsigned long long MiniballConverter::SortTree(){
+unsigned long long int MiniballConverter::SortTree(){
 	
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();
@@ -378,7 +378,7 @@ unsigned long long MiniballConverter::SortTree(){
 	
 	// Get index and prepare for sorting
 	TTreeIndex *att_index = (TTreeIndex*)output_tree->GetTreeIndex();
-	unsigned long long nb_idx = att_index->GetN();
+	unsigned long long int nb_idx = att_index->GetN();
 	std::cout << " Sorting: size of the sorted index = " << nb_idx << std::endl;
 
 	// Loop on t_raw entries and fill t
@@ -388,7 +388,7 @@ unsigned long long MiniballConverter::SortTree(){
 		data_packet->ClearData();
 		
 		// Get time-ordered event index
-		unsigned long long idx = att_index->GetIndex()[i];
+		unsigned long long int idx = att_index->GetIndex()[i];
 		
 		// Check if the input or output trees are filling
 		//if( output_tree->MemoryFull(30e6) )

@@ -5,7 +5,7 @@ ClassImp(InfoData)
 ClassImp(MiniballDataPackets)
 ClassImp(MBSInfoPackets)
 
-FebexData::FebexData( long long t, unsigned long long id,
+FebexData::FebexData( long long int t, unsigned long long int id,
 					unsigned int qi, unsigned short qs,
 				    std::vector<unsigned short> tr,
 					unsigned char s, unsigned char b, unsigned char c,
@@ -13,7 +13,7 @@ FebexData::FebexData( long long t, unsigned long long id,
 					time(t), eventid(id), Qint(qi), Qshort(qs), trace(tr),
 					sfp(s), board(b), ch(c), thres(th), pileup(p) {}
 
-InfoData::InfoData( long long t, unsigned long long id, unsigned char c,
+InfoData::InfoData( long long int t, unsigned long long int id, unsigned char c,
 				    unsigned char s, unsigned char b ) :
 					time(t), eventid(id), code(c), sfp(s), board(b) {}
 
@@ -70,7 +70,7 @@ void MiniballDataPackets::ClearData(){
 	
 }
 
-unsigned long long MiniballDataPackets::GetEventID(){
+unsigned long long int MiniballDataPackets::GetEventID(){
 		
 	if( IsFebex() ) return GetFebexData()->GetEventID();
 	if( IsInfo() ) return GetInfoData()->GetEventID();
@@ -79,7 +79,7 @@ unsigned long long MiniballDataPackets::GetEventID(){
 	
 }
 
-long long MiniballDataPackets::GetTime(){
+long long int MiniballDataPackets::GetTime(){
 		
 	if( IsFebex() ) return GetFebexData()->GetTime();
 	if( IsInfo() ) return GetInfoData()->GetTime();

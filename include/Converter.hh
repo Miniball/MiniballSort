@@ -48,7 +48,7 @@ public:
 	void StartFile();
 	void BuildMbsIndex();
 	void BodgeMidasSort();
-	unsigned long long SortTree();
+	unsigned long long int SortTree();
 
 	void SetOutput( std::string output_file_name );
 	
@@ -89,9 +89,9 @@ protected:
 	bool flag_febex_info;
 	
 	// Interpretated variables
-	unsigned long long my_good_tm_stp;
-	unsigned long long my_tm_stp;
-	unsigned long long my_event_id;
+	unsigned long long int my_good_tm_stp;
+	unsigned long long int my_tm_stp;
+	unsigned long long int my_event_id;
 	unsigned long my_tm_stp_lsb;
 	unsigned long my_tm_stp_msb;
 	unsigned long my_tm_stp_hsb;

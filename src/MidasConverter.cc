@@ -375,7 +375,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 void MiniballMidasConverter::FinishFebexData(){
 	
 	// Timestamp with offset
-	unsigned long long time_corr;
+	unsigned long long int time_corr;
 	
 	// Got all items in fast readout mode or trace only mode
 	//if( ( flag_febex_data0 && flag_febex_data1 &&
@@ -487,7 +487,7 @@ void MiniballMidasConverter::FinishFebexData(){
 	}
 
 	// missing something
-	else if( (long long)my_tm_stp != febex_data->GetTime() ) {
+	else if( (long long int)my_tm_stp != febex_data->GetTime() ) {
 		
 		std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
 		std::cout << " Qshort        = " << flag_febex_data0 << std::endl;
@@ -651,10 +651,10 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 
 	// Calculate the size of the file.
 	input_file.seekg( 0, input_file.end );
-	unsigned long long size_end = input_file.tellg();
+	unsigned long long int size_end = input_file.tellg();
 	input_file.seekg( 0, input_file.beg );
-	unsigned long long size_beg = input_file.tellg();
-	unsigned long long FILE_SIZE = size_end - size_beg;
+	unsigned long long int size_beg = input_file.tellg();
+	unsigned long long int FILE_SIZE = size_end - size_beg;
 	
 	// Calculate the number of blocks in the file.
 	unsigned long BLOCKS_NUM = FILE_SIZE / DATA_BLOCK_SIZE;
