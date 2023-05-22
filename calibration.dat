@@ -11,3 +11,4 @@
 # febex_<sfp>_<board>_<ch>.GainQuadr:	// energy calibration quadratic term (default = 0.0)
 # febex_<sfp>_<board>_<ch>.Threshold:	// software threshold in adc units (default = 0)
 # febex_<sfp>_<board>_<ch>.Time:		// time offset in ns (default = 0)
+# febex_<sfp>_<board>_<ch>.Type:		// Qshort or Qint depending if you want to use the 16-bit or 32-bit energy value in the data format
