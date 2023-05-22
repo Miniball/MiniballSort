@@ -137,6 +137,7 @@ void MiniballCalibration::ReadCalibration() {
 	fFebexGain.resize( set->GetNumberOfFebexSfps() );
 	fFebexGainQuadr.resize( set->GetNumberOfFebexSfps() );
 	fFebexThreshold.resize( set->GetNumberOfFebexSfps() );
+	fFebexType.resize( set->GetNumberOfFebexSfps() );
 	fFebexTime.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Decay.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Rise.resize( set->GetNumberOfFebexSfps() );
@@ -153,6 +154,7 @@ void MiniballCalibration::ReadCalibration() {
 		fFebexGain[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexGainQuadr[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexThreshold[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexType[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexTime[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Decay[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Rise[i].resize( set->GetNumberOfFebexBoards() );
@@ -168,6 +170,7 @@ void MiniballCalibration::ReadCalibration() {
 			fFebexGain[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexGainQuadr[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexThreshold[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexType[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexTime[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Decay[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Rise[i][j].resize( set->GetNumberOfFebexChannels() );
@@ -183,6 +186,7 @@ void MiniballCalibration::ReadCalibration() {
 				fFebexGain[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.0015 );
 				fFebexGainQuadr[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), 0. );
 				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 15000 );
+				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), "Qshort" );
 				fFebexTime[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)0 );
 				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), default_MWD_Decay );
 				fFebexMWD_Rise[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (int)default_MWD_Rise );
@@ -279,6 +283,20 @@ long MiniballCalibration::FebexTime( unsigned int sfp, unsigned int board, unsig
 	       ch < set->GetNumberOfFebexChannels() ) {
 
 		return fFebexTime[sfp][board][ch];
+		
+	}
+	
+	return 0;
+	
+}
+
+std::string MiniballCalibration::FebexType( unsigned int sfp, unsigned int board, unsigned int ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexType[sfp][board][ch];
 		
 	}
 	

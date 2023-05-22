@@ -140,6 +140,7 @@ public:
 	}
 	float FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned int raw );
 	unsigned int FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch );
+	std::string FebexType( unsigned int sfp, unsigned int board, unsigned int ch );
 	long FebexTime( unsigned int sfp, unsigned int board, unsigned int ch );
 	FebexMWD DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace );
 
@@ -152,6 +153,7 @@ private:
 	
 	std::shared_ptr<MiniballSettings> set;
 
+	std::vector< std::vector<std::vector<std::string>> > fFebexType; // Qint or Qshort
 	std::vector< std::vector<std::vector<long>> > fFebexTime;
 	std::vector< std::vector<std::vector<float>> > fFebexOffset;
 	std::vector< std::vector<std::vector<float>> > fFebexGain;
@@ -175,7 +177,7 @@ private:
 	int default_CFD_Threshold;
 
 	
-	ClassDef( MiniballCalibration, 1 )
+	ClassDef( MiniballCalibration, 2 )
    
 };
 

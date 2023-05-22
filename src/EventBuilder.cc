@@ -1202,10 +1202,16 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			mypileup = febex_data->IsPileUp();
 			if( overwrite_cal ) {
 				
-				myenergy = cal->FebexEnergy( mysfp, myboard, mych,
-									febex_data->GetQint() );
+				unsigned int adc_tmp_value;
+				if( cal->FebexType( mysfp, myboard, mych ) == "Qshort" )
+					adc_tmp_value = febex_data->GetQshort();
+				else if( cal->FebexType( mysfp, myboard, mych ) == "Qint" )
+					adc_tmp_value = febex_data->GetQint();
+				else adc_tmp_value = febex_data->GetQshort();
+
+				myenergy = cal->FebexEnergy( mysfp, myboard, mych, adc_tmp_value );
 				
-				if( febex_data->GetQint() > cal->FebexThreshold( mysfp, myboard, mych ) )
+				if( adc_tmp_value > cal->FebexThreshold( mysfp, myboard, mych ) )
 					mythres = true;
 				else mythres = false;
 

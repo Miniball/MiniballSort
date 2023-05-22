@@ -13,7 +13,7 @@ public:
 
 	FebexData() {};
 	FebexData( long long t, unsigned long long id,
-			  unsigned int qi, Float16_t qh, unsigned short qs,
+			  unsigned int qi, unsigned short qs,
 			  std::vector<unsigned short> tr,
 			  unsigned char s, unsigned char b, unsigned char c,
 			  bool th, bool p );
@@ -23,7 +23,6 @@ public:
 	inline unsigned long long	GetEventID() { return eventid; };
 	inline unsigned short		GetTraceLength() { return trace.size(); };
 	inline unsigned short		GetQshort() { return Qshort; };
-	inline Float16_t			GetQhalf() { return Qhalf; };
 	inline unsigned int			GetQint() { return Qint; };
 	inline unsigned char		GetSfp() { return sfp; };
 	inline unsigned char		GetBoard() { return board; };
@@ -56,7 +55,6 @@ public:
 	inline void	SetTrace( std::vector<unsigned short> t ) { trace = t; };
 	inline void AddSample( unsigned short s ) { trace.push_back(s); };
 	inline void	SetQshort( unsigned short q ) { Qshort = q; };
-	inline void	SetQhalf( Float16_t q ) { Qhalf = q; };
 	inline void	SetQint( unsigned int q ) { Qint = q; };
 	inline void SetSfp( unsigned char s ){ sfp = s; };
 	inline void SetBoard( unsigned char b ){ board = b; };
@@ -74,7 +72,6 @@ protected:
 	unsigned long long			eventid;
 	float						energy;
 	unsigned int				Qint;		///< Charge from firmware as 32-bit integer
-	Float16_t					Qhalf;		///< Charge from firmware as 16-bit float
 	unsigned short				Qshort;		///< Charge from firmware as 16-bit integer
 	std::vector<unsigned short>	trace;
 	unsigned char				sfp;		///< SFP ID of the event
@@ -84,7 +81,7 @@ protected:
 	bool						pileup;		///< pileup flag from data stream
 
 	
-	ClassDef( FebexData, 5 )
+	ClassDef( FebexData, 6 )
 	
 };
 

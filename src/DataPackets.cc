@@ -6,11 +6,11 @@ ClassImp(MiniballDataPackets)
 ClassImp(MBSInfoPackets)
 
 FebexData::FebexData( long long t, unsigned long long id,
-					unsigned int qi, Float16_t qh, unsigned short qs,
+					unsigned int qi, unsigned short qs,
 				    std::vector<unsigned short> tr,
 					unsigned char s, unsigned char b, unsigned char c,
 				    bool th, bool p ) :
-					time(t), eventid(id), Qint(qi), Qhalf(qh), Qshort(qs), trace(tr),
+					time(t), eventid(id), Qint(qi), Qshort(qs), trace(tr),
 					sfp(s), board(b), ch(c), thres(th), pileup(p) {}
 
 InfoData::InfoData( long long t, unsigned long long id, unsigned char c,
@@ -30,7 +30,6 @@ void MiniballDataPackets::SetData( std::shared_ptr<FebexData> data ){
 	fill_data.SetEventID( data->GetEventID() );
 	fill_data.SetTrace( data->GetTrace() );
 	fill_data.SetQint( data->GetQint() );
-	fill_data.SetQhalf( data->GetQhalf() );
 	fill_data.SetQshort( data->GetQshort() );
 	fill_data.SetSfp( data->GetSfp() );
 	fill_data.SetBoard( data->GetBoard() );
@@ -108,7 +107,6 @@ void FebexData::ClearData(){
 	trace.clear();
 	std::vector<unsigned short>().swap(trace);
 	Qint = 0;
-	Qhalf = 0.;
 	Qshort = 0;
 	sfp = 255;
 	board = 255;

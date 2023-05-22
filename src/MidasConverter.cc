@@ -339,7 +339,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 	if( my_data_id == 0 ) {
 		
 		my_adc_data = my_adc_data&0xFFFF;
-		febex_data->SetQhalf( my_adc_data );
+		febex_data->SetQshort( my_adc_data );
 		flag_febex_data0 = true;
 
 	}
@@ -393,13 +393,32 @@ void MiniballMidasConverter::FinishFebexData(){
 
 		// Combine the two halfs of the 32-bit integer point ADC energy
 		my_adc_data_int = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
-		
+		febex_data->SetQint( my_adc_data_int );
+
 		// Bodge to match Vic's data format on 09/02/2023
 		//my_adc_data_int = my_adc_data_lsb & 0xFFFF;
+		//febex_data->SetQint( my_adc_data_int );
 
 		// Calibrate and set energies
-		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), my_adc_data_int );
-		febex_data->SetQint( my_adc_data_int );
+		unsigned int adc_tmp_value;
+		if( cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) == "Qshort" )
+			adc_tmp_value = febex_data->GetQshort();
+
+		else if( cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) == "Qint" )
+			adc_tmp_value = febex_data->GetQint();
+		
+		else {
+			
+			std::cerr << "Unrecognised data type: " << cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
+			std::cerr << " in SFP " << febex_data->GetSfp() << std::endl;
+			std::cerr << ", board " << febex_data->GetBoard() << std::endl;
+			std::cerr << ", channel " << febex_data->GetChannel() << std::endl;
+			std::cout << "\tDefault to Qshort" << std::endl;
+			adc_tmp_value = febex_data->GetQshort();
+			
+		}
+
+		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), adc_tmp_value );
 		febex_data->SetEnergy( my_energy );
 
 		// Check if it's over threshold
@@ -460,8 +479,7 @@ void MiniballMidasConverter::FinishFebexData(){
 			output_tree->Fill();
 
 			// Fill histograms
-			my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), febex_data->GetQint() );
-			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( adc_tmp_value );
 			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
 			
 		}
@@ -473,7 +491,7 @@ void MiniballMidasConverter::FinishFebexData(){
 		
 		std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
 		std::cout << " Qshort        = " << flag_febex_data0 << std::endl;
-		std::cout << " Qhalf         = " << flag_febex_data1 << std::endl;
+		std::cout << " nonsense item = " << flag_febex_data1 << std::endl; // missing anyway
 		std::cout << " Qint (low)    = " << flag_febex_data2 << std::endl;
 		std::cout << " Qint (high)   = " << flag_febex_data3 << std::endl;
 		std::cout << " trace data    = " << flag_febex_trace << std::endl;
