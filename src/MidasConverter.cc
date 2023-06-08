@@ -479,8 +479,23 @@ void MiniballMidasConverter::FinishFebexData(){
 			output_tree->Fill();
 
 			// Fill histograms
-			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( adc_tmp_value );
-			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+			if( febex_data->GetSfp() >= set->GetNumberOfFebexSfps() ||
+			   febex_data->GetBoard() >= set->GetNumberOfFebexBoards() ||
+			   febex_data->GetChannel() >= set->GetNumberOfFebexChannels() ) {
+			
+				std::cerr << "Bad event ID: SFP=" << (int)febex_data->GetSfp();
+				std::cerr << ", board = " << (int)febex_data->GetBoard();
+				std::cerr << ", channel = " << (int)febex_data->GetChannel() << std::endl;
+
+				
+			}
+				
+			else {
+				
+				hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( adc_tmp_value );
+				hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+				
+			}
 			
 		}
 
@@ -502,12 +517,27 @@ void MiniballMidasConverter::FinishFebexData(){
 	else return;
 	
 	// Fill histograms
-	hfebex_hit[febex_data->GetSfp()][febex_data->GetBoard()]->Fill(
-		ctr_febex_hit[febex_data->GetSfp()][febex_data->GetBoard()],
-		febex_data->GetTime(), 1 );
+	if( febex_data->GetSfp() >= set->GetNumberOfFebexSfps() ||
+	   febex_data->GetBoard() >= set->GetNumberOfFebexBoards() ||
+	   febex_data->GetChannel() >= set->GetNumberOfFebexChannels() ) {
 
-	// Count the hit, even if it's bad
-	ctr_febex_hit[febex_data->GetSfp()][febex_data->GetBoard()]++;
+		std::cerr << "Bad event ID: SFP=" << (int)febex_data->GetSfp();
+		std::cerr << ", board = " << (int)febex_data->GetBoard();
+		std::cerr << ", channel = " << (int)febex_data->GetChannel() << std::endl;
+		
+		
+	}
+	
+	else {
+		
+		hfebex_hit[febex_data->GetSfp()][febex_data->GetBoard()]->Fill(
+																	   ctr_febex_hit[febex_data->GetSfp()][febex_data->GetBoard()],
+																	   febex_data->GetTime(), 1 );
+		
+		// Count the hit, even if it's bad
+		ctr_febex_hit[febex_data->GetSfp()][febex_data->GetBoard()]++;
+		
+	}
 	
 	// Assuming it did finish, in a good way or bad, clean up.
 	flag_febex_data0 = false;
