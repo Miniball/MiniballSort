@@ -159,7 +159,7 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 			
 			// output error message!
 			std::cerr << "WARNING: WRONG TYPE! word 0: " << word_0;
-			std::cerr << ", my_type: " << my_type << std::endl;
+			std::cerr << ", my_type: " << (int)my_type << std::endl;
 			std::cerr << ", in bloc: " << nblock << std::endl;
 
 		}
@@ -188,10 +188,10 @@ bool MiniballMidasConverter::GetFebexChanID(){
 	    my_board_id >= set->GetNumberOfFebexBoards() ||
 	    my_ch_id >= set->GetNumberOfFebexChannels() ) {
 		
-		std::cout << "Bad FEBEX event with sfp_id=" << my_sfp_id;
-		std::cout << " board_id=" << my_board_id;
-		std::cout << " ch_id=" << my_ch_id;
-		std::cout << " data_id=" << my_data_id << std::endl;
+		std::cout << "Bad FEBEX event with sfp_id=" << (int)my_sfp_id;
+		std::cout << ", board_id=" << (int)my_board_id;
+		std::cout << ", ch_id=" << (int)my_ch_id;
+		std::cout << ", data_id=" << (int)my_data_id << std::endl;
 		return false;
 
 	}
@@ -410,9 +410,9 @@ void MiniballMidasConverter::FinishFebexData(){
 		else {
 			
 			std::cerr << "Unrecognised data type: " << cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
-			std::cerr << " in SFP " << febex_data->GetSfp() << std::endl;
-			std::cerr << ", board " << febex_data->GetBoard() << std::endl;
-			std::cerr << ", channel " << febex_data->GetChannel() << std::endl;
+			std::cerr << " in SFP " << (int)febex_data->GetSfp() << std::endl;
+			std::cerr << ", board " << (int)febex_data->GetBoard() << std::endl;
+			std::cerr << ", channel " << (int)febex_data->GetChannel() << std::endl;
 			std::cout << "\tDefault to Qshort" << std::endl;
 			adc_tmp_value = febex_data->GetQshort();
 			
