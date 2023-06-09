@@ -525,7 +525,6 @@ void MiniballMidasConverter::FinishFebexData(){
 		std::cerr << ", board = " << (int)febex_data->GetBoard();
 		std::cerr << ", channel = " << (int)febex_data->GetChannel() << std::endl;
 		
-		
 	}
 	
 	else {
@@ -593,9 +592,25 @@ void MiniballMidasConverter::ProcessInfoData(){
 
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
 		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
-		hfebex_resume[my_sfp_id][my_board_id]->Fill( ctr_febex_resume[my_sfp_id][my_board_id], my_tm_stp, 1 );
-		ctr_febex_resume[my_sfp_id][my_board_id]++;
 
+		// Error catching
+		if( my_sfp_id >= set->GetNumberOfFebexSfps() ||
+		   my_board_id >= set->GetNumberOfFebexBoards() ||
+		   my_ch_id >= set->GetNumberOfFebexChannels() ) {
+			
+			std::cerr << "Bad event ID: SFP=" << (int)my_sfp_id;
+			std::cerr << ", board = " << (int)my_board_id;
+			std::cerr << ", channel = " << (int)my_ch_id << std::endl;
+			
+		}
+		
+		else {
+			
+			hfebex_resume[my_sfp_id][my_board_id]->Fill( ctr_febex_resume[my_sfp_id][my_board_id], my_tm_stp, 1 );
+			ctr_febex_resume[my_sfp_id][my_board_id]++;
+			
+		}
+		
     }
 
 	// Create an info event and fill the tree for external triggers and pause/resume
