@@ -8,7 +8,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 	TFile *f = new TFile( filename.data() );
 	
 	// Get Tree
-	TTree *t = (TTree*)f->Get("mb");
+	TTree *t = (TTree*)f->Get("mb_sort");
 	
 	// Settings file - needed for calibration, just use defaults
 	std::shared_ptr<MiniballSettings> myset = std::make_shared<MiniballSettings>( "default" );
@@ -55,8 +55,8 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			FebexMWD mwd = cal->DoMWD( sfp, board, ch, febex->GetTrace() );
 			
 			// Fill histogram
-			for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i )
-				h->Fill( mwd.GetEnergy(i) );
+			for( unsigned int k = 0; k < mwd.NumberOfTriggers(); ++k )
+				h->Fill( mwd.GetEnergy(k) );
 			
 			// Draw trace - graph1
 			c1->cd(1);
@@ -95,11 +95,11 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			
 			// Add CFD triggers
 			std::vector<TArrow> arr( mwd.NumberOfTriggers() );
-			for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i ) {
+			for( unsigned int k = 0; k < mwd.NumberOfTriggers(); ++k ) {
 
-				arr[i].SetLineColor(kRed+1);
-				arr[i].DrawArrow( mwd.GetCfdTime(i), 0,
-								  mwd.GetCfdTime(i), -1.0 * mwd.GetEnergy(i),
+				arr[k].SetLineColor(kRed+1);
+				arr[k].DrawArrow( mwd.GetCfdTime(k), 0,
+								  mwd.GetCfdTime(k), -1.0 * mwd.GetEnergy(k),
 								  0.01, "-|>" );
 
 			}
