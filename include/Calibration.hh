@@ -138,11 +138,19 @@ public:
 	const std::string InputFile(){
 		return fInputFile;
 	}
-	float FebexEnergy( unsigned int sfp, unsigned int board, unsigned int ch, unsigned int raw );
-	unsigned int FebexThreshold( unsigned int sfp, unsigned int board, unsigned int ch );
-	std::string FebexType( unsigned int sfp, unsigned int board, unsigned int ch );
-	long FebexTime( unsigned int sfp, unsigned int board, unsigned int ch );
-	FebexMWD DoMWD( unsigned int sfp, unsigned int board, unsigned int ch, std::vector<unsigned short> trace );
+	float FebexEnergy( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int raw );
+	unsigned int FebexThreshold( unsigned char sfp, unsigned char board, unsigned char ch );
+	std::string FebexType( unsigned char sfp, unsigned char board, unsigned char ch );
+	long FebexTime( unsigned char sfp, unsigned char board, unsigned char ch );
+	FebexMWD DoMWD( unsigned char sfp, unsigned char board, unsigned char ch, std::vector<unsigned short> trace );
+	
+	void SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, float decay );
+	void SetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int rise );
+	void SetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top );
+	void SetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int window );
+	void SetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch, float fraction );
+	void SetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int delay );
+	void SetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch, int threshold );
 
 	
 private:
