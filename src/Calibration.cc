@@ -4,68 +4,97 @@ ClassImp(FebexMWD)
 ClassImp(MiniballCalibration)
 
 void FebexMWD::DoMWD() {
+	
+	// For now use James' naming convention and switch later
+	unsigned int M = rise_time;
+	unsigned int L = window;
+	float torr = decay_time;
+	float cfd_delay = delay_time;
+	
+	// James doesnt't use a CFD fraction parameter, i.e. fraction = 1
+	fraction = 1.0;
 		
-	// Define the peaking time for this channel based on rise time then go to centre of flat top
-	float peaking_time = flat_top - (float)rise_time * fraction;
-
 	// Get the trace length
 	unsigned int trace_length = trace.size();
+	
+	// Baseline energy estimation
+	float baseline_energy = 0.0;
 	
 	// resize vectors
 	stage1.resize( trace_length, 0.0 );
 	stage2.resize( trace_length, 0.0 );
 	stage3.resize( trace_length, 0.0 );
-	shaper.resize( trace_length, 0.0 );
+	stage4.resize( trace_length, 0.0 );
 	cfd.resize( trace_length, 0.0 );
 	
-	
 	// Loop over trace and analyse
-	for( unsigned int i = 1; i < trace_length; ++i ) {
+	for( unsigned int i = 0; i < trace_length; ++i ) {
 		
-		// MWD stage 1 - remove decay
-		stage1[i]  = 1.0 / decay_time;
-		stage1[i] -= 1.0;
-		stage1[i] *= trace[i-1];
-		stage1[i] += trace[i];
-		stage1[i] += stage1[i-1];
-		
-		// MWD stage 2 - difference
-		if( i > flat_top ) {
+		// CFD trace, do triggering later
+		if( i > cfd_delay ) {
 			
-			stage2[i]  = stage1[i];
-			stage2[i] -= stage1[i-flat_top];
+			cfd[i] = trace[i] - fraction * trace[i-cfd_delay];
 			
 		}
+		
+		// MWD stage 1 - difference
+		// this is 'D' in James' MATLAB code
+		if( i >= M ) {
+			
+			stage1[i]  = trace[i];
+			stage1[i] -= trace[i-M];
+			
+		}
+		
+		// MWD stage 2 - remove decay
+		// James' MATLAB code doesn't do this, but combines it with the moving average (next stage)
+		stage2[i] = trace[i] / torr;
 		
 		// MWD stage 3 - moving average
-		if( i >= rise_time ) {
+		// this, combined with stage 2 represents 'MWD' in James' MATLAB code
+		if( i >= M ) {
 			
-			for( unsigned int j = 0; j < rise_time; ++j )
+			for( unsigned int j = 0; j < M; ++j )
 				stage3[i] += stage2[i-j];
 			
-			stage3[i] /= (float)rise_time;
-
-		}
-		
-		// some kind of cfd trigger for thresholding
-		if( i >= delay_time ) {
+			stage3[i] += stage1[i];
 			
-			shaper[i] = trace[i] - trace[i-delay_time];
-			//if( shaper[i] < 0 ) shaper[i] = 0.0;
-			cfd[i]  = fraction * shaper[i];
-			cfd[i] -= shaper[i-delay_time];
-
 		}
 		
+		// MWD stage 4 - energy averaging
+		// This is 'T' in James' MWD code
+		if( i >= L ){
+			
+			for( unsigned int j = 0; j < L; ++j )
+				stage4[i] += stage3[i-j];
+			
+			stage4[i] /= L;
+			
+		}
+				
 	} // loop over trace
 	
 	
 	// Loop now over the CFD trace until we trigger
-	for( unsigned int i = delay_time*2+1; i < trace_length; ++i ) {
+	// This is not the same as James' trigger, but it's better
+	// plus he has updated his CFD and I don't have the new one
+	for( unsigned int i = 0; i < trace_length; ++i ) {
+		
+		// Do some baseline estimation at the same time
+		// Rolling average over the baseline window
+		// NB: Not required now because we have an averaged trace
+		//baseline_energy += stage4[i] / baseline_length;
+		//if( i >= baseline_length ) baseline_energy -= stage4[i-baseline_length] / baseline_length;
+		
+		// Baseline estimation comes from averaged trace
+		// Just in case a trigger comes before the baseline length, use whatever we can
+		if( i >= baseline_length ) baseline_energy = stage4[i-baseline_length];
+		else baseline_energy = stage4[0];
 		
 		// Trigger when we pass the threshold on the CFD
-		if( ( cfd[i] > threshold && threshold > 0 ) ||
-		    ( cfd[i] < threshold && threshold < 0 ) ) {
+		if( i >= cfd_delay &&
+		   ( ( cfd[i] > threshold && threshold > 0 ) ||
+			( cfd[i] < threshold && threshold < 0 ) ) ) {
 			
 			// Find zero crossing
 			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
@@ -75,33 +104,29 @@ void FebexMWD::DoMWD() {
 			if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
 			// Check we have enough trace left to analyse
-			if( trace_length - i < peaking_time + window/2 )
+			if( trace_length - i < M )
 				break;
 			
 			// Mark the CFD time
-			float cfd_time = (float)i / cfd[i];
-			cfd_time += (float)(i-1) / cfd[i-1];
-			cfd_time /= 1.0 / cfd[i] + 1.0 / cfd[i-1];
+			float cfd_time = (float)i / TMath::Abs(cfd[i]);
+			cfd_time += (float)(i-1) / TMath::Abs(cfd[i-1]);
+			cfd_time /= 1.0 / TMath::Abs(cfd[i]) + 1.0 / TMath::Abs(cfd[i-1]);
 			cfd_list.push_back( cfd_time );
 			
-			// intialise energy to be zero to start
-			float energy = 0.0;
-			
 			// move to peak of the flat top
-			i += peaking_time;
+			// James just uses the averaging window to find the flat top
+			// this always puts it at the very end of the averaged trapezoid
+			// This is probably correct, but there is sometime an additional
+			// paramter to get the centre of the flat top.
+			// That parameter (flat_top) is available in this code, but not used yet
+			i += M;
+
+			// assess the energy from stage 4 and push back
+			energy_list.push_back( stage4[i] - baseline_energy );
 			
-			// Go back to the start of the averaging window
-			i -= window;
+			// Move to the end of the whole thing
+			i += L;
 			
-			// average energy over window
-			for( unsigned int j = i; j < i + window; ++j )
-				energy += stage3[j];
-			
-			energy_list.push_back( TMath::Abs(energy) / (float)window );
-			
-			// move back to the peak, then to the end of the trapezoid
-			i += peaking_time/2;
-							
 		} // threshold passed
 		
 	} // loop over CFD
@@ -126,6 +151,7 @@ void MiniballCalibration::ReadCalibration() {
 	default_MWD_Decay		= 14000.0;
 	default_MWD_Rise		= 25;
 	default_MWD_Top			= 150;
+	default_MWD_Baseline	= 50;
 	default_MWD_Window		= 12;
 	default_CFD_Delay		= 5;
 	default_CFD_Threshold	= 150;
@@ -142,6 +168,7 @@ void MiniballCalibration::ReadCalibration() {
 	fFebexMWD_Decay.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Rise.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Top.resize( set->GetNumberOfFebexSfps() );
+	fFebexMWD_Baseline.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Window.resize( set->GetNumberOfFebexSfps() );
 	fFebexCFD_Delay.resize( set->GetNumberOfFebexSfps() );
 	fFebexCFD_Threshold.resize( set->GetNumberOfFebexSfps() );
@@ -159,6 +186,7 @@ void MiniballCalibration::ReadCalibration() {
 		fFebexMWD_Decay[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Rise[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Top[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexMWD_Baseline[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Window[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexCFD_Delay[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexCFD_Threshold[i].resize( set->GetNumberOfFebexBoards() );
@@ -175,6 +203,7 @@ void MiniballCalibration::ReadCalibration() {
 			fFebexMWD_Decay[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Rise[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Top[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexMWD_Baseline[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Window[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexCFD_Delay[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexCFD_Threshold[i][j].resize( set->GetNumberOfFebexChannels() );
@@ -191,6 +220,7 @@ void MiniballCalibration::ReadCalibration() {
 				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), default_MWD_Decay );
 				fFebexMWD_Rise[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (int)default_MWD_Rise );
 				fFebexMWD_Top[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (int)default_MWD_Top );
+				fFebexMWD_Baseline[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (int)default_MWD_Baseline );
 				fFebexMWD_Window[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (int)default_MWD_Window );
 				fFebexCFD_Delay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), (int)default_CFD_Delay );
 				fFebexCFD_Threshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.Threshold", i, j, k ), (int)default_CFD_Threshold );
@@ -248,6 +278,7 @@ FebexMWD MiniballCalibration::DoMWD( unsigned char sfp, unsigned char board, uns
 		mwd.SetRiseTime( fFebexMWD_Rise[sfp][board][ch] );
 		mwd.SetDecayTime( fFebexMWD_Decay[sfp][board][ch] );
 		mwd.SetFlatTop( fFebexMWD_Top[sfp][board][ch] );
+		mwd.SetBaseline( fFebexMWD_Baseline[sfp][board][ch] );
 		mwd.SetWindow( fFebexMWD_Window[sfp][board][ch] );
 		mwd.SetDelayTime( fFebexCFD_Delay[sfp][board][ch] );
 		mwd.SetThreshold( fFebexCFD_Threshold[sfp][board][ch] );
@@ -341,6 +372,21 @@ void MiniballCalibration::SetMWDTop( unsigned char sfp, unsigned char board, uns
 	   ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexMWD_Top[sfp][board][ch] = top;
+		return;
+		
+	}
+	
+	else return;
+	
+}
+
+void MiniballCalibration::SetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int baseline_length ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		fFebexMWD_Baseline[sfp][board][ch] = baseline_length;
 		return;
 		
 	}

@@ -34,10 +34,11 @@ public:
 	
 	// Set functions
 	inline void SetTrace( std::vector<unsigned short> t ){ trace = t; };
-	inline void SetRiseTime( unsigned int t ){ rise_time = t; };
-	inline void SetDecayTime( float t ){ decay_time = t; };
-	inline void SetFlatTop( unsigned int t ){ flat_top = t; };
-	inline void SetWindow( unsigned int t ){ window = t; };
+	inline void SetRiseTime( unsigned int t ){ rise_time = t; }; // M
+	inline void SetDecayTime( float t ){ decay_time = t; }; // torr
+	inline void SetFlatTop( unsigned int t ){ flat_top = t; }; // not in James' code
+	inline void SetBaseline( unsigned int t ){ baseline_length = t; }; // BLFL (baseline filter length?)
+	inline void SetWindow( unsigned int t ){ window = t; }; // L
 	inline void SetDelayTime( unsigned int t ){ delay_time = t; };
 	inline void SetThreshold( unsigned int t ){ threshold = t; };
 	inline void SetFraction( float f ){ fraction = f; };
@@ -57,6 +58,7 @@ public:
 	inline std::vector<float> GetStage1(){ return stage1; };
 	inline std::vector<float> GetStage2(){ return stage2; };
 	inline std::vector<float> GetStage3(){ return stage3; };
+	inline std::vector<float> GetStage4(){ return stage4; };
 	inline std::vector<float> GetCfd(){ return cfd; };
 	
 	// Graphs
@@ -72,6 +74,9 @@ public:
 	inline TGraph* GetStage3Graph() {
 		return GetGraph( stage3 );
 	};
+	inline TGraph* GetStage4Graph() {
+		return GetGraph( stage4 );
+	};
 	inline TGraph* GetCfdGraph() {
 		return GetGraph( cfd );
 	};
@@ -86,11 +91,11 @@ private:
 	std::vector<unsigned short> trace;
 	
 	// Initialise some vectors for holding the MWD and CFD etc.
-	std::vector<float> stage1, stage2, stage3;
-	std::vector<float> shaper, cfd;
+	std::vector<float> stage1, stage2, stage3, stage4;
+	std::vector<float> cfd;
 
 	// Values of MWD
-	unsigned int rise_time, flat_top, window;
+	unsigned int rise_time, flat_top, window, baseline_length;
 	float decay_time;
 
 	// Values for CFD
@@ -114,7 +119,7 @@ private:
  		return GetGraph(y);
 	};
 
-	ClassDef( FebexMWD, 1 );
+	ClassDef( FebexMWD, 2 );
 	
 };
 
@@ -147,6 +152,7 @@ public:
 	void SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, float decay );
 	void SetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int rise );
 	void SetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top );
+	void SetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int baseline_length );
 	void SetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int window );
 	void SetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch, float fraction );
 	void SetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int delay );
@@ -172,6 +178,7 @@ private:
 	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Rise;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Top;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Baseline;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Window;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Delay;
 	std::vector< std::vector<std::vector<int>> > fFebexCFD_Threshold; // polarity of CFD selected by a negative threshold
@@ -180,12 +187,13 @@ private:
 	float default_CFD_Fraction;
 	unsigned int default_MWD_Rise;
 	unsigned int default_MWD_Top;
+	unsigned int default_MWD_Baseline;
 	unsigned int default_MWD_Window;
 	unsigned int default_CFD_Delay;
 	int default_CFD_Threshold;
 
 	
-	ClassDef( MiniballCalibration, 2 )
+	ClassDef( MiniballCalibration, 3 )
    
 };
 

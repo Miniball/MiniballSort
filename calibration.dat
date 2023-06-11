@@ -6,9 +6,19 @@
 # pass this file to mb_sort with the -c flag
 # 
 # Format for the calibration parameters
-# febex_<sfp>_<board>_<ch>.Offset:		// energy calibration offset (default = 0.0)
-# febex_<sfp>_<board>_<ch>.Gain:		// energy calibration gain (default = 1.0)
-# febex_<sfp>_<board>_<ch>.GainQuadr:	// energy calibration quadratic term (default = 0.0)
-# febex_<sfp>_<board>_<ch>.Threshold:	// software threshold in adc units (default = 0)
-# febex_<sfp>_<board>_<ch>.Time:		// time offset in ns (default = 0)
-# febex_<sfp>_<board>_<ch>.Type:		// Qshort or Qint depending if you want to use the 16-bit or 32-bit energy value in the data format
+# febex_<sfp>_<board>_<ch>.Offset:		# energy calibration offset (default = 0.0)
+# febex_<sfp>_<board>_<ch>.Gain:		# energy calibration gain (default = 1.0)
+# febex_<sfp>_<board>_<ch>.GainQuadr:	# energy calibration quadratic term (default = 0.0)
+# febex_<sfp>_<board>_<ch>.Threshold:	# software threshold in adc units (default = 0)
+# febex_<sfp>_<board>_<ch>.Time:		# time offset in ns (default = 0)
+# febex_<sfp>_<board>_<ch>.Type:		# Qshort or Qint depending if you want to use the 16-bit or 32-bit energy value in the data format
+
+# For the CFD and MWD parameters for trace analysis, one has to pass the values as below:
+# febex_<sfp>_<board>_<ch>.MWD.DecayTime:			# this is equivalent to tau or torr
+# febex_<sfp>_<board>_<ch>.MWD.RiseTime:			# this is equivalent to M
+# febex_<sfp>_<board>_<ch>.MWD.FlatTop:				# this is not used, but could for better choice of averaging point, i.e. centering on the flat top
+# febex_<sfp>_<board>_<ch>.MWD.Baseline:			# this is the number of sample before the trigger where you want to tale the baseline energy from
+# febex_<sfp>_<board>_<ch>.MWD.Window				# this is equivalent to L
+# febex_<sfp>_<board>_<ch>.CFD.DelayTime:			# this is the delay tome of the CFD
+# febex_<sfp>_<board>_<ch>.CFD.Threshold:			# this is the threshold of the CFD (polarity sensitive)
+# febex_<sfp>_<board>_<ch>.CFD.Fraction:			# this is fraction of the signal taken for the delayed subtraction, but it ignored in this algorithm at the moment to match James Lawson's firmware on the FEBEX4 cards.
