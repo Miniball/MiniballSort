@@ -95,8 +95,7 @@ private:
 	std::vector<float> cfd;
 
 	// Values of MWD
-	unsigned int rise_time, flat_top, window, baseline_length;
-	float decay_time;
+	unsigned int rise_time, flat_top, window, baseline_length, decay_time;
 
 	// Values for CFD
 	unsigned int delay_time;
@@ -149,7 +148,7 @@ public:
 	long FebexTime( unsigned char sfp, unsigned char board, unsigned char ch );
 	FebexMWD DoMWD( unsigned char sfp, unsigned char board, unsigned char ch, std::vector<unsigned short> trace );
 	
-	void SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, float decay );
+	void SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int decay );
 	void SetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int rise );
 	void SetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top );
 	void SetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int baseline_length );
@@ -174,21 +173,21 @@ private:
 	std::vector< std::vector<std::vector<float>> > fFebexGainQuadr;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexThreshold;
 
-	std::vector< std::vector<std::vector<float>> > fFebexMWD_Decay;
-	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Decay;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Rise;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Top;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Baseline;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Window;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Delay;
 	std::vector< std::vector<std::vector<int>> > fFebexCFD_Threshold; // polarity of CFD selected by a negative threshold
+	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
 
-	float default_MWD_Decay;
-	float default_CFD_Fraction;
+	unsigned int default_MWD_Decay;
 	unsigned int default_MWD_Rise;
 	unsigned int default_MWD_Top;
 	unsigned int default_MWD_Baseline;
 	unsigned int default_MWD_Window;
+	float default_CFD_Fraction;
 	unsigned int default_CFD_Delay;
 	int default_CFD_Threshold;
 

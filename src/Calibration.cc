@@ -8,8 +8,8 @@ void FebexMWD::DoMWD() {
 	// For now use James' naming convention and switch later
 	unsigned int M = rise_time;
 	unsigned int L = window;
-	float torr = decay_time;
-	float cfd_delay = delay_time;
+	unsigned int torr = decay_time;
+	unsigned int cfd_delay = delay_time;
 	
 	// James doesnt't use a CFD fraction parameter, i.e. fraction = 1
 	fraction = 1.0;
@@ -148,14 +148,14 @@ void MiniballCalibration::ReadCalibration() {
 
 	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
-	default_MWD_Decay		= 14000.0;
-	default_MWD_Rise		= 25;
-	default_MWD_Top			= 150;
-	default_MWD_Baseline	= 50;
-	default_MWD_Window		= 12;
-	default_CFD_Delay		= 5;
+	default_MWD_Decay		= 50000;
+	default_MWD_Rise		= 877;
+	default_MWD_Top			= 150; // unused at the moment
+	default_MWD_Baseline	= 110;
+	default_MWD_Window		= 777;
+	default_CFD_Delay		= 870;
 	default_CFD_Threshold	= 150;
-	default_CFD_Fraction	= 0.5;
+	default_CFD_Fraction	= 0.5; // unused at the moment
 
 	
 	// FEBEX initialisation
@@ -217,7 +217,7 @@ void MiniballCalibration::ReadCalibration() {
 				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 15000 );
 				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), "Qshort" );
 				fFebexTime[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)0 );
-				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), default_MWD_Decay );
+				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), (int)default_MWD_Decay );
 				fFebexMWD_Rise[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (int)default_MWD_Rise );
 				fFebexMWD_Top[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (int)default_MWD_Top );
 				fFebexMWD_Baseline[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (int)default_MWD_Baseline );
@@ -335,7 +335,7 @@ std::string MiniballCalibration::FebexType( unsigned char sfp, unsigned char boa
 	
 }
 
-void MiniballCalibration::SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, float decay ){
+void MiniballCalibration::SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int decay ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
 	   board < set->GetNumberOfFebexBoards() &&

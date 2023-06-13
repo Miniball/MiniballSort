@@ -30,8 +30,8 @@ void mwd_optimisation( std::string filename = "test/R4_13.root", unsigned int sf
 	
 	// Define range of parameters to scan
 	const int Nscan = 50;
-	float tau_low = 40.0, tau_upp = 60.0;
-	float step = ( tau_upp - tau_low ) / Nscan;
+	int tau_low = 40000, tau_upp = 60000;
+	int step = ( tau_upp - tau_low ) / Nscan;
 
 	// Energy histograms
 	std::vector<TH1F*> hmwd;
@@ -58,7 +58,7 @@ void mwd_optimisation( std::string filename = "test/R4_13.root", unsigned int sf
 			for( unsigned int j = 0; j <= Nscan; ++j ){
 				
 				// Calculate the parameter from the range
-				float tau = tau_low + j * step;
+				int tau = tau_low + j * step;
 
 				// Set some parameters
 				cal->SetMWDDecay( sfp, board, ch, tau );
