@@ -70,7 +70,7 @@ void mwd_optimisation( std::string filename = "test/R4_13.root", unsigned int sf
 				if( hmwd[j] == nullptr ) {
 				
 					std::string hname = "mwd_energy_" + std::to_string(j);
-					std::string htitle = "Moving window enegry spectrum with tau = ";
+					std::string htitle = "Moving window energy spectrum with tau = ";
 					htitle += std::to_string(tau) + ";Energy [arb. units];Counts";
 					hmwd[j] = new TH1F( hname.data(), htitle.data(), 65536, -0.5, 65535.5 );
 					
