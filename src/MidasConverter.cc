@@ -237,10 +237,17 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 
 		if( trace_test == 0 && block_test != 0x5E5E5E5E ){
 			
-			febex_data->AddSample( ( sample_packet >> 48 ) & 0x0000000000003FFF );
-			febex_data->AddSample( ( sample_packet >> 32 ) & 0x0000000000003FFF );
-			febex_data->AddSample( ( sample_packet >> 16 ) & 0x0000000000003FFF );
-			febex_data->AddSample( sample_packet & 0x0000000000003FFF );
+			// Usually the top two bits are zero and we mask them off
+			//febex_data->AddSample( ( sample_packet >> 48 ) & 0x0000000000003FFF );
+			//febex_data->AddSample( ( sample_packet >> 32 ) & 0x0000000000003FFF );
+			//febex_data->AddSample( ( sample_packet >> 16 ) & 0x0000000000003FFF );
+			//febex_data->AddSample( sample_packet & 0x0000000000003FFF );
+			
+			// FEBEX might not be masking the top two bits with zero
+			febex_data->AddSample( ( sample_packet >> 48 ) & 0x000000000000FFFF );
+			febex_data->AddSample( ( sample_packet >> 32 ) & 0x000000000000FFFF );
+			febex_data->AddSample( ( sample_packet >> 16 ) & 0x000000000000FFFF );
+			febex_data->AddSample( sample_packet & 0x000000000000FFFF );
 			
 		}
 		
