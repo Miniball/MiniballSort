@@ -226,8 +226,15 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 		ULong64_t sample_packet = GetWord(pos++);
 		
 		UInt_t block_test = ( sample_packet >> 32 ) & 0x00000000FFFFFFFF;
-		unsigned char trace_test = ( sample_packet >> 62 ) & 0x0000000000000003;
 		
+		// Note from Carl Unsworth in elog:22769 referring to note in edoc504.
+		// Basically the trace_test as defined below is not applicable for FEBEX data.
+		// We test if the two uppermost bits are 00, but this isn't always the case.
+		// Therefore, we are hacking for now to define it as so in case we change our mind
+		// then at least the code still exists to go back to some type of test.
+		// unsigned char trace_test = ( sample_packet >> 62 ) & 0x0000000000000003;
+		unsigned char trace_test = 0;
+
 		if( trace_test == 0 && block_test != 0x5E5E5E5E ){
 			
 			febex_data->AddSample( ( sample_packet >> 48 ) & 0x0000000000003FFF );
