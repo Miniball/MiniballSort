@@ -28,7 +28,7 @@ void FebexMWD::DoMWD() {
 	cfd.resize( trace_length, 0.0 );
 	
 	// Loop over trace and analyse
-	for( unsigned int i = 0; i < trace_length; ++i ) {
+	for( unsigned int i = 2; i < trace_length; ++i ) {
 		
 		// CFD trace, do triggering later
 		if( i > cfd_delay ) {
@@ -149,12 +149,12 @@ void MiniballCalibration::ReadCalibration() {
 	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
 	default_MWD_Decay		= 50000;
-	default_MWD_Rise		= 877;
+	default_MWD_Rise		= 200; // M
 	default_MWD_Top			= 150; // unused at the moment
 	default_MWD_Baseline	= 110;
-	default_MWD_Window		= 777;
-	default_CFD_Delay		= 870;
-	default_CFD_Threshold	= 150;
+	default_MWD_Window		= 100; // L
+	default_CFD_Delay		= 16;
+	default_CFD_Threshold	= 200;
 	default_CFD_Fraction	= 0.5; // unused at the moment
 
 	
