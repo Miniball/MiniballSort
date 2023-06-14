@@ -120,18 +120,20 @@ void FebexMWD::DoMWD() {
 			
 			// move to peak of the flat top
 			// James just uses the averaging window to find the flat top
-			// this always puts it at the very end of the averaged trapezoid
+			// this always puts it at the very start of the flat top.
 			// This is probably correct, but there is sometime an additional
-			// paramter to get the centre of the flat top.
+			// paramater to get the centre of the flat top.
 			// That parameter (flat_top) is available in this code, but not used yet
+			//i += M + cfd_delay + flat_top;
 			i += M + cfd_delay;
 
 			// assess the energy from stage 4 and push back
 			energy_list.push_back( stage4[i] - baseline_energy );
 			
-			// Move to the end of the whole thing
+			// Move to the end of the whole thing (flat_top not used)
+			//i += L + baseline_length - flat_top;
 			i += L + baseline_length;
-			
+
 		} // threshold passed
 		
 	} // loop over CFD
@@ -459,3 +461,116 @@ void MiniballCalibration::SetCFDThreshold( unsigned char sfp, unsigned char boar
 	else return;
 	
 }
+
+unsigned int MiniballCalibration::GetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexMWD_Decay[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexMWD_Rise[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexMWD_Top[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexMWD_Baseline[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexMWD_Window[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+float MiniballCalibration::GetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexCFD_Fraction[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexCFD_Delay[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+int MiniballCalibration::GetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexCFD_Threshold[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+

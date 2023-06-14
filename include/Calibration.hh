@@ -148,6 +148,7 @@ public:
 	long FebexTime( unsigned char sfp, unsigned char board, unsigned char ch );
 	FebexMWD DoMWD( unsigned char sfp, unsigned char board, unsigned char ch, std::vector<unsigned short> trace );
 	
+	// Set functions
 	void SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int decay );
 	void SetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int rise );
 	void SetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top );
@@ -156,6 +157,16 @@ public:
 	void SetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch, float fraction );
 	void SetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int delay );
 	void SetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch, int threshold );
+	
+	// Get functions
+	unsigned int GetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch );
+	float GetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch );
+	int GetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch );
 
 	
 private:

@@ -101,15 +101,34 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			g6->SetTitle( title.data() );
 			g6->Draw("ac");
 			
-			// Add CFD triggers
-			std::vector<TArrow> arr( mwd.NumberOfTriggers() );
+			// Add CFD triggers and energy sampling time
+			std::vector<TArrow> arr( mwd.NumberOfTriggers() * 3 );
 			for( unsigned int k = 0; k < mwd.NumberOfTriggers(); ++k ) {
 
-				arr[k].SetLineColor(kRed+1);
-				arr[k].DrawArrow( mwd.GetCfdTime(k), 0,
-								  mwd.GetCfdTime(k), -1.0 * mwd.GetEnergy(k),
-								  0.01, "-|>" );
+				float trigger_time = mwd.GetCfdTime(k);
+				float baseline_time = trigger_time - cal->GetMWDBaseline( sfp, board, ch );
+				float sampling_time = trigger_time + cal->GetCFDDelay( sfp, board, ch );
+				sampling_time += cal->GetMWDRise( sfp, board, ch );
 
+				// CFD
+				c1->cd(6);
+				arr[k*3].SetLineColor(kRed+1);
+				arr[k*3].DrawArrow( trigger_time, 0,
+								   trigger_time, -1.0 * mwd.GetEnergy(k),
+								   0.01, "-|>" );
+
+				// Energy and baseline
+				c1->cd(5);
+				arr[k*3+1].SetLineColor(kRed+1);
+				arr[k*3+1].DrawArrow( baseline_time, g5->Eval(sampling_time),
+									 baseline_time, g5->Eval(baseline_time),
+									 0.01, "-|>" );
+				arr[k*3+2].SetLineColor(kRed+1);
+				arr[k*3+2].DrawArrow( sampling_time, g5->Eval(baseline_time),
+									 sampling_time, g5->Eval(sampling_time),
+									 0.01, "-|>" );
+
+				
 			}
 
 			// Draw energy histogram - graph6
