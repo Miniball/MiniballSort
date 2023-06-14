@@ -27,6 +27,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 	
 	// Canvas
 	TCanvas *c1 = new TCanvas( "c1", filename.data(), 900, 1000 );
+	TCanvas *c2 = new TCanvas( "c2", filename.data(), 600, 400 );
 	c1->Divide(2,3);
 	TGraph *g1, *g2, *g3, *g4, *g5, *g6;
 	std::string title;
@@ -67,14 +68,14 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 
 			// Draw stage1 - graph2
 			c1->cd(2);
-			title = "Decay subtracted - #" + std::to_string(i);
+			title = "Difference - #" + std::to_string(i);
 			g2 = mwd.GetStage1Graph();
 			g2->SetTitle( title.data() );
 			g2->Draw("ac");
 
 			// Draw stage2 - graph3
 			c1->cd(3);
-			title = "Difference - #" + std::to_string(i);
+			title = "Decay subtracted and averaged - #" + std::to_string(i);
 			g3 = mwd.GetStage2Graph();
 			g3->SetTitle( title.data() );
 			g3->Draw("ac");
@@ -86,12 +87,19 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			g4->SetTitle( title.data() );
 			g4->Draw("ac");
 
-			// Draw diff2 - graph5
+			// Draw energy - graph5
 			c1->cd(5);
-			title = "CFD - #" + std::to_string(i);
-			g5 = mwd.GetCfdGraph();
+			title = "Energy averaging - #" + std::to_string(i);
+			g5 = mwd.GetStage4Graph();
 			g5->SetTitle( title.data() );
 			g5->Draw("ac");
+			
+			// Draw CFD - graph5
+			c1->cd(6);
+			title = "CFD - #" + std::to_string(i);
+			g6 = mwd.GetCfdGraph();
+			g6->SetTitle( title.data() );
+			g6->Draw("ac");
 			
 			// Add CFD triggers
 			std::vector<TArrow> arr( mwd.NumberOfTriggers() );
@@ -105,7 +113,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			}
 
 			// Draw energy histogram - graph6
-			c1->cd(6);
+			c2->cd();
 			if( h->Integral() > 50 )
 				h->GetXaxis()->SetRangeUser(
 						h->GetMean() - 10.* h->GetStdDev(),
@@ -114,6 +122,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			
 			// Update the canvas and wait 5 ms
 			c1->Update();
+			c2->Update();
 			gSystem->ProcessEvents();
 			gSystem->Sleep(700);
 

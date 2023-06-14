@@ -10,10 +10,7 @@ void FebexMWD::DoMWD() {
 	unsigned int L = window;
 	unsigned int torr = decay_time;
 	unsigned int cfd_delay = delay_time;
-	
-	// James doesnt't use a CFD fraction parameter, i.e. fraction = 1
-	fraction = 1.0;
-		
+
 	// Get the trace length
 	unsigned int trace_length = trace.size();
 	
@@ -25,45 +22,53 @@ void FebexMWD::DoMWD() {
 	stage2.resize( trace_length, 0.0 );
 	stage3.resize( trace_length, 0.0 );
 	stage4.resize( trace_length, 0.0 );
+	shaper.resize( trace_length, 0.0 );
 	cfd.resize( trace_length, 0.0 );
+
+	// skip first few samples?
+	unsigned int skip = 5;
 	
 	// Loop over trace and analyse
-	for( unsigned int i = 2; i < trace_length; ++i ) {
+	for( unsigned int i = skip; i < trace_length; ++i ) {
 		
 		// CFD trace, do triggering later
-		if( i > cfd_delay ) {
+		if( i > cfd_delay + skip ) {
 			
-			cfd[i] = trace[i] - fraction * trace[i-cfd_delay];
-			
+			// James
+			//cfd[i] = (int)trace[i] - (int)trace[i-cfd_delay];
+
+			// Liam
+			shaper[i] = trace[i] - trace[i-delay_time];
+			cfd[i]  = fraction * shaper[i];
+			cfd[i] -= shaper[i-delay_time];
+
 		}
 		
-		// MWD stage 1 - difference
-		// this is 'D' in James' MATLAB code
-		if( i >= M ) {
+		// Now we need to be longer than the gap
+		if( i >= M + skip ) {
 			
-			stage1[i]  = trace[i];
-			stage1[i] -= trace[i-M];
+			// MWD stage 1 - difference
+			// this is 'D' in James' MATLAB code
+			stage1[i]  = (int)trace[i];
+			stage1[i] -= (int)trace[i-M];
 			
-		}
 		
-		// MWD stage 2 - remove decay
-		// James' MATLAB code doesn't do this, but combines it with the moving average (next stage)
-		stage2[i] = trace[i] / torr;
-		
-		// MWD stage 3 - moving average
-		// this, combined with stage 2 represents 'MWD' in James' MATLAB code
-		if( i >= M ) {
-			
+			// MWD stage 2 - remove decay and average
+			// this is 'MA' in James' MATLAB code
+			stage2[i] = 0;
 			for( unsigned int j = 0; j < M; ++j )
-				stage3[i] += stage2[i-j];
+				stage2[i] += (int)trace[i-j];
+			stage2[i] /= torr;
 			
-			stage3[i] += stage1[i];
+			// MWD stage 3 - moving average
+			// this is 'MWD' in James' MATLAB code
+			stage3[i] = stage1[i] + stage2[i];
 			
 		}
 		
 		// MWD stage 4 - energy averaging
 		// This is 'T' in James' MWD code
-		if( i >= L ){
+		if( i >= L + skip ){
 			
 			for( unsigned int j = 0; j < L; ++j )
 				stage4[i] += stage3[i-j];
@@ -78,7 +83,7 @@ void FebexMWD::DoMWD() {
 	// Loop now over the CFD trace until we trigger
 	// This is not the same as James' trigger, but it's better
 	// plus he has updated his CFD and I don't have the new one
-	for( unsigned int i = 0; i < trace_length; ++i ) {
+	for( unsigned int i = skip; i < trace_length; ++i ) {
 		
 		// Do some baseline estimation at the same time
 		// Rolling average over the baseline window
@@ -119,13 +124,13 @@ void FebexMWD::DoMWD() {
 			// This is probably correct, but there is sometime an additional
 			// paramter to get the centre of the flat top.
 			// That parameter (flat_top) is available in this code, but not used yet
-			i += M;
+			i += M + cfd_delay;
 
 			// assess the energy from stage 4 and push back
 			energy_list.push_back( stage4[i] - baseline_energy );
 			
 			// Move to the end of the whole thing
-			i += L;
+			i += L + baseline_length;
 			
 		} // threshold passed
 		
@@ -149,13 +154,13 @@ void MiniballCalibration::ReadCalibration() {
 	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
 	default_MWD_Decay		= 50000;
-	default_MWD_Rise		= 200; // M
+	default_MWD_Rise		= 100; // M
 	default_MWD_Top			= 150; // unused at the moment
-	default_MWD_Baseline	= 110;
-	default_MWD_Window		= 100; // L
+	default_MWD_Baseline	= 30;
+	default_MWD_Window		= 200; // L
 	default_CFD_Delay		= 16;
 	default_CFD_Threshold	= 200;
-	default_CFD_Fraction	= 0.5; // unused at the moment
+	default_CFD_Fraction	= 0.25; // unused at the moment
 
 	
 	// FEBEX initialisation

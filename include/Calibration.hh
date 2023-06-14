@@ -92,7 +92,7 @@ private:
 	
 	// Initialise some vectors for holding the MWD and CFD etc.
 	std::vector<float> stage1, stage2, stage3, stage4;
-	std::vector<float> cfd;
+	std::vector<float> shaper, cfd;
 
 	// Values of MWD
 	unsigned int rise_time, flat_top, window, baseline_length, decay_time;
