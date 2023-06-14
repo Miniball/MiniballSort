@@ -531,7 +531,7 @@ void MiniballMidasConverter::FinishFebexData(){
 	   febex_data->GetBoard() >= set->GetNumberOfFebexBoards() ||
 	   febex_data->GetChannel() >= set->GetNumberOfFebexChannels() ) {
 
-		std::cerr << "Bad event ID: SFP=" << (int)febex_data->GetSfp();
+		std::cerr << "Bad event ID: SFP = " << (int)febex_data->GetSfp();
 		std::cerr << ", board = " << (int)febex_data->GetBoard();
 		std::cerr << ", channel = " << (int)febex_data->GetChannel() << std::endl;
 		std::cerr << "  word_0 = " << std::hex << word_0 << std::dec << " = ";
@@ -580,7 +580,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 	if( my_sfp_id >= set->GetNumberOfFebexSfps() ||
 	   my_board_id >= set->GetNumberOfFebexBoards() ) {
 		
-		std::cerr << "Bad event ID in info data: SFP = " << (int)my_sfp_id;
+		std::cerr << "Bad info event with SFP = " << (int)my_sfp_id;
 		std::cerr << ", board = " << (int)my_board_id;
 		std::cerr << ", code = " << (int)my_info_code;
 		std::cerr << ", field = " << (int)my_info_field << std::endl;
