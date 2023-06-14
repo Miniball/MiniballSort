@@ -112,11 +112,17 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 		word_1 = (word & 0x00000000FFFFFFFF);
 
 		// Check the trailer: reject or keep the block.
-		if( ( word_0 & 0xFFFFFFFF ) == 0xFFFFFFFF ||
-		    ( word_0 & 0xFFFFFFFF ) == 0x5E5E5E5E ||
-		    ( word_1 & 0xFFFFFFFF ) == 0xFFFFFFFF ||
-		    ( word_1 & 0xFFFFFFFF ) == 0x5E5E5E5E ){
+		if( ( ( word_0 & 0xFFFFFFFF ) == 0xFFFFFFFF &&
+		    ( word_1 & 0xFFFFFFFF ) == 0xFFFFFFFF ) ||
+		    ( ( word_0 & 0xFFFFFFFF ) == 0x5E5E5E5E &&
+		    ( word_1 & 0xFFFFFFFF ) == 0x5E5E5E5E ) ){
 			
+			//std::cout << "Found some padding at the end of the buffer" << std::endl;
+			//std::cout << "  word_0 = " << std::hex << word_0 << std::dec << " = ";
+			//std::cout << std::bitset<32>{word_0} << std::endl;
+			//std::cout << "  word_1 = " << std::hex << word_1 << std::dec << " = ";
+			//std::cout << std::bitset<32>{word_1} << std::endl;
+
 			flag_terminator = true;
 			return;
 			
@@ -136,7 +142,7 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 		if( my_type == 0x3 ){
 			
 			ProcessFebexData();
-			FinishFebexData();
+			if( flag_febex_data0 || !flag_febex_data1 || flag_febex_data2 || flag_febex_data3 ) FinishFebexData();
 
 		}
 		
@@ -188,10 +194,15 @@ bool MiniballMidasConverter::GetFebexChanID(){
 	    my_board_id >= set->GetNumberOfFebexBoards() ||
 	    my_ch_id >= set->GetNumberOfFebexChannels() ) {
 		
-		std::cout << "Bad FEBEX event with sfp_id=" << (int)my_sfp_id;
-		std::cout << ", board_id=" << (int)my_board_id;
-		std::cout << ", ch_id=" << (int)my_ch_id;
-		std::cout << ", data_id=" << (int)my_data_id << std::endl;
+		std::cerr << "Bad FEBEX event with SFP = " << (int)my_sfp_id;
+		std::cerr << ", board = " << (int)my_board_id;
+		std::cerr << ", ch_id = " << (int)my_ch_id;
+		std::cerr << ", data_id = " << (int)my_data_id << std::endl;
+		std::cerr << "  word_0 = " << std::hex << word_0 << std::dec << " = ";
+		std::cerr << std::bitset<32>{word_0} << std::endl;
+		std::cerr << "  word_1 = " << std::hex << word_1 << std::dec << " = ";
+		std::cerr << std::bitset<32>{word_1} << std::endl;
+
 		return false;
 
 	}
@@ -277,15 +288,15 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 
 void MiniballMidasConverter::ProcessFebexData(){
 
+	// Channel ID, etc
+	if( !GetFebexChanID() ) return;
+	
 	// Febex data format
 	my_adc_data = word_0 & 0xFFFF; // 16 bits from 0
 	
 	// Pileup bit from James' firmware
 	my_pileup = (word_0 >> 29) & 0x0001;
 
-	// Channel ID, etc
-	if( !GetFebexChanID() ) return;
-	
 	// reconstruct time stamp= MSB+LSB
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
 	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb; // commented out 09/02/2023
@@ -493,23 +504,8 @@ void MiniballMidasConverter::FinishFebexData(){
 			output_tree->Fill();
 
 			// Fill histograms
-			if( febex_data->GetSfp() >= set->GetNumberOfFebexSfps() ||
-			   febex_data->GetBoard() >= set->GetNumberOfFebexBoards() ||
-			   febex_data->GetChannel() >= set->GetNumberOfFebexChannels() ) {
-			
-				std::cerr << "Bad event ID: SFP=" << (int)febex_data->GetSfp();
-				std::cerr << ", board = " << (int)febex_data->GetBoard();
-				std::cerr << ", channel = " << (int)febex_data->GetChannel() << std::endl;
-
-				
-			}
-				
-			else {
-				
-				hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( adc_tmp_value );
-				hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
-				
-			}
+			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( adc_tmp_value );
+			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
 			
 		}
 
@@ -518,12 +514,12 @@ void MiniballMidasConverter::FinishFebexData(){
 	// missing something
 	else if( (long long int)my_tm_stp != febex_data->GetTime() ) {
 		
-		std::cout << "Missing something in FEBEX data and new event occured" << std::endl;
-		std::cout << " Qshort        = " << flag_febex_data0 << std::endl;
-		std::cout << " nonsense item = " << flag_febex_data1 << std::endl; // missing anyway
-		std::cout << " Qint (low)    = " << flag_febex_data2 << std::endl;
-		std::cout << " Qint (high)   = " << flag_febex_data3 << std::endl;
-		std::cout << " trace data    = " << flag_febex_trace << std::endl;
+		std::cerr << "Missing something in FEBEX data and new event occured" << std::endl;
+		std::cerr << " Qshort        = " << flag_febex_data0 << std::endl;
+		std::cerr << " nonsense item = " << flag_febex_data1 << std::endl; // missing anyway
+		std::cerr << " Qint (low)    = " << flag_febex_data2 << std::endl;
+		std::cerr << " Qint (high)   = " << flag_febex_data3 << std::endl;
+		std::cerr << " trace data    = " << flag_febex_trace << std::endl;
 
 	}
 
@@ -538,7 +534,11 @@ void MiniballMidasConverter::FinishFebexData(){
 		std::cerr << "Bad event ID: SFP=" << (int)febex_data->GetSfp();
 		std::cerr << ", board = " << (int)febex_data->GetBoard();
 		std::cerr << ", channel = " << (int)febex_data->GetChannel() << std::endl;
-		
+		std::cerr << "  word_0 = " << std::hex << word_0 << std::dec << " = ";
+		std::cerr << std::bitset<32>{word_0} << std::endl;
+		std::cerr << "  word_1 = " << std::hex << word_1 << std::dec << " = ";
+		std::cerr << std::bitset<32>{word_1} << std::endl;
+
 	}
 	
 	else {
@@ -567,13 +567,32 @@ void MiniballMidasConverter::FinishFebexData(){
 
 void MiniballMidasConverter::ProcessInfoData(){
 
-	// MIDAS info data format
+	// Module number from MIDAS
 	my_sfp_id	= (word_0 >> 28) & 0x0003; // bits 28:29
 	my_board_id	= (word_0 >> 24) & 0x000F; // bits 24:27
 
+	// MIDAS info data format
 	my_info_field	= word_0 & 0x000FFFFF; // bits 0:19
 	my_info_code	= (word_0 >> 20) & 0x0000000F; // bits 20:23
 	my_tm_stp_lsb	= word_1 & 0x0FFFFFFF;  // bits 0:27
+	
+	// Error catching
+	if( my_sfp_id >= set->GetNumberOfFebexSfps() ||
+	   my_board_id >= set->GetNumberOfFebexBoards() ) {
+		
+		std::cerr << "Bad event ID in info data: SFP = " << (int)my_sfp_id;
+		std::cerr << ", board = " << (int)my_board_id;
+		std::cerr << ", code = " << (int)my_info_code;
+		std::cerr << ", field = " << (int)my_info_field << std::endl;
+		std::cerr << " word_0 = " << std::hex << word_0 << std::dec << " = ";
+		std::cerr << std::bitset<32>{word_0} << std::endl;
+		std::cerr << "  word_1 = " << std::hex << word_1 << std::dec << " = ";
+		std::cerr << std::bitset<32>{word_1} << std::endl;
+		
+		return;
+		
+	}
+
 
 	// HSB of FEBEX extended timestamp
 	if( my_info_code == set->GetTimestampCode() ) {
@@ -592,30 +611,15 @@ void MiniballMidasConverter::ProcessInfoData(){
 	}
 		
 	// Pause
-    if( my_info_code == set->GetPauseCode() ) {
-         
+	if( my_info_code == set->GetPauseCode() ) {
+		
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
 		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
-
-		// Error catching
-		if( my_sfp_id >= set->GetNumberOfFebexSfps() ||
-		   my_board_id >= set->GetNumberOfFebexBoards() ||
-		   my_ch_id >= set->GetNumberOfFebexChannels() ) {
-			
-			std::cerr << "Bad event ID: SFP=" << (int)my_sfp_id;
-			std::cerr << ", board = " << (int)my_board_id;
-			std::cerr << ", channel = " << (int)my_ch_id << std::endl;
-			
-		}
 		
-		else {
-			
-			hfebex_pause[my_sfp_id][my_board_id]->Fill( ctr_febex_pause[my_sfp_id][my_board_id], my_tm_stp, 1 );
-			ctr_febex_pause[my_sfp_id][my_board_id]++;
-			
-		}
-
-    }
+		hfebex_pause[my_sfp_id][my_board_id]->Fill( ctr_febex_pause[my_sfp_id][my_board_id], my_tm_stp, 1 );
+		ctr_febex_pause[my_sfp_id][my_board_id]++;
+		
+	}
 
 	// Resume
 	if( my_info_code == set->GetResumeCode() ) {
@@ -623,23 +627,8 @@ void MiniballMidasConverter::ProcessInfoData(){
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
 		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
 
-		// Error catching
-		if( my_sfp_id >= set->GetNumberOfFebexSfps() ||
-		   my_board_id >= set->GetNumberOfFebexBoards() ||
-		   my_ch_id >= set->GetNumberOfFebexChannels() ) {
-			
-			std::cerr << "Bad event ID: SFP=" << (int)my_sfp_id;
-			std::cerr << ", board = " << (int)my_board_id;
-			std::cerr << ", channel = " << (int)my_ch_id << std::endl;
-			
-		}
-		
-		else {
-			
-			hfebex_resume[my_sfp_id][my_board_id]->Fill( ctr_febex_resume[my_sfp_id][my_board_id], my_tm_stp, 1 );
-			ctr_febex_resume[my_sfp_id][my_board_id]++;
-			
-		}
+		hfebex_resume[my_sfp_id][my_board_id]->Fill( ctr_febex_resume[my_sfp_id][my_board_id], my_tm_stp, 1 );
+		ctr_febex_resume[my_sfp_id][my_board_id]++;
 		
     }
 
