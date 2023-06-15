@@ -109,6 +109,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 				float baseline_time = trigger_time - cal->GetMWDBaseline( sfp, board, ch );
 				float sampling_time = trigger_time + cal->GetCFDDelay( sfp, board, ch );
 				sampling_time += cal->GetMWDRise( sfp, board, ch );
+				sampling_time += cal->GetMWDTop( sfp, board, ch );
 
 				// CFD
 				c1->cd(6);

@@ -6,7 +6,7 @@ ClassImp(MiniballCalibration)
 void FebexMWD::DoMWD() {
 	
 	// For now use James' naming convention and switch later
-	unsigned int M = rise_time;
+	unsigned int M = rise_time + 3; // 3 clock cycles delay in VHDL
 	unsigned int L = window;
 	unsigned int torr = decay_time;
 	unsigned int cfd_delay = delay_time;
@@ -56,7 +56,7 @@ void FebexMWD::DoMWD() {
 			// MWD stage 2 - remove decay and average
 			// this is 'MA' in James' MATLAB code
 			stage2[i] = 0;
-			for( unsigned int j = 0; j < M; ++j )
+			for( unsigned int j = 1; j <= M; ++j )
 				stage2[i] += (int)trace[i-j];
 			stage2[i] /= torr;
 			
@@ -70,7 +70,7 @@ void FebexMWD::DoMWD() {
 		// This is 'T' in James' MWD code
 		if( i >= L + skip ){
 			
-			for( unsigned int j = 0; j < L; ++j )
+			for( unsigned int j = 1; j <= L; ++j )
 				stage4[i] += stage3[i-j];
 			
 			stage4[i] /= L;
@@ -93,8 +93,25 @@ void FebexMWD::DoMWD() {
 		
 		// Baseline estimation comes from averaged trace
 		// Just in case a trigger comes before the baseline length, use whatever we can
-		if( i >= baseline_length ) baseline_energy = stage4[i-baseline_length];
-		else baseline_energy = stage4[0];
+		if( cfd_list.size() == 0 ) {
+			
+			// First trigger with good baseline
+			if( i >= baseline_length )
+				baseline_energy = stage4[i-baseline_length];
+			
+			// Or just use the first sample
+			else baseline_energy = stage4[0];
+		}
+		
+		else {
+			
+			// Not the first trigger but still with good baseline
+			if( i >= baseline_length + cfd_list.back() )
+				baseline_energy = stage4[i-baseline_length];
+			
+			// Otherwise don't bother updating baseline, assume its the same
+			
+		}
 		
 		// Trigger when we pass the threshold on the CFD
 		if( i >= cfd_delay &&
@@ -109,7 +126,7 @@ void FebexMWD::DoMWD() {
 			if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
 			// Check we have enough trace left to analyse
-			if( trace_length - i < M )
+			if( trace_length - i < M + flat_top )
 				break;
 			
 			// Mark the CFD time
@@ -118,21 +135,14 @@ void FebexMWD::DoMWD() {
 			cfd_time /= 1.0 / TMath::Abs(cfd[i]) + 1.0 / TMath::Abs(cfd[i-1]);
 			cfd_list.push_back( cfd_time );
 			
-			// move to peak of the flat top
-			// James just uses the averaging window to find the flat top
-			// this always puts it at the very start of the flat top.
-			// This is probably correct, but there is sometime an additional
-			// paramater to get the centre of the flat top.
-			// That parameter (flat_top) is available in this code, but not used yet
-			//i += M + cfd_delay + flat_top;
-			i += M + cfd_delay;
+			// move to peak of the flat top and add the delay parameter
+			i += M + flat_top;
 
 			// assess the energy from stage 4 and push back
 			energy_list.push_back( stage4[i] - baseline_energy );
 			
-			// Move to the end of the whole thing (flat_top not used)
-			//i += L + baseline_length - flat_top;
-			i += L + baseline_length;
+			// Move to the end of the whole thing
+			i += L - flat_top;
 
 		} // threshold passed
 		
@@ -156,13 +166,13 @@ void MiniballCalibration::ReadCalibration() {
 	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
 	default_MWD_Decay		= 50000;
-	default_MWD_Rise		= 100; // M
-	default_MWD_Top			= 150; // unused at the moment
-	default_MWD_Baseline	= 30;
-	default_MWD_Window		= 200; // L
-	default_CFD_Delay		= 16;
+	default_MWD_Rise		= 75; // M
+	default_MWD_Top			= 20; // mwd_cfd_trig_delay
+	default_MWD_Baseline	= 60;
+	default_MWD_Window		= 150; // L
+	default_CFD_Delay		= 20; // unique to mwd_cfd_trig_delay here, but not in firmware
 	default_CFD_Threshold	= 200;
-	default_CFD_Fraction	= 0.25; // unused at the moment
+	default_CFD_Fraction	= 0.5; // unused at the moment
 
 	
 	// FEBEX initialisation

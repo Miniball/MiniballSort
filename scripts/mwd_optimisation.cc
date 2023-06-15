@@ -29,7 +29,7 @@ void mwd_optimisation( std::string filename = "test/R4_13.root", unsigned int sf
 	t->SetBranchAddress( "data", &data );
 	
 	// Define range of parameters to scan
-	const int Nscan = 50;
+	const int Nscan = 5;
 	int tau_low = 40000, tau_upp = 60000;
 	int step = ( tau_upp - tau_low ) / Nscan;
 
