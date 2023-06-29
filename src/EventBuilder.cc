@@ -950,6 +950,84 @@ void MiniballEventBuilder::ParticleFinder() {
 
 			} // 2 vs 2
 			
+//			// 1 vs 0 - p-side only, do we carry on?
+//			if( pindex.size() == 1 && nindex.size() == 0 ) {
+//
+//				// Set event
+//				particle_evt->SetEnergyP( cd_en_list.at( pindex[0] ) );
+//				particle_evt->SetEnergyN( cd_en_list.at( 0.0 ) );
+//				particle_evt->SetTimeP( cd_ts_list.at( pindex[0] ) );
+//				particle_evt->SetTimeN( cd_ts_list.at( pindex[0] ) );
+//				particle_evt->SetDetector( i );
+//				particle_evt->SetSector( j );
+//				particle_evt->SetStripP( cd_strip_list.at( pindex[0] ) );
+//				particle_evt->SetStripN( 5.0 );
+//
+//				// Fill tree
+//				write_evts->AddEvt( particle_evt );
+//				cd_ctr++;
+//
+//				// Fill histograms
+//				cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex[0] ),
+//									  cd_en_list.at( pindex[0] ) );
+//
+//			} // 1 vs 0
+//
+//			// 2 vs 0 - p-side charge sharing? and no n-side
+//			else if( pindex.size() == 2 && nindex.size() == 0 ) {
+//
+//				// Neighbour strips
+//				if( TMath::Abs( cd_strip_list.at( pindex[0] ) - cd_strip_list.at( pindex[1] ) ) == 1 ) {
+//
+//					// Simple sum of both energies, cross-talk not included yet
+//					psum_en  = cd_en_list.at( pindex[0] );
+//					psum_en += cd_en_list.at( pindex[1] );
+//
+//					// Set event
+//					particle_evt->SetEnergyP( psum_en );
+//					particle_evt->SetEnergyN( cd_en_list.at( nindex[0] ) );
+//					particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+//					particle_evt->SetTimeN( cd_ts_list.at( nindex[0] ) );
+//					particle_evt->SetDetector( i );
+//					particle_evt->SetSector( j );
+//					particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+//					particle_evt->SetStripN( cd_strip_list.at( nindex[0] ) );
+//
+//					// Fill tree
+//					write_evts->AddEvt( particle_evt );
+//					cd_ctr++;
+//
+//					// Fill histograms
+//					cd_pen_id[i][j]->Fill( psum_en,
+//										  cd_en_list.at( pmax_idx ) );
+//
+//				} // neighbour strips
+//
+//				// otherwise treat as 1 vs 0
+//				else {
+//
+//					// Set event
+//					particle_evt->SetEnergyP( cd_en_list.at( pmax_idx ) );
+//					particle_evt->SetEnergyN( 0.0 );
+//					particle_evt->SetTimeP( cd_ts_list.at( pmax_idx ) );
+//					particle_evt->SetTimeN( cd_ts_list.at( pmax_idx ) );
+//					particle_evt->SetDetector( i );
+//					particle_evt->SetSector( j );
+//					particle_evt->SetStripP( cd_strip_list.at( pmax_idx ) );
+//					particle_evt->SetStripN( 5.0 );
+//
+//					// Fill tree
+//					write_evts->AddEvt( particle_evt );
+//					cd_ctr++;
+//
+//					// Fill histograms
+//					cd_pen_id[i][j]->Fill( pmax_en,
+//										  cd_en_list.at( pmax_idx ) );
+//
+//				} // treat as 1 vs 0
+//
+//			} // 2 vs 0
+
 			// Everything else, just take the max energy for now
 			else if( pmax_idx >= 0 && nmax_idx >= 0 ){
 				
