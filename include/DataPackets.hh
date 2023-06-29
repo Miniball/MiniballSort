@@ -16,7 +16,7 @@ public:
 			  unsigned int qi, unsigned short qs,
 			  std::vector<unsigned short> tr,
 			  unsigned char s, unsigned char b, unsigned char c,
-			  bool th, bool p );
+			  bool th, bool p, bool cl, bool f );
 	~FebexData() {};
 
 	inline long long int				GetTime() { return time; };
@@ -30,6 +30,8 @@ public:
 	inline float						GetEnergy() { return energy; };
 	inline bool							IsOverThreshold() { return thres; };
 	inline bool							IsPileUp() { return pileup; };
+	inline bool							IsClipped() { return clipped; };
+	inline bool							HasFlag() { return flagbit; };
 	inline std::vector<unsigned short>	GetTrace() { return trace; };
 	inline TGraph* GetTraceGraph() {
 		std::vector<int> x, y;
@@ -62,6 +64,8 @@ public:
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetThreshold( bool t ){ thres = t; };
 	inline void SetPileUp( bool p ){ pileup = p; };
+	inline void SetClipped( bool cl ){ clipped = cl; };
+	inline void SetFlag( bool f ){ flagbit = f; };
 
 	inline void ClearTrace() { trace.clear(); };
 	void ClearData();
@@ -79,9 +83,11 @@ protected:
 	unsigned char					ch;			///< channel ID of the event
 	bool							thres;		///< is the energy over threshold?
 	bool							pileup;		///< pileup flag from data stream
+	bool							clipped;	///< clipped pulse flag from data stream
+	bool							flagbit;	///< additional flag bit from data stream
 
 	
-	ClassDef( FebexData, 6 )
+	ClassDef( FebexData, 7 )
 	
 };
 

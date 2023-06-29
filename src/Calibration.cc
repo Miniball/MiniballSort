@@ -24,6 +24,9 @@ void FebexMWD::DoMWD() {
 	stage4.resize( trace_length, 0.0 );
 	shaper.resize( trace_length, 0.0 );
 	cfd.resize( trace_length, 0.0 );
+	
+	// Initialise the clipped flag to false
+	clipped = false;
 
 	// skip first few samples?
 	unsigned int skip = 5;
@@ -31,16 +34,20 @@ void FebexMWD::DoMWD() {
 	// Loop over trace and analyse
 	for( unsigned int i = skip; i < trace_length; ++i ) {
 		
+		// Check if we are clipped
+		if( trace[i] == 0 || (trace[i] & 0x0000FFFF) == 0x0000FFFF )
+			clipped = true;
+		
 		// CFD trace, do triggering later
-		if( i > cfd_delay + skip ) {
+		if( i >= cfd_delay + skip ) {
 			
 			// James
 			//cfd[i] = (int)trace[i] - (int)trace[i-cfd_delay];
 
 			// Liam
-			shaper[i] = trace[i] - trace[i-delay_time];
+			shaper[i] = trace[i] - trace[i-cfd_delay];
 			cfd[i]  = fraction * shaper[i];
-			cfd[i] -= shaper[i-delay_time];
+			cfd[i] -= shaper[i-cfd_delay];
 
 		}
 		
@@ -114,14 +121,14 @@ void FebexMWD::DoMWD() {
 		}
 		
 		// Trigger when we pass the threshold on the CFD
-		if( i >= cfd_delay &&
+		if( i > cfd_delay + skip &&
 		   ( ( cfd[i] > threshold && threshold > 0 ) ||
 			( cfd[i] < threshold && threshold < 0 ) ) ) {
 			
-			// Find zero crossing
+			// Find zero crossing - Liam version only
 			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
 			
-			// Reject incorrect polarity
+			// Reject incorrect polarity - Liam version only
 			if( threshold < 0 && cfd[i-1] > 0 ) continue;
 			if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
@@ -129,7 +136,10 @@ void FebexMWD::DoMWD() {
 			if( trace_length - i < M + flat_top )
 				break;
 			
-			// Mark the CFD time
+			// Mark the CFD time - James
+			//cfd_list.push_back( cfd_time );
+
+			// Mark the CFD time - Liam
 			float cfd_time = (float)i / TMath::Abs(cfd[i]);
 			cfd_time += (float)(i-1) / TMath::Abs(cfd[i-1]);
 			cfd_time /= 1.0 / TMath::Abs(cfd[i]) + 1.0 / TMath::Abs(cfd[i-1]);
@@ -229,9 +239,9 @@ void MiniballCalibration::ReadCalibration() {
 			for( unsigned char k = 0; k < set->GetNumberOfFebexChannels(); k++ ){
 				
 				fFebexOffset[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Offset", i, j, k ), 0. );
-				fFebexGain[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.0015 );
+				fFebexGain[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.25 );
 				fFebexGainQuadr[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), 0. );
-				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 15000 );
+				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 0 );
 				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), "Qshort" );
 				fFebexTime[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)0 );
 				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), (int)default_MWD_Decay );

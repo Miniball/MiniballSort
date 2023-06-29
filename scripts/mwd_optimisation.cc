@@ -79,6 +79,9 @@ void mwd_optimisation( std::string filename = "test/R4_13.root", unsigned int sf
 				// Fill histogram
 				for( unsigned int k = 0; k < mwd.NumberOfTriggers(); ++k )
 					hmwd[j]->Fill( mwd.GetEnergy(k) );
+				
+				// Fit histogram
+				
 
 			} // tau scan
 

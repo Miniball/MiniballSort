@@ -9,9 +9,9 @@ FebexData::FebexData( long long int t, unsigned long long int id,
 					unsigned int qi, unsigned short qs,
 				    std::vector<unsigned short> tr,
 					unsigned char s, unsigned char b, unsigned char c,
-				    bool th, bool p ) :
-					time(t), eventid(id), Qint(qi), Qshort(qs), trace(tr),
-					sfp(s), board(b), ch(c), thres(th), pileup(p) {}
+				    bool th, bool p, bool cl, bool f ) :
+					time(t), eventid(id), Qint(qi), Qshort(qs), trace(tr), sfp(s),
+					board(b), ch(c), thres(th), pileup(p), clipped(cl), flagbit(f) {}
 
 InfoData::InfoData( long long int t, unsigned long long int id, unsigned char c,
 				    unsigned char s, unsigned char b ) :
@@ -37,6 +37,8 @@ void MiniballDataPackets::SetData( std::shared_ptr<FebexData> data ){
 	fill_data.SetEnergy( data->GetEnergy() );
 	fill_data.SetThreshold( data->IsOverThreshold() );
 	fill_data.SetPileUp( data->IsPileUp() );
+	fill_data.SetClipped( data->IsClipped() );
+	fill_data.SetFlag( data->HasFlag() );
 
 	febex_packets.push_back( fill_data );
 
@@ -90,7 +92,7 @@ long long int MiniballDataPackets::GetTime(){
 
 UInt_t MiniballDataPackets::GetTimeMSB(){
 	
-	return ( (this->GetTime() >> 32) & 0x0000FFFF );
+	return ( (this->GetTime() >> 32) & 0xFFFFFFFF );
 	
 }
 
@@ -114,6 +116,8 @@ void FebexData::ClearData(){
 	energy = -999.;
 	thres = true;
 	pileup = false;
+	clipped = false;
+	flagbit = false;
 
 	return;
 	

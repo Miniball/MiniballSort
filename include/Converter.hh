@@ -89,12 +89,12 @@ protected:
 	bool flag_febex_info;
 	
 	// Interpretated variables
-	unsigned long long int my_good_tm_stp;
-	unsigned long long int my_tm_stp;
+	unsigned long long int my_good_tm_stp = 0;
+	unsigned long long int my_tm_stp = 0;
 	unsigned long long int my_event_id;
-	unsigned long my_tm_stp_lsb;
-	unsigned long my_tm_stp_msb;
-	unsigned long my_tm_stp_hsb;
+	unsigned long my_tm_stp_lsb = 0;
+	unsigned long my_tm_stp_msb = 0;
+	unsigned long my_tm_stp_hsb = 0;
 	unsigned int my_info_field;
 	unsigned char my_info_code;
 	unsigned char my_type;

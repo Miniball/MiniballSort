@@ -61,6 +61,9 @@ public:
 	inline std::vector<float> GetStage4(){ return stage4; };
 	inline std::vector<float> GetCfd(){ return cfd; };
 	
+	// Is it clipped?
+	inline bool IsClipped(){ return clipped; };
+	
 	// Graphs
 	inline TGraph* GetTraceGraph() {
 		return GetGraph( trace );
@@ -102,6 +105,9 @@ private:
 	int threshold;
 	float fraction;
 	
+	// Are any of the samples clipped?
+	bool clipped;
+	
 	// Graphs
 	inline TGraph* GetGraph( std::vector<float> &t ) {
 		std::vector<float> x;
@@ -118,7 +124,7 @@ private:
  		return GetGraph(y);
 	};
 
-	ClassDef( FebexMWD, 2 );
+	ClassDef( FebexMWD, 3 );
 	
 };
 

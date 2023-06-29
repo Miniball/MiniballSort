@@ -164,9 +164,9 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 		else {
 			
 			// output error message!
-			std::cerr << "WARNING: WRONG TYPE! word 0: " << word_0;
-			std::cerr << ", my_type: " << (int)my_type << std::endl;
-			std::cerr << ", in bloc: " << nblock << std::endl;
+			std::cerr << "WARNING: WRONG TYPE! word 0: " << std::bitset<32>{word_0};
+			std::cerr << ", my_type: " << (int)my_type;
+			std::cerr << ", in block: " << nblock << std::endl;
 
 		}
 
@@ -226,6 +226,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	febex_data->SetBoard( my_board_id );
 	febex_data->SetChannel( my_ch_id );
 	febex_data->SetPileUp( false );
+	febex_data->SetFlag( false );
 
 	// sample length
 	nsamples = word_0 & 0xFFFF; // 16 bits from 0
@@ -276,10 +277,11 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	}
 	
 	FebexMWD mwd = cal->DoMWD( my_sfp_id, my_board_id, my_ch_id, febex_data->GetTrace() );
+	febex_data->SetClipped( mwd.IsClipped() );
+
 	for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i )
 		hfebex_mwd[my_sfp_id][my_board_id][my_ch_id]->Fill( mwd.GetEnergy(i) );
 
-	
 	flag_febex_trace = true;
 	
 	return pos;

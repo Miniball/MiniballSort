@@ -1210,7 +1210,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				else adc_tmp_value = febex_data->GetQshort();
 
 				myenergy = cal->FebexEnergy( mysfp, myboard, mych, adc_tmp_value );
-				
+
 				if( adc_tmp_value > cal->FebexThreshold( mysfp, myboard, mych ) )
 					mythres = true;
 				else mythres = false;
