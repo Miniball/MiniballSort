@@ -356,12 +356,11 @@ void MiniballMbsConverter::FinishFebexData(){
 
 	// Check if this is actually just a timestamp or info like event
 	flag_febex_info = false;
-	if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
-	    febex_data->GetBoard()   == set->GetPulserBoard()   &&
-	    febex_data->GetChannel() == set->GetPulserChannel() ){
-		
+	if( set->IsPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) ) {
+
 		flag_febex_info = true;
-		my_info_code = 20; // Pulser is always 20 (defined here)
+		unsigned int pulserID = set->GetPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
+		my_info_code = set->GetPulserCode() + pulserID;
 		hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
 		ctr_febex_ext++;
 		

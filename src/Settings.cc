@@ -46,26 +46,32 @@ void MiniballSettings::ReadSettings() {
 	// IonChamber initialisation
 	n_ic_layer		= config->GetValue( "NumberOfIonChamberLayers", 2 );
 	
+	// Pulser events
+	n_pulsers		= config->GetValue( "NumberOfPulsers", 2 );
+	if( n_pulsers > 10 ) {
+		
+		std::cout << "Number of pulsers limited to 10" << std::endl;
+		n_pulsers = 10;
+		
+	}
+	
 	// Info code initialisation
 	pause_code		= 2;
 	resume_code		= 3;
 	sync_code		= 7;
 	thsb_code		= 8;
-	pulser_sfp		= config->GetValue( "Pulser.Sfp", 1 );
-	pulser_board	= config->GetValue( "Pulser.Board", 8 );
-	pulser_ch		= config->GetValue( "Pulser.Channel", 12 );
-	pulser_code		= 20;
+	pulser_code		= 30;	// code for first channel, others are pulser_code+id
 	ebis_sfp		= config->GetValue( "EBIS.Sfp", 1 );
 	ebis_board		= config->GetValue( "EBIS.Board", 8 );
-	ebis_ch			= config->GetValue( "EBIS.Channel", 11 );
+	ebis_ch			= config->GetValue( "EBIS.Channel", 9 );
 	ebis_code		= 21;
 	t1_sfp			= config->GetValue( "T1.Sfp", 1 );
 	t1_board		= config->GetValue( "T1.Board", 8 );
-	t1_ch			= config->GetValue( "T1.Channel", 13 );
+	t1_ch			= config->GetValue( "T1.Channel", 11 );
 	t1_code			= 22;
 	sc_sfp			= config->GetValue( "SC.Sfp", 1 );
 	sc_board		= config->GetValue( "SC.Board", 8 );
-	sc_ch			= config->GetValue( "SC.Channel", 15 );
+	sc_ch			= config->GetValue( "SC.Channel", 13 );
 	sc_code			= 23;
 
 	
@@ -99,6 +105,7 @@ void MiniballSettings::ReadSettings() {
 	bd_det.resize( n_febex_sfp );
 	spede_seg.resize( n_febex_sfp );
 	ic_layer.resize( n_febex_sfp );
+	pulser.resize( n_febex_sfp );
 
 	for( unsigned int i = 0; i < n_febex_sfp; ++i ){
 
@@ -112,6 +119,7 @@ void MiniballSettings::ReadSettings() {
 		bd_det[i].resize( n_febex_board );
 		spede_seg[i].resize( n_febex_board );
 		ic_layer[i].resize( n_febex_board );
+		pulser[i].resize( n_febex_board );
 
 		for( unsigned int j = 0; j < n_febex_board; ++j ){
 
@@ -125,19 +133,21 @@ void MiniballSettings::ReadSettings() {
 			bd_det[i][j].resize( n_febex_ch );
 			spede_seg[i][j].resize( n_febex_ch );
 			ic_layer[i][j].resize( n_febex_ch );
+			pulser[i][j].resize( n_febex_ch );
 
 			for( unsigned int k = 0; k < n_febex_ch; ++k ){
 
-				mb_cluster[i][j][k] = -1;
-				mb_crystal[i][j][k] = -1;
-				mb_segment[i][j][k] = -1;
-				cd_det[i][j][k]     = -1;
-				cd_sector[i][j][k]  = -1;
+				mb_cluster[i][j][k]	= -1;
+				mb_crystal[i][j][k]	= -1;
+				mb_segment[i][j][k]	= -1;
+				cd_det[i][j][k]		= -1;
+				cd_sector[i][j][k]	= -1;
 				cd_side[i][j][k]	= -1;
 				cd_strip[i][j][k]	= -1;
-				bd_det[i][j][k]     = -1;
-				spede_seg[i][j][k]  = -1;
-				ic_layer[i][j][k]   = -1;
+				bd_det[i][j][k]		= -1;
+				spede_seg[i][j][k]	= -1;
+				ic_layer[i][j][k]	= -1;
+				pulser[i][j][k]		= -1;
 
 			} // k: febex ch
 			
@@ -295,8 +305,7 @@ void MiniballSettings::ReadSettings() {
 			std::cerr << ", channel = " << bd_ch[i] << std::endl;
 			
 		}
-		
-		
+
 	} // i: beam dump detector
 	
 	
@@ -345,11 +354,11 @@ void MiniballSettings::ReadSettings() {
 	ic_board.resize( n_ic_layer );
 	ic_ch.resize( n_ic_layer );
 	
-	for( unsigned int i = 0; i < n_bd_det; ++i ){
+	for( unsigned int i = 0; i < n_ic_layer; ++i ){
 		
 		ic_sfp[i]		= config->GetValue( Form( "IonChamber_%d.Sfp", i ), 1 );
 		ic_board[i]		= config->GetValue( Form( "IonChamber_%d.Board", i ), 10 );
-		ic_ch[i]		= config->GetValue( Form( "IonChamber_%d.Channel", i ), (int)(i+0) );
+		ic_ch[i]		= config->GetValue( Form( "IonChamber_%d.Channel", i ), (int)(i+n_bd_det) );
 		
 		if( ic_sfp[i] < n_febex_sfp &&
 		    ic_board[i] < n_febex_board &&
@@ -371,6 +380,35 @@ void MiniballSettings::ReadSettings() {
 	} // i: IonChamber detector
 	
 	
+	// Pulser input mapping
+	pulser_sfp.resize( n_pulsers );
+	pulser_board.resize( n_pulsers );
+	pulser_ch.resize( n_pulsers );
+	
+	for( unsigned int i = 0; i < n_pulsers; ++i ){
+		
+		pulser_sfp[i]		= config->GetValue( Form( "Pulser_%d.Sfp", i ), (int)i );
+		pulser_board[i]		= config->GetValue( Form( "Pulser_%d.Board", i ), 8 );
+		pulser_ch[i]		= config->GetValue( Form( "Pulser_%d.Channel", i ), 15 );
+		
+		if( pulser_sfp[i] < n_febex_sfp &&
+		    pulser_board[i] < n_febex_board &&
+		    pulser_ch[i] < n_febex_ch ){
+			
+			pulser[pulser_sfp[i]][pulser_board[i]][pulser_ch[i]] = i;
+			
+		}
+		
+		else {
+			
+			std::cerr << "Dodgy pulser settings: sfp = " << pulser_sfp[i];
+			std::cerr << ", board = " << pulser_board[i];
+			std::cerr << ", channel = " << pulser_ch[i] << std::endl;
+			
+		}
+		
+	} // i: pulser inputs
+
 	// Finished
 	delete config;
 	
@@ -380,9 +418,21 @@ void MiniballSettings::ReadSettings() {
 bool MiniballSettings::IsMiniball( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a Miniball event
-	if( mb_cluster[sfp][board][ch] >= 0 ) return true;
-	else return false;
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch ) {
+		
+		if( mb_cluster[sfp][board][ch] >= 0 ) return true;
+		else return false;
+	}
 	
+	else {
+		
+		std::cerr << "Bad Miniball event: sfp = " << sfp;
+		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", channel = " << ch << std::endl;
+		return -1;
+		
+	}
+
 }
 
 int MiniballSettings::GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
@@ -407,9 +457,21 @@ int MiniballSettings::GetMiniballID( unsigned int sfp, unsigned int board, unsig
 bool MiniballSettings::IsCD( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a CD event
-	if( cd_det[sfp][board][ch] >= 0 ) return true;
-	else return false;
-	
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch ) {
+		
+		if( cd_det[sfp][board][ch] >= 0 ) return true;
+		else return false;
+	}
+
+	else {
+		
+		std::cerr << "Bad CD event: sfp = " << sfp;
+		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", channel = " << ch << std::endl;
+		return -1;
+		
+	}
+
 }
 
 int MiniballSettings::GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
@@ -433,7 +495,7 @@ int MiniballSettings::GetCDID( unsigned int sfp, unsigned int board, unsigned in
 bool MiniballSettings::IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a beam dump event
-	if( bd_det[sfp][board][ch] >= 0 ) return true;
+	if( GetBeamDumpDetector(sfp,board,ch) >= 0 ) return true;
 	else return false;
 	
 }
@@ -458,7 +520,7 @@ int MiniballSettings::GetBeamDumpDetector( unsigned int sfp, unsigned int board,
 bool MiniballSettings::IsSpede( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a SPEDE event
-	if( spede_seg[sfp][board][ch] >= 0 ) return true;
+	if( GetSpedeSegment(sfp,board,ch) >= 0 ) return true;
 	else return false;
 	
 }
@@ -483,7 +545,7 @@ int MiniballSettings::GetSpedeSegment( unsigned int sfp, unsigned int board, uns
 bool MiniballSettings::IsIonChamber( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a IonChamber event
-	if( ic_layer[sfp][board][ch] >= 0 ) return true;
+	if( GetIonChamberLayer(sfp,board,ch) >= 0 ) return true;
 	else return false;
 	
 }
@@ -497,6 +559,31 @@ int MiniballSettings::GetIonChamberLayer( unsigned int sfp, unsigned int board, 
 	else {
 		
 		std::cerr << "Bad IonChamber event: sfp = " << sfp;
+		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", channel = " << ch << std::endl;
+		return -1;
+		
+	}
+	
+}
+
+bool MiniballSettings::IsPulser( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return true if this is a pulser event
+	if( GetPulser(sfp,board,ch) >= 0 ) return true;
+	else return false;
+	
+}
+
+int MiniballSettings::GetPulser( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return the pulser ID
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
+		return pulser[sfp][board][ch];
+	
+	else {
+		
+		std::cerr << "Bad pulser event: sfp = " << sfp;
 		std::cerr << ", board = " << board << std::endl;
 		std::cerr << ", channel = " << ch << std::endl;
 		return -1;

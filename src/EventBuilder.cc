@@ -34,6 +34,11 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 	n_resume.resize( set->GetNumberOfFebexSfps() );
 	flag_pause.resize( set->GetNumberOfFebexSfps() );
 	flag_resume.resize( set->GetNumberOfFebexSfps() );
+		
+	n_pulser.resize( set->GetNumberOfPulsers() );
+	pulser_time.resize( set->GetNumberOfPulsers() );
+	pulser_prev.resize( set->GetNumberOfPulsers() );
+		
 
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 		
@@ -61,8 +66,6 @@ void MiniballEventBuilder::StartFile(){
 	time_min		= 0;
 	time_max		= 0;
 	time_first		= 0;
-	pulser_time		= 0;
-	pulser_prev		= 0;
 	ebis_prev		= 0;
 	t1_prev			= 0;
 	sc_prev			= 0;
@@ -70,7 +73,6 @@ void MiniballEventBuilder::StartFile(){
 	n_febex_data	= 0;
 	n_info_data		= 0;
 
-	n_pulser		= 0;
 	n_ebis			= 0;
 	n_t1			= 0;
 	n_sc			= 0;
@@ -87,6 +89,15 @@ void MiniballEventBuilder::StartFile(){
 	bd_ctr			= 0;
 	spede_ctr		= 0;
 	ic_ctr			= 0;
+	
+	
+	for( unsigned int i = 0; i < set->GetNumberOfPulsers(); ++i ) {
+
+		n_pulser[i]		= 0;
+		pulser_time[i]	= 0;
+		pulser_prev[i]	= 0;
+
+	}
 
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 
@@ -270,6 +281,7 @@ void MiniballEventBuilder::MakeEventHists(){
 
 	pulser_freq = new TProfile( "pulser_freq", "Frequency of pulser in FEBEX DAQ as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	pulser_period = new TH1F( "pulser_period", "Period of pulser in FEBEX DAQ;T [ns]", 10e3, 0, 10e9 );
+	pulser_tdiff = new TH2F( "pulser_tdiff", "TIme difference of pulser 0 to all other pulsers in FEBEX DAQ;{#Delta}t [ns]", set->GetNumberOfPulsers(), 0.5, set->GetNumberOfPulsers()+0.5, 201, -1005, 1005 );
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	ebis_period = new TH1F( "ebis_period", "Period of EBIS events;T [ns]", 10e3, 0, 10e9 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
@@ -1469,17 +1481,22 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			} // SuperCycle code
 			
 			// Update pulser time
-			if( info_data->GetCode() == set->GetPulserCode() ) {
-				
-				pulser_time = info_data->GetTime();
-				pulser_T = (double)pulser_time - (double)pulser_prev;
+			if( info_data->GetCode() >= set->GetPulserCode() &&
+			   info_data->GetCode() < set->GetPulserCode() + set->GetNumberOfPulsers() ) {
+
+				unsigned int pulserID = info_data->GetCode() - set->GetPulserCode();
+				pulser_time[pulserID] = info_data->GetTime();
+				pulser_T = (double)pulser_time[pulserID] - (double)pulser_prev[pulserID];
 				pulser_f = 1e9 / pulser_T;
-				if( pulser_prev != 0 ) {
+				if( pulserID == 0 && pulser_prev[pulserID] != 0 ) {
 					pulser_period->Fill( pulser_T );
-					pulser_freq->Fill( pulser_time, pulser_f );
+					pulser_freq->Fill( pulser_time[pulserID], pulser_f );
 				}
-				pulser_prev = pulser_time;
-				n_pulser++;
+				pulser_prev[pulserID] = pulser_time[pulserID];
+				n_pulser[pulserID]++;
+				
+				for( unsigned int i = 0; i < set->GetNumberOfPulsers(); i++ )
+					pulser_tdiff->Fill( pulserID, pulser_time[pulserID]-pulser_time[0] );
 
 			} // pulser code
 
@@ -1539,11 +1556,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				}
 				
 			} // resume code
-			
-			// Now reset previous timestamps
-			if( info_data->GetCode() == set->GetPulserCode() )
-				pulser_prev = pulser_time;
-
 						
 		} // is info data
 
@@ -1730,7 +1742,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		}
 	}
 	ss_log << "  Info data packets = " << n_info_data << std::endl;
-	ss_log << "   Pulser events = " << n_pulser << std::endl;
+	for( unsigned int i = 0; i < set->GetNumberOfPulsers(); ++i )
+		ss_log << "   Pulser " << i << " events = " << n_pulser[i] << std::endl;
 	ss_log << "   EBIS events = " << n_ebis << std::endl;
 	ss_log << "   T1 events = " << n_t1 << std::endl;
 	ss_log << "   SuperCycle events = " << n_sc << std::endl;

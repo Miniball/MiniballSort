@@ -39,13 +39,8 @@ public:
 	// Info settings
 	inline unsigned int GetSyncCode(){ return sync_code; };
 	inline unsigned int GetTimestampCode(){ return thsb_code; };
-
 	inline unsigned int GetPauseCode(){ return pause_code;};
 	inline unsigned int GetResumeCode(){ return resume_code;};
-
-	inline unsigned int GetPulserSfp(){ return pulser_sfp; };
-	inline unsigned int GetPulserBoard(){ return pulser_board; };
-	inline unsigned int GetPulserChannel(){ return pulser_ch; };
 	inline unsigned int GetPulserCode(){ return pulser_code; };
 	
 	inline unsigned int GetEBISSfp(){ return ebis_sfp; };
@@ -140,7 +135,14 @@ public:
 	int GetIonChamberLayer( unsigned int sfp, unsigned int board, unsigned int ch );
 	inline double GetIonChamberHitWindow(){ return ic_hit_window; };
 	
-	ClassDef( MiniballSettings, 1 )
+	
+	// Pulsers
+	inline unsigned int GetNumberOfPulsers(){ return n_pulsers; };
+	bool IsPulser( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetPulser( unsigned int sfp, unsigned int board, unsigned int ch );
+	
+	
+	ClassDef( MiniballSettings, 2 )
 
 private:
 
@@ -209,14 +211,19 @@ private:
 	std::vector<std::vector<std::vector<int>>> ic_layer;	///< A channel map for the IonChamber segments (-1 if not a IonChamber, otherwise layer number, i.e dE (gas) = 0, E (Si) = 1)
 
 
+	// Pulsers
+	unsigned int n_pulsers;							///< Number of pulser inputs for synchronisation tests
+	std::vector<unsigned int> pulser_sfp;					///< A list of SFP numbers for each pulser
+	std::vector<unsigned int> pulser_board;					///< A list of board numbers for each pulser
+	std::vector<unsigned int> pulser_ch;					///< A list of channel numbers for each pulser
+	std::vector<std::vector<std::vector<int>>> pulser;		///< A channel map for the pulser inputs
+	
+	
 	// Info code settings
 	unsigned int sync_code;				///< Medium significant bits of the timestamp are here
 	unsigned int thsb_code;				///< Highest significant bits of the timestamp are here
 	unsigned int pause_code;        	///< Info code when acquisition has paused due to a full buffer
 	unsigned int resume_code;       	///< Info code when acquisition has resumed after a pause.
-	unsigned int pulser_sfp;			///< Location of the pulser in the FEBEX system (sfp)
-	unsigned int pulser_board;			///< Location of the pulser in the FEBEX system (board)
-	unsigned int pulser_ch;				///< Location of the pulser in the FEBEX system (channel)
 	unsigned int pulser_code;			///< Info code when we have a pulser event in InfoData packets
 	unsigned int ebis_sfp;				///< Location of the EBIS signal in the FEBEX system (sfp)
 	unsigned int ebis_board;			///< Location of the EBIS signal in the FEBEX system (board)
@@ -231,7 +238,6 @@ private:
 	unsigned int sc_ch;					///< Location of the SuperCycle signal in the FEBEX system (channel)
 	unsigned int sc_code;				///< Info code when we have a SuperCycle event in InfoData packets
 
-	
 	// Event builder
 	double event_window;			///< Event builder time window in ns
 	

@@ -142,9 +142,9 @@ private:
 	unsigned long long  ebis_time, ebis_prev;
 	unsigned long long  t1_time, t1_prev;
 	unsigned long long  sc_time, sc_prev;
-	unsigned long long  pulser_time, pulser_prev;
 	double pulser_f, ebis_f, t1_f, sc_f;
 	double pulser_T, ebis_T, t1_T, sc_T;
+	std::vector<unsigned long long>  pulser_time, pulser_prev;
 	std::vector<std::vector<unsigned long long>> pause_time, resume_time;
 	std::vector<std::vector<unsigned long long>> febex_dead_time;
 	std::vector<std::vector<unsigned long long>> febex_time_start, febex_time_stop;
@@ -198,8 +198,8 @@ private:
 	// Counters
 	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr, spede_ctr, ic_ctr;
 	unsigned long				n_entries, n_febex_data, n_info_data;
-	unsigned long				n_ebis, n_t1, n_sc, n_pulser;
-	std::vector<unsigned long>	n_sfp;
+	unsigned long				n_ebis, n_t1, n_sc;
+	std::vector<unsigned long>	n_sfp, n_pulser;
 	std::vector<std::vector<unsigned long>>	n_board;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
 	unsigned long				n_miniball, n_cd, n_spede, n_bd, n_ic;
@@ -209,6 +209,7 @@ private:
 	TH1F *tdiff, *tdiff_clean;
 	TH1F *pulser_period, *ebis_period, *t1_period, *sc_period;
 	TProfile *pulser_freq, *ebis_freq, *t1_freq, *sc_freq;
+	TH2F *pulser_tdiff;
 
 	// Miniball histograms
 	TH1F *mb_td_core_seg;

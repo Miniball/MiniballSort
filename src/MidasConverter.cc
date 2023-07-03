@@ -455,12 +455,14 @@ void MiniballMidasConverter::FinishFebexData(){
 
 		// Check if this is actually just a timestamp or info like event
 		flag_febex_info = false;
-		if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
-		    febex_data->GetBoard()   == set->GetPulserBoard()   &&
-		    febex_data->GetChannel() == set->GetPulserChannel() ){
+//		if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
+//		    febex_data->GetBoard()   == set->GetPulserBoard()   &&
+//		    febex_data->GetChannel() == set->GetPulserChannel() ){
+		if( set->IsPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) ) {
 			
 			flag_febex_info = true;
-			my_info_code = 20; // Pulser is always 20 (defined here)
+			unsigned int pulserID = set->GetPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
+			my_info_code = set->GetPulserCode() + pulserID;
 			hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
 			ctr_febex_ext++;
 
@@ -599,12 +601,19 @@ void MiniballMidasConverter::ProcessInfoData(){
 	// HSB of FEBEX extended timestamp
 	if( my_info_code == set->GetTimestampCode() ) {
 		
-		my_tm_stp_hsb = my_info_field & 0x0000FFFF;
+		//my_tm_stp_hsb = my_info_field & 0x0000FFFF;
+		my_tm_stp_hsb = 0;
+		
+		//if(my_tm_stp_hsb>0)
+		//	std::cout << my_tm_stp_hsb << " " << my_tm_stp_msb << std::endl;
 
 	}
 	
 	// MSB of FEBEX extended timestamp
 	if( my_info_code == set->GetSyncCode() ) {
+		
+		//if(my_tm_stp_hsb>0)
+		//	std::cout << my_tm_stp_hsb << " " << my_tm_stp_msb << std::endl;
 		
 		// In FEBEX this would be the extended timestamp
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
@@ -635,8 +644,8 @@ void MiniballMidasConverter::ProcessInfoData(){
     }
 
 	// Create an info event and fill the tree for external triggers and pause/resume
-	if( my_info_code != set->GetSyncCode() &&
-	    my_info_code != set->GetTimestampCode() ) {
+	//if( my_info_code != set->GetSyncCode() &&
+	//    my_info_code != set->GetTimestampCode() ) {
 
 		info_data->SetSfp( my_sfp_id );
 		info_data->SetBoard( my_board_id );
@@ -646,7 +655,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 		output_tree->Fill();
 		info_data->Clear();
 
-	}
+	//}
 
 	return;
 	
