@@ -40,7 +40,7 @@ LIBS         := $(ROOTLIBS) $(LIBEXTRA)
 CC          = $(shell root-config --cxx)
 # Flags for compiler.
 CFLAGS		= -c -Wall -Wextra $(ROOTCFLAGS) -g -fPIC
-CPPFLAGS	+= -DUNIX -DPOSIX $(OSDEF)
+CFLAGS		+= -DUNIX -DPOSIX $(OSDEF)
 INCLUDES	+= -I$(INC_DIR) -I.
 
 # Pass in the data file locations
