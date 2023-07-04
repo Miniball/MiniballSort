@@ -111,6 +111,8 @@ protected:
 	unsigned char my_trig_id;
 	long my_hit_time;
 	bool my_pileup;
+	bool my_clip;
+	bool my_flagbit;
 	float my_energy;
 
 	// For traces

@@ -296,8 +296,9 @@ void MiniballMidasConverter::ProcessFebexData(){
 	// Febex data format
 	my_adc_data = word_0 & 0xFFFF; // 16 bits from 0
 	
-	// Pileup bit from James' firmware
+	// Pileup and other info bits from James' firmware
 	my_pileup = (word_0 >> 29) & 0x0001;
+	my_clip = (word_0 >> 28) & 0x0001;
 
 	// reconstruct time stamp= MSB+LSB
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
@@ -317,6 +318,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetPileUp( my_pileup );
+		febex_data->SetClipped( my_clip );
 
 	}
 	
@@ -337,6 +339,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetPileUp( my_pileup );
+		febex_data->SetClipped( my_clip );
 
 	}
 	
@@ -359,6 +362,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetPileUp( my_pileup );
+		febex_data->SetClipped( my_clip );
 
 	}
 	
