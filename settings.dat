@@ -18,12 +18,20 @@
 #NumberOfFebexChannels: 16		# number of channels per FEBEX board = 16
 
 
+#-------------------#
+# Sync pulsers, etc #
+#-------------------#
+#NumberOfPulsers: 2
+#Pulser_0.Sfp: 0					# Location of the first pulser in the DAQ
+#Pulser_0.Board: 10
+#Pulser_0.Channel: 15
+#Pulser_1.Sfp: 1					# Location of the second pulser in the DAQ
+#Pulser_1.Board: 10
+#Pulser_1.Channel: 15
+
 #------------------------#
-# Triggers, pulsers, etc #
+# ISOLDE Timestamps, etc #
 #------------------------#
-#Pulser.Sfp: 1					# Location of the pulser in the DAQ
-#Pulser.Board: 9
-#Pulser.Channel: 12
 #EBIS.Sfp: 1					# Location of the EBIS signal in the DAQ
 #EBIS.Board: 9
 #EBIS.Channel: 11
