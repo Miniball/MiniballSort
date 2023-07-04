@@ -34,7 +34,7 @@ extern "C" {
 #define MAX_BUFFER_SIZE 64*1024
 
 #define SHMSIZE 0x401000
-#define SHM_KEY 10205   /* base Key */
+#define SHM_KEY 110205   /* base Key */
 
 
 typedef struct s_buffer_header {
