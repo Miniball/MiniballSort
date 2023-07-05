@@ -281,7 +281,9 @@ void MiniballEventBuilder::MakeEventHists(){
 
 	pulser_freq = new TProfile( "pulser_freq", "Frequency of pulser in FEBEX DAQ as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	pulser_period = new TH1F( "pulser_period", "Period of pulser in FEBEX DAQ;T [ns]", 10e3, 0, 10e9 );
-	pulser_tdiff = new TH2F( "pulser_tdiff", "TIme difference of pulser 0 to all other pulsers in FEBEX DAQ;Pulser ID;{#Delta}t [ns]", set->GetNumberOfPulsers(), 0.5, set->GetNumberOfPulsers()+0.5, 201, -1005, 1005 );
+	int npulserbins = set->GetNumberOfPulsers()-1;
+	if( npulserbins <= 0 ) npulserbins = 1;
+	pulser_tdiff = new TH2F( "pulser_tdiff", "TIme difference of pulser 0 to all other pulsers in FEBEX DAQ;Pulser ID;{#Delta}t [ns]", npulserbins, 0.5, set->GetNumberOfPulsers()-0.5, 201, -1005, 1005 );
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	ebis_period = new TH1F( "ebis_period", "Period of EBIS events;T [ns]", 10e3, 0, 10e9 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
