@@ -233,11 +233,14 @@ void* monitor_run( void* ptr ){
 				}
 				// TODO: This could be done better with smart pointers
 				TTree *sorted_tree = conv_mon->GetSortedTree()->CloneTree();
+				TTree *mbsinfo_tree = conv_mon->GetMbsInfo()->CloneTree();
 				eb_mon->SetInputTree( sorted_tree );
+				eb_mon->SetMBSInfoTree( mbsinfo_tree );
 				eb_mon->GetTree()->Reset();
 				nbuild = eb_mon->BuildEvents();
 				delete sorted_tree;
-				
+				delete mbsinfo_tree;
+
 				// Histogrammer
 				if( bFirstRun ) {
 					hist_mon->SetOutput( "monitor_hists.root" );
