@@ -102,17 +102,14 @@ void* monitor_run( void* ptr ){
 	// This function is called to run when monitoring
 	if( flag_mbs ){
 		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( calfiles->myset );
-		conv_mon = conv_mbs_mon;
+		conv_mon.reset( conv_mbs_mon.get() );
 	}
 	else {
 		conv_midas_mon = std::make_shared<MiniballMidasConverter>( calfiles->myset );
-		conv_mon = conv_midas_mon;
+		conv_mon.reset( conv_midas_mon.get() );
 	}
 	eb_mon = std::make_shared<MiniballEventBuilder>( calfiles->myset );
 	hist_mon = std::make_shared<MiniballHistogrammer>( calfiles->myreact, calfiles->myset );
-	//MiniballMidasConverter conv_mon( calfiles->myset );
-	//MiniballEventBuilder eb_mon( calfiles->myset );
-	//MiniballHistogrammer hist_mon( calfiles->myreact, calfiles->myset );
 
 	
 	// Data blocks for Data spy
@@ -192,10 +189,15 @@ void* monitor_run( void* ptr ){
 				}
 
 				// Keep reading until we have all the data
+				int block_ctr = 0;
 				while( spy_length ){
 				
 					std::cout << "Got some data from DataSpy" << std::endl;
-					nblocks = conv_mon->ConvertBlock( (char*)buffer, 0 );
+					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
+					block_ctr += nblocks;
+
+					// Stop after so long
+					if( block_ctr > 50 ) break;
 
 					// Read a new block
 					//gSystem->Sleep( 10 ); // wait 10 ms
@@ -577,7 +579,7 @@ int main( int argc, char *argv[] ){
 	// Check we have data files
 	if( !input_names.size() && !flag_spy  ) {
 			
-			std::cout << "You have to provide at least one input file!" << std::endl;
+			std::cout << "You have to provide at least one input file unless you are in DataSpy mode!" << std::endl;
 			return 1;
 			
 	}
