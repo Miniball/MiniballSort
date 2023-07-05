@@ -166,7 +166,7 @@ void* monitor_run( void* ptr ){
 			// Convert - from MIDAS file
 			if( !flag_spy && !flag_mbs ) {
 				
-				nblocks = conv_midas_mon->ConvertFile( curFileMon, start_block );
+				nblocks = conv_mon->ConvertFile( curFileMon, start_block );
 				start_block = nblocks;
 
 			}
@@ -174,7 +174,7 @@ void* monitor_run( void* ptr ){
 			// Convert - from MBS file
 			else if( !flag_spy && flag_mbs ) {
 				
-				nsubevts = conv_mbs_mon->ConvertFile( curFileMon, start_subevt );
+				nsubevts = conv_mon->ConvertFile( curFileMon, start_subevt );
 				start_subevt = nsubevts;
 				
 			}
@@ -195,7 +195,7 @@ void* monitor_run( void* ptr ){
 				while( spy_length ){
 				
 					std::cout << "Got some data from DataSpy" << std::endl;
-					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
+					nblocks = conv_mon->ConvertBlock( (char*)buffer, 0 );
 
 					// Read a new block
 					//gSystem->Sleep( 10 ); // wait 10 ms
@@ -213,8 +213,8 @@ void* monitor_run( void* ptr ){
 				
 				// First check if we have data
 				std::cout << "Looking for data from MBSEventServer" << std::endl;
-				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
-				conv_mbs_mon->ProcessBlock(0);
+				conv_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
+				conv_mon->ProcessBlock(0);
 				conv_mon->SortTree();
 
 			}
