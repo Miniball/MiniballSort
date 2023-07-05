@@ -163,7 +163,7 @@ void* monitor_run( void* ptr ){
 			// Convert - from MIDAS file
 			if( !flag_spy && !flag_mbs ) {
 				
-				nblocks = conv_mon->ConvertFile( curFileMon, start_block );
+				nblocks = conv_midas_mon->ConvertFile( curFileMon, start_block );
 				start_block = nblocks;
 
 			}
@@ -171,7 +171,7 @@ void* monitor_run( void* ptr ){
 			// Convert - from MBS file
 			else if( !flag_spy && flag_mbs ) {
 				
-				nsubevts = conv_mon->ConvertFile( curFileMon, start_subevt );
+				nsubevts = conv_mbs_mon->ConvertFile( curFileMon, start_subevt );
 				start_subevt = nsubevts;
 				
 			}
@@ -206,7 +206,7 @@ void* monitor_run( void* ptr ){
 				}
 
 				// Sort the packets we just got, then do the rest of the analysis
-				conv_mon->SortTree();
+				conv_midas_mon->SortTree();
 			
 			}
 											 
@@ -215,9 +215,9 @@ void* monitor_run( void* ptr ){
 				
 				// First check if we have data
 				std::cout << "Looking for data from MBSEventServer" << std::endl;
-				conv_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
-				conv_mon->ProcessBlock(0);
-				conv_mon->SortTree();
+				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
+				conv_mbs_mon->ProcessBlock(0);
+				conv_mbs_mon->SortTree();
 
 			}
 
