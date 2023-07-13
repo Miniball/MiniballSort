@@ -42,10 +42,10 @@ void FebexMWD::DoMWD() {
 		differential[i] = 0;
 		shaper[i] = 0;
 		cfd[i] = 0;
-		stage1[i] = 0;
-		stage2[i] = 0;
-		stage3[i] = 0;
-		stage4[i] = 0;
+		//stage1[i] = 0;
+		//stage2[i] = 0;
+		//stage3[i] = 0;
+		//stage4[i] = 0;
 		
 		// Shaped pulse
 		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
@@ -53,7 +53,7 @@ void FebexMWD::DoMWD() {
 			// James - differential-integrating shaper
 			differential[i] = trace[i] - trace[i-cfd_shaping_time];
 			for( unsigned int j = 1; j <= cfd_integration_time; ++j )
-				shaper[i] -= differential[i-j];
+				shaper[i] += differential[i-j];
 			shaper[i] /= cfd_integration_time;
 
 
