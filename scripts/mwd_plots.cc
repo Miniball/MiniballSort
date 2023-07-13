@@ -1,5 +1,7 @@
-#include "../include/DataPackets.hh"
-#include "../include/Calibration.hh"
+#include "DataPackets.hh"
+#include "Calibration.hh"
+
+R__LOAD_LIBRARY(libmb_sort.so)
 
 void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 			   unsigned board = 0, unsigned int ch = 0, std::string calfile = "default" ) {

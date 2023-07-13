@@ -1,4 +1,6 @@
-#include "../include/DataPackets.hh"
+#include "DataPackets.hh"
+
+R__LOAD_LIBRARY(libmb_sort.so)
 
 void read_traces( std::string filename = "test/R4_13.root" ) {
 	
