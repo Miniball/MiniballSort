@@ -9,7 +9,6 @@ void FebexMWD::DoMWD() {
 	unsigned int M = rise_time + 3; // 3 clock cycles delay in VHDL
 	unsigned int L = window;
 	unsigned int torr = decay_time;
-	unsigned int cfd_delay = delay_time;
 
 	// Get the trace length
 	unsigned int trace_length = trace.size();
@@ -22,6 +21,7 @@ void FebexMWD::DoMWD() {
 	stage2.resize( trace_length, 0.0 );
 	stage3.resize( trace_length, 0.0 );
 	stage4.resize( trace_length, 0.0 );
+	differential.resize( trace_length, 0.0 );
 	shaper.resize( trace_length, 0.0 );
 	cfd.resize( trace_length, 0.0 );
 	
@@ -32,20 +32,40 @@ void FebexMWD::DoMWD() {
 	unsigned int skip = 5;
 	
 	// Loop over trace and analyse
-	for( unsigned int i = skip; i < trace_length; ++i ) {
+	for( unsigned int i = 0; i < trace_length; ++i ) {
 		
 		// Check if we are clipped
 		if( trace[i] == 0 || (trace[i] & 0x0000FFFF) == 0x0000FFFF )
 			clipped = true;
 		
+		// Make some default values for derived pulses
+		differential[i] = 0;
+		shaper[i] = 0;
+		cfd[i] = 0;
+		stage1[i] = 0;
+		stage2[i] = 0;
+		stage3[i] = 0;
+		stage4[i] = 0;
+		
+		// Shaped pulse
+		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
+			
+			// James - differential-integrating shaper
+			differential[i] = trace[i] - trace[i-cfd_shaping_time];
+			for( unsigned int j = 1; j <= cfd_integration_time; ++j )
+				shaper[i] -= differential[i-j];
+			shaper[i] /= cfd_integration_time;
+
+
+			// Liam - simple differential shaper
+			//shaper[i] = trace[i] - trace[i-cfd_shaping_time];
+			
+		}
+
 		// CFD trace, do triggering later
 		if( i >= cfd_delay + skip ) {
 			
-			// James
-			//cfd[i] = (int)trace[i] - (int)trace[i-cfd_delay];
-
-			// Liam
-			shaper[i] = trace[i] - trace[i-cfd_delay];
+			// James + Liam both the same here
 			cfd[i]  = fraction * shaper[i];
 			cfd[i] -= shaper[i-cfd_delay];
 
@@ -125,10 +145,13 @@ void FebexMWD::DoMWD() {
 		   ( ( cfd[i] > threshold && threshold > 0 ) ||
 			( cfd[i] < threshold && threshold < 0 ) ) ) {
 			
-			// Find zero crossing - Liam version only
+			// Mark the arming threshold point
+			unsigned int armed_at = i;
+			
+			// Find zero crossing - Liam version, but James effects the same thing
 			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
 			
-			// Reject incorrect polarity - Liam version only
+			// Reject incorrect polarity - Liam version, but James effects the same thing
 			if( threshold < 0 && cfd[i-1] > 0 ) continue;
 			if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
@@ -153,6 +176,10 @@ void FebexMWD::DoMWD() {
 			
 			// Move to the end of the whole thing
 			i += L - flat_top;
+			
+			// Check we are beyond the trigger hold off
+			if( i < armed_at + cfd_hold )
+				i = armed_at + cfd_hold;
 
 		} // threshold passed
 		
@@ -180,9 +207,12 @@ void MiniballCalibration::ReadCalibration() {
 	default_MWD_Top			= 20; // mwd_cfd_trig_delay
 	default_MWD_Baseline	= 60;
 	default_MWD_Window		= 150; // L
-	default_CFD_Delay		= 20; // unique to mwd_cfd_trig_delay here, but not in firmware
+	default_CFD_Delay		= 30;
+	default_CFD_HoldOff		= 100; // prevent double triggering?
+	default_CFD_Shaping		= 15;
+	default_CFD_Integration	= 20;
 	default_CFD_Threshold	= 200;
-	default_CFD_Fraction	= 0.5; // unused at the moment
+	default_CFD_Fraction	= 0.3;
 
 	
 	// FEBEX initialisation
@@ -198,6 +228,9 @@ void MiniballCalibration::ReadCalibration() {
 	fFebexMWD_Baseline.resize( set->GetNumberOfFebexSfps() );
 	fFebexMWD_Window.resize( set->GetNumberOfFebexSfps() );
 	fFebexCFD_Delay.resize( set->GetNumberOfFebexSfps() );
+	fFebexCFD_HoldOff.resize( set->GetNumberOfFebexSfps() );
+	fFebexCFD_Shaping.resize( set->GetNumberOfFebexSfps() );
+	fFebexCFD_Integration.resize( set->GetNumberOfFebexSfps() );
 	fFebexCFD_Threshold.resize( set->GetNumberOfFebexSfps() );
 	fFebexCFD_Fraction.resize( set->GetNumberOfFebexSfps() );
 
@@ -216,6 +249,9 @@ void MiniballCalibration::ReadCalibration() {
 		fFebexMWD_Baseline[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexMWD_Window[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexCFD_Delay[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexCFD_HoldOff[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexCFD_Shaping[i].resize( set->GetNumberOfFebexBoards() );
+		fFebexCFD_Integration[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexCFD_Threshold[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexCFD_Fraction[i].resize( set->GetNumberOfFebexBoards() );
 
@@ -233,6 +269,9 @@ void MiniballCalibration::ReadCalibration() {
 			fFebexMWD_Baseline[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexMWD_Window[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexCFD_Delay[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexCFD_HoldOff[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexCFD_Shaping[i][j].resize( set->GetNumberOfFebexChannels() );
+			fFebexCFD_Integration[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexCFD_Threshold[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexCFD_Fraction[i][j].resize( set->GetNumberOfFebexChannels() );
 
@@ -250,6 +289,9 @@ void MiniballCalibration::ReadCalibration() {
 				fFebexMWD_Baseline[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (int)default_MWD_Baseline );
 				fFebexMWD_Window[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (int)default_MWD_Window );
 				fFebexCFD_Delay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), (int)default_CFD_Delay );
+				fFebexCFD_HoldOff[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.HoldOff", i, j, k ), (int)default_CFD_HoldOff );
+				fFebexCFD_Shaping[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.ShapingTime", i, j, k ), (int)default_CFD_Shaping );
+				fFebexCFD_Integration[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.IntegrationTime", i, j, k ), (int)default_CFD_Integration );
 				fFebexCFD_Threshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.Threshold", i, j, k ), (int)default_CFD_Threshold );
 				fFebexCFD_Fraction[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.Fraction", i, j, k ), default_CFD_Fraction );
 
@@ -308,6 +350,9 @@ FebexMWD MiniballCalibration::DoMWD( unsigned char sfp, unsigned char board, uns
 		mwd.SetBaseline( fFebexMWD_Baseline[sfp][board][ch] );
 		mwd.SetWindow( fFebexMWD_Window[sfp][board][ch] );
 		mwd.SetDelayTime( fFebexCFD_Delay[sfp][board][ch] );
+		mwd.SetHoldOff( fFebexCFD_HoldOff[sfp][board][ch] );
+		mwd.SetShapingTime( fFebexCFD_Shaping[sfp][board][ch] );
+		mwd.SetIntegrationTime( fFebexCFD_Integration[sfp][board][ch] );
 		mwd.SetThreshold( fFebexCFD_Threshold[sfp][board][ch] );
 		mwd.SetFraction( fFebexCFD_Fraction[sfp][board][ch] );
 
@@ -467,6 +512,51 @@ void MiniballCalibration::SetCFDDelay( unsigned char sfp, unsigned char board, u
 	
 }
 
+void MiniballCalibration::SetCFDHoldOff( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int hold ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		fFebexCFD_HoldOff[sfp][board][ch] = hold;
+		return;
+		
+	}
+	
+	else return;
+	
+}
+
+void MiniballCalibration::SetCFDShapingTime( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int shaping ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		fFebexCFD_Shaping[sfp][board][ch] = shaping;
+		return;
+		
+	}
+	
+	else return;
+	
+}
+
+void MiniballCalibration::SetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int integration ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		fFebexCFD_Integration[sfp][board][ch] = integration;
+		return;
+		
+	}
+	
+	else return;
+	
+}
+
 void MiniballCalibration::SetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch, int threshold ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
@@ -573,6 +663,48 @@ unsigned int MiniballCalibration::GetCFDDelay( unsigned char sfp, unsigned char 
 	   ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexCFD_Delay[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetCFDHoldOff( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexCFD_HoldOff[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetCFDShapingTime( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexCFD_Shaping[sfp][board][ch];
+		
+	}
+	
+	else return 0;
+	
+}
+
+unsigned int MiniballCalibration::GetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch ){
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	   board < set->GetNumberOfFebexBoards() &&
+	   ch < set->GetNumberOfFebexChannels() ) {
+		
+		return fFebexCFD_Integration[sfp][board][ch];
 		
 	}
 	

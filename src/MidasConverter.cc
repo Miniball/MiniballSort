@@ -226,7 +226,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	febex_data->SetBoard( my_board_id );
 	febex_data->SetChannel( my_ch_id );
 	febex_data->SetPileUp( false );
-	febex_data->SetFlag( false );
+	febex_data->SetFlag( my_flagbit );
 
 	// sample length
 	nsamples = word_0 & 0xFFFF; // 16 bits from 0
@@ -319,6 +319,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetPileUp( my_pileup );
 		febex_data->SetClipped( my_clip );
+		febex_data->SetFlag( my_flagbit );
 
 	}
 	
@@ -340,6 +341,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetPileUp( my_pileup );
 		febex_data->SetClipped( my_clip );
+		febex_data->SetFlag( my_flagbit );
 
 	}
 	
@@ -363,6 +365,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		febex_data->SetChannel( my_ch_id );
 		febex_data->SetPileUp( my_pileup );
 		febex_data->SetClipped( my_clip );
+		febex_data->SetFlag( my_flagbit );
 
 	}
 	
@@ -607,9 +610,10 @@ void MiniballMidasConverter::ProcessInfoData(){
 		
 		//my_tm_stp_hsb = my_info_field & 0x0000FFFF;
 		my_tm_stp_hsb = 0;
-		
-		//if(my_tm_stp_hsb>0)
-		//	std::cout << my_tm_stp_hsb << " " << my_tm_stp_msb << std::endl;
+
+		if( (my_info_field & 0x0000FFFF) > 0 )
+			my_flagbit = true;
+		else my_flagbit = false;
 
 	}
 	
@@ -648,8 +652,8 @@ void MiniballMidasConverter::ProcessInfoData(){
     }
 
 	// Create an info event and fill the tree for external triggers and pause/resume
-	//if( my_info_code != set->GetSyncCode() &&
-	//    my_info_code != set->GetTimestampCode() ) {
+	if( my_info_code != set->GetSyncCode() &&
+	    my_info_code != set->GetTimestampCode() ) {
 
 		info_data->SetSfp( my_sfp_id );
 		info_data->SetBoard( my_board_id );
@@ -659,7 +663,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 		output_tree->Fill();
 		info_data->Clear();
 
-	//}
+	}
 
 	return;
 	

@@ -39,7 +39,10 @@ public:
 	inline void SetFlatTop( unsigned int t ){ flat_top = t; }; // not in James' code
 	inline void SetBaseline( unsigned int t ){ baseline_length = t; }; // BLFL (baseline filter length?)
 	inline void SetWindow( unsigned int t ){ window = t; }; // L
-	inline void SetDelayTime( unsigned int t ){ delay_time = t; };
+	inline void SetDelayTime( unsigned int t ){ cfd_delay = t; };
+	inline void SetHoldOff( unsigned int t ){ cfd_hold = t; };
+	inline void SetShapingTime( unsigned int t ){ cfd_shaping_time = t; };
+	inline void SetIntegrationTime( unsigned int t ){ cfd_integration_time = t; };
 	inline void SetThreshold( unsigned int t ){ threshold = t; };
 	inline void SetFraction( float f ){ fraction = f; };
 
@@ -95,13 +98,13 @@ private:
 	
 	// Initialise some vectors for holding the MWD and CFD etc.
 	std::vector<float> stage1, stage2, stage3, stage4;
-	std::vector<float> shaper, cfd;
+	std::vector<float> differential, shaper, cfd;
 
 	// Values of MWD
 	unsigned int rise_time, flat_top, window, baseline_length, decay_time;
 
 	// Values for CFD
-	unsigned int delay_time;
+	unsigned int cfd_delay, cfd_hold, cfd_shaping_time, cfd_integration_time;
 	int threshold;
 	float fraction;
 	
@@ -162,6 +165,9 @@ public:
 	void SetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int window );
 	void SetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch, float fraction );
 	void SetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int delay );
+	void SetCFDHoldOff( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int hold );
+	void SetCFDShapingTime( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int shaping );
+	void SetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int integration );
 	void SetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch, int threshold );
 	
 	// Get functions
@@ -172,6 +178,9 @@ public:
 	unsigned int GetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch );
 	float GetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch );
 	unsigned int GetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetCFDHoldOff( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetCFDShapingTime( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch );
 	int GetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch );
 
 	
@@ -196,6 +205,9 @@ private:
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Baseline;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Window;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Delay;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_HoldOff;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Shaping;
+	std::vector< std::vector<std::vector<unsigned int>> > fFebexCFD_Integration;
 	std::vector< std::vector<std::vector<int>> > fFebexCFD_Threshold; // polarity of CFD selected by a negative threshold
 	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
 
@@ -206,6 +218,9 @@ private:
 	unsigned int default_MWD_Window;
 	float default_CFD_Fraction;
 	unsigned int default_CFD_Delay;
+	unsigned int default_CFD_HoldOff;
+	unsigned int default_CFD_Shaping;
+	unsigned int default_CFD_Integration;
 	int default_CFD_Threshold;
 
 	

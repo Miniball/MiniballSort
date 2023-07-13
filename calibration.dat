@@ -19,6 +19,9 @@
 # febex_<sfp>_<board>_<ch>.MWD.FlatTop:				# this is not used, but could for better choice of averaging point, i.e. centering on the flat top
 # febex_<sfp>_<board>_<ch>.MWD.Baseline:			# this is the number of sample before the trigger where you want to tale the baseline energy from
 # febex_<sfp>_<board>_<ch>.MWD.Window				# this is equivalent to L
-# febex_<sfp>_<board>_<ch>.CFD.DelayTime:			# this is the delay tome of the CFD
+# febex_<sfp>_<board>_<ch>.CFD.DelayTime:			# this is the delay time of the CFD
+# febex_<sfp>_<board>_<ch>.CFD.HoldOff:				# this is the hold-off time of the CFD (from initual LED threshold crossing)
+# febex_<sfp>_<board>_<ch>.CFD.ShapingTime:			# this is the differential shaping time of the CFD
+# febex_<sfp>_<board>_<ch>.CFD.IntegrationTime:		# this is the integral shaping time of the CFD - set to 1 to be equivalent to Liam's method
 # febex_<sfp>_<board>_<ch>.CFD.Threshold:			# this is the threshold of the CFD (polarity sensitive)
 # febex_<sfp>_<board>_<ch>.CFD.Fraction:			# this is fraction of the signal taken for the delayed subtraction, but it ignored in this algorithm at the moment to match James Lawson's firmware on the FEBEX4 cards.
