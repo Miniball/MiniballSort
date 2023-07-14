@@ -47,6 +47,10 @@ void FebexMWD::DoMWD() {
 		//stage3[i] = 0;
 		//stage4[i] = 0;
 		
+		// James' simple CFD currently on firmware
+		shaper[i] = trace[i];
+		fraction = 1.0;
+
 		// Shaped pulse
 		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
 			
@@ -64,10 +68,6 @@ void FebexMWD::DoMWD() {
 
 		// CFD trace, do triggering later
 		if( i >= cfd_delay + skip ) {
-
-			// James' simple CFD currently on firmware
-			shaper[i] = trace[i];
-			fraction = 1.0;
 
 			// James + Liam both the same here
 			cfd[i]  = fraction * shaper[i];
