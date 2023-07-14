@@ -51,10 +51,6 @@ void FebexMWD::DoMWD() {
 		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
 			
 			// James - differential-integrating shaper
-			shaper[i] = trace[i];
-			fraction = 1.0;
-			
-			// James - differential-integrating shaper
 			//differential[i] = trace[i] - trace[i-cfd_shaping_time];
 			//for( unsigned int j = 1; j <= cfd_integration_time; ++j )
 			//	shaper[i] += differential[i-j];
@@ -68,7 +64,11 @@ void FebexMWD::DoMWD() {
 
 		// CFD trace, do triggering later
 		if( i >= cfd_delay + skip ) {
-			
+
+			// James' simple CFD currently on firmware
+			shaper[i] = trace[i];
+			fraction = 1.0;
+
 			// James + Liam both the same here
 			cfd[i]  = fraction * shaper[i];
 			cfd[i] -= shaper[i-cfd_delay];
