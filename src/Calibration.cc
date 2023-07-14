@@ -164,7 +164,7 @@ void FebexMWD::DoMWD() {
 				break;
 			
 			// Mark the CFD time - James
-			cfd_list.push_back( cfd_time );
+			cfd_list.push_back( i );
 
 			// Mark the CFD time - Liam
 			//float cfd_time = (float)i / TMath::Abs(cfd[i]);
