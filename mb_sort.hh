@@ -35,6 +35,8 @@ Bool_t bFirstRun = kTRUE;
 std::string curFileMon;
 
 
-void reset_hists();
+void reset_conv_hists();
+void reset_evnt_hists();
+void reset_phys_hists();
 void stop_monitor();
 void start_monitor();

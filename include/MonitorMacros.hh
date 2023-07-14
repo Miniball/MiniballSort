@@ -1,9 +1,21 @@
 #include "mb_sort.hh"
 #include <iostream>
 
-int MonitorReset(){
-	reset_hists();
-	std::cout << "Reset histograms" << std::endl;
+int ResetConv(){
+	reset_conv_hists();
+	std::cout << "Reset singles histograms" << std::endl;
+	return 0;
+}
+
+int ResetEvnt(){
+	reset_evnt_hists();
+	std::cout << "Reset event builder stage histograms (not working yet)" << std::endl;
+	return 0;
+}
+
+int ResetHist(){
+	reset_phys_hists();
+	std::cout << "Reset physics stage histograms" << std::endl;
 	return 0;
 }
 

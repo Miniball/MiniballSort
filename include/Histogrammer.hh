@@ -43,6 +43,7 @@ public:
 	~MiniballHistogrammer() {};
 	
 	void MakeHists();
+	void ResetHists();
 	unsigned long FillHists();
 	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );
 	void FillParticleGammaHists( std::shared_ptr<GammaRayAddbackEvt> g );

@@ -126,8 +126,8 @@ protected:
 
 	
 	// Data types
-	std::unique_ptr<MBSInfoPackets> mbsinfo_packet = 0;
-	std::unique_ptr<MiniballDataPackets> data_packet = 0;
+	std::unique_ptr<MBSInfoPackets> mbsinfo_packet = nullptr;
+	std::unique_ptr<MiniballDataPackets> data_packet = nullptr;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 	

@@ -77,8 +77,16 @@ std::shared_ptr<MiniballMidasConverter> conv_midas_mon;
 std::shared_ptr<MiniballEventBuilder> eb_mon;
 std::shared_ptr<MiniballHistogrammer> hist_mon;
 
-void reset_hists(){
+void reset_conv_hists(){
 	conv_mon->ResetHists();
+}
+
+void reset_evnt_hists(){
+	eb_mon->ResetHists();
+}
+
+void reset_phys_hists(){
+	hist_mon->ResetHists();
 }
 
 void stop_monitor(){
@@ -302,7 +310,9 @@ void start_http(){
 	// register simple start/stop commands
 	serv->RegisterCommand("/Start", "StartMonitor()");
 	serv->RegisterCommand("/Stop", "StopMonitor()");
-	serv->RegisterCommand("/Reset", "MonitorReset()");
+	serv->RegisterCommand("/ResetSingles", "ResetConv()");
+	serv->RegisterCommand("/ResetEvents", "ResetEvnt()");
+	serv->RegisterCommand("/ResetHists", "ResetHist()");
 
 	// hide commands so the only show as buttons
 	//serv->Hide("/Start");

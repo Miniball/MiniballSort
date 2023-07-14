@@ -818,6 +818,179 @@ void MiniballHistogrammer::MakeHists() {
 	
 }
 
+// Reset histograms in the DataSpy
+void MiniballHistogrammer::ResetHists() {
+	
+	
+	ebis_td_gamma->Reset("ICESM");
+	ebis_td_particle->Reset("ICESM");
+	gamma_particle_td->Reset("ICESM");
+	gamma_particle_E_vs_td->Reset("ICESM");
+	gamma_gamma_td->Reset("ICESM");
+	gamma_electron_td->Reset("ICESM");
+	electron_electron_td->Reset("ICESM");
+	electron_particle_td->Reset("ICESM");
+	particle_particle_td->Reset("ICESM");
+	gE_singles->Reset("ICESM");
+	gE_singles_ebis->Reset("ICESM");
+	gE_singles_ebis_on->Reset("ICESM");
+	gE_singles_ebis_off->Reset("ICESM");
+	aE_singles->Reset("ICESM");
+	aE_singles_ebis->Reset("ICESM");
+	aE_singles_ebis_on->Reset("ICESM");
+	aE_singles_ebis_off->Reset("ICESM");
+	gamma_xy_map_forward->Reset("ICESM");
+	gamma_xy_map_backward->Reset("ICESM");
+	gamma_xz_map_left->Reset("ICESM");
+	gamma_xz_map_right->Reset("ICESM");
+	gamma_theta_phi_map->Reset("ICESM");
+	gE_gE->Reset("ICESM");
+	gE_gE_ebis_on->Reset("ICESM");
+	aE_aE->Reset("ICESM");
+	aE_aE_ebis_on->Reset("ICESM");
+	eE_eE->Reset("ICESM");
+	eE_eE_ebis_on->Reset("ICESM");
+	gE_eE->Reset("ICESM");
+	gE_eE_ebis_on->Reset("ICESM");
+	aE_eE->Reset("ICESM");
+	aE_eE_ebis_on->Reset("ICESM");
+	eE_singles->Reset("ICESM");
+	eE_singles_ebis->Reset("ICESM");
+	eE_singles_ebis_on->Reset("ICESM");
+	eE_singles_ebis_off->Reset("ICESM");
+	electron_xy_map->Reset("ICESM");
+	pE_theta->Reset("ICESM");
+	pE_theta_coinc->Reset("ICESM");
+	pE_theta_ejectile->Reset("ICESM");
+	pE_theta_recoil->Reset("ICESM");
+	pBeta_theta_ejectile->Reset("ICESM");
+	pBeta_theta_recoil->Reset("ICESM");
+	particle_xy_map_forward->Reset("ICESM");
+	particle_xy_map_backward->Reset("ICESM");
+	particle_theta_phi_map->Reset("ICESM");
+	gE_prompt->Reset("ICESM");
+	gE_prompt_1p->Reset("ICESM");
+	gE_prompt_2p->Reset("ICESM");
+	gE_random->Reset("ICESM");
+	gE_random_1p->Reset("ICESM");
+	gE_random_2p->Reset("ICESM");
+	gE_ejectile_dc_none->Reset("ICESM");
+	gE_ejectile_dc_ejectile->Reset("ICESM");
+	gE_ejectile_dc_recoil->Reset("ICESM");
+	gE_recoil_dc_none->Reset("ICESM");
+	gE_recoil_dc_ejectile->Reset("ICESM");
+	gE_recoil_dc_recoil->Reset("ICESM");
+	gE_2p_dc_none->Reset("ICESM");
+	gE_2p_dc_ejectile->Reset("ICESM");
+	gE_2p_dc_recoil->Reset("ICESM");
+	gE_costheta_ejectile->Reset("ICESM");
+	gE_costheta_recoil->Reset("ICESM");
+	gE_vs_theta_ejectile_dc_none->Reset("ICESM");
+	gE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
+	gE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
+	gE_vs_theta_recoil_dc_none->Reset("ICESM");
+	gE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
+	gE_vs_theta_recoil_dc_recoil->Reset("ICESM");
+	gE_vs_theta_2p_dc_none->Reset("ICESM");
+	gE_vs_theta_2p_dc_ejectile->Reset("ICESM");
+	gE_vs_theta_2p_dc_recoil->Reset("ICESM");
+	ggE_ejectile_dc_none->Reset("ICESM");
+	ggE_ejectile_dc_ejectile->Reset("ICESM");
+	ggE_ejectile_dc_recoil->Reset("ICESM");
+	ggE_recoil_dc_none->Reset("ICESM");
+	ggE_recoil_dc_ejectile->Reset("ICESM");
+	ggE_recoil_dc_recoil->Reset("ICESM");
+	aE_prompt->Reset("ICESM");
+	aE_prompt_1p->Reset("ICESM");
+	aE_prompt_2p->Reset("ICESM");
+	aE_random->Reset("ICESM");
+	aE_random_1p->Reset("ICESM");
+	aE_random_2p->Reset("ICESM");
+	aE_ejectile_dc_none->Reset("ICESM");
+	aE_ejectile_dc_ejectile->Reset("ICESM");
+	aE_ejectile_dc_recoil->Reset("ICESM");
+	aE_recoil_dc_none->Reset("ICESM");
+	aE_recoil_dc_ejectile->Reset("ICESM");
+	aE_recoil_dc_recoil->Reset("ICESM");
+	aE_2p_dc_none->Reset("ICESM");
+	aE_2p_dc_ejectile->Reset("ICESM");
+	aE_2p_dc_recoil->Reset("ICESM");
+	aE_costheta_ejectile->Reset("ICESM");
+	aE_costheta_recoil->Reset("ICESM");
+	aE_vs_theta_ejectile_dc_none->Reset("ICESM");
+	aE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
+	aE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
+	aE_vs_theta_recoil_dc_none->Reset("ICESM");
+	aE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
+	aE_vs_theta_recoil_dc_recoil->Reset("ICESM");
+	aE_vs_theta_2p_dc_none->Reset("ICESM");
+	aE_vs_theta_2p_dc_ejectile->Reset("ICESM");
+	aE_vs_theta_2p_dc_recoil->Reset("ICESM");
+	aaE_ejectile_dc_none->Reset("ICESM");
+	aaE_ejectile_dc_ejectile->Reset("ICESM");
+	aaE_ejectile_dc_recoil->Reset("ICESM");
+	aaE_recoil_dc_none->Reset("ICESM");
+	aaE_recoil_dc_ejectile->Reset("ICESM");
+	aaE_recoil_dc_recoil->Reset("ICESM");
+	eE_prompt->Reset("ICESM");
+	eE_prompt_1p->Reset("ICESM");
+	eE_prompt_2p->Reset("ICESM");
+	eE_random->Reset("ICESM");
+	eE_random_1p->Reset("ICESM");
+	eE_random_2p->Reset("ICESM");
+	eE_ejectile_dc_none->Reset("ICESM");
+	eE_ejectile_dc_ejectile->Reset("ICESM");
+	eE_ejectile_dc_recoil->Reset("ICESM");
+	eE_recoil_dc_none->Reset("ICESM");
+	eE_recoil_dc_ejectile->Reset("ICESM");
+	eE_recoil_dc_recoil->Reset("ICESM");
+	eE_2p_dc_none->Reset("ICESM");
+	eE_2p_dc_ejectile->Reset("ICESM");
+	eE_2p_dc_recoil->Reset("ICESM");
+	eE_vs_theta_ejectile_dc_none->Reset("ICESM");
+	eE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
+	eE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
+	eE_vs_theta_recoil_dc_none->Reset("ICESM");
+	eE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
+	eE_vs_theta_recoil_dc_recoil->Reset("ICESM");
+	eE_vs_theta_2p_dc_none->Reset("ICESM");
+	eE_vs_theta_2p_dc_ejectile->Reset("ICESM");
+	eE_vs_theta_2p_dc_recoil->Reset("ICESM");
+	eE_costheta_ejectile->Reset("ICESM");
+	eE_costheta_recoil->Reset("ICESM");
+	eE_vs_ejectile_dc_none_segment->Reset("ICESM");
+	eE_vs_ejectile_dc_ejectile_segment->Reset("ICESM");
+	eE_vs_ejectile_dc_recoil_segment->Reset("ICESM");
+	eE_vs_recoil_dc_none_segment->Reset("ICESM");
+	eE_vs_recoil_dc_ejectile_segment->Reset("ICESM");
+	eE_vs_recoil_dc_recoil_segment->Reset("ICESM");
+	egE_ejectile_dc_none->Reset("ICESM");
+	egE_ejectile_dc_ejectile->Reset("ICESM");
+	egE_ejectile_dc_recoil->Reset("ICESM");
+	egE_recoil_dc_none->Reset("ICESM");
+	egE_recoil_dc_ejectile->Reset("ICESM");
+	egE_recoil_dc_recoil->Reset("ICESM");
+	eaE_ejectile_dc_none->Reset("ICESM");
+	eaE_ejectile_dc_ejectile->Reset("ICESM");
+	eaE_ejectile_dc_recoil->Reset("ICESM");
+	eaE_recoil_dc_none->Reset("ICESM");
+	eaE_recoil_dc_ejectile->Reset("ICESM");
+	eaE_recoil_dc_recoil->Reset("ICESM");
+	ic_dE->Reset("ICESM");
+	ic_E->Reset("ICESM");
+	ic_dE_E->Reset("ICESM");
+	bdE_singles->Reset("ICESM");
+	bd_bd_td->Reset("ICESM");
+	bdE_bdE->Reset("ICESM");
+
+	for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i )
+		bdE_singles_det[i]->Reset("ICESM");
+	
+
+	
+	return;
+	
+}
 // Particle-Gamma coincidences without addback
 void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g ) {
 
