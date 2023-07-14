@@ -6,8 +6,8 @@ ClassImp(MiniballCalibration)
 void FebexMWD::DoMWD() {
 	
 	// For now use James' naming convention and switch later
-	unsigned int M = rise_time + 3; // 3 clock cycles delay in VHDL
-	unsigned int L = window;
+	unsigned int L = rise_time + 3; // 3 clock cycles delay in VHDL
+	unsigned int M = window + 3; // 3 clock cycles delay in VHDL
 	unsigned int torr = decay_time;
 
 	// Get the trace length
@@ -51,12 +51,16 @@ void FebexMWD::DoMWD() {
 		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
 			
 			// James - differential-integrating shaper
-			differential[i] = trace[i] - trace[i-cfd_shaping_time];
-			for( unsigned int j = 1; j <= cfd_integration_time; ++j )
-				shaper[i] += differential[i-j];
-			shaper[i] /= cfd_integration_time;
-
-
+			shaper[i] = trace[i];
+			fraction = 1.0;
+			
+			// James - differential-integrating shaper
+			//differential[i] = trace[i] - trace[i-cfd_shaping_time];
+			//for( unsigned int j = 1; j <= cfd_integration_time; ++j )
+			//	shaper[i] += differential[i-j];
+			//shaper[i] /= cfd_integration_time;
+			
+			
 			// Liam - simple differential shaper
 			//shaper[i] = trace[i] - trace[i-cfd_shaping_time];
 			
@@ -71,7 +75,7 @@ void FebexMWD::DoMWD() {
 
 		}
 		
-		// Now we need to be longer than the gap
+		// Now we need to be longer than M
 		if( i >= M + skip ) {
 			
 			// MWD stage 1 - difference
@@ -156,7 +160,7 @@ void FebexMWD::DoMWD() {
 			if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
 			// Check we have enough trace left to analyse
-			if( trace_length - i < M + flat_top )
+			if( trace_length - i < flat_top )
 				break;
 			
 			// Mark the CFD time - James
@@ -169,13 +173,13 @@ void FebexMWD::DoMWD() {
 			cfd_list.push_back( cfd_time );
 			
 			// move to peak of the flat top and add the delay parameter
-			i += M + flat_top;
+			i += flat_top;
 
 			// assess the energy from stage 4 and push back
 			energy_list.push_back( stage4[i] - baseline_energy );
 			
 			// Move to the end of the whole thing
-			i += L - flat_top;
+			i += M + L - flat_top;
 			
 			// Check we are beyond the trigger hold off
 			if( i < armed_at + cfd_hold )
