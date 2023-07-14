@@ -176,7 +176,8 @@ void FebexMWD::DoMWD() {
 			i += flat_top;
 
 			// assess the energy from stage 4 and push back
-			energy_list.push_back( stage4[i] - baseline_energy );
+			//energy_list.push_back( stage4[i] - baseline_energy );
+			energy_list.push_back( stage4[i] );
 			
 			// Move to the end of the whole thing
 			i += M + L - flat_top;
