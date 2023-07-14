@@ -153,24 +153,24 @@ void FebexMWD::DoMWD() {
 			unsigned int armed_at = i;
 			
 			// Find zero crossing - Liam version, but James effects the same thing
-			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
+			//while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
 			
 			// Reject incorrect polarity - Liam version, but James effects the same thing
-			if( threshold < 0 && cfd[i-1] > 0 ) continue;
-			if( threshold > 0 && cfd[i-1] < 0 ) continue;
+			//if( threshold < 0 && cfd[i-1] > 0 ) continue;
+			//if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
 			// Check we have enough trace left to analyse
 			if( trace_length - i < flat_top )
 				break;
 			
 			// Mark the CFD time - James
-			//cfd_list.push_back( cfd_time );
+			cfd_list.push_back( cfd_time );
 
 			// Mark the CFD time - Liam
-			float cfd_time = (float)i / TMath::Abs(cfd[i]);
-			cfd_time += (float)(i-1) / TMath::Abs(cfd[i-1]);
-			cfd_time /= 1.0 / TMath::Abs(cfd[i]) + 1.0 / TMath::Abs(cfd[i-1]);
-			cfd_list.push_back( cfd_time );
+			//float cfd_time = (float)i / TMath::Abs(cfd[i]);
+			//cfd_time += (float)(i-1) / TMath::Abs(cfd[i-1]);
+			//cfd_time /= 1.0 / TMath::Abs(cfd[i]) + 1.0 / TMath::Abs(cfd[i-1]);
+			//cfd_list.push_back( cfd_time );
 			
 			// move to peak of the flat top and add the delay parameter
 			i += flat_top;
