@@ -200,7 +200,7 @@ void* monitor_run( void* ptr ){
 				int block_ctr = 0;
 				while( spy_length ){
 				
-					std::cout << "Got some data from DataSpy" << std::endl;
+					//std::cout << "Got some data from DataSpy" << std::endl;
 					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
 					block_ctr += nblocks;
 
@@ -212,6 +212,8 @@ void* monitor_run( void* ptr ){
 					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
 
 				}
+				
+				std::cout << "Got " << spy_length << " bytes of data from DataSpy" << std::endl;
 
 				// Sort the packets we just got, then do the rest of the analysis
 				conv_midas_mon->SortTree();
