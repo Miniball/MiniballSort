@@ -345,29 +345,29 @@ void MiniballMidasConverter::ProcessFebexData(){
 
 	}
 	
-	// If we're in standard readout mode, the next event will be with
+	// If we're in the old readout mode, the next event will be with
 	// data_id of 0 again. So we close the event by faking a full set
-	//else if( flag_febex_data0 && !flag_febex_data2 &&
-	//		 !flag_febex_data3 && my_data_id == 0 ){
-	//
-	//	// Fake all other data items
-	//	flag_febex_data1 = true;
-	//	flag_febex_data2 = true;
-	//	flag_febex_data3 = true;
-	//
-	//	// Finish up the previous event
-	//	FinishFebexData();
-	//
-	//	// Then set the info correctly for this event
-	//	febex_data->SetTime( my_tm_stp );
-	//	febex_data->SetSfp( my_sfp_id );
-	//	febex_data->SetBoard( my_board_id );
-	//	febex_data->SetChannel( my_ch_id );
-	//	febex_data->SetPileUp( my_pileup );
-	//	febex_data->SetClipped( my_clip );
-	//	febex_data->SetFlag( my_flagbit );
-	//
-	//}
+	else if( flag_febex_data0 && !flag_febex_data2 &&
+			 !flag_febex_data3 && my_data_id == 0 ){
+	
+		// Fake all other data items
+		flag_febex_data1 = true;
+		flag_febex_data2 = true;
+		flag_febex_data3 = true;
+	
+		// Finish up the previous event
+		FinishFebexData();
+	
+		// Then set the info correctly for this event
+		febex_data->SetTime( my_tm_stp );
+		febex_data->SetSfp( my_sfp_id );
+		febex_data->SetBoard( my_board_id );
+		febex_data->SetChannel( my_ch_id );
+		febex_data->SetPileUp( my_pileup );
+		febex_data->SetClipped( my_clip );
+		febex_data->SetFlag( my_flagbit );
+	
+	}
 	
 	// 16-bit integer (energy but rebinned)
 	if( my_data_id == 0 ) {
