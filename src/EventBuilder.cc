@@ -464,6 +464,7 @@ void MiniballEventBuilder::MakeEventHists(){
 
 void MiniballEventBuilder::ResetHists(){
 
+	// Reset all histograms in the DataSpy
 	tdiff->Reset( "ICEMS" );
 	tdiff_clean->Reset( "ICEMS" );
 	pulser_period->Reset( "ICEMS" );
