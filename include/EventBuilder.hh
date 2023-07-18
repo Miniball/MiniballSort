@@ -56,7 +56,7 @@ public:
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
-	void	ResetHists() {}; // TODO: add resets
+	void	ResetHists();
 	
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){
 		cal = mycal;

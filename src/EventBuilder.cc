@@ -462,6 +462,55 @@ void MiniballEventBuilder::MakeEventHists(){
 	
 }
 
+void MiniballEventBuilder::ResetHists(){
+
+	tdiff->Reset( "ICEMS" );
+	tdiff_clean->Reset( "ICEMS" );
+	pulser_period->Reset( "ICEMS" );
+	ebis_period->Reset( "ICEMS" );
+	t1_period->Reset( "ICEMS" );
+	sc_period->Reset( "ICEMS" );
+	pulser_freq->Reset( "ICEMS" );
+	ebis_freq->Reset( "ICEMS" );
+	t1_freq->Reset( "ICEMS" );
+	sc_freq->Reset( "ICEMS" );
+	pulser_tdiff->Reset( "ICEMS" );
+
+	mb_td_core_seg->Reset( "ICEMS" );
+	mb_td_core_core->Reset( "ICEMS" );
+	
+	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
+		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
+			mb_en_core_seg[i][j]->Reset( "ICEMS" );
+			mb_en_core_seg_ebis_on[i][j]->Reset( "ICEMS" );
+		}
+	}
+
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
+			cd_pen_id[i][j]->Reset( "ICEMS" );
+			cd_nen_id[i][j]->Reset( "ICEMS" );
+			cd_pn_1v1[i][j]->Reset( "ICEMS" );
+			cd_pn_1v2[i][j]->Reset( "ICEMS" );
+			cd_pn_2v1[i][j]->Reset( "ICEMS" );
+			cd_pn_2v2[i][j]->Reset( "ICEMS" );
+			cd_pn_td[i][j]->Reset( "ICEMS" );
+			cd_pp_td[i][j]->Reset( "ICEMS" );
+			cd_nn_td[i][j]->Reset( "ICEMS" );
+			cd_pn_mult[i][j]->Reset( "ICEMS" );
+
+		}
+	}
+	
+	ic_td->Reset( "ICEMS" );
+	ic_dE->Reset( "ICEMS" );
+	ic_E->Reset( "ICEMS" );
+	ic_dE_E->Reset( "ICEMS" );
+
+	return;
+	
+}
+
 
 void MiniballEventBuilder::GammaRayFinder() {
 	
