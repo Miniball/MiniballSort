@@ -85,9 +85,9 @@ void MiniballConverter::MakeTree() {
 	sorted_tree = (TTree*)output_tree->CloneTree(0);
 	sorted_tree->SetName("mb_sort");
 	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
-	sorted_tree->SetDirectory( output_file->GetDirectory(0) );
-	output_tree->SetDirectory( output_file->GetDirectory(0) );
-	mbsinfo_tree->SetDirectory( output_file->GetDirectory(0) );
+	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
+	output_tree->SetDirectory( output_file->GetDirectory("/") );
+	mbsinfo_tree->SetDirectory( output_file->GetDirectory("/") );
 	
 	output_tree->SetAutoFlush(-10e6);
 	sorted_tree->SetAutoFlush(-10e6);
