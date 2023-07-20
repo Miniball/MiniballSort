@@ -1312,7 +1312,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		// check time stamp monotonically increases!
 		if( time_prev > mytime ) {
 			
-			std::cout << "Out of order event in file ";
+			std::cout << "Out of order event in ";
 			std::cout << input_tree->GetName() << std::endl;
 			
 		}

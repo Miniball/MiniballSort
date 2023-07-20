@@ -82,10 +82,10 @@ unsigned long long int MiniballDataPackets::GetEventID(){
 }
 
 long long int MiniballDataPackets::GetTime(){
-		
+	
 	if( IsFebex() ) return GetFebexData()->GetTime();
 	if( IsInfo() ) return GetInfoData()->GetTime();
-
+	
 	return 0;
 	
 }
@@ -101,6 +101,34 @@ UInt_t MiniballDataPackets::GetTimeLSB(){
 	return (UInt_t)this->GetTime();
 	
 }
+
+unsigned char MiniballDataPackets::GetSfp(){
+	
+	if( IsFebex() ) return GetFebexData()->GetSfp();
+	if( IsInfo() ) return GetInfoData()->GetSfp();
+	
+	return 0;
+	
+}
+
+unsigned char MiniballDataPackets::GetBoard(){
+	
+	if( IsFebex() ) return GetFebexData()->GetSfp();
+	if( IsInfo() ) return GetInfoData()->GetSfp();
+	
+	return 0;
+	
+}
+
+unsigned char MiniballDataPackets::GetChannel(){
+	
+	if( IsFebex() ) return GetFebexData()->GetSfp();
+	if( IsInfo() ) return 0;
+	
+	return 0;
+	
+}
+
 
 void FebexData::ClearData(){
 	

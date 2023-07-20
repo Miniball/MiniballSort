@@ -39,7 +39,7 @@ LIBS         := $(ROOTLIBS) $(LIBEXTRA)
 # Compiler.
 CC          = $(shell root-config --cxx)
 # Flags for compiler.
-CFLAGS		= -c -Wall -Wextra $(ROOTCFLAGS) -g -fPIC
+CFLAGS		= -c -Wall -Wextra $(ROOTCFLAGS) -g -fPIC -O3
 CFLAGS		+= -DUNIX -DPOSIX $(OSDEF)
 INCLUDES	+= -I$(INC_DIR) -I.
 

@@ -13,6 +13,8 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	ctr_febex_pause.resize( set->GetNumberOfFebexSfps() );
 	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
 
+	tm_stp_febex.resize( set->GetNumberOfFebexSfps() );
+
 	// Start counters at zero
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 				
@@ -20,6 +22,8 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 		ctr_febex_pause[i].resize( set->GetNumberOfFebexBoards() );
 		ctr_febex_resume[i].resize( set->GetNumberOfFebexBoards() );
 
+		tm_stp_febex[i].resize( set->GetNumberOfFebexBoards(), 0 );
+		
 	}
 	
 	// Default that we do not have a source only run
@@ -69,7 +73,7 @@ void MiniballConverter::SetOutput( std::string output_file_name ){
 void MiniballConverter::MakeTree() {
 
 	// Create Root tree
-	const int splitLevel = 2; // don't split branches = 0, full splitting = 99
+	const int splitLevel = 0; // don't split branches = 0, full splitting = 99
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
 	output_tree = new TTree( "mb", "mb" );
 	mbsinfo_tree = new TTree( "mbsinfo", "mbsinfo" );
@@ -81,13 +85,15 @@ void MiniballConverter::MakeTree() {
 	sorted_tree = (TTree*)output_tree->CloneTree(0);
 	sorted_tree->SetName("mb_sort");
 	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
-	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
-	output_tree->SetDirectory( output_file->GetDirectory("/") );
-	mbsinfo_tree->SetDirectory( output_file->GetDirectory("/") );
+	sorted_tree->SetDirectory( output_file->GetDirectory(0) );
+	output_tree->SetDirectory( output_file->GetDirectory(0) );
+	mbsinfo_tree->SetDirectory( output_file->GetDirectory(0) );
 	
 	output_tree->SetAutoFlush(-10e6);
 	sorted_tree->SetAutoFlush(-10e6);
 	mbsinfo_tree->SetAutoFlush(-10e6);
+	
+	output_tree->SetParallelUnzip();
 
 	febex_data = std::make_shared<FebexData>();
 	info_data = std::make_shared<InfoData>();
@@ -339,14 +345,62 @@ void MiniballConverter::BuildMbsIndex(){
 
 void MiniballConverter::BodgeMidasSort(){
 	
-	// Bodge the time maybe?
+	std::cout << "Filtering data, but not time ordering" << std::endl;
 	
 	// Loop on entries and fill sorted tree
-	for( long long int i = 0; i < output_tree->GetEntries(); ++i ) {
+	long long int n_ents = output_tree->GetEntries();
+	for( long long int i = 0; i < n_ents; ++i ) {
 
+		// Read entry
 		output_tree->GetEntry(i);
-		sorted_tree->Fill();
 
+		// Throw away any dodgy data
+		if( data_packet->GetSfp() >= set->GetNumberOfFebexSfps() ) continue;
+		if( data_packet->GetBoard() >= set->GetNumberOfFebexBoards() ) continue;
+		if( data_packet->GetChannel() >= set->GetNumberOfFebexChannels() ) continue;
+
+		// Bodge the time maybe?
+		if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] != 0 &&
+		   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) > 300e9 ) {
+					
+			//std::cout << "Timestamp jump on SFP " << (int)my_sfp_id << ", board ";
+			//std::cout << (int)my_board_id << ", channel " << (int)my_ch_id << std::endl;
+			//continue;
+			
+		}
+		
+		// Write the data to the sorted tree
+		sorted_tree->Fill();
+		tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] = data_packet->GetTime();
+
+		// Progress bar
+		bool update_progress = false;
+		if( n_ents < 200 )
+			update_progress = true;
+		else if( i % (n_ents/100) == 0 || i+1 == n_ents )
+			update_progress = true;
+		
+		if( update_progress ) {
+			
+			// Percent complete
+			float percent = (float)(i+1)*100.0/(float)n_ents;
+			
+			// Progress bar in GUI
+			if( _prog_ ) {
+				
+				prog->SetPosition( percent );
+				gSystem->ProcessEvents();
+				
+			}
+			
+			// Progress bar in terminal
+			std::cout << " " << std::setw(6) << std::setprecision(4);
+			std::cout << percent << "%    \r";
+			std::cout.flush();
+			
+		}
+
+		
 	}
 	
 	// Reset the output tree so it's empty after we've finished

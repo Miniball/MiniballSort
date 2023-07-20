@@ -138,10 +138,10 @@ protected:
 	TTree *mbsinfo_tree;
 
 	// Counters
-	std::vector<std::vector<unsigned long>> ctr_febex_hit;		// hits on each Febex module
-	std::vector<std::vector<unsigned long>> ctr_febex_pause;   	// pause acq for module
-	std::vector<std::vector<unsigned long>> ctr_febex_resume;  	// resume acq for module
-	unsigned long ctr_febex_ext;								// pulser timestamps
+	std::vector<std::vector<unsigned long int>> ctr_febex_hit;		// hits on each Febex module
+	std::vector<std::vector<unsigned long int>> ctr_febex_pause;   	// pause acq for module
+	std::vector<std::vector<unsigned long int>> ctr_febex_resume;  	// resume acq for module
+	unsigned long int ctr_febex_ext;								// pulser timestamps
 
 	// Histograms
 	std::vector<std::vector<TProfile*>> hfebex_hit;
@@ -154,7 +154,10 @@ protected:
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_mwd;
 	
 	TH1F *hhit_time;
-
+	
+	// Timestamp tracking
+	std::vector<std::vector<long long int>> tm_stp_febex;
+	
 	// 	Settings file
 	std::shared_ptr<MiniballSettings> set;
 

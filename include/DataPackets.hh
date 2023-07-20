@@ -151,6 +151,9 @@ public:
 	long long int GetTime();
 	UInt_t GetTimeMSB();
 	UInt_t GetTimeLSB();
+	unsigned char GetSfp();
+	unsigned char GetBoard();
+	unsigned char GetChannel();
 
 	void ClearData();
 
