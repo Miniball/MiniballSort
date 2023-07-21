@@ -149,7 +149,8 @@ protected:
 	std::vector<std::vector<TProfile*>> hfebex_resume;
 	TProfile *hfebex_ext;
 
-	std::vector<std::vector<std::vector<TH1F*>>> hfebex;
+	std::vector<std::vector<std::vector<TH1F*>>> hfebex_qint;
+	std::vector<std::vector<std::vector<TH1F*>>> hfebex_qshort;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_cal;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_mwd;
 	

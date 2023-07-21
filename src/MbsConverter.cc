@@ -410,7 +410,7 @@ void MiniballMbsConverter::FinishFebexData(){
 		
 		// Fill histograms
 		hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
-		hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+		hfebex_qshort[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
 		
 		// Set this data and fill event to tree
 		// Also add the time offset when we do this

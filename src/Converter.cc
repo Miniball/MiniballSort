@@ -115,7 +115,8 @@ void MiniballConverter::MakeHists() {
 	maindirname = "";
 	
 	// Resize vectors
-	hfebex.resize( set->GetNumberOfFebexSfps() );
+	hfebex_qshort.resize( set->GetNumberOfFebexSfps() );
+	hfebex_qint.resize( set->GetNumberOfFebexSfps() );
 	hfebex_cal.resize( set->GetNumberOfFebexSfps() );
 	hfebex_mwd.resize( set->GetNumberOfFebexSfps() );
 	hfebex_hit.resize( set->GetNumberOfFebexSfps() );
@@ -125,7 +126,8 @@ void MiniballConverter::MakeHists() {
 	// Loop over FEBEX SFPs
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 		
-		hfebex[i].resize( set->GetNumberOfFebexBoards() );
+		hfebex_qshort[i].resize( set->GetNumberOfFebexBoards() );
+		hfebex_qint[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_cal[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_mwd[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_hit[i].resize( set->GetNumberOfFebexBoards() );
@@ -135,7 +137,8 @@ void MiniballConverter::MakeHists() {
 		// Loop over each FEBEX board
 		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
 			
-			hfebex[i][j].resize( set->GetNumberOfFebexChannels() );
+			hfebex_qshort[i][j].resize( set->GetNumberOfFebexChannels() );
+			hfebex_qint[i][j].resize( set->GetNumberOfFebexChannels() );
 			hfebex_cal[i][j].resize( set->GetNumberOfFebexChannels() );
 			hfebex_mwd[i][j].resize( set->GetNumberOfFebexChannels() );
 
@@ -149,31 +152,51 @@ void MiniballConverter::MakeHists() {
 			// Loop over channels of each FEBEX board
 			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
 				
-				// Uncalibrated energy
-				hname = "febex_" + std::to_string(i);
+				// Uncalibrated energy - 32-bit value
+				hname = "febex" + std::to_string(i);
 				hname += "_" + std::to_string(j);
 				hname += "_" + std::to_string(k);
+				hname += "_qshort";
 				
 				htitle = "Raw FEBEX spectra for SFP " + std::to_string(i);
 				htitle += ", board " + std::to_string(j);
 				htitle += ", channel " + std::to_string(k);
-
+				
 				htitle += ";Charge value;Counts";
-				
-				// Check if we have a 32-bit integer or 16-bit integer
-				int qmax;
-				if( cal->FebexType( i, j, k ) == "Qshort" ) qmax = 1 << 16;
-				else qmax = qmax_default;
-				
+
 				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex[i][j][k] = (TH1F*)output_file->Get( hname.data() );
+					hfebex_qshort[i][j][k] = (TH1F*)output_file->Get( hname.data() );
 				
 				else {
 					
-					hfebex[i][j][k] = new TH1F( hname.data(), htitle.data(),
-											32768, 0, qmax );
+					hfebex_qshort[i][j][k] = new TH1F( hname.data(), htitle.data(),
+													16384, 0, 1<<32 );
 					
-					hfebex[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+					hfebex_qshort[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+					
+				}
+				
+				// Uncalibrated energy 16-bit value
+				hname = "febex" + std::to_string(i);
+				hname += "_" + std::to_string(j);
+				hname += "_" + std::to_string(k);
+				hname += "_qint";
+				
+				htitle = "Raw FEBEX spectra for SFP " + std::to_string(i);
+				htitle += ", board " + std::to_string(j);
+				htitle += ", channel " + std::to_string(k);
+				
+				htitle += ";Charge value;Counts";
+				
+				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
+					hfebex_qint[i][j][k] = (TH1F*)output_file->Get( hname.data() );
+				
+				else {
+					
+					hfebex_qint[i][j][k] = new TH1F( hname.data(), htitle.data(),
+													16384, 0, 1<<16 );
+					
+					hfebex_qint[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 					
 				}
 				
@@ -313,7 +336,8 @@ void MiniballConverter::ResetHists() {
 			// Loop over channels of each FEBEX board
 			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
 				
-				hfebex[i][j][k]->Reset( "ICEMS" );
+				hfebex_qshort[i][j][k]->Reset( "ICEMS" );
+				hfebex_qint[i][j][k]->Reset( "ICEMS" );
 				hfebex_cal[i][j][k]->Reset( "ICEMS" );
 				hfebex_mwd[i][j][k]->Reset( "ICEMS" );
 				
@@ -355,23 +379,23 @@ void MiniballConverter::BodgeMidasSort(){
 		output_tree->GetEntry(i);
 
 		// Throw away any dodgy data
-		if( data_packet->GetSfp() >= set->GetNumberOfFebexSfps() ) continue;
-		if( data_packet->GetBoard() >= set->GetNumberOfFebexBoards() ) continue;
-		if( data_packet->GetChannel() >= set->GetNumberOfFebexChannels() ) continue;
+		//if( data_packet->GetSfp() >= set->GetNumberOfFebexSfps() ) continue;
+		//if( data_packet->GetBoard() >= set->GetNumberOfFebexBoards() ) continue;
+		//if( data_packet->GetChannel() >= set->GetNumberOfFebexChannels() ) continue;
 
 		// Bodge the time maybe?
-		if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] != 0 &&
-		   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) > 300e9 ) {
+		//if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] != 0 &&
+		//   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) > 300e9 ) {
 					
 			//std::cout << "Timestamp jump on SFP " << (int)my_sfp_id << ", board ";
 			//std::cout << (int)my_board_id << ", channel " << (int)my_ch_id << std::endl;
 			//continue;
 			
-		}
-		
+		//}
+		//tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] = data_packet->GetTime();
+
 		// Write the data to the sorted tree
 		sorted_tree->Fill();
-		tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] = data_packet->GetTime();
 
 		// Progress bar
 		bool update_progress = false;

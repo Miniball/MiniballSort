@@ -462,9 +462,6 @@ void MiniballMidasConverter::FinishFebexData(){
 
 		// Check if this is actually just a timestamp or info like event
 		flag_febex_info = false;
-//		if( febex_data->GetSfp()     == set->GetPulserSfp()     &&
-//		    febex_data->GetBoard()   == set->GetPulserBoard()   &&
-//		    febex_data->GetChannel() == set->GetPulserChannel() ){
 		if( set->IsPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) ) {
 			
 			flag_febex_info = true;
@@ -512,11 +509,19 @@ void MiniballMidasConverter::FinishFebexData(){
 			// Also add the time offset when we do this
 			febex_data->SetTime( time_corr );
 			data_packet->SetData( febex_data );
-			output_tree->Fill();
+			
+			// Skip large time jumps, maybe?
+			if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] == 0 ||
+			   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) < 300e9 )
+				output_tree->Fill();
 
 			// Fill histograms
-			hfebex[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( adc_tmp_value );
+			hfebex_qshort[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQshort() );
+			hfebex_qint[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
 			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+				
+			// Reset the latest board timestamp
+			tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] = data_packet->GetTime();
 			
 		}
 
