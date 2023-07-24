@@ -361,9 +361,17 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	float phi = 90.0 * sec;
 	phi += cd_offset[det]; // left edge of first strip
 	if( set->GetNumberOfCDNStrips() == 12 )	{			// standard CD
-	
-		phi += 3.5; // move the centre of first strip to zero degrees
-		phi += nid * 7.0;
+
+		// New definition of CD segments
+		// calculate phi angular coverage for each annular strip and width of individual pixel
+	        float coverage=0.0044*TMath::Power(pid,3)-0.1663*TMath::Power(pid,2)+2.3041*pid+65.8874; // note parametrization is not 100% accurate
+		float pixel_width=coverage/12.;
+		phi += pixel_width/2.; // move the centre of first strip to zero degrees
+		phi += nid * pixel_width;
+		
+		// Old definition of CD segments
+		// phi += 3.5; // move the centre of first strip to zero degrees
+		// phi += nid * 7.0;
 	
 	}
 	
