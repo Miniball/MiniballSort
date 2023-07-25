@@ -14,7 +14,7 @@
 
 // Default parameters and name
 std::string output_name;
-std::string datadir_name = "./";
+std::string datadir_name;
 std::string name_set_file;
 std::string name_cal_file;
 std::string name_react_file;
@@ -343,18 +343,22 @@ void do_convert() {
 	TFile *rtest;
 	std::ifstream ftest;
 	std::string name_input_file;
-	std::string name_input_dir;
 	std::string name_output_file;
 
 	// Check each file
 	for( unsigned int i = 0; i < input_names.size(); i++ ){
 
-		name_input_file = input_names.at(i);
-		name_input_dir = input_names.at(i);
+		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
+								input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
+		name_input_file = name_input_file.substr( 0,
+												 name_input_file.find_last_of(".") );
 		name_output_file = name_input_file.substr( 0,
 								name_input_file.find_last_of(".") );
 		if( flag_source ) name_output_file = name_output_file + "_source.root";
 		else name_output_file = name_output_file + ".root";
+		
+		name_output_file = datadir_name + "/" + name_output_file;
+		name_input_file = input_names.at(i);
 
 		force_convert.push_back( false );
 
@@ -452,11 +456,15 @@ bool do_build() {
 	// Do event builder for each file individually
 	for( unsigned int i = 0; i < input_names.size(); i++ ){
 
-		name_input_file = input_names.at(i);
+		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
+												   input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
 		name_input_file = name_input_file.substr( 0,
-								name_input_file.find_last_of(".") );
-		name_output_file = name_input_file + "_events.root";
-		name_input_file += ".root";
+												 name_input_file.find_last_of(".") );
+		name_output_file = name_input_file.substr( 0,
+												  name_input_file.find_last_of(".") );
+		
+		name_output_file = datadir_name + "/" + name_output_file + "_events.root";
+		name_input_file = input_names.at(i) + ".root";
 
 		// If input doesn't exist, skip it
 		ftest.open( name_input_file.data() );
@@ -533,10 +541,11 @@ void do_hist() {
 	// We are going to chain all the event files now
 	for( unsigned int i = 0; i < input_names.size(); i++ ){
 
-		name_input_file = input_names.at(i);
+		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
+												   input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
 		name_input_file = name_input_file.substr( 0,
-								name_input_file.find_last_of(".") );
-		name_input_file += "_events.root";
+												 name_input_file.find_last_of(".") );
+		name_input_file = input_names.at(i) + "_events.root";
 		name_hist_files.push_back( name_input_file );
 
 	}
@@ -644,16 +653,59 @@ int main( int argc, char *argv[] ){
 				
 	}
 	
+	// Check the directory we are writing to
+	if( datadir_name.length() == 0 ) {
+		
+		if( bool( input_names.size() ) ) {
+			
+			// Probably in the current working directory
+			if( input_names.at(0).find("/") == std::string::npos )
+				datadir_name = "./sorted/";
+			
+			// Called from a different directory
+			else {
+				
+				datadir_name = input_names.at(0).substr( 0,
+														input_names.at(0).find_last_of("/") );
+				datadir_name += "/sorted";
+				
+			}
+			
+			// Create the directory if it doesn't exist (not Windows compliant)
+			std::string cmd = "mkdir -p " + datadir_name;
+			gSystem->Exec( cmd.data() );
+			
+		}
+		
+		else datadir_name = "dataspy";
+		
+		std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
+		
+	}
+
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
 
-		if( bool( input_names.size() ) )
-			output_name = input_names.at(0) + "_hists.root";
+		if( bool( input_names.size() ) ) {
+
+			std::string name_input_file = input_names.at(0).substr( input_names.at(0).find_last_of("/")+1,
+													   input_names.at(0).length() - input_names.at(0).find_last_of("/")-1 );
+			name_input_file = name_input_file.substr( 0,
+													 name_input_file.find_last_of(".") );
+			
+			if( input_names.size() > 1 ) {
+				output_name = datadir_name + "/" + name_input_file + "_hists_";
+				output_name += std::to_string(input_names.size()) + "_subruns.root";
+			}
+			else
+				output_name = datadir_name + "/" + name_input_file + "_hists.root";
+				
+		}
 		
-		else output_name = "spy_hists.root";
+		else output_name = datadir_name + "/monitor_hists.root";
 
 	}
-	
+
 	// Check we have a Settings file
 	if( name_set_file.length() > 0 ) {
 		
@@ -756,7 +808,7 @@ int main( int argc, char *argv[] ){
 		
 		if( flag_mbs && flag_spy ){
 			
-			std::cout << "MBS data spy not yet supported (but it will be)" << std::endl;
+			std::cout << "MBS data spy not yet supported" << std::endl;
 			return 0;
 			
 		}
