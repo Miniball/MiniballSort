@@ -51,7 +51,8 @@ public:
 	unsigned long long int SortTree();
 
 	void SetOutput( std::string output_file_name );
-	
+	inline void SetOutputDirectory( std::string output_dir ){ output_dir_name = output_dir; };
+
 	inline void CloseOutput(){
 		std::cout << "\n Writing data and closing the file" << std::endl;
 		output_file->Write( 0, TObject::kWriteDelete );
@@ -132,6 +133,7 @@ protected:
 	std::shared_ptr<InfoData> info_data;
 	
 	// Output stuff
+	std::string output_dir_name;
 	TFile *output_file;
 	TTree *output_tree;
 	TTree *sorted_tree;

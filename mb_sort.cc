@@ -204,8 +204,10 @@ void* monitor_run( void* ptr ){
 				while( block_ctr < 200 && poll_ctr < 1000 ){
 				
 					//std::cout << "Got some data from DataSpy" << std::endl;
-					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
-					block_ctr += nblocks;
+					if( spy_length > 0 ) {
+						nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
+						block_ctr += nblocks;
+					}
 
 					// Read a new block
 					gSystem->Sleep( 1 ); // wait 1 ms between each read
@@ -324,9 +326,6 @@ void start_http(){
 	//serv->Hide("/Stop");
 	//serv->Hide("/Reset");
 
-	// Add data directory
-	if( datadir_name.size() > 0 ) serv->AddLocation( "data/", datadir_name.data() );
-	
 	return;
 	
 }
@@ -344,12 +343,14 @@ void do_convert() {
 	TFile *rtest;
 	std::ifstream ftest;
 	std::string name_input_file;
+	std::string name_input_dir;
 	std::string name_output_file;
 
 	// Check each file
 	for( unsigned int i = 0; i < input_names.size(); i++ ){
 
 		name_input_file = input_names.at(i);
+		name_input_dir = input_names.at(i);
 		name_output_file = name_input_file.substr( 0,
 								name_input_file.find_last_of(".") );
 		if( flag_source ) name_output_file = name_output_file + "_source.root";
@@ -571,7 +572,7 @@ int main( int argc, char *argv[] ){
     interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
 	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
-	interface->Add("-d", "Data directory to add to the monitor", &datadir_name );
+	interface->Add("-d", "Directory to put the sorted data default is /path/to/data/sorted", &datadir_name );
 	interface->Add("-g", "Launch the GUI", &gui_flag );
 	interface->Add("-h", "Print this help", &help_flag );
 
