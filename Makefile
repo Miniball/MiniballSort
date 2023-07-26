@@ -112,20 +112,20 @@ $(UTIL_DIR)/%.o: $(UTIL_DIR)/%.cc
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.cc $(INC_DIR)/%.hh
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-mb_sortDict.o: mb_sortDict.cc mb_sortDict$(DICTEXT) $(INC_DIR)/RootLinkDef.h
+mb_sortDict.o: $(basename $@).cc $(basename $@)$(DICTEXT) $(INC_DIR)/RootLinkDef.h
 	$(CC) -fPIC $(CFLAGS) $(INCLUDES) -c $<
 
-mb_sortDict.cc mb_sortDict$(DICTEXT): $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
+mb_sortDict.cc $(basename $@)$(DICTEXT): $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 	mkdir -p $(BIN_DIR)
 	mkdir -p $(LIB_DIR)
 	$(ROOTDICT) -f $@ -c $(INCLUDES) $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 	cp $(basename $@)$(DICTEXT) $(LIB_DIR)/
 	cp $(basename $@)$(DICTEXT) $(BIN_DIR)/
 
-$(UTIL_DIR)/%Dict.o: $(UTIL_DIR)/%Dict.cc $(UTIL_DIR)/%Dict$(DICTEXT) $(INC_DIR)/RootLinkDef.h
+$(UTIL_DIR)/%Dict.o: $(basename $@).cc $(basename $@)$(DICTEXT) $(INC_DIR)/RootLinkDef.h
 	$(CC) -fPIC $(CFLAGS) $(INCLUDES) -c $<
 
-$(UTIL_DIR)/%Dict.cc $(UTIL_DIR)/%Dict$(DICTEXT): $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
+$(UTIL_DIR)/%Dict.cc $(basename $@)$(DICTEXT): $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 	mkdir -p $(BIN_DIR)
 	mkdir -p $(LIB_DIR)
 	$(ROOTDICT) -f $@ -c $(INCLUDES) $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
