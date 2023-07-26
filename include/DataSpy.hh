@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <iostream>
+
 #if( defined SOLARIS || defined POSIX )
 
 #include <unistd.h>

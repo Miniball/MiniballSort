@@ -20,7 +20,8 @@ int DataSpy::Open( int id ) {
 #if( defined SOLARIS || defined POSIX )
 
 	// create a file mapped object (MASTER) or obtain ID of existing object
-	sprintf( object_name, "SHM_%d", shmkey+id );
+	//sprintf( object_name, "SHM_%d", shmkey+id );
+	snprintf( object_name, sizeof(object_name), "SHM_%d", shmkey+id );
 
 	shmid[id] = shm_open( object_name, O_RDONLY, (mode_t)0 );
 	if( shmid[id] == -1 ) {
@@ -56,7 +57,7 @@ int DataSpy::Open( int id ) {
 
 #endif
 
-	printf( "DataSpy Shared buffer area %d (/SHM_%d) located at 0x%lx\n", id, shmkey+id, (unsigned long)shm_bufferarea[id]) ;
+	std::cout << "DataSpy Shared buffer area " << id << " (/SHM_" << shmkey+id << ") located at " << (unsigned long)shm_bufferarea[id] << std::endl;
 
 	baseaddress = (BUFFER_HEADER *) shm_bufferarea[id];
 
@@ -67,7 +68,7 @@ int DataSpy::Open( int id ) {
 	next_index[id] = baseaddress->buffer_next;
 	current_age[id] = baseaddress->buffer_currentage;
 
-	printf("DataSpy Current age %lld index %d\n", current_age[id],next_index[id]);
+	std::cout << "DataSpy Current age " << current_age[id] << " index " << next_index[id] << std::endl;
 
 	return 0;
 
@@ -88,15 +89,15 @@ int DataSpy::Close( int id ) {
 #if (defined SOLARIS || defined POSIX)
 
 	// detach the memory segment
-	(void) munmap(shm_bufferarea[id], (size_t) SHMSIZE);
+	(void)munmap(shm_bufferarea[id], (size_t) SHMSIZE);
 
 #else
 
-	(void) shmdt(shm_bufferarea[id]);
+	(void)shmdt(shm_bufferarea[id]);
 
 #endif
 
-	printf("DataSpy Shared buffer area %d located at 0x%lx detached\n",id,(unsigned long)shm_bufferarea[id]);
+	std::cout << "DataSpy Shared buffer area " << id << " located at " << (unsigned long)shm_bufferarea[id] << " detached" << std::endl;
 
 	return 0;
 
@@ -151,8 +152,10 @@ retry:
 			// check if the entry could have changed while copying (can happen) and if so retry
 			if( current_age[id] != baseaddress->buffer_age[next_index[id]] ) {
 				
-				if( verbose )
-					printf ("DataSpy::Read id %d: Copied oldage %lld newage %lld\n", id, current_age[id], baseaddress->buffer_age[next_index[id]]);
+				if( verbose ) {
+					std::cout << "DataSpy::Read id " << id << ": Copied oldage " << current_age[id];
+					std::cout << "newage " << baseaddress->buffer_age[next_index[id]] << std::endl;
+				}
 				
 				goto retry;
 				
@@ -167,12 +170,12 @@ retry:
 	else {
 		
 		if( verbose )
-			printf ("DataSpy::Read - id %d has no data\n",id);
+			std::cout << "DataSpy::Read - id " << id << " has no data" << std::endl;
 		
 	}
 	
 	if( verbose )
-		printf("DataSpy::Read - id %d length %d\n",id,len);
+		std::cout << "DataSpy::Read - id " << id << " length " << len << std::endl;
 	
 	return len;                      /* return actual length of data block */
 	
