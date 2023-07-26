@@ -533,8 +533,8 @@ void do_hist() {
 	MiniballHistogrammer hist( myreact, myset );
 	std::cout << "\n +++ Miniball Analysis:: processing MiniballHistogrammer +++" << std::endl;
 
+	std::ifstream ftest;
 	std::string name_input_file;
-	std::string name_output_file;
 
 	std::vector<std::string> name_hist_files;
 
@@ -546,6 +546,16 @@ void do_hist() {
 		name_input_file = name_input_file.substr( 0,
 												 name_input_file.find_last_of(".") );
 		name_input_file = input_names.at(i) + "_events.root";
+
+		ftest.open( name_input_file.data() );
+		if( !ftest.is_open() ) {
+			
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+			
+		}
+		else ftest.close();
+
 		name_hist_files.push_back( name_input_file );
 
 	}
