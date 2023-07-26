@@ -543,6 +543,18 @@ void MiniballEventBuilder::GammaRayFinder() {
 		// Loop again to find the matching segments
 		for( unsigned int j = 0; j < mb_en_list.size(); ++j ) {
 
+			// Skip the same event
+			if( i == j ) continue;
+			
+			// Skip if it's a core again, also fill time diff plot
+			if( mb_seg_list.at(j) == 0 ) {
+				
+				// Fill the time difference spectrum
+				mb_td_core_core->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
+				continue;
+				
+			}
+
 			// Skip if it's not the same crystal and cluster
 			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
 			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
@@ -552,14 +564,6 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( mb_ts_list.at(j) - ebis_time < 1.5e6 )
 				mb_en_core_seg_ebis_on[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
 
-			// Skip if it's a core again, also fill time diff plot
-			if( i == j || mb_seg_list.at(j) == 0 ) {
-				
-				// Fill the time difference spectrum
-				mb_td_core_core->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
-				continue;
-			
-			}
 			
 			// Increment the segment multiplicity and sum energy
 			seg_mul++;
@@ -1306,7 +1310,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 		// Get the time of the event
 		mytime = in_data->GetTime(); // this is normal
-		//myhittime = in_data->GetTime();	// this is for is697
+		myhittime = in_data->GetTime();	// this is for is697 (not used otherwise)
 		//mytime = myeventtime + myhittime; // this is for is697
 		
 		// check time stamp monotonically increases!
@@ -1677,7 +1681,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			// BELOW IS THE TIME-ORDERED METHOD!
 
 			// Get next time
-			//myhittime = in_data->GetTime();
+			myhittime = in_data->GetTime(); // not used in MIDAS implementation
 			//mytime = myhittime + myeventtime;
 			mytime = in_data->GetTime();
 			time_diff = mytime - time_first;
