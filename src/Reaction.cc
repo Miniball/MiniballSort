@@ -364,7 +364,7 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 
 		// New definition of CD segments
 		// calculate phi angular coverage for each annular strip and width of individual pixel
-	        float coverage=-0.0044*TMath::Power(pid,3)+0.0451*TMath::Power(pid,2)-0.3646*pid+78.2188; // note parametrization is not 100% accurate
+		float coverage=-0.0044*TMath::Power(pid,3)+0.0451*TMath::Power(pid,2)-0.3646*pid+78.2188; // note parametrization is not 100% accurate
 		float pixel_width=coverage/12.;
 		phi += pixel_width/2.; // move the centre of first strip to zero degrees
 		phi += nid * pixel_width;

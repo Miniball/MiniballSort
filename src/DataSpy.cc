@@ -158,7 +158,7 @@ retry:
 				
 			}
 			
-			next_index[id] = ++next_index[id] & (number_of_buffers[id] -1);
+			next_index[id] = (1+next_index[id]) & (number_of_buffers[id] -1);
 			
 		}
 		
