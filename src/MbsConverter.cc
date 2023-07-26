@@ -9,6 +9,9 @@ void MiniballMbsConverter::ProcessBlock( unsigned long nblock ){
 	
 	// Debug events
 	//ev->Show(1);
+	
+	// Suppress unused warnings
+	(void)nblock;
 
 	// Decode header
 	UInt_t pos = 3;
@@ -23,6 +26,7 @@ void MiniballMbsConverter::ProcessBlock( unsigned long nblock ){
 
 	for( UInt_t i = 0; i < 4; i++ ) {
 		auto pola = data[pos++];
+		(void)pola; // suppress unused warnings
 	}
 	
 	// Padding - Nigel
@@ -33,6 +37,11 @@ void MiniballMbsConverter::ProcessBlock( unsigned long nblock ){
 
 	// Now the channel data
 	while( pos < ndata ) ProcessFebexData( pos );
+	
+	// suppress unused warnings
+	(void)nboards;
+	(void)trace;
+	(void)filter;
 
 	return;
 	
@@ -183,8 +192,14 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				// Close the data packet and clean up
 				FinishFebexData();
 
+				// suppress unused warnings
+				(void)n_hit_in_cha;
+
 			}
 		
+			// suppress unused warnings
+			(void)specheader;
+
 		}
 		
 		// Spec trailer
@@ -268,6 +283,9 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 			}
 			
 		}
+		
+		// suppress unused warnings
+		(void)filter_mode;
 
 		FebexMWD mwd = cal->DoMWD( my_sfp_id, my_board_id, my_ch_id, febex_data->GetTrace() );
 		for( unsigned int i = 0; i < mwd.NumberOfTriggers(); ++i ) {
@@ -298,7 +316,7 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 		}
 
 	}
-	
+
 	return;
 	
 }
