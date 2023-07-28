@@ -120,7 +120,7 @@ mb_sortDict.o: mb_sortDict.cc mb_sortDict$(DICTEXT) $(INC_DIR)/RootLinkDef.h
 	cp $(basename $@)$(DICTEXT) $(LIB_DIR)/
 	cp $(basename $@)$(DICTEXT) $(BIN_DIR)/
 
-mb_sortDict.cc mb_sortDict$(DICTEXT): $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
+mb_sortDict.cc: $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 	$(ROOTDICT) -f $@ -c $(INCLUDES) $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 
 $(UTIL_DIR)/%Dict.o: $(UTIL_DIR)/%Dict.cc $(UTIL_DIR)/%Dict$(DICTEXT) $(INC_DIR)/RootLinkDef.h
@@ -130,7 +130,7 @@ $(UTIL_DIR)/%Dict.o: $(UTIL_DIR)/%Dict.cc $(UTIL_DIR)/%Dict$(DICTEXT) $(INC_DIR)
 	cp $(basename $@)$(DICTEXT) $(LIB_DIR)/
 	cp $(basename $@)$(DICTEXT) $(BIN_DIR)/
 
-$(UTIL_DIR)/%Dict.cc $(UTIL_DIR)/%Dict$(DICTEXT): $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
+$(UTIL_DIR)/%Dict.cc: $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 	$(ROOTDICT) -f $@ -c $(INCLUDES) $(DEPENDENCIES) $(INC_DIR)/RootLinkDef.h
 
 clean:
