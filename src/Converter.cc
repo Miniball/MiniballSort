@@ -170,7 +170,7 @@ void MiniballConverter::MakeHists() {
 				else {
 					
 					hfebex_qshort[i][j][k] = new TH1F( hname.data(), htitle.data(),
-													16384, 0, (unsigned long long)1<<32 );
+													16384, 0, (unsigned long long)1<<16 );
 					
 					hfebex_qshort[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 					
@@ -194,7 +194,7 @@ void MiniballConverter::MakeHists() {
 				else {
 					
 					hfebex_qint[i][j][k] = new TH1F( hname.data(), htitle.data(),
-													16384, 0, (unsigned long long)1<<16 );
+													16384, 0, (unsigned long long)1<<32 );
 					
 					hfebex_qint[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 					
