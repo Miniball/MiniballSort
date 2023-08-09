@@ -101,7 +101,7 @@ public:
 	inline unsigned int GetNumberOfCDNStrips(){ return n_cd_nstrip; };
 	bool IsCD( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
-					  std::vector<std::vector<std::vector<int>>> vector );
+				std::vector<std::vector<std::vector<int>>> vector );
 	inline int GetCDDetector( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetCDID( sfp, board, ch, cd_det );
 	};
@@ -115,7 +115,14 @@ public:
 		return GetCDID( sfp, board, ch, cd_strip );
 	};
 	inline double GetCDHitWindow(){ return cd_hit_window; };
-
+	
+	
+	// Pad detector
+	bool IsPad( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetPadDetector( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetPadSector( unsigned int sfp, unsigned int board, unsigned int ch );
+	inline double GetPadHitWindow(){ return pad_hit_window; };
+	
 	
 	// Beam dump detector
 	inline unsigned int GetNumberOfBeamDumpDetectors(){ return n_bd_det; };
@@ -183,6 +190,14 @@ private:
 	std::vector<std::vector<std::vector<int>>> cd_side;							///< A channel map for the CD sides (-1 if not a CD, 0 for p-side, 1 for n-side)
 	std::vector<std::vector<std::vector<int>>> cd_strip;						///< A channel map for the CD strips IDs (-1 if not a CD, strip ID otherwise)
 
+	// PAD electronics mapping
+	std::vector<std::vector<unsigned int>> pad_sfp;		///< A list of SFP numbers for each PAD detector
+	std::vector<std::vector<unsigned int>> pad_board;	///< A list of board numbers for each PAD detector
+	std::vector<std::vector<unsigned int>> pad_ch;		///< A list of channel numbers for each PAD detector
+	std::vector<std::vector<std::vector<int>>> pad_det;		///< A channel map for the PAD detectors (-1 if not a PAD, 0 forward CD-PAD, 1 backward CD-PAD)
+	std::vector<std::vector<std::vector<int>>> pad_sector;	///< A channel map for the PAD sectors (-1 if not a PAD, 0-3 for quadrants)
+															///<
+	
 	// Beam dump settings
 	unsigned int n_bd_det;		///< Number of beam dump detectors
 
@@ -245,6 +260,7 @@ private:
 	double mb_hit_window;			///< Prompt time for correlated Miniball events in crystal, i.e. segmen-core events
 	double ab_hit_window;			///< Prompt time for correlated Miniball events in cluster, i.e. addback events
 	double cd_hit_window;			///< Prompt time for correlated CD events
+	double pad_hit_window;			///< Prompt time for correlated CD-Pad events
 	double ic_hit_window;			///< Prompt time for correlated ionchamber events
 
 	// Data format

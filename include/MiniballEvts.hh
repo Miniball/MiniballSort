@@ -74,20 +74,26 @@ public:
 	// Event set functions
 	inline void SetEnergyP( float e ){ penergy = e; };
 	inline void SetEnergyN( float e ){ nenergy = e; };
+	inline void SetEnergyPad( float e ){ renergy = e; };
 	inline void SetTimeP( unsigned long long t ){ ptime = t; };
 	inline void SetTimeN( unsigned long long t ){ ntime = t; };
+	inline void SetTimePad( unsigned long long t ){ rtime = t; };
 	inline void SetDetector( unsigned char d ){ det = d; };
 	inline void SetSector( unsigned char s ){ sec = s; };
 	inline void SetStripP( unsigned char s ){ pstrip = s; };
 	inline void SetStripN( unsigned char s ){ nstrip = s; };
 
 	// Return functions
-	inline float 				GetEnergy(){ return GetEnergyP(); };
+	inline float 				GetEnergy(){ return GetEnergyP() + GetEnergyPad(); };
+	inline float 				GetDeltaEnergy(){ return GetEnergyP(); };
+	inline float 				GetRestEnergy(){ return GetEnergyPad(); };
 	inline unsigned long long	GetTime(){ return GetTimeP(); };
 	inline float 				GetEnergyP(){ return penergy; };
 	inline float 				GetEnergyN(){ return nenergy; };
+	inline float 				GetEnergyPad(){ return renergy; };
 	inline unsigned long long	GetTimeP(){ return ptime; };
 	inline unsigned long long	GetTimeN(){ return ntime; };
+	inline unsigned long long	GetTimePad(){ return rtime; };
 	inline unsigned char		GetDetector(){ return det; };
 	inline unsigned char		GetSector(){ return sec; };
 	inline unsigned char		GetStripP(){ return pstrip; };
@@ -99,15 +105,17 @@ private:
 	// variables for particle event
 	float				penergy;		///< p-side energy in keV
 	float				nenergy;		///< n-side energy in keV
+	float				renergy;		///< pad energy in keV
 	unsigned long long	ptime;			///< p-side timestamp of event
 	unsigned long long	ntime;			///< n-side timestamp of event
+	unsigned long long	rtime;			///< pad timestamp of event
 	unsigned char		det;			///< detector ID (=0 for forward CD)
 	unsigned char		sec;			///< sector ID (0-3 for quadrants)
 	unsigned char		pstrip;			///< p-side strip ID
 	unsigned char		nstrip;			///< n-side strip ID
 
 
-	ClassDef( ParticleEvt, 1 )
+	ClassDef( ParticleEvt, 2 )
 
 };
 

@@ -82,6 +82,7 @@ void MiniballSettings::ReadSettings() {
 	mb_hit_window	= config->GetValue( "MiniballCrystalHitWindow", 400. );
 	ab_hit_window	= config->GetValue( "MiniballAddbackHitWindow", 400. );
 	cd_hit_window	= config->GetValue( "CDHitWindow", 150. );
+	pad_hit_window	= config->GetValue( "PadHitWindow", 150. );
 	ic_hit_window	= config->GetValue( "IonChamberHitWindow", 500. );
 
 	
@@ -102,6 +103,8 @@ void MiniballSettings::ReadSettings() {
 	cd_sector.resize( n_febex_sfp );
 	cd_side.resize( n_febex_sfp );
 	cd_strip.resize( n_febex_sfp );
+	pad_det.resize( n_febex_sfp );
+	pad_sector.resize( n_febex_sfp );
 	bd_det.resize( n_febex_sfp );
 	spede_seg.resize( n_febex_sfp );
 	ic_layer.resize( n_febex_sfp );
@@ -116,6 +119,8 @@ void MiniballSettings::ReadSettings() {
 		cd_sector[i].resize( n_febex_board );
 		cd_side[i].resize( n_febex_board );
 		cd_strip[i].resize( n_febex_board );
+		pad_det[i].resize( n_febex_board );
+		pad_sector[i].resize( n_febex_board );
 		bd_det[i].resize( n_febex_board );
 		spede_seg[i].resize( n_febex_board );
 		ic_layer[i].resize( n_febex_board );
@@ -130,6 +135,8 @@ void MiniballSettings::ReadSettings() {
 			cd_sector[i][j].resize( n_febex_ch );
 			cd_side[i][j].resize( n_febex_ch );
 			cd_strip[i][j].resize( n_febex_ch );
+			pad_det[i][j].resize( n_febex_ch );
+			pad_sector[i][j].resize( n_febex_ch );
 			bd_det[i][j].resize( n_febex_ch );
 			spede_seg[i][j].resize( n_febex_ch );
 			ic_layer[i][j].resize( n_febex_ch );
@@ -144,6 +151,8 @@ void MiniballSettings::ReadSettings() {
 				cd_sector[i][j][k]	= -1;
 				cd_side[i][j][k]	= -1;
 				cd_strip[i][j][k]	= -1;
+				pad_det[i][j][k]	= -1;
+				pad_sector[i][j][k]	= -1;
 				bd_det[i][j][k]		= -1;
 				spede_seg[i][j][k]	= -1;
 				ic_layer[i][j][k]	= -1;
@@ -278,6 +287,48 @@ void MiniballSettings::ReadSettings() {
 		
 	} // i: cd detector
 	
+	
+	// PAD detector electronics mapping
+	pad_sfp.resize( n_cd_det );
+	pad_board.resize( n_cd_det );
+	pad_ch.resize( n_cd_det );
+	
+	for( unsigned int i = 0; i < n_cd_det; ++i ){
+
+		pad_sfp[i].resize( n_cd_sector );
+		pad_board[i].resize( n_cd_sector );
+		pad_ch[i].resize( n_cd_sector );
+		
+		for( unsigned int j = 0; j < n_cd_sector; ++j ){
+			
+			s = 0;
+			b = 13+i;
+			c = j*2+1;
+			pad_sfp[i][j]	= config->GetValue( Form( "Pad_%d_%d.Sfp", i, j ), s );
+			pad_board[i][j]	= config->GetValue( Form( "Pad_%d_%d.Board", i, j ), b );
+			pad_ch[i][j]	= config->GetValue( Form( "Pad_%d_%d.Channel", i, j ), c );
+			
+			if( pad_sfp[i][j] < n_febex_sfp &&
+			   pad_board[i][j] < n_febex_board &&
+			   pad_ch[i][j] < n_febex_ch ){
+				
+				pad_det[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] = i;
+				pad_sector[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] = j;
+				
+			}
+			
+			else {
+				
+				std::cerr << "Dodgy PAD settings: sfp = " << pad_sfp[i][j];
+				std::cerr << ", board = " << pad_board[i][j];
+				std::cerr << ", channel = " << pad_ch[i][j] << std::endl;
+				
+			}
+			
+		} // j: cd sector
+	
+	} // i: cd detector
+
 	
 	// Beam dump detector mapping
 	bd_sfp.resize( n_bd_det );
@@ -427,9 +478,9 @@ bool MiniballSettings::IsMiniball( unsigned int sfp, unsigned int board, unsigne
 	else {
 		
 		std::cerr << "Bad Miniball event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 
@@ -445,9 +496,9 @@ int MiniballSettings::GetMiniballID( unsigned int sfp, unsigned int board, unsig
 	else {
 		
 		std::cerr << "Bad Miniball event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 	
@@ -466,9 +517,9 @@ bool MiniballSettings::IsCD( unsigned int sfp, unsigned int board, unsigned int 
 	else {
 		
 		std::cerr << "Bad CD event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 
@@ -484,13 +535,68 @@ int MiniballSettings::GetCDID( unsigned int sfp, unsigned int board, unsigned in
 	else {
 		
 		std::cerr << "Bad CD event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 	
 }
+
+bool MiniballSettings::IsPad( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return true if this is a Pad event
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch ) {
+		
+		if( pad_det[sfp][board][ch] >= 0 ) return true;
+		else return false;
+	}
+	
+	else {
+		
+		std::cerr << "Bad Pad event: sfp = " << sfp;
+		std::cerr << ", board = " << board;
+		std::cerr << ", channel = " << ch << std::endl;
+		return false;
+		
+	}
+	
+}
+
+int MiniballSettings::GetPadDetector( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return the Pad detector by the FEBEX SFP, Board number and Channel number
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
+		return pad_det[sfp][board][ch];
+	
+	else {
+		
+		std::cerr << "Bad Pad event: sfp = " << sfp;
+		std::cerr << ", board = " << board;
+		std::cerr << ", channel = " << ch << std::endl;
+		return false;
+		
+	}
+	
+}
+
+int MiniballSettings::GetPadSector( unsigned int sfp, unsigned int board, unsigned int ch ) {
+	
+	/// Return the Pad sector by the FEBEX SFP, Board number and Channel number
+	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
+		return pad_sector[sfp][board][ch];
+	
+	else {
+		
+		std::cerr << "Bad Pad event: sfp = " << sfp;
+		std::cerr << ", board = " << board;
+		std::cerr << ", channel = " << ch << std::endl;
+		return false;
+		
+	}
+	
+}
+
 
 bool MiniballSettings::IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
@@ -509,9 +615,9 @@ int MiniballSettings::GetBeamDumpDetector( unsigned int sfp, unsigned int board,
 	else {
 		
 		std::cerr << "Bad beam dump event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 	
@@ -534,9 +640,9 @@ int MiniballSettings::GetSpedeSegment( unsigned int sfp, unsigned int board, uns
 	else {
 		
 		std::cerr << "Bad SPEDE event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 	
@@ -559,9 +665,9 @@ int MiniballSettings::GetIonChamberLayer( unsigned int sfp, unsigned int board, 
 	else {
 		
 		std::cerr << "Bad IonChamber event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 	
@@ -584,9 +690,9 @@ int MiniballSettings::GetPulser( unsigned int sfp, unsigned int board, unsigned 
 	else {
 		
 		std::cerr << "Bad pulser event: sfp = " << sfp;
-		std::cerr << ", board = " << board << std::endl;
+		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
-		return -1;
+		return false;
 		
 	}
 	

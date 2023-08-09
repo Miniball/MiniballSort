@@ -668,6 +668,7 @@ void MiniballEventBuilder::ParticleFinder() {
 	// Variables for the finder algorithm
 	std::vector<unsigned char> pindex;
 	std::vector<unsigned char> nindex;
+	std::vector<unsigned char> rindex; // pad
 
 	// Loop over each detector and sector
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ){
@@ -677,10 +678,12 @@ void MiniballEventBuilder::ParticleFinder() {
 			// Reset variables for a new detector element
 			pindex.clear();
 			nindex.clear();
+			rindex.clear();
 			std::vector<unsigned char>().swap(pindex);
 			std::vector<unsigned char>().swap(nindex);
-			int pmax_idx = -1, nmax_idx = -1;
-			float pmax_en = -999., nmax_en = -999.;
+			std::vector<unsigned char>().swap(rindex);
+			int pmax_idx = -1, nmax_idx = -1, rmax_idx;
+			float pmax_en = -999., nmax_en = -999., rmax_en = 0.0;
 			float psum_en, nsum_en;
 			
 			// Calculate p/n side multiplicities and get indicies
@@ -702,7 +705,6 @@ void MiniballEventBuilder::ParticleFinder() {
 						pmax_idx = k;
 					
 					}
-
 				
 				} // p-side
 				
@@ -721,8 +723,27 @@ void MiniballEventBuilder::ParticleFinder() {
 				} // n-side
 			
 			} // k: all CD events
+
+			// Look for pad events
+			for( unsigned int k = 0; k < pad_en_list.size(); ++k ){
+				
+				// Test that we have the correct detector and quadrant
+				if( i != pad_det_list.at(k) || j != pad_sec_list.at(k) )
+					continue;
+
+				rindex.push_back(k);
+
+				// Check if it is max energy
+				if( pad_en_list.at(k) > rmax_en ){
+					
+					rmax_en = pad_en_list.at(k);
+					rmax_idx = k;
+					
+				}
+
+			} // k: all pad events
 			
-			
+
 			// Plot multiplcities
 			if( pindex.size() || nindex.size() )
 				cd_pn_mult[i][j]->Fill( pindex.size(), nindex.size() );
@@ -756,6 +777,7 @@ void MiniballEventBuilder::ParticleFinder() {
 				} // n2
 
 			} // n1
+			
 			
 			// ----------------------- //
 			// Particle reconstruction //
@@ -1413,6 +1435,25 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				
 			}
 			
+			// Is it a particle from the Pad?
+			else if( set->IsPad( mysfp, myboard, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_pad++;
+				hit_ctr++;
+				event_open = true;
+				
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					pad_en_list.push_back( myenergy );
+					pad_ts_list.push_back( mytime );
+					pad_det_list.push_back( set->GetPadDetector( mysfp, myboard, mych ) );
+					pad_sec_list.push_back( set->GetPadSector( mysfp, myboard, mych ) );
+					
+				}
+				
+			}
+			
 			// Is it an electron from Spede?
 			else if( set->IsSpede( mysfp, myboard, mych ) && mythres ) {
 				
@@ -1808,6 +1849,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	ss_log << "    Gamma singles events = " << gamma_ctr << std::endl;
 	ss_log << "    Gamma addback events = " << gamma_ab_ctr << std::endl;
 	ss_log << "   CD detector triggers = " << n_cd << std::endl;
+	ss_log << "   Pad detector triggers = " << n_pad << std::endl;
 	ss_log << "    Particle events = " << cd_ctr << std::endl;
 	ss_log << "   SPEDE triggers = " << n_spede << std::endl;
 	ss_log << "    Electron events = " << spede_ctr << std::endl;

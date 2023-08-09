@@ -72,8 +72,10 @@ void MiniballEvts::AddEvt( std::shared_ptr<ParticleEvt> event ) {
 	ParticleEvt fill_evt;
 	fill_evt.SetEnergyP( event->GetEnergyP() );
 	fill_evt.SetEnergyN( event->GetEnergyN() );
+	fill_evt.SetEnergyPad( event->GetEnergyPad() );
 	fill_evt.SetTimeP( event->GetTimeP() );
 	fill_evt.SetTimeN( event->GetTimeN() );
+	fill_evt.SetTimePad( event->GetTimePad() );
 	fill_evt.SetDetector( event->GetDetector() );
 	fill_evt.SetSector( event->GetSector() );
 	fill_evt.SetStripP( event->GetStripP() );

@@ -68,6 +68,7 @@
 #MiniballCrystalHitWindow: 400		# for core-segment coincidences
 #MiniballAddbackHitWindow: 400		# for core-core coincidences, i.e. addback
 #CDHitWindow: 200					# for p-n or p-p, or n-n coincidences
+#PadHitWindow: 200					# for CD-Pad coincidences
 #IonChamberHitWindow: 500			# for gas-silicon coincidences
 
 #-----------------#
@@ -193,155 +194,171 @@
 #NumberOfCDStrips.P: 16			# number of p-side strips = 16
 #NumberOfCDStrips.N: 12			# number of n-side strips = 12 with Edinburgh/RAL preamps
 
-#CD_0_0_0.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 0
+#CD_0_0_0.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 0
 #CD_0_0_0.P.Board: 0			#
 #CD_0_0_0.P.Channel: 0			#
-#CD_0_0_1.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 1
+#CD_0_0_1.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 1
 #CD_0_0_1.P.Board: 0			#
 #CD_0_0_1.P.Channel: 1			#
-#CD_0_0_2.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 2
+#CD_0_0_2.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 2
 #CD_0_0_2.P.Board: 0			#
 #CD_0_0_2.P.Channel: 2			#
-#CD_0_0_3.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 3
+#CD_0_0_3.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 3
 #CD_0_0_3.P.Board: 0			#
 #CD_0_0_3.P.Channel: 3			#
-#CD_0_0_4.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 4
+#CD_0_0_4.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 4
 #CD_0_0_4.P.Board: 0			#
 #CD_0_0_4.P.Channel: 4			#
-#CD_0_0_5.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 5
+#CD_0_0_5.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 5
 #CD_0_0_5.P.Board: 0			#
 #CD_0_0_5.P.Channel: 5			#
-#CD_0_0_6.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 6
+#CD_0_0_6.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 6
 #CD_0_0_6.P.Board: 0			#
 #CD_0_0_6.P.Channel: 6			#
-#CD_0_0_7.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 7
+#CD_0_0_7.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 7
 #CD_0_0_7.P.Board: 0			#
 #CD_0_0_7.P.Channel: 7			#
-#CD_0_0_8.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 8
+#CD_0_0_8.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 8
 #CD_0_0_8.P.Board: 0			#
 #CD_0_0_8.P.Channel: 8			#
-#CD_0_0_9.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 9
+#CD_0_0_9.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 9
 #CD_0_0_9.P.Board: 0			#
 #CD_0_0_9.P.Channel: 9			#
-#CD_0_0_10.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 10
+#CD_0_0_10.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 10
 #CD_0_0_10.P.Board: 0			#
 #CD_0_0_10.P.Channel: 10		#
-#CD_0_0_11.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 11
+#CD_0_0_11.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 11
 #CD_0_0_11.P.Board: 0			#
 #CD_0_0_11.P.Channel: 11		#
-#CD_0_0_12.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 12
+#CD_0_0_12.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 12
 #CD_0_0_12.P.Board: 0			#
 #CD_0_0_12.P.Channel: 12		#
-#CD_0_0_13.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 13
+#CD_0_0_13.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 13
 #CD_0_0_13.P.Board: 0			#
 #CD_0_0_13.P.Channel: 13		#
-#CD_0_0_14.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 14
+#CD_0_0_14.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 14
 #CD_0_0_14.P.Board: 0			#
 #CD_0_0_14.P.Channel: 14		#
-#CD_0_0_15.P.Sfp: 2				# Forward CD, Sector 0, P-Strip 15
+#CD_0_0_15.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 15
 #CD_0_0_15.P.Board: 0			#
 #CD_0_0_15.P.Channel: 15		#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_0.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 0
+#CD_0_0_0.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 0
 #CD_0_0_0.N.Board: 1			#
 #CD_0_0_0.N.Channel: 0			#
-#CD_0_0_1.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 1
+#CD_0_0_1.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 1
 #CD_0_0_1.N.Board: 1			#
 #CD_0_0_1.N.Channel: 1			#
-#CD_0_0_2.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 2
+#CD_0_0_2.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 2
 #CD_0_0_2.N.Board: 1			#
 #CD_0_0_2.N.Channel: 2			#
-#CD_0_0_3.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 3
+#CD_0_0_3.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 3
 #CD_0_0_3.N.Board: 1			#
 #CD_0_0_3.N.Channel: 3			#
-#CD_0_0_4.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 4
+#CD_0_0_4.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 4
 #CD_0_0_4.N.Board: 1			#
 #CD_0_0_4.N.Channel: 4			#
-#CD_0_0_5.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 5
+#CD_0_0_5.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 5
 #CD_0_0_5.N.Board: 1			#
 #CD_0_0_5.N.Channel: 5			#
-#CD_0_0_6.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 6
+#CD_0_0_6.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 6
 #CD_0_0_6.N.Board: 1			#
 #CD_0_0_6.N.Channel: 6			#
-#CD_0_0_7.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 7
+#CD_0_0_7.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 7
 #CD_0_0_7.N.Board: 1			#
 #CD_0_0_7.N.Channel: 7			#
-#CD_0_0_8.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 8
+#CD_0_0_8.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 8
 #CD_0_0_8.N.Board: 1			#
 #CD_0_0_8.N.Channel: 8			#
-#CD_0_0_9.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 9
+#CD_0_0_9.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 9
 #CD_0_0_9.N.Board: 1			#
 #CD_0_0_9.N.Channel: 9			#
-#CD_0_0_10.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 10
+#CD_0_0_10.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 10
 #CD_0_0_10.N.Board: 1			#
 #CD_0_0_10.N.Channel: 10		#
-#CD_0_0_11.N.Sfp: 2				# Forward CD, Sector 0, N-Strip 11
+#CD_0_0_11.N.Sfp: 1				# Forward CD, Sector 0, N-Strip 11
 #CD_0_0_11.N.Board: 1			#
 #CD_0_0_11.N.Channel: 11		#
 # ...
-#CD_0_3_0.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 0
+#CD_0_3_0.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 0
 #CD_0_3_0.N.Board: 7			#
 #CD_0_3_0.N.Channel: 0			#
-#CD_0_3_1.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 1
+#CD_0_3_1.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 1
 #CD_0_3_1.N.Board: 7			#
 #CD_0_3_1.N.Channel: 1			#
-#CD_0_3_2.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 2
+#CD_0_3_2.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 2
 #CD_0_3_2.N.Board: 7			#
 #CD_0_3_2.N.Channel: 2			#
-#CD_0_3_3.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 3
+#CD_0_3_3.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 3
 #CD_0_3_3.N.Board: 7			#
 #CD_0_3_3.N.Channel: 3			#
-#CD_0_3_4.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 4
+#CD_0_3_4.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 4
 #CD_0_3_4.N.Board: 7			#
 #CD_0_3_4.N.Channel: 4			#
-#CD_0_3_5.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 5
+#CD_0_3_5.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 5
 #CD_0_3_5.N.Board: 7			#
 #CD_0_3_5.N.Channel: 5			#
-#CD_0_3_6.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 6
+#CD_0_3_6.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 6
 #CD_0_3_6.N.Board: 7			#
 #CD_0_3_6.N.Channel: 6			#
-#CD_0_3_7.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 7
+#CD_0_3_7.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 7
 #CD_0_3_7.N.Board: 7			#
 #CD_0_3_7.N.Channel: 7			#
-#CD_0_3_8.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 8
+#CD_0_3_8.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 8
 #CD_0_3_8.N.Board: 7			#
 #CD_0_3_8.N.Channel: 8			#
-#CD_0_3_9.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 9
+#CD_0_3_9.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 9
 #CD_0_3_9.N.Board: 7			#
 #CD_0_3_9.N.Channel: 9			#
-#CD_0_3_10.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 10
+#CD_0_3_10.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 10
 #CD_0_3_10.N.Board: 7			#
 #CD_0_3_10.N.Channel: 10		#
-#CD_0_3_11.N.Sfp: 2				# Forward CD, Sector 3, N-Strip 11
+#CD_0_3_11.N.Sfp: 1				# Forward CD, Sector 3, N-Strip 11
 #CD_0_3_11.N.Board: 7			#
 #CD_0_3_11.N.Channel: 11		#
 
+
+#---------------------#
+# Pad detector things #
+#--------------------#
+#Pad_0_0.Sfp: 0				# Forward Pad = 0, Sector 0
+#Pad_0_0.Board: 13			#
+#Pad_0_0.Channel: 1			#
+#Pad_0_1.Sfp: 0				# Forward Pad = 0, Sector 1
+#Pad_0_1.Board: 13			#
+#Pad_0_1.Channel: 3			#
+#Pad_0_2.Sfp: 0				# Forward Pad = 0, Sector 2
+#Pad_0_2.Board: 13			#
+#Pad_0_2.Channel: 5			#
+#Pad_0_3.Sfp: 0				# Forward Pad = 0, Sector 3
+#Pad_0_3.Board: 13			#
+#Pad_0_3.Channel: 7			#
 
 
 #---------------------------#

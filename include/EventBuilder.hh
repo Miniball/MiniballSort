@@ -180,6 +180,13 @@ private:
 	std::vector<unsigned char>			cd_side_list;	///< list of CD side IDs; 0 = p, 1 = n
 	std::vector<unsigned char>			cd_strip_list;	///< list of CD strip IDs
 
+	// PAD detector specific variables
+	std::vector<float>					pad_en_list;	///< list of PAD energies for ParticleFinder
+	std::vector<unsigned long long>		pad_ts_list;	///< list of PAD timestamps for ParticleFinder
+	std::vector<unsigned char>			pad_det_list;	///< list of PAD detector IDs
+	std::vector<unsigned char>			pad_sec_list;	///< list of PAD sector IDs
+
+	
 	// Beam dump detector specific variables
 	std::vector<float>					bd_en_list;		///< list of beam dump energies for BeamDumpFinder
 	std::vector<unsigned long long>		bd_ts_list;		///< list of beam dump timestamps for BeamDumpFinder
@@ -203,7 +210,7 @@ private:
 	std::vector<unsigned long>	n_sfp, n_pulser;
 	std::vector<std::vector<unsigned long>>	n_board;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
-	unsigned long				n_miniball, n_cd, n_spede, n_bd, n_ic;
+	unsigned long				n_miniball, n_cd, n_pad, n_spede, n_bd, n_ic;
 
 
 	// Timing histograms
