@@ -56,8 +56,10 @@ public:
 	inline void CloseOutput(){
 		std::cout << "\n Writing data and closing the file" << std::endl;
 		output_file->Write( 0, TObject::kWriteDelete );
+		PurgeOutput();
 		output_file->Close();
 	};
+	inline void PurgeOutput(){ output_file->Purge(2); }
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
 	inline TTree* GetMbsInfo(){ return mbsinfo_tree; };

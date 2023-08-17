@@ -62,9 +62,12 @@ public:
 		MakeHists();
 	};
 	inline void CloseOutput( ){
-		//output_file->Close();
+		PurgeOutput();
+		output_file->Close();
+		input_tree->ResetBranchAddresses();
 		delete read_evts;
 	};
+	inline void PurgeOutput(){ output_file->Purge(2); }
 
 	inline TFile* GetFile(){ return output_file; };
 

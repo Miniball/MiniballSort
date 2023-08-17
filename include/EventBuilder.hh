@@ -80,6 +80,7 @@ public:
 	inline TTree* GetTree(){ return output_tree; };
 	inline void CloseOutput(){
 		output_tree->ResetBranchAddresses();
+		PurgeOutput();
 		output_file->Close();
 		input_tree->ResetBranchAddresses();
 		mbsinfo_tree->ResetBranchAddresses();
@@ -88,6 +89,7 @@ public:
 		delete mbs_info;
 		log_file.close(); //?? to close or not to close?
 	}; ///< Closes the output files from this class
+	inline void PurgeOutput(){ output_file->Purge(2); }
 
 
 private:

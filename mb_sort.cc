@@ -222,7 +222,8 @@ void* monitor_run( void* ptr ){
 
 				// Sort the packets we just got, then do the rest of the analysis
 				conv_midas_mon->SortTree();
-			
+				conv_midas_mon->PurgeOutput();
+
 			}
 											 
 			// Convert - from MBS event server
@@ -233,6 +234,7 @@ void* monitor_run( void* ptr ){
 				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
 				conv_mbs_mon->ProcessBlock(0);
 				conv_mbs_mon->SortTree();
+				conv_mbs_mon->PurgeOutput();
 
 			}
 
@@ -253,6 +255,7 @@ void* monitor_run( void* ptr ){
 				eb_mon->SetMBSInfoTree( mbsinfo_tree );
 				eb_mon->GetTree()->Reset();
 				nbuild = eb_mon->BuildEvents();
+				eb_mon->PurgeOutput();
 				delete sorted_tree;
 				delete mbsinfo_tree;
 
@@ -265,6 +268,7 @@ void* monitor_run( void* ptr ){
 					TTree *evt_tree = eb_mon->GetTree()->CloneTree();
 					hist_mon->SetInputTree( evt_tree );
 					hist_mon->FillHists();
+					hist_mon->PurgeOutput();
 					delete evt_tree;
 				}
 				
