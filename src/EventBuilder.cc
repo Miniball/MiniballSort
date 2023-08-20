@@ -79,6 +79,7 @@ void MiniballEventBuilder::StartFile(){
 
 	n_miniball		= 0;
 	n_cd			= 0;
+	n_pad			= 0;
 	n_bd			= 0;
 	n_spede			= 0;
 	n_ic			= 0;

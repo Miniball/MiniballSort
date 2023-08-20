@@ -41,6 +41,9 @@
 #SC.Sfp: 1						# Location of the SC signal in the DAQ
 #SC.Board: 9
 #SC.Channel: 15
+#Laser.Sfp: 1					# Location of the RILIS Laser signal in the DAQ
+#Laser.Board: 9
+#Laser.Channel: 9
 
 
 #-------------#
