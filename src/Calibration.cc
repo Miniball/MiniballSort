@@ -9,6 +9,7 @@ void FebexMWD::DoMWD() {
 	unsigned int L = rise_time + 3; // 3 clock cycles delay in VHDL
 	unsigned int M = window + 3; // 3 clock cycles delay in VHDL
 	unsigned int torr = decay_time;
+	//unsigned int cfd_trig_delay = M + flat_top;
 
 	// Get the trace length
 	unsigned int trace_length = trace.size();
@@ -48,16 +49,16 @@ void FebexMWD::DoMWD() {
 		//stage4[i] = 0;
 		
 		// James' simple CFD currently on firmware
-		shaper[i] = trace[i];
-		fraction = 1.0;
+		//shaper[i] = trace[i];
+		//fraction = 1.0;
 
 		// Shaped pulse
 		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
 			
 			// James - differential-integrating shaper
-			//differential[i] = trace[i] - trace[i-cfd_shaping_time];
-			//for( unsigned int j = 1; j <= cfd_integration_time; ++j )
-			//	shaper[i] += differential[i-j];
+			differential[i] = trace[i] - trace[i-cfd_shaping_time];
+			for( unsigned int j = 1; j <= cfd_integration_time; ++j )
+				shaper[i] += differential[i-j];
 			//shaper[i] /= cfd_integration_time;
 			
 			
@@ -153,11 +154,11 @@ void FebexMWD::DoMWD() {
 			unsigned int armed_at = i;
 			
 			// Find zero crossing - Liam version, but James effects the same thing
-			//while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
+			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
 			
 			// Reject incorrect polarity - Liam version, but James effects the same thing
-			//if( threshold < 0 && cfd[i-1] > 0 ) continue;
-			//if( threshold > 0 && cfd[i-1] < 0 ) continue;
+			if( threshold < 0 && cfd[i-1] > 0 ) continue;
+			if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
 			// Check we have enough trace left to analyse
 			if( trace_length - i < flat_top )
@@ -215,8 +216,8 @@ void MiniballCalibration::ReadCalibration() {
 	default_CFD_Delay		= 30;
 	default_CFD_HoldOff		= 100; // prevent double triggering?
 	default_CFD_Shaping		= 15;
-	default_CFD_Integration	= 20;
-	default_CFD_Threshold	= 200;
+	default_CFD_Integration	= 10;
+	default_CFD_Threshold	= 500;
 	default_CFD_Fraction	= 0.3;
 
 	

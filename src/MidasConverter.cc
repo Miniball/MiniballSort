@@ -232,7 +232,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	nsamples = word_0 & 0xFFFF; // 16 bits from 0
 	
 	// Get the samples from the trace
-	for( UInt_t j = 0; j < nsamples; j++ ){
+	for( UInt_t j = 0; j < nsamples/4; j++ ){
 		
 		// get next word
 		ULong64_t sample_packet = GetWord(pos++);
@@ -260,7 +260,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 			febex_data->AddSample( ( sample_packet >> 32 ) & 0x000000000000FFFF );
 			febex_data->AddSample( ( sample_packet >> 16 ) & 0x000000000000FFFF );
 			febex_data->AddSample( sample_packet & 0x000000000000FFFF );
-			
+
 		}
 		
 		else {
