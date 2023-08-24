@@ -30,7 +30,7 @@ void FebexMWD::DoMWD() {
 	clipped = false;
 
 	// skip first few samples?
-	unsigned int skip = 5;
+	unsigned int skip = 8;
 	
 	// Loop over trace and analyse
 	for( unsigned int i = 0; i < trace_length; ++i ) {
@@ -59,7 +59,7 @@ void FebexMWD::DoMWD() {
 			differential[i] = trace[i] - trace[i-cfd_shaping_time];
 			for( unsigned int j = 1; j <= cfd_integration_time; ++j )
 				shaper[i] += differential[i-j];
-			//shaper[i] /= cfd_integration_time;
+			shaper[i] /= cfd_integration_time;
 			
 			
 			// Liam - simple differential shaper
@@ -173,12 +173,12 @@ void FebexMWD::DoMWD() {
 			//cfd_time /= 1.0 / TMath::Abs(cfd[i]) + 1.0 / TMath::Abs(cfd[i-1]);
 			//cfd_list.push_back( cfd_time );
 			
-			// move to peak of the flat top and add the delay parameter
+			// move to peak of the flat top
 			i += flat_top;
 
 			// assess the energy from stage 4 and push back
-			//energy_list.push_back( stage4[i] - baseline_energy );
-			energy_list.push_back( stage4[i] );
+			energy_list.push_back( stage4[i] - baseline_energy );
+			//energy_list.push_back( stage4[i] );
 			
 			// Move to the end of the whole thing
 			i += M + L - flat_top;
@@ -208,11 +208,11 @@ void MiniballCalibration::ReadCalibration() {
 
 	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
-	default_MWD_Decay		= 50000;
-	default_MWD_Rise		= 75; // M
-	default_MWD_Top			= 20; // mwd_cfd_trig_delay
+	default_MWD_Decay		= 5000;
+	default_MWD_Rise		= 880; // M
+	default_MWD_Top			= 760; // mwd_cfd_trig_delay
 	default_MWD_Baseline	= 60;
-	default_MWD_Window		= 150; // L
+	default_MWD_Window		= 780; // L
 	default_CFD_Delay		= 30;
 	default_CFD_HoldOff		= 100; // prevent double triggering?
 	default_CFD_Shaping		= 15;
@@ -443,7 +443,7 @@ void MiniballCalibration::SetMWDRise( unsigned char sfp, unsigned char board, un
 	
 }
 
-void MiniballCalibration::SetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top ){
+void MiniballCalibration::SetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
 	   board < set->GetNumberOfFebexBoards() &&
@@ -606,7 +606,7 @@ unsigned int MiniballCalibration::GetMWDRise( unsigned char sfp, unsigned char b
 	
 }
 
-unsigned int MiniballCalibration::GetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch ){
+unsigned int MiniballCalibration::GetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
 	   board < set->GetNumberOfFebexBoards() &&

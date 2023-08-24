@@ -160,7 +160,7 @@ public:
 	// Set functions
 	void SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int decay );
 	void SetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int rise );
-	void SetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top );
+	void SetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top );
 	void SetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int baseline_length );
 	void SetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int window );
 	void SetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch, float fraction );
@@ -173,7 +173,7 @@ public:
 	// Get functions
 	unsigned int GetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch );
 	unsigned int GetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch );
-	unsigned int GetMWDTop( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int GetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch );
 	unsigned int GetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch );
 	unsigned int GetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch );
 	float GetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch );

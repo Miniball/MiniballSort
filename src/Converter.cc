@@ -242,7 +242,7 @@ void MiniballConverter::MakeHists() {
 				else {
 					
 					hfebex_mwd[i][j][k] = new TH1F( hname.data(), htitle.data(),
-												65536, -0.5, 65535.5 );
+												32768, -0.25, 16383.75 );
 					
 					hfebex_mwd[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 					

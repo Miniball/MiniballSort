@@ -256,10 +256,11 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 			//febex_data->AddSample( sample_packet & 0x0000000000003FFF );
 			
 			// FEBEX might not be masking the top two bits with zero
-			febex_data->AddSample( ( sample_packet >> 48 ) & 0x000000000000FFFF );
+			// And the pairs need to be swapped. First sample goes to lower bits
 			febex_data->AddSample( ( sample_packet >> 32 ) & 0x000000000000FFFF );
-			febex_data->AddSample( ( sample_packet >> 16 ) & 0x000000000000FFFF );
+			febex_data->AddSample( ( sample_packet >> 48 ) & 0x000000000000FFFF );
 			febex_data->AddSample( sample_packet & 0x000000000000FFFF );
+			febex_data->AddSample( ( sample_packet >> 16 ) & 0x000000000000FFFF );
 
 		}
 		
