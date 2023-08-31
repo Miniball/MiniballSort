@@ -23,6 +23,7 @@ public:
 	~MiniballSettings() {};
 	
 	void ReadSettings();
+	void TestSettings();
 	void PrintSettings();
 	void SetFile( std::string filename ){
 		fInputFile = filename;
@@ -57,7 +58,12 @@ public:
 	inline unsigned int GetSCBoard(){ return sc_board; };
 	inline unsigned int GetSCChannel(){ return sc_ch; };
 	inline unsigned int GetSCCode(){ return sc_code; };
-
+	
+	inline unsigned int GetRILISSfp(){ return laser_sfp; };
+	inline unsigned int GetRILISBoard(){ return laser_board; };
+	inline unsigned int GetRILISChannel(){ return laser_ch; };
+	inline unsigned int GetRILISCode(){ return laser_code; };
+	
 
 	// Event builder
 	inline double GetEventWindow(){ return event_window; };
@@ -252,6 +258,10 @@ private:
 	unsigned int sc_board;				///< Location of the SuperCycle signal in the FEBEX system (board)
 	unsigned int sc_ch;					///< Location of the SuperCycle signal in the FEBEX system (channel)
 	unsigned int sc_code;				///< Info code when we have a SuperCycle event in InfoData packets
+	unsigned int laser_sfp;				///< Location of the RILIS laser signal in the FEBEX system (sfp)
+	unsigned int laser_board;			///< Location of the RILIS laser signal in the FEBEX system (board)
+	unsigned int laser_ch;				///< Location of the RILIS laser signal in the FEBEX system (channel)
+	unsigned int laser_code;			///< Info code when we have a RILIS Laser ON coincidence with EBIS in InfoData packets
 
 	// Event builder
 	double event_window;			///< Event builder time window in ns

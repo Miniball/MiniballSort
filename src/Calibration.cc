@@ -38,7 +38,7 @@ void FebexMWD::DoMWD() {
 		// Check if we are clipped
 		if( trace[i] == 0 || (trace[i] & 0x0000FFFF) == 0x0000FFFF )
 			clipped = true;
-		
+
 		// Make some default values for derived pulses
 		differential[i] = 0;
 		shaper[i] = 0;
@@ -49,17 +49,17 @@ void FebexMWD::DoMWD() {
 		//stage4[i] = 0;
 		
 		// James' simple CFD currently on firmware
-		//shaper[i] = trace[i];
-		//fraction = 1.0;
+		shaper[i] = trace[i];
+		fraction = 1.0;
 
 		// Shaped pulse
 		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
 			
 			// James - differential-integrating shaper
-			differential[i] = trace[i] - trace[i-cfd_shaping_time];
-			for( unsigned int j = 1; j <= cfd_integration_time; ++j )
-				shaper[i] += differential[i-j];
-			shaper[i] /= cfd_integration_time;
+			//differential[i] = trace[i] - trace[i-cfd_shaping_time];
+			//for( unsigned int j = 1; j <= cfd_integration_time; ++j )
+			//	shaper[i] += differential[i-j];
+			//shaper[i] /= cfd_integration_time;
 			
 			
 			// Liam - simple differential shaper
@@ -154,11 +154,11 @@ void FebexMWD::DoMWD() {
 			unsigned int armed_at = i;
 			
 			// Find zero crossing - Liam version, but James effects the same thing
-			while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
+			//while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
 			
 			// Reject incorrect polarity - Liam version, but James effects the same thing
-			if( threshold < 0 && cfd[i-1] > 0 ) continue;
-			if( threshold > 0 && cfd[i-1] < 0 ) continue;
+			//if( threshold < 0 && cfd[i-1] > 0 ) continue;
+			//if( threshold > 0 && cfd[i-1] < 0 ) continue;
 
 			// Check we have enough trace left to analyse
 			if( trace_length - i < flat_top )

@@ -1021,7 +1021,7 @@ void MiniballEventBuilder::ParticleFinder() {
 				} // neighbour strips - p-side only
 
 				// Neighbour strips - n-side only
-				if( TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
+				else if( TMath::Abs( cd_strip_list.at( nindex[0] ) - cd_strip_list.at( nindex[1] ) ) == 1 ) {
 
 					// Simple sum of both energies, cross-talk not included yet
 					nsum_en  = cd_en_list.at( nindex.at(0) );
@@ -1409,7 +1409,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			n_board[mysfp][myboard]++;
 			
 			// Is it a gamma ray from Miniball?
-			if( set->IsMiniball( mysfp, myboard, mych ) && mythres ) {
+			if( set->IsMiniball( mysfp, myboard, mych ) && mythres && myenergy >= 0 ) {
 				
 				// Increment counts and open the event
 				n_miniball++;
@@ -1426,7 +1426,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it a particle from the CD?
-			else if( set->IsCD( mysfp, myboard, mych ) && mythres ) {
+			else if( set->IsCD( mysfp, myboard, mych ) && mythres && myenergy >= 0 ) {
 				
 				// Increment counts and open the event
 				n_cd++;
@@ -1447,7 +1447,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it a particle from the Pad?
-			else if( set->IsPad( mysfp, myboard, mych ) && mythres ) {
+			else if( set->IsPad( mysfp, myboard, mych ) && mythres && myenergy >= 0 ) {
 				
 				// Increment counts and open the event
 				n_pad++;
@@ -1466,7 +1466,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it an electron from Spede?
-			else if( set->IsSpede( mysfp, myboard, mych ) && mythres ) {
+			else if( set->IsSpede( mysfp, myboard, mych ) && mythres && myenergy >= 0 ) {
 				
 				// Increment counts and open the event
 				n_spede++;
@@ -1484,7 +1484,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it a gamma ray from the beam dump?
-			else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
+			else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres && myenergy >= 0 ) {
 				
 				// Increment counts and open the event
 				n_bd++;
@@ -1502,7 +1502,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it an IonChamber event
-			else if( set->IsIonChamber( mysfp, myboard, mych ) && mythres ) {
+			else if( set->IsIonChamber( mysfp, myboard, mych ) && mythres && myenergy >= 0 ) {
 				
 				// Increment counts and open the event
 				n_ic++;
