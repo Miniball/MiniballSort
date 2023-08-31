@@ -233,6 +233,16 @@ void MiniballEventBuilder::Initialise(){
 	std::vector<unsigned char>().swap(cd_side_list);
 	std::vector<unsigned char>().swap(cd_strip_list);
 	
+	pad_en_list.clear();
+	pad_ts_list.clear();
+	pad_det_list.clear();
+	pad_sec_list.clear();
+	
+	std::vector<float>().swap(pad_en_list);
+	std::vector<unsigned long long>().swap(pad_ts_list);
+	std::vector<unsigned char>().swap(pad_det_list);
+	std::vector<unsigned char>().swap(pad_sec_list);
+	
 	bd_en_list.clear();
 	bd_ts_list.clear();
 	bd_det_list.clear();
