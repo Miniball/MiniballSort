@@ -1874,7 +1874,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 	std::cout << "Writing output file...\r";
 	std::cout.flush();
-	output_file->Write( 0, TObject::kWriteDelete );
+	output_file->Write( nullptr, TObject::kWriteDelete );
 	
 	std::cout << "Writing output file... Done!" << std::endl << std::endl;
 

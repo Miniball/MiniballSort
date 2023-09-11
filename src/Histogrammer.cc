@@ -1862,7 +1862,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 		
 	} // all events
 	
-	output_file->Write();
+	output_file->Write( nullptr, TObject::kWriteDelete );
 	output_file->Purge(2);
 	
 	return n_entries;

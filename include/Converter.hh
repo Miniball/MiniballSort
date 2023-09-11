@@ -55,7 +55,7 @@ public:
 
 	inline void CloseOutput(){
 		std::cout << "\n Writing data and closing the file" << std::endl;
-		output_file->Write( 0, TObject::kWriteDelete );
+		output_file->Write( nullptr, TObject::kWriteDelete );
 		PurgeOutput();
 		output_file->Close();
 	};
