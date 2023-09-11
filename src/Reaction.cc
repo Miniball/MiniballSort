@@ -472,6 +472,22 @@ double MiniballReaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) 
 
 }
 
+double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, double pbeta, double ptheta, double pphi ) {
+
+	/// Returns Doppler corrected gamma-ray energy assuming particle at (β,θ,φ).
+	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
+	TVector3 pvec( 0., 0., 1.0 );
+	pvec.SetTheta( ptheta );
+	pvec.SetPhi( pphi );
+	
+	double gamma = 1.0 / TMath::Sqrt( 1.0 - TMath::Power( pbeta, 2.0 ) );
+	double corr = 1. - pbeta * TMath::Cos( gvec.Angle( pvec ) );
+	corr *= gamma;
+	
+	return corr * g->GetEnergy();
+	
+}
+
 double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
 
 	/// Returns Doppler corrected gamma-ray energy for given particle and gamma combination.

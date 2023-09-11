@@ -80,6 +80,14 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy singles EBIS off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 	
+	hname = "gE_singles_dc";
+	htitle = "Gamma-ray energy singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
+	gE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	
+	hname = "gE_singles_ebis";
+	htitle = "Gamma-ray energy singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
+	gE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	
 	hname = "aE_singles";
 	htitle = "Gamma-ray energy with addback singles;Energy [keV];Counts per 0.5 keV";
 	aE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
@@ -96,6 +104,14 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy with addback singles EBIS off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 
+	hname = "aE_singles_dc";
+	htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
+	aE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	
+	hname = "aE_singles_ebis";
+	htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
+	aE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	
 	hname = "gamma_xy_map_forward";
 	htitle = "Gamma-ray X-Y hit map (forward: z > 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xy_map_forward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
@@ -1492,6 +1508,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 			// Singles
 			gE_singles->Fill( gamma_evt->GetEnergy() );
 			
+			// Singles - Doppler corrected
+			gE_singles_dc->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
+			
 			// EBIS time
 			ebis_td_gamma->Fill( (double)gamma_evt->GetTime() - (double)read_evts->GetEBIS() );
 			
@@ -1500,14 +1519,16 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 				gE_singles_ebis->Fill( gamma_evt->GetEnergy() );
 				gE_singles_ebis_on->Fill( gamma_evt->GetEnergy() );
-				
+				gE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
+
 			} // ebis on
 			
 			else if( OffBeam( gamma_evt ) ){
 				
 				gE_singles_ebis->Fill( gamma_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
 				gE_singles_ebis_off->Fill( gamma_evt->GetEnergy() );
-				
+				gE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ), -1.0 * react->GetEBISFillRatio() );
+
 			} // ebis off
 			
 			// Gamma-ray X-Y hit map
@@ -1579,19 +1600,24 @@ unsigned long MiniballHistogrammer::FillHists() {
 			// Singles
 			aE_singles->Fill( gamma_ab_evt->GetEnergy() );
 			
+			// Singles - Doppler corrected
+			aE_singles_dc->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
+			
 			// Check for events in the EBIS on-beam window
 			if( OnBeam( gamma_ab_evt ) ){
 				
 				aE_singles_ebis->Fill( gamma_ab_evt->GetEnergy() );
 				aE_singles_ebis_on->Fill( gamma_ab_evt->GetEnergy() );
-				
+				aE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
+
 			} // ebis on
 			
 			else if( OffBeam( gamma_ab_evt ) ){
 				
 				aE_singles_ebis->Fill( gamma_ab_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
 				aE_singles_ebis_off->Fill( gamma_ab_evt->GetEnergy() );
-				
+				aE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ), -1.0 * react->GetEBISFillRatio() );
+
 			} // ebis off
 			
 			// Particle-gamma coincidence spectra

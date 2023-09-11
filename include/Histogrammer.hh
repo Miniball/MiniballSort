@@ -280,6 +280,8 @@ private:
 	// Gamma-rays with and without addback
 	TH1F *gE_singles, *gE_singles_ebis, *gE_singles_ebis_on, *gE_singles_ebis_off;
 	TH1F *aE_singles, *aE_singles_ebis, *aE_singles_ebis_on, *aE_singles_ebis_off;
+	TH1F *gE_singles_dc, *gE_singles_dc_ebis;
+	TH1F *aE_singles_dc, *aE_singles_dc_ebis;
 	TH2F *gamma_xy_map_forward, *gamma_xy_map_backward;
 	TH2F *gamma_xz_map_left, *gamma_xz_map_right;
 	TH2F *gamma_theta_phi_map;
