@@ -81,7 +81,7 @@ void MiniballSettings::TestSettings() {
 				}
 				
 				// Is it an IonChamber?
-				if( IsBeamDump(i,j,k) ){
+				if( IsIonChamber(i,j,k) ){
 					
 					detname = "IonChamber_";
 					detname += std::to_string( GetIonChamberLayer(i,j,k) ) + "\n";
@@ -158,7 +158,8 @@ void MiniballSettings::ReadSettings() {
 	n_bd_det		= config->GetValue( "NumberOfBeamDumpDetectors", 1 );
 	
 	// SPEDE initialisation
-	n_spede_seg		= config->GetValue( "NumberOfSpedeSegments", 24 );
+	//n_spede_seg		= config->GetValue( "NumberOfSpedeSegments", 24 );
+	n_spede_seg		= config->GetValue( "NumberOfSpedeSegments", 0 );
 	
 	// IonChamber initialisation
 	n_ic_layer		= config->GetValue( "NumberOfIonChamberLayers", 2 );
@@ -179,20 +180,20 @@ void MiniballSettings::ReadSettings() {
 	thsb_code		= 8;
 	pulser_code		= 30;	// code for first channel, others are pulser_code+id
 	ebis_sfp		= config->GetValue( "EBIS.Sfp", 1 );
-	ebis_board		= config->GetValue( "EBIS.Board", 8 );
-	ebis_ch			= config->GetValue( "EBIS.Channel", 9 );
+	ebis_board		= config->GetValue( "EBIS.Board", 10 );
+	ebis_ch			= config->GetValue( "EBIS.Channel", 0 );
 	ebis_code		= 21;
 	t1_sfp			= config->GetValue( "T1.Sfp", 1 );
-	t1_board		= config->GetValue( "T1.Board", 8 );
-	t1_ch			= config->GetValue( "T1.Channel", 11 );
+	t1_board		= config->GetValue( "T1.Board", 10 );
+	t1_ch			= config->GetValue( "T1.Channel", 2 );
 	t1_code			= 22;
 	sc_sfp			= config->GetValue( "SC.Sfp", 1 );
-	sc_board		= config->GetValue( "SC.Board", 8 );
-	sc_ch			= config->GetValue( "SC.Channel", 13 );
+	sc_board		= config->GetValue( "SC.Board", 10 );
+	sc_ch			= config->GetValue( "SC.Channel", 4 );
 	sc_code			= 23;
 	laser_sfp		= config->GetValue( "RILIS.Sfp", 1 );
-	laser_board		= config->GetValue( "RILIS.Board", 8 );
-	laser_ch		= config->GetValue( "RILIS.Channel", 15 );
+	laser_board		= config->GetValue( "RILIS.Board", 10 );
+	laser_ch		= config->GetValue( "RILIS.Channel", 6 );
 	laser_code		= 24;
 
 	
@@ -460,7 +461,7 @@ void MiniballSettings::ReadSettings() {
 		
 		bd_sfp[i]		= config->GetValue( Form( "BeamDump_%d.Sfp", i ), 1 );
 		bd_board[i]		= config->GetValue( Form( "BeamDump_%d.Board", i ), 10 );
-		bd_ch[i]		= config->GetValue( Form( "BeamDump_%d.Channel", i ), (int)(i+0) );
+		bd_ch[i]		= config->GetValue( Form( "BeamDump_%d.Channel", i ), (int)(i*2+1) );
 		
 		if( bd_sfp[i] < n_febex_sfp &&
 		    bd_board[i] < n_febex_board &&
@@ -530,7 +531,7 @@ void MiniballSettings::ReadSettings() {
 		
 		ic_sfp[i]		= config->GetValue( Form( "IonChamber_%d.Sfp", i ), 1 );
 		ic_board[i]		= config->GetValue( Form( "IonChamber_%d.Board", i ), 10 );
-		ic_ch[i]		= config->GetValue( Form( "IonChamber_%d.Channel", i ), (int)(i+n_bd_det) );
+		ic_ch[i]		= config->GetValue( Form( "IonChamber_%d.Channel", i ), (int)((i+n_bd_det)*2+1) );
 		
 		if( ic_sfp[i] < n_febex_sfp &&
 		    ic_board[i] < n_febex_board &&
@@ -560,7 +561,7 @@ void MiniballSettings::ReadSettings() {
 	for( unsigned int i = 0; i < n_pulsers; ++i ){
 		
 		pulser_sfp[i]		= config->GetValue( Form( "Pulser_%d.Sfp", i ), (int)i );
-		pulser_board[i]		= config->GetValue( Form( "Pulser_%d.Board", i ), 8 );
+		pulser_board[i]		= config->GetValue( Form( "Pulser_%d.Board", i ), 15 );
 		pulser_ch[i]		= config->GetValue( Form( "Pulser_%d.Channel", i ), 15 );
 		
 		if( pulser_sfp[i] < n_febex_sfp &&

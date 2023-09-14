@@ -378,79 +378,80 @@
 #--------------#
 # SPEDE things #
 #--------------#
-#NumberOfSpedeSegments: 24		# Number of segments in the SPEDE detector
+#NumberOfSpedeSegments: 0		# Number of segments in the SPEDE detector
+#NumberOfSpedeSegments: 24		# Usually this is 24, but default is 0
 
-#Spede_0.Sfp: 0					# Extra board on first SFP
-#Spede_0.Board: 6				# for SPEDE mayber?
+#Spede_0.Sfp: 1					# Extra board on first SFP
+#Spede_0.Board: 8				# for SPEDE mayber?
 #Spede_0.Channel: 0				#
-#Spede_1.Sfp: 0
-#Spede_1.Board: 6
+#Spede_1.Sfp: 1
+#Spede_1.Board: 8
 #Spede_1.Channel: 1
-#Spede_2.Sfp: 0
-#Spede_2.Board: 6
+#Spede_2.Sfp: 1
+#Spede_2.Board: 8
 #Spede_2.Channel: 2
-#Spede_3.Sfp: 0
-#Spede_3.Board: 6
+#Spede_3.Sfp: 1
+#Spede_3.Board: 8
 #Spede_3.Channel: 3
-#Spede_4.Sfp: 0
-#Spede_4.Board: 6
+#Spede_4.Sfp: 1
+#Spede_4.Board: 8
 #Spede_4.Channel: 4
-#Spede_5.Sfp: 0
-#Spede_5.Board: 6
+#Spede_5.Sfp: 1
+#Spede_5.Board: 8
 #Spede_5.Channel: 5
-#Spede_6.Sfp: 0
-#Spede_6.Board: 6
+#Spede_6.Sfp: 1
+#Spede_6.Board: 8
 #Spede_6.Channel: 6
-#Spede_7.Sfp: 0
-#Spede_7.Board: 6
+#Spede_7.Sfp: 1
+#Spede_7.Board: 8
 #Spede_7.Channel: 7
-#Spede_8.Sfp: 0
-#Spede_8.Board: 6
+#Spede_8.Sfp: 1
+#Spede_8.Board: 8
 #Spede_8.Channel: 8
-#Spede_9.Sfp: 0
-#Spede_9.Board: 6
+#Spede_9.Sfp: 1
+#Spede_9.Board: 8
 #Spede_9.Channel: 9
-#Spede_10.Sfp: 0
-#Spede_10.Board: 6
+#Spede_10.Sfp: 1
+#Spede_10.Board: 8
 #Spede_10.Channel: 10
-#Spede_11.Sfp: 0
-#Spede_11.Board: 6
+#Spede_11.Sfp: 1
+#Spede_11.Board: 8
 #Spede_11.Channel: 11
-#Spede_12.Sfp: 0
-#Spede_12.Board: 6
+#Spede_12.Sfp: 1
+#Spede_12.Board: 8
 #Spede_12.Channel: 12
-#Spede_13.Sfp: 0
-#Spede_13.Board: 6
+#Spede_13.Sfp: 1
+#Spede_13.Board: 8
 #Spede_13.Channel: 13
-#Spede_14.Sfp: 0
-#Spede_14.Board: 6
+#Spede_14.Sfp: 1
+#Spede_14.Board: 8
 #Spede_14.Channel: 14
-#Spede_15.Sfp: 0
-#Spede_15.Board: 6
+#Spede_15.Sfp: 1
+#Spede_15.Board: 8
 #Spede_15.Channel: 15
-#Spede_16.Sfp: 0
+#Spede_16.Sfp: 1
 #Spede_16.Board: 7
 #Spede_16.Channel: 0
-#Spede_17.Sfp: 0
-#Spede_17.Board: 6
+#Spede_17.Sfp: 1
+#Spede_17.Board: 8
 #Spede_17.Channel: 1
-#Spede_18.Sfp: 0
-#Spede_18.Board: 6
+#Spede_18.Sfp: 1
+#Spede_18.Board: 8
 #Spede_18.Channel: 2
-#Spede_19.Sfp: 0
-#Spede_19.Board: 6
+#Spede_19.Sfp: 1
+#Spede_19.Board: 8
 #Spede_19.Channel: 3
-#Spede_20.Sfp: 0
-#Spede_20.Board: 6
+#Spede_20.Sfp: 1
+#Spede_20.Board: 8
 #Spede_20.Channel: 4
-#Spede_21.Sfp: 0
-#Spede_21.Board: 6
+#Spede_21.Sfp: 1
+#Spede_21.Board: 8
 #Spede_21.Channel: 5
-#Spede_22.Sfp: 0
-#Spede_22.Board: 6
+#Spede_22.Sfp: 1
+#Spede_22.Board: 8
 #Spede_22.Channel: 6
-#Spede_23.Sfp: 0
-#Spede_23.Board: 6
+#Spede_23.Sfp: 1
+#Spede_23.Board: 8
 #Spede_23.Channel: 7
 
 
