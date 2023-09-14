@@ -125,8 +125,7 @@ protected:
 	bool mbs_data;
 	
 	// Maximum size of the ADC value
-	int qmax_default;
-
+	unsigned long long qmax_default;
 	
 	// Data types
 	std::unique_ptr<MBSInfoPackets> mbsinfo_packet = nullptr;

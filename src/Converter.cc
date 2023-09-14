@@ -34,8 +34,8 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	
 	// Maximum ADC value depends on MBS or MIDAS
 	if( mbs_data ) qmax_default = 1 << 23;
-	else qmax_default = 1 << 30;
-	
+	else qmax_default = 1 << 31;
+
 }
 
 void MiniballConverter::StartFile(){
@@ -153,7 +153,7 @@ void MiniballConverter::MakeHists() {
 			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
 				
 				// Uncalibrated energy - 32-bit value
-				hname = "febex" + std::to_string(i);
+				hname = "febex_" + std::to_string(i);
 				hname += "_" + std::to_string(j);
 				hname += "_" + std::to_string(k);
 				hname += "_qshort";
@@ -177,7 +177,7 @@ void MiniballConverter::MakeHists() {
 				}
 				
 				// Uncalibrated energy 16-bit value
-				hname = "febex" + std::to_string(i);
+				hname = "febex_" + std::to_string(i);
 				hname += "_" + std::to_string(j);
 				hname += "_" + std::to_string(k);
 				hname += "_qint";
@@ -194,7 +194,7 @@ void MiniballConverter::MakeHists() {
 				else {
 					
 					hfebex_qint[i][j][k] = new TH1F( hname.data(), htitle.data(),
-													16384, 0, (unsigned long long)1<<32 );
+													16384, 0, qmax_default );
 					
 					hfebex_qint[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 					
@@ -212,13 +212,38 @@ void MiniballConverter::MakeHists() {
 
 				htitle += ";Energy (keV);Counts per 0.5 keV";
 				
+				// Assume gamma-ray spectrum
+				unsigned int ebins = 8000;
+				float emin = -0.25;
+				float emax = 4000.0 + emin; // 4 MeV range
+				
+				// Check if we have particles with low gain preamps (heavy ions, Coulex)
+				if( ( cal->FebexType(i,j,k) == "Qshort" && cal->FebexGain(i,j,k) > 5 )
+				   || ( cal->FebexType(i,j,k) == "Qint" && cal->FebexGain(i,j,k) > 0.0005 ) ) {
+					
+					ebins = 8000.0;
+					emin = -250.0;
+					emax = 4000000.0 + emin; // 4 GeV range
+					
+				}
+				
+				// Check if we have particles with high gain preamps (light ions, transfer)
+				else if( ( cal->FebexType(i,j,k) == "Qshort" && cal->FebexGain(i,j,k) > 0.1 )
+				   || ( cal->FebexType(i,j,k) == "Qint" && cal->FebexGain(i,j,k) > 0.00001 ) ) {
+					
+					ebins = 8000.0;
+					emin = -25.0;
+					emax = 400000.0 + emin; // 400 MeV range
+					
+				}
+				
 				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
 					hfebex_cal[i][j][k] = (TH1F*)output_file->Get( hname.data() );
 				
 				else {
 					
 					hfebex_cal[i][j][k] = new TH1F( hname.data(), htitle.data(),
-												8000, -0.25, 3999.75 );
+												ebins, emin, emax );
 					
 					hfebex_cal[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 					
