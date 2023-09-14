@@ -371,6 +371,48 @@ FebexMWD MiniballCalibration::DoMWD( unsigned char sfp, unsigned char board, uns
 	
 }
 
+double MiniballCalibration::FebexOffset( unsigned char sfp, unsigned char board, unsigned char ch ) {
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
+
+		return fFebexOffset[sfp][board][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+double MiniballCalibration::FebexGain( unsigned char sfp, unsigned char board, unsigned char ch ) {
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
+
+		return fFebexGain[sfp][board][ch];
+		
+	}
+	
+	return 1.0;
+	
+}
+
+double MiniballCalibration::FebexGainQuadr( unsigned char sfp, unsigned char board, unsigned char ch ) {
+	
+	if(   sfp < set->GetNumberOfFebexSfps() &&
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
+
+		return fFebexGainQuadr[sfp][board][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
 unsigned int MiniballCalibration::FebexThreshold( unsigned char sfp, unsigned char board, unsigned char ch ) {
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&

@@ -152,6 +152,9 @@ public:
 		return fInputFile;
 	}
 	float FebexEnergy( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int raw );
+	double FebexOffset( unsigned char sfp, unsigned char board, unsigned char ch );
+	double FebexGain( unsigned char sfp, unsigned char board, unsigned char ch );
+	double FebexGainQuadr( unsigned char sfp, unsigned char board, unsigned char ch );
 	unsigned int FebexThreshold( unsigned char sfp, unsigned char board, unsigned char ch );
 	std::string FebexType( unsigned char sfp, unsigned char board, unsigned char ch );
 	long FebexTime( unsigned char sfp, unsigned char board, unsigned char ch );
@@ -194,9 +197,9 @@ private:
 
 	std::vector< std::vector<std::vector<std::string>> > fFebexType; // Qint or Qshort
 	std::vector< std::vector<std::vector<long>> > fFebexTime;
-	std::vector< std::vector<std::vector<float>> > fFebexOffset;
-	std::vector< std::vector<std::vector<float>> > fFebexGain;
-	std::vector< std::vector<std::vector<float>> > fFebexGainQuadr;
+	std::vector< std::vector<std::vector<double>> > fFebexOffset;
+	std::vector< std::vector<std::vector<double>> > fFebexGain;
+	std::vector< std::vector<std::vector<double>> > fFebexGainQuadr;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexThreshold;
 
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Decay;
