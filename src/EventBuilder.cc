@@ -1292,12 +1292,13 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	// Get ready and go
 	Initialise();
 	n_entries = input_tree->GetEntries();
+	n_mbs_entries = mbsinfo_tree->GetEntries();
 
 	std::cout << " Event Building: number of entries in input tree = ";
 	std::cout << n_entries << std::endl;
 
 	std::cout << "\tnumber of MBS Events/triggers in input tree = ";
-	std::cout << mbsinfo_tree->GetEntries() << std::endl;
+	std::cout << n_mbs_entries << std::endl;
 	
 	// ------------------------------------------------------------------------ //
 	// Main loop over TTree to find events
@@ -1316,7 +1317,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			myeventtime = in_data->GetTime();
 
 			// Try to get the MBS info event with the index
-			if( mbsinfo_tree->GetEntryWithIndex( myeventid ) < 0 ) {
+			if( mbsinfo_tree->GetEntryWithIndex( myeventid ) < 0 &&
+			    n_mbs_entries > 0 ) {
 
 				// Look for the matches MBS Info event if we didn't match automatically
 				for( long j = 0; j < mbsinfo_tree->GetEntries(); ++j ){
@@ -1328,7 +1330,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					}
 
 					// Panic if we failed!
-					if( j+1 == mbsinfo_tree->GetEntries() ) {
+					if( j+1 == n_mbs_entries ) {
 						std::cerr << "Didn't find matching MBS Event IDs at start of the file: ";
 						std::cerr << myeventid << std::endl;
 					}
@@ -1704,7 +1706,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				flag_close_event = true;
 
 				// And find the next MBS event ID
-				if( mbsinfo_tree->GetEntryWithIndex( myeventid ) < 0 ) {
+				if( mbsinfo_tree->GetEntryWithIndex( myeventid ) < 0 &&
+				    n_mbs_entries > 0 ) {
 
 					std::cerr << "MBS Event " << myeventid << " not found by index, looking up manually" << std::endl;
 
@@ -1718,7 +1721,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 						}
 
 						// Panic if we failed!
-						if( j+1 == mbsinfo_tree->GetEntries() ) {
+						if( j+1 == n_mbs_entries ) {
 							std::cerr << "Didn't find matching MBS Event IDs at start of the file: ";
 							std::cerr << myeventid << std::endl;
 						}

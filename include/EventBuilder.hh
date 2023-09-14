@@ -207,7 +207,7 @@ private:
 
 	// Counters
 	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr, spede_ctr, ic_ctr;
-	unsigned long				n_entries, n_febex_data, n_info_data;
+	unsigned long				n_entries, n_mbs_entries, n_febex_data, n_info_data;
 	unsigned long				n_ebis, n_t1, n_sc;
 	std::vector<unsigned long>	n_sfp, n_pulser;
 	std::vector<std::vector<unsigned long>>	n_board;
