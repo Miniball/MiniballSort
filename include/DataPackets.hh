@@ -11,7 +11,16 @@ class FebexData : public TObject {
 	
 public:
 
-	FebexData() {};
+	FebexData() {
+		time = 0;
+		eventid = 0;
+		energy = 0;
+		Qint = 0;
+		Qshort = 0;
+		sfp = 0;
+		board = 0;
+		ch = 0;
+	};
 	FebexData( long long int t, unsigned long long int id,
 			  unsigned int qi, unsigned short qs,
 			  std::vector<unsigned short> tr,
@@ -95,7 +104,13 @@ class InfoData : public TObject {
 	
 public:
 
-	InfoData() {};
+	InfoData() {
+		time = 0;
+		eventid = 0;
+		code = 0;
+		sfp = 0;
+		board = 0;
+	};
 	InfoData( long long int t, unsigned long long int id, unsigned char s, unsigned char b, unsigned char m );
 	~InfoData() {};
 	
@@ -171,7 +186,10 @@ class MBSInfoPackets : public TObject {
 	
 public:
 	
-	MBSInfoPackets() {};
+	MBSInfoPackets() {
+		time = 0;
+		eventid = 0;
+	};
 	~MBSInfoPackets() {};
 	
 	inline long long int			GetTime(){ return time; };
