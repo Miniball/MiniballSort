@@ -365,6 +365,8 @@ void MiniballEventBuilder::MakeEventHists(){
 	cd_ppad_td.resize( set->GetNumberOfCDDetectors() );
 	cd_nn_td.resize( set->GetNumberOfCDDetectors() );
 	cd_pn_mult.resize( set->GetNumberOfCDDetectors() );
+	cd_ppad_mult.resize( set->GetNumberOfCDDetectors() );
+	pad_en_id.resize( set->GetNumberOfCDDetectors() );
 
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 		
@@ -379,6 +381,7 @@ void MiniballEventBuilder::MakeEventHists(){
 		cd_ppad_td[i].resize( set->GetNumberOfCDSectors() );
 		cd_nn_td[i].resize( set->GetNumberOfCDSectors() );
 		cd_pn_mult[i].resize( set->GetNumberOfCDSectors() );
+		cd_ppad_mult[i].resize( set->GetNumberOfCDSectors() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 			
@@ -1394,12 +1397,12 @@ void MiniballEventBuilder::ParticleFinder() {
 					// Fill histograms
 					cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex.at(0) ),
 										  cd_en_list.at( pindex.at(0) ) );
-					cd_nen_id[i][j]->Fill( cd_strip_list.at( pindex.at(0) ),
-										  cd_en_list.at( pindex.at(0) ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nindex.at(0) ),
+										  cd_en_list.at( nindex.at(0) ) );
 					cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex.at(1) ),
 										  cd_en_list.at( pindex.at(1) ) );
-					cd_nen_id[i][j]->Fill( cd_strip_list.at( pindex.at(1) ),
-										  cd_en_list.at( pindex.at(1) ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( nindex.at(1) ),
+										  cd_en_list.at( nindex.at(1) ) );
 					cd_ppad_mult[i][i]->Fill( 2, padindex.size() );
 
 				} // neighbour strips - n-side only
