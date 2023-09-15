@@ -74,7 +74,7 @@ public:
 	// Event set functions
 	inline void SetEnergyP( float e ){ penergy = e; };
 	inline void SetEnergyN( float e ){ nenergy = e; };
-	inline void SetEnergyPad( float e ){ renergy = e; };
+	inline void SetEnergyPad( float e ){ padenergy = e; };
 	inline void SetTimeP( unsigned long long t ){ ptime = t; };
 	inline void SetTimeN( unsigned long long t ){ ntime = t; };
 	inline void SetTimePad( unsigned long long t ){ rtime = t; };
@@ -90,7 +90,7 @@ public:
 	inline unsigned long long	GetTime(){ return GetTimeP(); };
 	inline float 				GetEnergyP(){ return penergy; };
 	inline float 				GetEnergyN(){ return nenergy; };
-	inline float 				GetEnergyPad(){ return renergy; };
+	inline float 				GetEnergyPad(){ return padenergy; };
 	inline unsigned long long	GetTimeP(){ return ptime; };
 	inline unsigned long long	GetTimeN(){ return ntime; };
 	inline unsigned long long	GetTimePad(){ return rtime; };
@@ -105,7 +105,7 @@ private:
 	// variables for particle event
 	float				penergy;		///< p-side energy in keV
 	float				nenergy;		///< n-side energy in keV
-	float				renergy;		///< pad energy in keV
+	float				padenergy;		///< pad energy in keV
 	unsigned long long	ptime;			///< p-side timestamp of event
 	unsigned long long	ntime;			///< n-side timestamp of event
 	unsigned long long	rtime;			///< pad timestamp of event
