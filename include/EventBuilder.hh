@@ -230,8 +230,13 @@ private:
 	// CD histograms
 	std::vector<std::vector<TH2F*>> cd_pn_mult;
 	std::vector<std::vector<TH2F*>> cd_pen_id, cd_nen_id;
-	std::vector<std::vector<TH1F*>> cd_pn_td, cd_pp_td, cd_ppad_td, cd_nn_td;
+	std::vector<std::vector<TH1F*>> cd_pn_td, cd_pp_td, cd_nn_td;
 	std::vector<std::vector<TH2F*>> cd_pn_1v1, cd_pn_1v2, cd_pn_2v1, cd_pn_2v2;
+
+	// Pad histograms
+	std::vector<std::vector<TH2F*>> cd_ppad_mult;
+	std::vector<std::vector<TH1F*>> cd_ppad_td;
+	std::vector<TH2F*> pad_en_id;
 
 	// Ion chamber histograms
 	TH2F *ic_dE_E;

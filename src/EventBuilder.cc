@@ -384,7 +384,7 @@ void MiniballEventBuilder::MakeEventHists(){
 			
 			hname  = "cd_pen_id_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side energy for sector " + std::to_string(i);
-			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 500 keV";
 			cd_pen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
 									   4000, 0, 2000e3 );
@@ -392,7 +392,7 @@ void MiniballEventBuilder::MakeEventHists(){
 			hname  = "cd_nen_id_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD n-side energy for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
-			htitle += ";Strip ID;Energy (keV);Counts per strip, per 50 keV";
+			htitle += ";Strip ID;Energy (keV);Counts per strip, per 500 keV";
 			cd_nen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
 									   4000, 0, 2000e3 );
@@ -439,13 +439,6 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_pp_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
 			
-			hname  = "cd_ppad_td_" + std::to_string(i) + "_" + std::to_string(j);
-			htitle  = "CD p-side vs pad time difference ";
-			htitle += "for detector " + std::to_string(i);
-			htitle += ", sector " + std::to_string(j);
-			htitle += ";time difference (ns);Counts per 10 ns";
-			cd_ppad_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
 			hname  = "cd_nn_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD n-side vs n-side time difference ";
 			htitle += "for detector " + std::to_string(i);
@@ -453,14 +446,35 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_nn_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
 			
-			hname  = "cd_pn_mult_" + std::to_string(i) + "_" + std::to_string(j);
-			htitle  = "CD n-side vs n-side multiplicity ";
+			hname  = "cd_ppad_td_" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD p-side vs pad time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
-			htitle += ";p-side miltiplicity;n-side miltiplicity";
+			htitle += ";time difference (ns);Counts per 10 ns";
+			cd_ppad_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
+			
+			hname  = "cd_pn_mult_" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD p-side vs n-side multiplicity ";
+			htitle += "for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";p-side multiplicity;n-side multiplicity";
 			cd_pn_mult[i][j] = new TH2F( hname.data(), htitle.data(), 10, -0.5, 9.5, 10, -0.5, 9.5 );
 			
+			hname  = "cd_ppad_mult_" + std::to_string(i) + "_" + std::to_string(j);
+			htitle  = "CD vs Pad multiplicity ";
+			htitle += "for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";CD multiplicity;Pad multiplicity";
+			cd_ppad_mult[i][j] = new TH2F( hname.data(), htitle.data(), 10, -0.5, 9.5, 10, -0.5, 9.5 );
+			
 		} // j
+		
+		hname  = "pad_en_" + std::to_string(i);
+		htitle  = "Pad energy for each sector in detector " + std::to_string(i);
+		htitle += ";Sector;Energy (keV);Counts per quadrant, per 25 keV";
+		pad_en_id[i] = new TH2F( hname.data(), htitle.data(),
+				set->GetNumberOfCDSectors(), -0.5, set->GetNumberOfCDSectors() - 0.5,
+								8000, 0, 200e3 );
 		
 	} // i
 	
@@ -519,8 +533,10 @@ void MiniballEventBuilder::ResetHists(){
 			cd_pp_td[i][j]->Reset( "ICEMS" );
 			cd_nn_td[i][j]->Reset( "ICEMS" );
 			cd_pn_mult[i][j]->Reset( "ICEMS" );
-
+			cd_ppad_td[i][j]->Reset( "ICEMS" );
+			cd_ppad_mult[i][j]->Reset( "ICEMS" );
 		}
+		pad_en_id[i]->Reset( "ICEMS" );
 	}
 	
 	ic_td->Reset( "ICEMS" );
@@ -826,14 +842,15 @@ void MiniballEventBuilder::ParticleFinder() {
 				bool pad_event = false;
 				for( unsigned int k = 0; k < padindex.size(); k++ ) {
 					
+					pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+					
 					// Time condition
 					if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-					   < set->GetPadHitWindow() ) {
+					   < set->GetPadHitWindow() && !pad_event ) {
 						
 						pad_event = true;
 						particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 						particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-						break;
 						
 					}
 					
@@ -858,6 +875,7 @@ void MiniballEventBuilder::ParticleFinder() {
 									  cd_en_list.at( nindex[0] ) );
 				cd_pn_1v1[i][j]->Fill( cd_en_list.at( pindex[0] ),
 									  cd_en_list.at( nindex[0] ) );
+				cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
 
 			} // 1 vs 1
 			
@@ -885,14 +903,15 @@ void MiniballEventBuilder::ParticleFinder() {
 					bool pad_event = false;
 					for( unsigned int k = 0; k < padindex.size(); k++ ) {
 						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
 						// Time condition
 						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-						   < set->GetPadHitWindow() ) {
+						   < set->GetPadHitWindow() && !pad_event ) {
 							
 							pad_event = true;
 							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-							break;
 							
 						}
 						
@@ -919,6 +938,7 @@ void MiniballEventBuilder::ParticleFinder() {
 										  cd_en_list.at( nindex[0] ) );
 					cd_pn_1v2[i][j]->Fill( cd_en_list.at( pindex[0] ),
 										  cd_en_list.at( nindex[1] ) );
+					cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
 
 				} // neighbour strips
 				
@@ -939,14 +959,15 @@ void MiniballEventBuilder::ParticleFinder() {
 					bool pad_event = false;
 					for( unsigned int k = 0; k < padindex.size(); k++ ) {
 						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
 						// Time condition
 						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-						   < set->GetPadHitWindow() ) {
+						   < set->GetPadHitWindow() && !pad_event ) {
 							
 							pad_event = true;
 							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-							break;
 							
 						}
 						
@@ -969,6 +990,7 @@ void MiniballEventBuilder::ParticleFinder() {
 										  cd_en_list.at( pindex[0] ) );
 					cd_nen_id[i][j]->Fill( cd_strip_list.at( nmax_idx ),
 										  cd_en_list.at( nmax_idx ) );
+					cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
 
 					
 				} // treat as 1 vs 1
@@ -999,14 +1021,15 @@ void MiniballEventBuilder::ParticleFinder() {
 					bool pad_event = false;
 					for( unsigned int k = 0; k < padindex.size(); k++ ) {
 						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
 						// Time condition
 						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-						   < set->GetPadHitWindow() ) {
+						   < set->GetPadHitWindow() && !pad_event ) {
 							
 							pad_event = true;
 							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-							break;
 							
 						}
 						
@@ -1033,6 +1056,7 @@ void MiniballEventBuilder::ParticleFinder() {
 										  cd_en_list.at( nindex[0] ) );
 					cd_pn_2v1[i][j]->Fill( cd_en_list.at( pindex[1] ),
 										  cd_en_list.at( nindex[0] ) );
+					cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
 
 				} // neighbour strips
 
@@ -1053,14 +1077,15 @@ void MiniballEventBuilder::ParticleFinder() {
 					bool pad_event = false;
 					for( unsigned int k = 0; k < padindex.size(); k++ ) {
 						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
 						// Time condition
 						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-						   < set->GetPadHitWindow() ) {
+						   < set->GetPadHitWindow() && !pad_event ) {
 							
 							pad_event = true;
 							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-							break;
 							
 						}
 						
@@ -1083,6 +1108,7 @@ void MiniballEventBuilder::ParticleFinder() {
 										  cd_en_list.at( pmax_idx ) );
 					cd_nen_id[i][j]->Fill( cd_strip_list.at( nindex[0] ),
 										  cd_en_list.at( nindex[0] ) );
+					cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
 
 					
 				} // treat as 1 vs 1
@@ -1116,14 +1142,15 @@ void MiniballEventBuilder::ParticleFinder() {
 					bool pad_event = false;
 					for( unsigned int k = 0; k < padindex.size(); k++ ) {
 						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
 						// Time condition
 						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-						   < set->GetPadHitWindow() ) {
+						   < set->GetPadHitWindow() && !pad_event ) {
 							
 							pad_event = true;
 							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-							break;
 							
 						}
 						
@@ -1154,6 +1181,7 @@ void MiniballEventBuilder::ParticleFinder() {
 										  cd_en_list.at( nindex[0] ) );
 					cd_pn_2v2[i][j]->Fill( cd_en_list.at( pindex[1] ),
 										  cd_en_list.at( nindex[1] ) );
+					cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
 
 				} // neighbour strips - p-side + n-side
 
@@ -1178,14 +1206,15 @@ void MiniballEventBuilder::ParticleFinder() {
 					bool pad_event = false;
 					for( unsigned int k = 0; k < padindex.size(); k++ ) {
 						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
 						// Time condition
 						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-						   < set->GetPadHitWindow() ) {
+						   < set->GetPadHitWindow() && !pad_event ) {
 							
 							pad_event = true;
 							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-							break;
 							
 						}
 						
@@ -1208,7 +1237,8 @@ void MiniballEventBuilder::ParticleFinder() {
 										  psum_en );
 					cd_nen_id[i][j]->Fill( cd_strip_list.at( nmax_idx ),
 										  cd_en_list.at( nmax_idx ) );
-					
+					cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
+
 				} // neighbour strips - p-side only
 
 				// Neighbour strips - n-side only
@@ -1232,14 +1262,15 @@ void MiniballEventBuilder::ParticleFinder() {
 					bool pad_event = false;
 					for( unsigned int k = 0; k < padindex.size(); k++ ) {
 						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
 						// Time condition
 						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-						   < set->GetPadHitWindow() ) {
+						   < set->GetPadHitWindow() && !pad_event ) {
 							
 							pad_event = true;
 							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-							break;
 							
 						}
 						
@@ -1262,6 +1293,114 @@ void MiniballEventBuilder::ParticleFinder() {
 										  cd_en_list.at( pmax_idx ) );
 					cd_nen_id[i][j]->Fill( cd_strip_list.at( nmax_idx ),
 										  nsum_en );
+					cd_ppad_mult[i][i]->Fill( 1, padindex.size() );
+
+				} // neighbour strips - n-side only
+
+				// Neither of them are neighbours... 2 events?
+				else {
+
+					// Event 1 is with first p-side, but which n-side?
+					unsigned int nfriend_idx = nindex.at(0);
+					if( TMath::Abs( cd_en_list.at( pindex.at(0) ) - cd_en_list.at( nindex.at(1) ) )
+					    > TMath::Abs( cd_en_list.at( pindex.at(0) ) - cd_en_list.at( nindex.at(0) ) ) )
+						nfriend_idx = nindex.at(1);
+					
+					// Set event
+					particle_evt->SetEnergyP( cd_en_list.at( pindex.at(0) ) );
+					particle_evt->SetEnergyN( cd_en_list.at( nfriend_idx ) );
+					particle_evt->SetTimeP( cd_ts_list.at( pindex.at(0) ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nfriend_idx ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pindex.at(0) ) );
+					particle_evt->SetStripN( cd_strip_list.at( nfriend_idx ) );
+
+					// Look for corresponding Pad event
+					bool pad_event = false;
+					for( unsigned int k = 0; k < padindex.size(); k++ ) {
+						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
+						// Time condition
+						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
+						   < set->GetPadHitWindow() && !pad_event ) {
+							
+							pad_event = true;
+							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
+							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
+							
+						}
+						
+					}
+
+					// If no pad event, then set things to zero
+					if( !pad_event ) {
+						
+						particle_evt->SetEnergyPad( 0.0 );
+						particle_evt->SetTimePad( 0 );
+						
+					}
+
+					// Fill tree for first hit
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					// Event 2 is with first p-side, but which n-side?
+					if( nfriend_idx == nindex.at(1) ) nfriend_idx = nindex.at(0);
+					else nfriend_idx = nindex.at(1);
+					
+					// Set event
+					particle_evt->SetEnergyP( cd_en_list.at( pindex.at(1) ) );
+					particle_evt->SetEnergyN( cd_en_list.at( nfriend_idx ) );
+					particle_evt->SetTimeP( cd_ts_list.at( pindex.at(1) ) );
+					particle_evt->SetTimeN( cd_ts_list.at( nfriend_idx ) );
+					particle_evt->SetDetector( i );
+					particle_evt->SetSector( j );
+					particle_evt->SetStripP( cd_strip_list.at( pindex.at(1) ) );
+					particle_evt->SetStripN( cd_strip_list.at( nfriend_idx ) );
+
+					// Look for corresponding Pad event
+					pad_event = false;
+					for( unsigned int k = 0; k < padindex.size(); k++ ) {
+						
+						pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+						
+						// Time condition
+						if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
+						   < set->GetPadHitWindow() && !pad_event ) {
+							
+							pad_event = true;
+							particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
+							particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
+							
+						}
+						
+					}
+
+					// If no pad event, then set things to zero
+					if( !pad_event ) {
+						
+						particle_evt->SetEnergyPad( 0.0 );
+						particle_evt->SetTimePad( 0 );
+						
+					}
+
+					// Fill tree for second hit
+					write_evts->AddEvt( particle_evt );
+					cd_ctr++;
+
+					
+					// Fill histograms
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex.at(0) ),
+										  cd_en_list.at( pindex.at(0) ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( pindex.at(0) ),
+										  cd_en_list.at( pindex.at(0) ) );
+					cd_pen_id[i][j]->Fill( cd_strip_list.at( pindex.at(1) ),
+										  cd_en_list.at( pindex.at(1) ) );
+					cd_nen_id[i][j]->Fill( cd_strip_list.at( pindex.at(1) ),
+										  cd_en_list.at( pindex.at(1) ) );
+					cd_ppad_mult[i][i]->Fill( 2, padindex.size() );
 
 				} // neighbour strips - n-side only
 
@@ -1362,14 +1501,15 @@ void MiniballEventBuilder::ParticleFinder() {
 				bool pad_event = false;
 				for( unsigned int k = 0; k < padindex.size(); k++ ) {
 					
+					pad_en_id[i]->Fill( j, pad_en_list.at( padindex[k] ) );
+					
 					// Time condition
 					if( TMath::Abs( (long long)particle_evt->GetTime() - (long long)pad_ts_list.at( padindex[k] ) )
-					   < set->GetPadHitWindow() ) {
+					   < set->GetPadHitWindow() && !pad_event ) {
 						
 						pad_event = true;
 						particle_evt->SetEnergyPad( pad_en_list.at( padindex[k] ) );
 						particle_evt->SetTimePad( pad_ts_list.at( padindex[k] ) );
-						break;
 						
 					}
 					
