@@ -333,6 +333,9 @@ void MiniballReaction::ReadReaction() {
 	}
 	else std::cout << "Stopping powers not calculated" << std::endl;
 
+	std::cout << "Beam velocity at reaction position = ";
+	std::cout << Beam.GetBeta() << "c" << std::endl;
+
 	// Finished
 	delete config;
 
@@ -541,6 +544,8 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	Ejectile.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
 	Ejectile.SetTheta( GetParticleTheta(p) );
 	Ejectile.SetPhi( GetParticlePhi(p) );
+	//std::cout << "Theta = " << GetParticleTheta(p)*TMath::RadToDeg() << ": Energy = " << p->GetEnergy();
+	//std::cout << ", Eloss = " << eloss << ", beta = " << Ejectile.GetBeta() << std::endl;
 
 	// Calculate the centre of mass angle
 	double maxang = TMath::ASin( 1. / ( GetTau() * GetEpsilon() ) );
@@ -667,7 +672,12 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 }
 
 bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g ) {
-	 
+	
+	// Convert deuterium to CD2, and others
+	if( isotope2 == "1H" ) isotope2 = "CH2";
+	if( isotope2 == "2H" ) isotope2 = "CD2";
+	if( isotope2 == "3H" ) isotope2 = "Ti";
+
 	/// Open stopping power files and make TGraphs of data
 	std::string title = "Stopping powers for ";
 	title += isotope1 + " in " + isotope2;
