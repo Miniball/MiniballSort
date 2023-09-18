@@ -34,7 +34,7 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	
 	// Maximum ADC value depends on MBS or MIDAS
 	if( mbs_data ) qmax_default = 1 << 23;
-	else qmax_default = 1 << 31;
+	else qmax_default = 4294967296;
 
 }
 
