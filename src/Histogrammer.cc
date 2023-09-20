@@ -210,27 +210,52 @@ void MiniballHistogrammer::MakeHists() {
 	output_file->cd( dirname.data() );
 	
 	hname = "pE_theta";
-	htitle = "Particle energy singles;Angle [deg];Energy [keV];Counts per 0.5 keV";
+	htitle = "Particle energy singles;Angle [deg];Energy [keV];Counts";
 	pE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
 	hname = "pE_theta_coinc";
-	htitle = "Particle energy in coincidence with a gamma ray;Angle [deg];Energy [keV];Counts per 0.5 keV";
+	htitle = "Particle energy in coincidence with a gamma ray;Angle [deg];Energy [keV];Counts";
 	pE_theta_coinc = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
 	hname = "pE_theta_ejectile";
-	htitle = "Particle energy singles, gated on ejectile;Angle [deg];Energy [keV];Counts per 0.5 keV";
+	htitle = "Particle energy singles, gated on ejectile;Angle [deg];Energy [keV];Counts";
 	pE_theta_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
 	hname = "pE_theta_recoil";
-	htitle = "Particle energy singles, gated on recoil;Angle [deg];Energy [keV];Counts per 0.5 keV";
+	htitle = "Particle energy singles, gated on recoil;Angle [deg];Energy [keV];Counts";
 	pE_theta_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
+	pE_dE.resize( set->GetNumberOfCDDetectors() );
+	pE_dE_coinc.resize( set->GetNumberOfCDDetectors() );
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
+
+		pE_dE[i].resize( set->GetNumberOfCDSectors() );
+		pE_dE_coinc[i].resize( set->GetNumberOfCDSectors() );
+
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
+
+			hname = "pE_dE_" + std::to_string(i) + "_" + std::to_string(j);
+			htitle = "Particle energy total versus enegry loss for CD " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";Energy total [keV];Energy loss [keV];Counts";
+			pE_dE[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
+
+			hname = "pE_dE_" + std::to_string(i) + "_" + std::to_string(j) + "_coinc";
+			htitle = "Particle energy total versus enegry loss for CD " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
+			htitle += ";Energy total [keV];Energy loss [keV];Counts";
+			pE_dE_coinc[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
+
+		}
+
+	}
+	
 	hname = "pBeta_theta_ejectile";
-	htitle = "Reconstructed ejectile velocity;Angle [deg];#beta [c];Counts per 0.5 keV";
+	htitle = "Reconstructed ejectile velocity;Angle [deg];#beta [c];Counts";
 	pBeta_theta_ejectile = new TProfile( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data() );
 	
 	hname = "pBeta_theta_recoil";
-	htitle = "Reconstructed recoil velocity;Angle [deg];#beta [c];Counts per 0.5 keV";
+	htitle = "Reconstructed recoil velocity;Angle [deg];#beta [c];Counts";
 	pBeta_theta_recoil = new TProfile( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data() );
 	
 	hname = "particle_xy_map_forward";
@@ -1002,6 +1027,13 @@ void MiniballHistogrammer::ResetHists() {
 	for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i )
 		bdE_singles_det[i]->Reset("ICESM");
 	
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ){
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ){
+			pE_dE[i][j]->Reset("ICESM");
+			pE_dE_coinc[i][j]->Reset("ICESM");
+		}
+	}
+	
 
 	
 	return;
@@ -1375,7 +1407,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			float pid = particle_evt->GetStripP() + rand.Rndm() - 0.5; // randomise strip number
 			float nid = particle_evt->GetStripN() + rand.Rndm() - 0.5; // randomise strip number
 			TVector3 pvec = react->GetCDVector( particle_evt->GetDetector(), particle_evt->GetSector(), pid, nid );
-			pE_theta->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+			pE_theta->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 			particle_theta_phi_map->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(),
 										  react->GetParticlePhi( particle_evt ) * TMath::RadToDeg() );
 			if( react->GetParticleTheta( particle_evt ) < TMath::PiOver2() )
@@ -1383,18 +1415,21 @@ unsigned long MiniballHistogrammer::FillHists() {
 			else
 				particle_xy_map_backward->Fill( pvec.Y(), pvec.X() );
 
+			// Energy total versus energy loss, i.e. CD+PAD vs. CD
+			pE_dE[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
+			
 			
 			// Energy vs angle plot, after cuts
 			if( EjectileCut( particle_evt ) ) {
 				
-				pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+				pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 				pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 				
 			}
 			
 			if( RecoilCut( particle_evt ) ) {
 			
-				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
+				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 				pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
 			}
@@ -1413,8 +1448,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( PromptCoincidence( gamma_evt, particle_evt ) ){
 					
 					// Energy vs Angle plot with gamma-ray coincidence
-					pE_theta_coinc->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetEnergy() );
-					
+					pE_theta_coinc->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					pE_dE_coinc[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
+
 				} // if prompt
 				
 			} // k: gammas

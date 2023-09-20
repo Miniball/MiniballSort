@@ -306,6 +306,7 @@ private:
 
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_ejectile, *pE_theta_recoil;
+	std::vector<std::vector<TH2F*>> pE_dE, pE_dE_coinc;
 	TProfile *pBeta_theta_ejectile, *pBeta_theta_recoil;
 	TH1F *particle_particle_td;
 	TH2F *particle_xy_map_forward, *particle_xy_map_backward, *particle_theta_phi_map;
