@@ -17,7 +17,7 @@
 # febex_<sfp>_<board>_<ch>.MWD.DecayTime:			# this is equivalent to tau, not James' definition of torr
 # febex_<sfp>_<board>_<ch>.MWD.RiseTime:			# this is equivalent to L
 # febex_<sfp>_<board>_<ch>.MWD.FlatTop:				# this is equivalent to cfd_trig_delay
-# febex_<sfp>_<board>_<ch>.MWD.Baseline:			# this is the number of sample before the trigger where you want to tale the baseline energy from
+# febex_<sfp>_<board>_<ch>.MWD.Baseline:			# this is the number of sample before the trigger where you want to take the baseline energy from
 # febex_<sfp>_<board>_<ch>.MWD.Window:				# this is equivalent to M
 # febex_<sfp>_<board>_<ch>.CFD.DelayTime:			# this is the delay time of the CFD
 # febex_<sfp>_<board>_<ch>.CFD.Threshold:			# this is the threshold of the CFD (polarity sensitive)

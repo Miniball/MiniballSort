@@ -23,10 +23,10 @@
 #BeamE: 4500.		# the laboratory beam energy in keV per nucleon (note, not the usual MeV/u)
 #TargetA: 120		#
 #TargetZ: 50		#
-#EjectileA: 185		# Ejectile is the beam in Coulex, but the proton in (d,p)
-#EjectileZ: 80		# we keep this language even though we have inverse kinematics
-#RecoilA: 120		# Recoil is the target for Coulex, but the heavy ion in (d,p)
-#RecoilZ: 80		# this ambiguity is needed to match the language of the users
+#EjectileA: 185		# Ejectile is the beam in Coulex, or the heavy ion in transfer
+#EjectileZ: 80		#
+#RecoilA: 120		# Recoil is the target for Coulex, or the light ion in transfer
+#RecoilZ: 80		# this does not always match the language of the users who are used to normal kinematics
 #EjectileEx: 500.	# excitation energy in keV after the reaction
 #RecoilEx: 0.		# excitation energy in keV after the reaction
 
@@ -105,3 +105,5 @@ EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 #EjectileCut.Name: CUTG		# name of the TCutG object inside the ROOT file
 #RecoilCut.File: NULL			# ROOT file containing the recoil-(target-)like energy vs angle cut in Coulex
 #RecoilCut.Name: CUTG			# name of the TCutG object inside the ROOT file
+#TransferCut.File: NULL			# ROOT file containing the transfer produce energy total vs energy loss (E_dE) spectrum
+#TransferCut.Name: CUTG			# name of the TCutG object inside the ROOT file

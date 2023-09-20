@@ -166,10 +166,13 @@ void MiniballReaction::ReadReaction() {
 	// Get particle energy cut
 	bool ejectile_cut_flag = false;
 	bool recoil_cut_flag = false;
+	bool transfer_cut_flag = false;
 	ejectilecutfile = config->GetValue( "EjectileCut.File", "NULL" );
 	ejectilecutname = config->GetValue( "EjectileCut.Name", "CUTG" );
 	recoilcutfile = config->GetValue( "RecoilCut.File", "NULL" );
 	recoilcutname = config->GetValue( "RecoilCut.Name", "CUTG" );
+	transfercutfile = config->GetValue( "TransferCut.File", "NULL" );
+	transfercutname = config->GetValue( "TransferCut.Name", "CUTG" );
 
 	// Check if beam cut is given by the user
 	if( ejectilecutfile != "NULL" ) {
@@ -213,9 +216,31 @@ void MiniballReaction::ReadReaction() {
 		
 	}
 
+	// Check if transfer cut is given by the user
+	if( transfercutfile != "NULL" ) {
+	
+		cut_file = new TFile( transfercutfile.data(), "READ" );
+		if( cut_file->IsZombie() )
+			std::cout << "Couldn't open " << transfercutfile << " correctly" << std::endl;
+			
+		else {
+		
+			if( !cut_file->GetListOfKeys()->Contains( transfercutname.data() ) )
+				std::cout << "Couldn't find " << transfercutname << " in " << transfercutfile << std::endl;
+			else {
+				transfer_cut = (TCutG*)cut_file->Get( transfercutname.data() )->Clone();
+				transfer_cut_flag = true;
+			}
+		}
+		
+		cut_file->Close();
+		
+	}
+
 	// Assign an empty cut file if none is given, so the code doesn't crash
 	if( !ejectile_cut_flag ) ejectile_cut = new TCutG();
 	if( !recoil_cut_flag ) recoil_cut = new TCutG();
+	if( !transfer_cut_flag ) transfer_cut = new TCutG();
 
 	
 	// EBIS time window
@@ -650,6 +675,46 @@ void MiniballReaction::CalculateRecoil(){
 	recoil_detected = false;
 
 }
+
+void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag ){
+	
+	/// Set the ejectile particle and calculate the centre of mass angle too
+	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
+	double eloss = 0;
+	if( stopping ) {
+		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] ); // transfer product in dead layers
+		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[0] ); // transfer product in target
+	}
+	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
+	Recoil.SetTheta( GetParticleTheta(p) );
+	Recoil.SetPhi( GetParticlePhi(p) );
+
+	// Do something for the ejectile too, this needs some work
+	if( stopping ) {
+		eloss = GetEnergyLoss( Beam.GetEnergy(), 0.5 * target_thickness, gStopping[0] ); // transfer product in target
+	}
+	Ejectile.SetEnergy( Beam.GetEnergy() - eloss ); // eloss is positive
+	Ejectile.SetTheta( 0.0 ); // asume is goes straight for now
+	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
+
+	// Calculate the centre of mass angle
+	double maxang = TMath::ASin( 1. / GetEpsilon() );
+	double y = GetEpsilon();
+	if( GetParticleTheta(p) > maxang )
+		y *= TMath::Sin( maxang );
+	else
+		y *= TMath::Sin( GetParticleTheta(p) );
+	
+	if( kinflag ) y = TMath::ASin( -y );
+	else y = TMath::ASin( y );
+
+	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
+	Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
+	transfer_detected = true;
+
+}
+
+
 
 double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g ) {
 

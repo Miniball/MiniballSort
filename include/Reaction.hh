@@ -232,9 +232,9 @@ public:
 	};
 
 	// Miniball geometry functions
-  inline void   SetupCluster(unsigned char clu, double user_theta, double user_phi, double user_alpha, double user_r, double user_z) {
-    mb_geo[clu].SetupCluster(user_theta, user_phi, user_alpha, user_r, user_z);
-  }
+	inline void   SetupCluster( unsigned char clu, double user_theta, double user_phi, double user_alpha, double user_r, double user_z) {
+		mb_geo[clu].SetupCluster(user_theta, user_phi, user_alpha, user_r, user_z);
+	}
 	inline float	GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegTheta( cry, seg );
 	};
@@ -285,11 +285,14 @@ public:
 	};
 
 	
-	// Identify the ejectile and recoil and calculate
+	// Identify the ejectile and recoil and calculate in Coulex
 	void	IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
 	void	IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
 	void	CalculateEjectile();
 	void	CalculateRecoil();
+
+	// Identify the light ion recoil in transfer
+	void	TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
 
 
 	// Reaction calculations
@@ -448,7 +451,8 @@ public:
 	// Get cuts
 	inline TCutG* GetEjectileCut(){ return ejectile_cut; };
 	inline TCutG* GetRecoilCut(){ return recoil_cut; };
-	
+	inline TCutG* GetTransferCut(){ return transfer_cut; };
+
 	// Get particles
 	inline MiniballParticle* GetBeam(){ return &Beam; };
 	inline MiniballParticle* GetTarget(){ return &Target; };
@@ -460,8 +464,9 @@ public:
 	inline void SetParticleTime( unsigned long long t ){ particle_time = t; };
 	inline bool IsEjectileDetected(){ return ejectile_detected; };
 	inline bool IsRecoilDetected(){ return recoil_detected; };
+	inline bool IsTransferDetected(){ return transfer_detected; };
 
-	ClassDef( MiniballReaction, 1 )
+	ClassDef( MiniballReaction, 2 )
 
 private:
 
@@ -478,7 +483,7 @@ private:
 	
 	// Reaction times and flags for coincidences
 	unsigned long long particle_time;
-	bool ejectile_detected, recoil_detected;
+	bool ejectile_detected, recoil_detected, transfer_detected;
 
 	// Initial properties from file
 	double Eb;		///< laboratory beam energy in keV/u
@@ -529,8 +534,9 @@ private:
 	// Cuts
 	std::string ejectilecutfile, ejectilecutname;
 	std::string recoilcutfile, recoilcutname;
+	std::string transfercutfile, transfercutname;
 	TFile *cut_file;
-	TCutG *ejectile_cut, *recoil_cut;
+	TCutG *ejectile_cut, *recoil_cut, *transfer_cut;
 	
 	// Stopping powers
 	std::vector<std::unique_ptr<TGraph>> gStopping;

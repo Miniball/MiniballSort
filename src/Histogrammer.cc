@@ -227,24 +227,32 @@ void MiniballHistogrammer::MakeHists() {
 	
 	pE_dE.resize( set->GetNumberOfCDDetectors() );
 	pE_dE_coinc.resize( set->GetNumberOfCDDetectors() );
+	pE_dE_cut.resize( set->GetNumberOfCDDetectors() );
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 
 		pE_dE[i].resize( set->GetNumberOfCDSectors() );
 		pE_dE_coinc[i].resize( set->GetNumberOfCDSectors() );
+		pE_dE_cut[i].resize( set->GetNumberOfCDSectors() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
 			hname = "pE_dE_" + std::to_string(i) + "_" + std::to_string(j);
-			htitle = "Particle energy total versus enegry loss for CD " + std::to_string(i);
+			htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";Energy total [keV];Energy loss [keV];Counts";
 			pE_dE[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
 
 			hname = "pE_dE_" + std::to_string(i) + "_" + std::to_string(j) + "_coinc";
-			htitle = "Particle energy total versus enegry loss for CD " + std::to_string(i);
-			htitle += ", sector " + std::to_string(j);
+			htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j) + ", coincident with a gamma-ray";
 			htitle += ";Energy total [keV];Energy loss [keV];Counts";
 			pE_dE_coinc[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
+
+			hname = "pE_dE_" + std::to_string(i) + "_" + std::to_string(j) + "_cut";
+			htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j) + ", after transfer cut applied";
+			htitle += ";Energy total [keV];Energy loss [keV];Counts";
+			pE_dE_cut[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
 
 		}
 
@@ -1031,6 +1039,7 @@ void MiniballHistogrammer::ResetHists() {
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ){
 			pE_dE[i][j]->Reset("ICESM");
 			pE_dE_coinc[i][j]->Reset("ICESM");
+			pE_dE_cut[i][j]->Reset("ICESM");
 		}
 	}
 	
@@ -1080,7 +1089,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 	}
 
 	// Recoil-gated spectra
-	if( react->IsRecoilDetected() ) {
+	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
 		
 		gE_costheta_recoil->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
 
@@ -1434,6 +1443,12 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 			}
 			
+			if( TransferCut( particle_evt ) ) {
+				
+				pE_dE_cut[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
+
+			}
+			
 			// Check for prompt coincidence with a gamma-ray
 			for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
 				
@@ -1465,9 +1480,22 @@ unsigned long MiniballHistogrammer::FillHists() {
 				electron_particle_td->Fill( (double)particle_evt->GetTime() - (double)spede_evt->GetTime() );
 								
 			} // k: eleectrons
+
+			// This flag is used so that we don't double count
+			// TODO: It needs to be improved to allow multiple particles in transfer
+			bool event_used = false;
+
+			// See if we are doing transfer reactions
+			if( react->GetBeam()->GetIsotope() != react->GetEjectile()->GetIsotope() &&
+				TransferCut( particle_evt ) ) {
+				
+				react->TransferProduct( particle_evt );
+				react->SetParticleTime( particle_evt->GetTime() );
+				event_used = true;
+
+			} // transfer event
 			
 			// Check for prompt coincidence with another particle
-			bool event_used = false;
 			for( unsigned int k = j+1; k < read_evts->GetParticleMultiplicity(); ++k ){
 				
 				// Get second particle event
