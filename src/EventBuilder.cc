@@ -1991,8 +1991,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				pulser_prev[pulserID] = pulser_time[pulserID];
 				n_pulser[pulserID]++;
 				
-				for( unsigned int i = 0; i < set->GetNumberOfPulsers(); i++ )
-					pulser_tdiff->Fill( pulserID, pulser_time[pulserID]-pulser_time[0] );
+				for( unsigned int i = 1; i < set->GetNumberOfPulsers(); i++ )
+					pulser_tdiff->Fill( i, pulser_time[i]-pulser_time[0] );
 
 			} // pulser code
 
