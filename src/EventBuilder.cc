@@ -34,11 +34,12 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 	n_resume.resize( set->GetNumberOfFebexSfps() );
 	flag_pause.resize( set->GetNumberOfFebexSfps() );
 	flag_resume.resize( set->GetNumberOfFebexSfps() );
-		
+
 	n_pulser.resize( set->GetNumberOfPulsers() );
 	pulser_time.resize( set->GetNumberOfPulsers() );
 	pulser_prev.resize( set->GetNumberOfPulsers() );
-		
+	flag_pulser.resize( set->GetNumberOfPulsers() );
+
 
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 		
@@ -1995,11 +1996,25 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					pulser_freq->Fill( pulser_time[pulserID], pulser_f );
 				}
 				pulser_prev[pulserID] = pulser_time[pulserID];
+				flag_pulser[pulserID] = true;
 				n_pulser[pulserID]++;
 				
-				for( unsigned int i = 1; i < set->GetNumberOfPulsers(); i++ )
-					pulser_tdiff->Fill( i, pulser_time[i]-pulser_time[0] );
-
+				bool fill_pulser = false;
+				for( unsigned int i = 0; i < set->GetNumberOfPulsers(); i++ )
+					fill_pulser &= flag_pulser[i];
+				
+				if( fill_pulser ) {
+					
+					flag_pulser[pulserID] = false;
+					for( unsigned int i = 1; i < set->GetNumberOfPulsers(); i++ ) {
+						
+						flag_pulser[pulserID] = false;
+						pulser_tdiff->Fill( i, pulser_time[i]-pulser_time[0] );
+						
+					}
+				
+				}
+				
 			} // pulser code
 
 			// Check the pause events for each module
@@ -2269,7 +2284,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 	std::cout << "Writing output file...\r";
 	std::cout.flush();
-	output_file->Write( nullptr, TObject::kWriteDelete );
+	output_file->Write( nullptr, TObject::kOverwrite );
 	
 	std::cout << "Writing output file... Done!" << std::endl << std::endl;
 

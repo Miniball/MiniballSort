@@ -137,6 +137,7 @@ private:
 	// Flags
 	bool flag_close_event;
 	std::vector<std::vector<bool>> flag_pause, flag_resume;
+	std::vector<bool> flag_pulser;
 	bool event_open;
 
 	// Time variables
