@@ -276,7 +276,10 @@ private:
 	const unsigned int PBIN = 2000;		// number of bins in particle spectra
 	const float PMIN = 0.0;				// lower limit of energy in particle spectra
 	const float PMAX = 2000e3;			// upper limit of energy in particle spectra
-
+	unsigned int TBIN;					// number of bins in time difference histograms
+	float TMIN;							// lower limit of time difference
+	float TMAX;							// upper limit of time difference
+	
 	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;
 	

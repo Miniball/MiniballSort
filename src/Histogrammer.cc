@@ -8,6 +8,12 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 	// Progress bar starts as false
 	_prog_ = false;
 	
+	// Calculate histogram limits
+	int window_ticks = ( set->GetEventWindow() + 10 ) / 10;
+	TMAX = (float)window_ticks * 10.0 + 5.0;
+	TMIN = TMAX * -1.0;
+	TBIN = window_ticks * 2 + 1;
+	
 }
 
 void MiniballHistogrammer::MakeHists() {
@@ -26,7 +32,7 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gamma_particle_td";
 	htitle = "Gamma-ray - Particle time difference;#Deltat;Counts";
 	gamma_particle_td = new TH1F( hname.data(), htitle.data(),
-								 1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+								 TBIN, TMIN, TMAX );
 
 	hname = "gamma_particle_E_vs_td";
 	htitle = "Gamma-ray - Particle time difference versus gamma-ray energy;#Deltat;Gamma-ray energy (keV);Counts";
@@ -35,29 +41,29 @@ void MiniballHistogrammer::MakeHists() {
 								 GBIN/4., 0., 2000. );
 
 	hname = "gamma_gamma_td";
-	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat;Counts";
+	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat [ns];Counts";
 	gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
-							  1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+							  TBIN, TMIN, TMAX );
 	
 	hname = "gamma_electron_td";
-	htitle = "Gamma-ray - Electron time difference;#Deltat;Counts";
+	htitle = "Gamma-ray - Electron time difference;#Deltat [ns];Counts per 10 ns";
 	gamma_electron_td = new TH1F( hname.data(), htitle.data(),
-							  1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+							  TBIN, TMIN, TMAX );
 	
 	hname = "electron_electron_td";
-	htitle = "Electron - Electron time difference;#Deltat;Counts";
+	htitle = "Electron - Electron time difference;#Deltat [ns];Counts per 10 ns";
 	electron_electron_td = new TH1F( hname.data(), htitle.data(),
-							  1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+							  TBIN, TMIN, TMAX );
 	
 	hname = "electron_particle_td";
-	htitle = "Electron - Particle time difference;#Deltat;Counts";
+	htitle = "Electron - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	electron_particle_td = new TH1F( hname.data(), htitle.data(),
-							  1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+							  TBIN, TMIN, TMAX );
 	
 	hname = "particle_particle_td";
-	htitle = "Particle - Particle time difference;#Deltat;Counts";
+	htitle = "Particle - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	particle_particle_td = new TH1F( hname.data(), htitle.data(),
-								 1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+								 TBIN, TMIN, TMAX );
 
 	// Gamma-ray singles histograms
 	dirname = "GammaRaySingles";
@@ -825,9 +831,9 @@ void MiniballHistogrammer::MakeHists() {
 	bdE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 	
 	hname = "bd_bd_td";
-	htitle = "Beam-dump - Beam-dump time difference;#Deltat;Counts";
+	htitle = "Beam-dump - Beam-dump time difference;#Deltat [ns];Counts per 10 ns";
 	bd_bd_td = new TH1F( hname.data(), htitle.data(),
-						1000, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50 );
+						TBIN, TMIN, TMAX );
 	
 	hname = "bdE_bdE";
 	htitle = "Beam-dump gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
