@@ -267,18 +267,18 @@ private:
 	//------------//
 	
 	// Histogram limits
-	const unsigned int GBIN = 4000;		// number of bins in gamma spectra
-	const float GMIN = -0.5;			// lower limit of energy in gamma spectra
-	const float GMAX = 1999.5;			// upper limit of energy in gamma spectra
-	const unsigned int EBIN = 2000;		// number of bins in electron spectra
-	const float EMIN = -0.5;			// lower limit of energy in electron spectra
-	const float EMAX = 1999.5;			// upper limit of energy in electron spectra
-	const unsigned int PBIN = 2000;		// number of bins in particle spectra
-	const float PMIN = 0.0;				// lower limit of energy in particle spectra
-	const float PMAX = 2000e3;			// upper limit of energy in particle spectra
-	unsigned int TBIN;					// number of bins in time difference histograms
-	float TMIN;							// lower limit of time difference
-	float TMAX;							// upper limit of time difference
+	unsigned int GBIN = 4000;		// number of bins in gamma spectra
+	float GMIN = -0.5;				// lower limit of energy in gamma spectra
+	float GMAX = 1999.5;			// upper limit of energy in gamma spectra
+	unsigned int EBIN = 2000;		// number of bins in electron spectra
+	float EMIN = -0.5;				// lower limit of energy in electron spectra
+	float EMAX = 1999.5;			// upper limit of energy in electron spectra
+	unsigned int PBIN = 2000;		// number of bins in particle spectra
+	float PMIN = 0.0;				// lower limit of energy in particle spectra
+	float PMAX = 2000e3;			// upper limit of energy in particle spectra
+	unsigned int TBIN;				// number of bins in time difference histograms
+	float TMIN;						// lower limit of time difference
+	float TMAX;						// upper limit of time difference
 	
 	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;
