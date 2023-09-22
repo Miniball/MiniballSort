@@ -26,8 +26,9 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 		
 	}
 	
-	// Default that we do not have a source only run
+	// Default that we do not have a source or EBIS only run
 	flag_source = false;
+	flag_ebis = false;
 	
 	// No progress bar by default
 	_prog_ = false;

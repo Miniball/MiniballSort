@@ -479,6 +479,7 @@ void MiniballMidasConverter::FinishFebexData(){
 			
 			flag_febex_info = true;
 			my_info_code = 21; // EBIS is always 21 (defined here)
+			ebis_tm_stp = febex_data->GetTime();
 			
 		}
 		
@@ -504,7 +505,8 @@ void MiniballMidasConverter::FinishFebexData(){
 		}
 
 		// Otherwise it is real data, so fill a FEBEX event
-		else {
+		// but only if we are in an EBIS time window or we want all data
+		else if( !flag_ebis || EBISWindow( febex_data->GetTime() ) ) {
 			
 			// Set this data and fill event to tree
 			// Also add the time offset when we do this

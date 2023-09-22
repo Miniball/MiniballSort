@@ -24,6 +24,7 @@ std::vector<std::string> input_names;
 bool flag_convert = false;
 bool flag_events = false;
 bool flag_source = false;
+bool flag_ebis = false;
 
 // select what steps of the analysis to be forced
 std::vector<bool> force_convert;
@@ -399,6 +400,7 @@ void do_convert() {
 			if( flag_mbs ) {
 			
 				if( flag_source ) conv_mbs.SourceOnly();
+				if( flag_ebis ) conv_mbs.EBISOnly();
 				conv_mbs.SetOutput( name_output_file );
 				conv_mbs.AddCalibration( mycal );
 				conv_mbs.MakeTree();
@@ -417,6 +419,7 @@ void do_convert() {
 			else {
 				
 				if( flag_source ) conv_midas.SourceOnly();
+				if( flag_ebis ) conv_midas.EBISOnly();
 				conv_midas.SetOutput( name_output_file );
 				conv_midas.AddCalibration( mycal );
 				conv_midas.MakeTree();
@@ -591,6 +594,7 @@ int main( int argc, char *argv[] ){
 	interface->Add("-f", "Flag to force new ROOT conversion", &flag_convert );
 	interface->Add("-e", "Flag to force new event builder (new calibration)", &flag_events );
 	interface->Add("-source", "Flag to define an source only run", &flag_source );
+	interface->Add("-ebis", "Flag to define an EBIS only run, discarding data >4ms after an EBIS event", &flag_ebis );
     interface->Add("-mbs", "Flag to define input as MBS data type", &flag_mbs );
     interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );

@@ -69,6 +69,10 @@ public:
 
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){ cal = mycal; };
 	inline void SourceOnly(){ flag_source = true; };
+	inline void EBISOnly(){ flag_ebis = true; };
+	inline bool EBISWindow( unsigned long long int t ){
+		return ( t < ebis_tm_stp + 4000000 );
+	};
 
 	inline void AddProgressBar( std::shared_ptr<TGProgressBar> myprog ){
 		prog = myprog;
@@ -79,8 +83,8 @@ public:
 	
 protected:
 	
-	// Flag for source run
-	bool flag_source;
+	// Flags for source or EBIS run
+	bool flag_source, flag_ebis;
 
 	// Logs
 	std::stringstream sslogs;
@@ -96,6 +100,7 @@ protected:
 	// Interpretated variables
 	unsigned long long int my_good_tm_stp = 0;
 	unsigned long long int my_tm_stp = 0;
+	unsigned long long int ebis_tm_stp = 0;
 	unsigned long long int my_event_id;
 	unsigned long my_tm_stp_lsb = 0;
 	unsigned long my_tm_stp_msb = 0;
