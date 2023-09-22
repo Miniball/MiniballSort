@@ -1676,6 +1676,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	if( input_tree->LoadTree(0) < 0 ){
 		
 		std::cout << " Event Building: nothing to do" << std::endl;
+		output_file->Write( nullptr, TObject::kOverwrite );
 		return 0;
 		
 	}
