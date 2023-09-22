@@ -678,7 +678,7 @@ int main( int argc, char *argv[] ){
 			
 			// Probably in the current working directory
 			if( input_names.at(0).find("/") == std::string::npos )
-				datadir_name = "./sorted/";
+				datadir_name = "./sorted";
 			
 			// Called from a different directory
 			else {
@@ -689,13 +689,13 @@ int main( int argc, char *argv[] ){
 				
 			}
 			
-			// Create the directory if it doesn't exist (not Windows compliant)
-			std::string cmd = "mkdir -p " + datadir_name;
-			gSystem->Exec( cmd.data() );
-			
 		}
 		
 		else datadir_name = "dataspy";
+		
+		// Create the directory if it doesn't exist (not Windows compliant)
+		std::string cmd = "mkdir -p " + datadir_name;
+		gSystem->Exec( cmd.data() );
 		
 		std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
 		
