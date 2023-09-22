@@ -500,7 +500,9 @@ void MiniballMidasConverter::FinishFebexData(){
 			info_data->SetBoard( febex_data->GetBoard() );
 			info_data->SetCode( my_info_code );
 			data_packet->SetData( info_data );
-			output_tree->Fill();
+			
+			// Fill only if we are not doing a source run
+			if( !flag_source ) output_tree->Fill();
 	
 		}
 
@@ -514,9 +516,12 @@ void MiniballMidasConverter::FinishFebexData(){
 			data_packet->SetData( febex_data );
 			
 			// Skip large time jumps, maybe?
-			if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] == 0 ||
-			   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) < 300e9 )
-				output_tree->Fill();
+			if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] != 0 &&
+			   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) > 300e9 )
+				return;
+				
+			// Fill only if we are not doing a source run
+			if( !flag_source ) output_tree->Fill();
 
 			// Fill histograms
 			hfebex_qshort[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQshort() );
@@ -668,7 +673,10 @@ void MiniballMidasConverter::ProcessInfoData(){
 		info_data->SetTime( my_tm_stp*10 ); // timestamp in 10 ns ticks
 		info_data->SetCode( my_info_code );
 		data_packet->SetData( info_data );
-		output_tree->Fill();
+		
+		// Fill only if we are not doing a source run
+		// Or comment out if we want to skip them because we're not debugging
+		//if( !flag_source ) output_tree->Fill();
 		info_data->Clear();
 
 	}
