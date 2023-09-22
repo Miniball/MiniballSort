@@ -48,7 +48,7 @@ use mb_sort with following flags:
 	[-spy                    : Flag to run the DataSpy]
 	[-m      <int           >: Monitor input file every X seconds]
 	[-p      <int           >: Port number for web server (default 8030)]
-	[-d      <string        >: Data directory to add to the monitor]
+	[-d      <string        >: Directory to put the sorted data default is /path/to/data/sorted]
 	[-g                      : Launch the GUI]
 	[-h                      : Print this help]
 ```
