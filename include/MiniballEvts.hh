@@ -305,10 +305,12 @@ public:
 	inline void SetEBIS( unsigned long t ){ ebis = t; return; };
 	inline void SetT1( unsigned long t ){ t1 = t; return; };
 	inline void SetSC( unsigned long t ){ sc = t; return; };
-
+	inline void SetLaserStatus( bool l ){ laser = l; return; };
+	
 	inline unsigned long GetEBIS(){ return ebis; };
 	inline unsigned long GetT1(){ return t1; };
 	inline unsigned long GetSC(){ return sc; };
+	inline bool GetLaserStatus(){ return laser; };
 
 	
 private:
@@ -317,6 +319,7 @@ private:
 	unsigned long ebis;		///< absolute EBIS pulse time
 	unsigned long t1;		///< absolute proton pulse time
 	unsigned long sc;		///< absolute SuperCycle time
+	bool laser;				///< RILIS laser on (true) or off (false)
 
 	std::vector<GammaRayEvt> gamma_event;
 	std::vector<GammaRayAddbackEvt> gamma_ab_event;
@@ -325,7 +328,7 @@ private:
 	std::vector<SpedeEvt> spede_event;
 	std::vector<IonChamberEvt> ic_event;
 
-	ClassDef( MiniballEvts, 2 )
+	ClassDef( MiniballEvts, 3 )
 	
 };
 

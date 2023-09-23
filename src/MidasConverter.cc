@@ -492,6 +492,24 @@ void MiniballMidasConverter::FinishFebexData(){
 			
 		}
 
+		else if( febex_data->GetSfp()     == set->GetSCSfp()     &&
+				 febex_data->GetBoard()   == set->GetSCBoard()   &&
+				 febex_data->GetChannel() == set->GetSCChannel() ){
+			
+			flag_febex_info = true;
+			my_info_code = 23; // SC is always 23 (defined here)
+			
+		}
+
+		else if( febex_data->GetSfp()     == set->GetRILISSfp()     &&
+				 febex_data->GetBoard()   == set->GetRILISBoard()   &&
+				 febex_data->GetChannel() == set->GetRILISChannel() ){
+			
+			flag_febex_info = true;
+			my_info_code = 24; // RILIS is always 24 (defined here)
+			
+		}
+
 		// If this is a timestamp, fill an info event
 		if( flag_febex_info && febex_data->IsOverThreshold() ) {
 		
@@ -539,11 +557,14 @@ void MiniballMidasConverter::FinishFebexData(){
 	else if( (long long int)my_tm_stp != febex_data->GetTime() ) {
 		
 		std::cerr << "Missing something in FEBEX data and new event occured" << std::endl;
-		std::cerr << " Qshort        = " << flag_febex_data0 << std::endl;
-		std::cerr << " nonsense item = " << flag_febex_data1 << std::endl; // missing anyway
-		std::cerr << " Qint (low)    = " << flag_febex_data2 << std::endl;
-		std::cerr << " Qint (high)   = " << flag_febex_data3 << std::endl;
-		std::cerr << " trace data    = " << flag_febex_trace << std::endl;
+		std::cerr << " Current timestamp  = " << std::hex << my_tm_stp << std::endl;
+		std::cerr << " Previous timestamp = " << std::hex << febex_data->GetTime() << std::endl;
+		std::cerr << " Qshort        = " << std::boolalpha << flag_febex_data0 << std::endl;
+		std::cerr << " nonsense item = " << std::boolalpha << flag_febex_data1 << std::endl; // missing anyway
+		std::cerr << " Qint (low)    = " << std::boolalpha << flag_febex_data2 << std::endl;
+		std::cerr << " Qint (high)   = " << std::boolalpha << flag_febex_data3 << std::endl;
+		std::cerr << " trace data    = " << std::boolalpha << flag_febex_trace << std::endl;
+		std::cerr << std::dec;
 
 	}
 

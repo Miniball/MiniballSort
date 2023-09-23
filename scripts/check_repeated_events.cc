@@ -63,8 +63,11 @@ void check_repeated_events( std::string filename = "test/R4_13.root",
 				std::cout << "Repeat timestamp in event " << std::dec << i << ":" << std::endl;
 				std::cout << "\t" << std::hex << febex->GetTime() << " == ";
 				std::cout << std::hex << timestamp[febex->GetSfp()][febex->GetBoard()][febex->GetChannel()];
+				std::cout << "\n\tSFP = " << std::dec << (int)febex->GetSfp();
+				std::cout << ", board = " << (int)febex->GetBoard();
+				std::cout << ", channel = " << (int)febex->GetChannel() << std::endl;
 				std::cout << std::endl;
-				
+
 				ctr++;
 
 			}
@@ -78,15 +81,15 @@ void check_repeated_events( std::string filename = "test/R4_13.root",
 		else {
 		
 			std::cout << "Bad FEBEX chan ID!" << std::endl;
-			std::cout << "\tSFP = " << febex->GetSfp();
-			std::cout << ", board = " << febex->GetBoard();
-			std::cout << ", channel = " << febex->GetChannel() << std::endl;
+			std::cout << "\tSFP = " << (int)febex->GetSfp();
+			std::cout << ", board = " << (int)febex->GetBoard();
+			std::cout << ", channel = " << (int)febex->GetChannel() << std::endl;
 		
 		}
 	
 	} // i
 	
-	std::cout << "Total number of repeated events = " << std::dec << ctr;
+	std::cout << "\nTotal number of repeated events = " << std::dec << ctr;
 	std::cout << " / " << nentries << " = " << (double)ctr*100.0/(double)nentries;
 	std::cout << "\%" << std::endl;
 		

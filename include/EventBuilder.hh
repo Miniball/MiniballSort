@@ -146,12 +146,14 @@ private:
 	unsigned long long  ebis_time, ebis_prev;
 	unsigned long long  t1_time, t1_prev;
 	unsigned long long  sc_time, sc_prev;
+	unsigned long long  laser_time;
 	double pulser_f, ebis_f, t1_f, sc_f;
 	double pulser_T, ebis_T, t1_T, sc_T;
 	std::vector<unsigned long long>  pulser_time, pulser_prev;
 	std::vector<std::vector<unsigned long long>> pause_time, resume_time;
 	std::vector<std::vector<unsigned long long>> febex_dead_time;
 	std::vector<std::vector<unsigned long long>> febex_time_start, febex_time_stop;
+	std::vector<std::vector<std::vector<unsigned long long>>> febex_time_ch;
 
 	// Data variables - generic
 	unsigned char		mysfp;			///< sfp number
@@ -214,6 +216,7 @@ private:
 	std::vector<std::vector<unsigned long>>	n_board;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
 	unsigned long				n_miniball, n_cd, n_pad, n_spede, n_bd, n_ic;
+	unsigned long				repeat_ctr;
 
 
 	// Timing histograms

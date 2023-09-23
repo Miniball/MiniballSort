@@ -27,6 +27,7 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 	febex_time_start.resize( set->GetNumberOfFebexSfps() );
 	febex_time_stop.resize( set->GetNumberOfFebexSfps() );
 	febex_dead_time.resize( set->GetNumberOfFebexSfps() );
+	febex_time_ch.resize( set->GetNumberOfFebexSfps() );
 	pause_time.resize( set->GetNumberOfFebexSfps() );
 	resume_time.resize( set->GetNumberOfFebexSfps() );
 	n_board.resize( set->GetNumberOfFebexSfps() );
@@ -46,6 +47,7 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 		febex_time_start[i].resize( set->GetNumberOfFebexBoards() );
 		febex_time_stop[i].resize( set->GetNumberOfFebexBoards() );
 		febex_dead_time[i].resize( set->GetNumberOfFebexBoards() );
+		febex_time_ch[i].resize( set->GetNumberOfFebexBoards() );
 		pause_time[i].resize( set->GetNumberOfFebexBoards() );
 		resume_time[i].resize( set->GetNumberOfFebexBoards() );
 		n_board[i].resize( set->GetNumberOfFebexBoards() );
@@ -54,6 +56,9 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 		flag_pause[i].resize( set->GetNumberOfFebexBoards() );
 		flag_resume[i].resize( set->GetNumberOfFebexBoards() );
 		
+		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j )
+			febex_time_ch[i][j].resize( set->GetNumberOfFebexChannels(), 0 );
+			
 	}
 		
 }
@@ -91,7 +96,9 @@ void MiniballEventBuilder::StartFile(){
 	bd_ctr			= 0;
 	spede_ctr		= 0;
 	ic_ctr			= 0;
-	
+
+	repeat_ctr		= 0;
+
 	
 	for( unsigned int i = 0; i < set->GetNumberOfPulsers(); ++i ) {
 
@@ -1755,7 +1762,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		//	std::cout << " < " << preveventid << std::endl;
 
 		//}
-
+		
 		// record time of this event
 		time_prev = mytime;
 		
@@ -1773,148 +1780,172 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			myboard = febex_data->GetBoard();
 			mych = febex_data->GetChannel();
 			mypileup = febex_data->IsPileUp();
-			if( overwrite_cal ) {
+
+			// check for repeated timestamps in same channel
+			if( mytime == febex_time_ch[mysfp][myboard][mych] ){
 				
-				unsigned int adc_tmp_value;
-				if( cal->FebexType( mysfp, myboard, mych ) == "Qshort" )
-					adc_tmp_value = febex_data->GetQshort();
-				else if( cal->FebexType( mysfp, myboard, mych ) == "Qint" )
-					adc_tmp_value = febex_data->GetQint();
-				else adc_tmp_value = febex_data->GetQshort();
+				//std::cout << "Repeat timestamp in event " << std::dec << i << ":" << std::endl;
+				//std::cout << "\t" << std::hex << mytime << " == ";
+				//std::cout << std::hex << febex_time_ch[mysfp][myboard][mych];
+				//std::cout << "\n\tSFP = " << std::dec << (int)mysfp;
+				//std::cout << ", board = " << (int)myboard;
+				//std::cout << ", channel = " << (int)mych << std::endl;
+				//std::cout << std::endl;
 
-				myenergy = cal->FebexEnergy( mysfp, myboard, mych, adc_tmp_value );
+				repeat_ctr++;
 
-				if( adc_tmp_value > cal->FebexThreshold( mysfp, myboard, mych ) )
-					mythres = true;
-				else mythres = false;
-				
-				if( myenergy < 0 ) mythres = false;
+			} // skip repeat FEBEX event
 
-			}
-			
+			// otherwise carry on
 			else {
 				
-				myenergy = febex_data->GetEnergy();
-				mythres = febex_data->IsOverThreshold();
+				// Update calibration if necessary
+				if( overwrite_cal ) {
+					
+					unsigned int adc_tmp_value;
+					if( cal->FebexType( mysfp, myboard, mych ) == "Qshort" )
+						adc_tmp_value = febex_data->GetQshort();
+					else if( cal->FebexType( mysfp, myboard, mych ) == "Qint" )
+						adc_tmp_value = febex_data->GetQint();
+					else adc_tmp_value = febex_data->GetQshort();
 
-			}
-			
-			// Increment event counters
-			n_febex_data++;
-			n_sfp[mysfp]++;
-			n_board[mysfp][myboard]++;
-			
-			// Is it a gamma ray from Miniball?
-			if( set->IsMiniball( mysfp, myboard, mych ) && mythres ) {
-				
-				// Increment counts and open the event
-				n_miniball++;
-				hit_ctr++;
-				event_open = true;
-				
-				mb_en_list.push_back( myenergy );
-				mb_ts_list.push_back( mytime );
-				mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
-				mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
-				mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
-				mb_pu_list.push_back( mypileup );
-				
-			}
-			
-			// Is it a particle from the CD?
-			else if( set->IsCD( mysfp, myboard, mych ) && mythres ) {
-				
-				// Increment counts and open the event
-				n_cd++;
-				hit_ctr++;
-				event_open = true;
-				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
-					cd_en_list.push_back( myenergy );
-					cd_ts_list.push_back( mytime );
-					cd_det_list.push_back( set->GetCDDetector( mysfp, myboard, mych ) );
-					cd_sec_list.push_back( set->GetCDSector( mysfp, myboard, mych ) );
-					cd_side_list.push_back( set->GetCDSide( mysfp, myboard, mych ) );
-					cd_strip_list.push_back( set->GetCDStrip( mysfp, myboard, mych ) );
-					
-				}
-				
-			}
-			
-			// Is it a particle from the Pad?
-			else if( set->IsPad( mysfp, myboard, mych ) && mythres ) {
-				
-				// Increment counts and open the event
-				n_pad++;
-				hit_ctr++;
-				event_open = true;
-				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
-					pad_en_list.push_back( myenergy );
-					pad_ts_list.push_back( mytime );
-					pad_det_list.push_back( set->GetPadDetector( mysfp, myboard, mych ) );
-					pad_sec_list.push_back( set->GetPadSector( mysfp, myboard, mych ) );
-					
-				}
-				
-			}
-			
-			// Is it an electron from Spede?
-			else if( set->IsSpede( mysfp, myboard, mych ) && mythres ) {
-				
-				// Increment counts and open the event
-				n_spede++;
-				hit_ctr++;
-				event_open = true;
-				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
-					spede_en_list.push_back( myenergy );
-					spede_ts_list.push_back( mytime );
-					spede_seg_list.push_back( set->GetSpedeSegment( mysfp, myboard, mych ) );
-					
-				}
-				
-			}
-			
-			// Is it a gamma ray from the beam dump?
-			else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
-				
-				// Increment counts and open the event
-				n_bd++;
-				hit_ctr++;
-				event_open = true;
-				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
-					bd_en_list.push_back( myenergy );
-					bd_ts_list.push_back( mytime );
-					bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
-					
-				}
-				
-			}
-			
-			// Is it an IonChamber event
-			else if( set->IsIonChamber( mysfp, myboard, mych ) && mythres ) {
-				
-				// Increment counts and open the event
-				n_ic++;
-				hit_ctr++;
-				event_open = true;
-				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
-					ic_en_list.push_back( myenergy );
-					ic_ts_list.push_back( mytime );
-					ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
-					
-				}
-				
-			}
+					myenergy = cal->FebexEnergy( mysfp, myboard, mych, adc_tmp_value );
 
+					if( adc_tmp_value > cal->FebexThreshold( mysfp, myboard, mych ) )
+						mythres = true;
+					else mythres = false;
+					
+					if( myenergy < 0 ) mythres = false;
+
+				}
+				
+				else {
+					
+					myenergy = febex_data->GetEnergy();
+					mythres = febex_data->IsOverThreshold();
+
+				}
+				
+				// Increment event counters
+				n_febex_data++;
+				n_sfp[mysfp]++;
+				n_board[mysfp][myboard]++;
+				
+				// Is it a gamma ray from Miniball?
+				if( set->IsMiniball( mysfp, myboard, mych ) && mythres ) {
+					
+					// Increment counts and open the event
+					n_miniball++;
+					hit_ctr++;
+					event_open = true;
+					
+					mb_en_list.push_back( myenergy );
+					mb_ts_list.push_back( mytime );
+					mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
+					mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
+					mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
+					mb_pu_list.push_back( mypileup );
+					
+				}
+				
+				// Is it a particle from the CD?
+				else if( set->IsCD( mysfp, myboard, mych ) && mythres ) {
+					
+					// Increment counts and open the event
+					n_cd++;
+					hit_ctr++;
+					event_open = true;
+					
+					if( !mypileup || !set->GetPileupRejection() ) {
+						
+						cd_en_list.push_back( myenergy );
+						cd_ts_list.push_back( mytime );
+						cd_det_list.push_back( set->GetCDDetector( mysfp, myboard, mych ) );
+						cd_sec_list.push_back( set->GetCDSector( mysfp, myboard, mych ) );
+						cd_side_list.push_back( set->GetCDSide( mysfp, myboard, mych ) );
+						cd_strip_list.push_back( set->GetCDStrip( mysfp, myboard, mych ) );
+						
+					}
+					
+				}
+				
+				// Is it a particle from the Pad?
+				else if( set->IsPad( mysfp, myboard, mych ) && mythres ) {
+					
+					// Increment counts and open the event
+					n_pad++;
+					hit_ctr++;
+					event_open = true;
+					
+					if( !mypileup || !set->GetPileupRejection() ) {
+						
+						pad_en_list.push_back( myenergy );
+						pad_ts_list.push_back( mytime );
+						pad_det_list.push_back( set->GetPadDetector( mysfp, myboard, mych ) );
+						pad_sec_list.push_back( set->GetPadSector( mysfp, myboard, mych ) );
+						
+					}
+					
+				}
+				
+				// Is it an electron from Spede?
+				else if( set->IsSpede( mysfp, myboard, mych ) && mythres ) {
+					
+					// Increment counts and open the event
+					n_spede++;
+					hit_ctr++;
+					event_open = true;
+					
+					if( !mypileup || !set->GetPileupRejection() ) {
+						
+						spede_en_list.push_back( myenergy );
+						spede_ts_list.push_back( mytime );
+						spede_seg_list.push_back( set->GetSpedeSegment( mysfp, myboard, mych ) );
+						
+					}
+					
+				}
+				
+				// Is it a gamma ray from the beam dump?
+				else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
+					
+					// Increment counts and open the event
+					n_bd++;
+					hit_ctr++;
+					event_open = true;
+					
+					if( !mypileup || !set->GetPileupRejection() ) {
+						
+						bd_en_list.push_back( myenergy );
+						bd_ts_list.push_back( mytime );
+						bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
+						
+					}
+					
+				}
+				
+				// Is it an IonChamber event
+				else if( set->IsIonChamber( mysfp, myboard, mych ) && mythres ) {
+					
+					// Increment counts and open the event
+					n_ic++;
+					hit_ctr++;
+					event_open = true;
+					
+					if( !mypileup || !set->GetPileupRejection() ) {
+						
+						ic_en_list.push_back( myenergy );
+						ic_ts_list.push_back( mytime );
+						ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
+						
+					}
+					
+				}
+
+			} // process febex data
+			
+			// Update the current timestamp of this channel
+			febex_time_ch[mysfp][myboard][mych] = mytime;
 			
 			// Is it the start event?
 			if( febex_time_start.at( mysfp ).at( myboard ) == 0 )
@@ -1982,6 +2013,14 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				sc_prev = sc_time;
 				n_sc++;
 
+			} // SuperCycle code
+			
+			// Update Laser time
+			if( info_data->GetCode() == set->GetRILISCode() &&
+				TMath::Abs( (double)laser_time - (double)info_data->GetTime() ) > 1e3 ){
+				
+				laser_time = info_data->GetTime();
+				
 			} // SuperCycle code
 			
 			// Update pulser time
@@ -2192,6 +2231,11 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				write_evts->SetEBIS( ebis_time );
 				write_evts->SetT1( t1_time );
 				write_evts->SetSC( sc_time );
+				if( TMath::Abs( (double)ebis_time - (double)laser_time ) < 1e3
+					&& laser_time > 0 ) write_evts->SetLaserStatus( true );
+				else
+					write_evts->SetLaserStatus( false );
+
 				if( write_evts->GetGammaRayMultiplicity() ||
 					write_evts->GetGammaRayAddbackMultiplicity() ||
 					write_evts->GetParticleMultiplicity() ||
@@ -2279,6 +2323,9 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	ss_log << "    Beam dump gamma events = " << bd_ctr << std::endl;
 	ss_log << "   IonChamber triggers = " << n_ic << std::endl;
 	ss_log << "    IonChamber ion events = " << ic_ctr << std::endl;
+	ss_log << "\nTotal number of repeated events skipped = " << std::dec << repeat_ctr;
+	ss_log << " / " << n_entries << " = " << (double)repeat_ctr*100.0/(double)n_entries;
+	ss_log << "\%" << std::endl;
 
 	std::cout << ss_log.str();
 	if( log_file.is_open() && flag_input_file ) log_file << ss_log.str();
