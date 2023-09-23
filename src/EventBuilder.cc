@@ -795,6 +795,8 @@ void MiniballEventBuilder::ParticleFinder() {
 				}
 
 			} // k: all pad events
+
+			(void) padmax_idx; // Avoid unused warning.
 			
 
 			// Plot multiplcities
