@@ -14,6 +14,7 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
 
 	tm_stp_febex.resize( set->GetNumberOfFebexSfps() );
+	tm_stp_febex_ch.resize( set->GetNumberOfFebexSfps() );
 
 	// Start counters at zero
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
@@ -23,6 +24,10 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 		ctr_febex_resume[i].resize( set->GetNumberOfFebexBoards() );
 
 		tm_stp_febex[i].resize( set->GetNumberOfFebexBoards(), 0 );
+		tm_stp_febex_ch[i].resize( set->GetNumberOfFebexBoards() );
+
+		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j )
+			tm_stp_febex_ch[i][j].resize( set->GetNumberOfFebexBoards(), 0 );
 		
 	}
 	
@@ -56,6 +61,9 @@ void MiniballConverter::StartFile(){
 	}
 
 	ctr_febex_ext = 0;	// pulser trigger
+	
+	jump_ctr = 0;	// timestamp jumps
+	warp_ctr = 0;	// timestamp warps
 
 	return;
 	

@@ -71,7 +71,12 @@ public:
 	inline void SourceOnly(){ flag_source = true; };
 	inline void EBISOnly(){ flag_ebis = true; };
 	inline bool EBISWindow( unsigned long long int t ){
-		return ( t < ebis_tm_stp + 4000000 );
+		if( ebis_period == 0 ) return false;
+		else {
+			long long ebis_t = ( ebis_tm_stp - ebis_first ) % ebis_period;
+			long long test_t = ( t - ebis_first ) % ebis_period;
+			return ( test_t < ebis_t + 4000000 );
+		}
 	};
 
 	inline void AddProgressBar( std::shared_ptr<TGProgressBar> myprog ){
@@ -106,6 +111,8 @@ protected:
 	unsigned long my_tm_stp_msb = 0;
 	unsigned long my_tm_stp_hsb = 0;
 	unsigned int my_info_field;
+	unsigned int ebis_period = 0;
+	unsigned int ebis_first = 0;
 	unsigned char my_info_code;
 	unsigned char my_type;
 	unsigned short my_tdiff_data;
@@ -152,7 +159,9 @@ protected:
 	std::vector<std::vector<unsigned long int>> ctr_febex_pause;   	// pause acq for module
 	std::vector<std::vector<unsigned long int>> ctr_febex_resume;  	// resume acq for module
 	unsigned long int ctr_febex_ext;								// pulser timestamps
-
+	unsigned long int jump_ctr, warp_ctr;							// count timestamp jumps and warps
+	
+	
 	// Histograms
 	std::vector<std::vector<TProfile*>> hfebex_hit;
 	std::vector<std::vector<TProfile*>> hfebex_pause;
@@ -168,7 +177,8 @@ protected:
 	
 	// Timestamp tracking
 	std::vector<std::vector<long long int>> tm_stp_febex;
-	
+	std::vector<std::vector<std::vector<long long int>>> tm_stp_febex_ch;
+
 	// 	Settings file
 	std::shared_ptr<MiniballSettings> set;
 
