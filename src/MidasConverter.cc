@@ -523,7 +523,7 @@ void MiniballMidasConverter::FinishFebexData(){
 		}
 
 		// If this is a timestamp, fill an info event
-		if( flag_febex_info && febex_data->IsOverThreshold() ) {
+		if( flag_febex_info ) {
 		
 			info_data->SetTime( time_corr );
 			info_data->SetSfp( febex_data->GetSfp() );
@@ -532,7 +532,8 @@ void MiniballMidasConverter::FinishFebexData(){
 			data_packet->SetData( info_data );
 			
 			// Fill only if we are not doing a source run
-			if( !flag_source ) output_tree->Fill();
+			if( !flag_source )
+				output_tree->Fill();
 	
 		}
 

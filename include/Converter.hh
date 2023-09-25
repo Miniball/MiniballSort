@@ -70,12 +70,11 @@ public:
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){ cal = mycal; };
 	inline void SourceOnly(){ flag_source = true; };
 	inline void EBISOnly(){ flag_ebis = true; };
-	inline bool EBISWindow( unsigned long long int t ){
+	inline bool EBISWindow( long long int t ){
 		if( ebis_period == 0 ) return false;
 		else {
-			long long ebis_t = ( ebis_tm_stp - ebis_first ) % ebis_period;
-			long long test_t = ( t - ebis_first ) % ebis_period;
-			return ( test_t < ebis_t + 4000000 );
+			long long test_t = ( t - ebis_tm_stp ) % ebis_period;
+			return ( test_t < 4000000 );
 		}
 	};
 
@@ -103,10 +102,10 @@ protected:
 	bool flag_febex_info;
 	
 	// Interpretated variables
-	unsigned long long int my_good_tm_stp = 0;
-	unsigned long long int my_tm_stp = 0;
-	unsigned long long int ebis_tm_stp = 0;
-	unsigned long long int my_event_id;
+	unsigned long long my_good_tm_stp = 0;
+	unsigned long long my_tm_stp = 0;
+	long long ebis_tm_stp = 0;
+	unsigned long long my_event_id;
 	unsigned long my_tm_stp_lsb = 0;
 	unsigned long my_tm_stp_msb = 0;
 	unsigned long my_tm_stp_hsb = 0;
