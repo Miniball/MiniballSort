@@ -565,24 +565,14 @@ void MiniballMidasConverter::FinishFebexData(){
 			else if( data_packet->GetTime() <
 					tm_stp_febex_ch[data_packet->GetSfp()][data_packet->GetBoard()][data_packet->GetChannel()] ) {
 				
-				if( data_packet->GetSfp() == 0 && data_packet->GetBoard() == 0 && data_packet->GetChannel() == 0 )
-					warp_ctr++;
+				std::cerr << "Timestamp warp in SFP = " << std::dec << (int)data_packet->GetSfp();
+				std::cerr << ", board = " << (int)data_packet->GetBoard();
+				std::cerr << ", channel = " << (int)data_packet->GetChannel();
+				std::cerr << ":\n\t" << std::hex << data_packet->GetTime()/10;
+				std::cerr << " < " << tm_stp_febex_ch[data_packet->GetSfp()][data_packet->GetBoard()][data_packet->GetChannel()]/10;
+				std::cerr << std::dec << std::endl;
 				
-				else if( data_packet->GetSfp() == 1 && data_packet->GetBoard() == 1 && data_packet->GetChannel() == 1 )
-					warp_ctr++;
-				
-				else {
-					
-					std::cerr << "Timestamp warp in SFP = " << std::dec << (int)data_packet->GetSfp();
-					std::cerr << ", board = " << (int)data_packet->GetBoard();
-					std::cerr << ", channel = " << (int)data_packet->GetChannel();
-					std::cerr << ":\n\t" << std::hex << data_packet->GetTime()/10;
-					std::cerr << " < " << tm_stp_febex_ch[data_packet->GetSfp()][data_packet->GetBoard()][data_packet->GetChannel()]/10;
-					std::cerr << std::dec << std::endl;
-					
-					warp_ctr++;
-					
-				}
+				warp_ctr++;
 				
 			}
 				
