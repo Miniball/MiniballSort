@@ -64,6 +64,7 @@ void MiniballConverter::StartFile(){
 	
 	jump_ctr = 0;	// timestamp jumps
 	warp_ctr = 0;	// timestamp warps
+	data_ctr = 0;	// total data items
 
 	return;
 	

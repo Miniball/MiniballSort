@@ -532,9 +532,9 @@ void MiniballMidasConverter::FinishFebexData(){
 			data_packet->SetData( info_data );
 			
 			// Fill only if we are not doing a source run
-			if( !flag_source )
-				output_tree->Fill();
-	
+			if( !flag_source ) output_tree->Fill();
+			data_ctr++;
+
 		}
 
 		// Otherwise it is real data, so fill a FEBEX event
@@ -547,14 +547,14 @@ void MiniballMidasConverter::FinishFebexData(){
 			data_packet->SetData( febex_data );
 			
 			// Skip large forwards time jumps in same board, maybe?
-			if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] != 0 &&
-			   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) > 300e9 ) {
+			if( tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] != 0 &&
+			   febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] > 300e9 ) {
 				
-				std::cerr << "Timestamp jump in SFP = " << std::dec << (int)data_packet->GetSfp();
-				std::cerr << ", board = " << (int)data_packet->GetBoard();
-				std::cerr << ", channel = " << (int)data_packet->GetChannel();
-				std::cerr << ":\n\t" << std::hex << data_packet->GetTime()/10;
-				std::cerr << " >> " << tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()]/10;
+				std::cerr << "Timestamp jump in SFP = " << std::dec << (int)febex_data->GetSfp();
+				std::cerr << ", board = " << (int)febex_data->GetBoard();
+				std::cerr << ", channel = " << (int)febex_data->GetChannel();
+				std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
+				std::cerr << " >> " << tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()]/10;
 				std::cerr << std::dec << std::endl;
 				
 				jump_ctr++;
@@ -562,14 +562,14 @@ void MiniballMidasConverter::FinishFebexData(){
 			}
 			
 			// What if we jump backwards on an individual channel?
-			else if( data_packet->GetTime() <
-					tm_stp_febex_ch[data_packet->GetSfp()][data_packet->GetBoard()][data_packet->GetChannel()] ) {
+			else if( tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] != 0 &&
+					febex_data->GetTime() < tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] ) {
 				
-				std::cerr << "Timestamp warp in SFP = " << std::dec << (int)data_packet->GetSfp();
-				std::cerr << ", board = " << (int)data_packet->GetBoard();
-				std::cerr << ", channel = " << (int)data_packet->GetChannel();
-				std::cerr << ":\n\t" << std::hex << data_packet->GetTime()/10;
-				std::cerr << " < " << tm_stp_febex_ch[data_packet->GetSfp()][data_packet->GetBoard()][data_packet->GetChannel()]/10;
+				std::cerr << "Timestamp warp in SFP = " << std::dec << (int)febex_data->GetSfp();
+				std::cerr << ", board = " << (int)febex_data->GetBoard();
+				std::cerr << ", channel = " << (int)febex_data->GetChannel();
+				std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
+				std::cerr << " < " << tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]/10;
 				std::cerr << std::dec << std::endl;
 				
 				warp_ctr++;
@@ -578,6 +578,7 @@ void MiniballMidasConverter::FinishFebexData(){
 				
 			// Fill only if we are not doing a source run
 			else if( !flag_source ) output_tree->Fill();
+			data_ctr++;
 
 		}
 
@@ -587,8 +588,8 @@ void MiniballMidasConverter::FinishFebexData(){
 		hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
 			
 		// Reset the latest board and channel timestamps
-		tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] = data_packet->GetTime();
-		tm_stp_febex_ch[data_packet->GetSfp()][data_packet->GetBoard()][data_packet->GetChannel()] = data_packet->GetTime();
+		tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] = febex_data->GetTime();
+		tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] = febex_data->GetTime();
 
 	}
 
@@ -882,24 +883,18 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	input_file.close();
 
 	// Print the number of warps and jumps
-	if( !flag_source ) {
-		
-		unsigned long ndatatotal = output_tree->GetEntries();
-		
-		sslogs << "Number of timestamp jumps = " << jump_ctr;
-		sslogs << " / " << ndatatotal << " = ";
-		sslogs << 100.0 * (double)jump_ctr / (double)ndatatotal;
-		sslogs << "\%" << std::endl;
-		
-		sslogs << "Number of timestamp warps = " << warp_ctr;
-		sslogs << " / " << ndatatotal << " = ";
-		sslogs << 100.0 * (double)warp_ctr / (double)ndatatotal;
-		sslogs << "\%" << std::endl;
-		
-		std::cout << sslogs.str() << std::endl;
-		sslogs.str( std::string() ); // clean up
-
-	}
+	sslogs << "Number of timestamp jumps = " << jump_ctr;
+	sslogs << " / " << data_ctr << " = ";
+	sslogs << 100.0 * (double)jump_ctr / (double)data_ctr;
+	sslogs << "\%" << std::endl;
+	
+	sslogs << "Number of timestamp warps = " << warp_ctr;
+	sslogs << " / " << data_ctr << " = ";
+	sslogs << 100.0 * (double)warp_ctr / (double)data_ctr;
+	sslogs << "\%" << std::endl;
+	
+	std::cout << sslogs.str() << std::endl;
+	sslogs.str( std::string() ); // clean up
 	
 	return BLOCKS_NUM;
 	

@@ -159,7 +159,8 @@ protected:
 	std::vector<std::vector<unsigned long int>> ctr_febex_resume;  	// resume acq for module
 	unsigned long int ctr_febex_ext;								// pulser timestamps
 	unsigned long int jump_ctr, warp_ctr;							// count timestamp jumps and warps
-	
+	unsigned long int data_ctr;										// total number of data counted
+
 	
 	// Histograms
 	std::vector<std::vector<TProfile*>> hfebex_hit;
