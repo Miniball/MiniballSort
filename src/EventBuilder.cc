@@ -39,8 +39,6 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 	n_pulser.resize( set->GetNumberOfPulsers() );
 	pulser_time.resize( set->GetNumberOfPulsers() );
 	pulser_prev.resize( set->GetNumberOfPulsers() );
-	flag_pulser.resize( set->GetNumberOfPulsers() );
-
 
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
 		
@@ -302,7 +300,7 @@ void MiniballEventBuilder::MakeEventHists(){
 	pulser_period = new TH1F( "pulser_period", "Period of pulser in FEBEX DAQ;T [ns]", 10e3, 0, 10e9 );
 	int npulserbins = set->GetNumberOfPulsers()-1;
 	if( npulserbins <= 0 ) npulserbins = 1;
-	pulser_tdiff = new TH2F( "pulser_tdiff", "TIme difference of pulser 0 to all other pulsers in FEBEX DAQ;Pulser ID;{#Delta}t [ns]", npulserbins, 0.5, set->GetNumberOfPulsers()-0.5, 201, -1005, 1005 );
+	pulser_tdiff = new TH2F( "pulser_tdiff", "TIme difference of pulser 0 to all other pulsers in FEBEX DAQ;Pulser ID;{#Delta}t [ns]", npulserbins, 0.5, set->GetNumberOfPulsers()-0.5, 2001, -10005, 10005 );
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	ebis_period = new TH1F( "ebis_period", "Period of EBIS events;T [ns]", 10e3, 0, 10e9 );
 	t1_freq = new TProfile( "t1_freq", "Frequency of T1 events (p+ on ISOLDE target) as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
@@ -2035,31 +2033,25 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					pulser_period->Fill( pulser_T );
 					pulser_freq->Fill( pulser_time[pulserID], pulser_f );
 				}
-				pulser_prev[pulserID] = pulser_time[pulserID];
-				flag_pulser[pulserID] = true;
-				n_pulser[pulserID]++;
-				
-				bool fill_pulser = false;
-				for( unsigned int i = 0; i < set->GetNumberOfPulsers(); i++ )
-					fill_pulser &= flag_pulser[i];
-				
-				if( fill_pulser ) {
 
-					for( unsigned int i = 0; i < set->GetNumberOfPulsers(); i++ ) {
+				if( pulserID == 0 ) {
+
+					for( unsigned int i = 1; i < set->GetNumberOfPulsers(); i++ ) {
 						
-						flag_pulser[pulserID] = false;
-
 						// If diff is greater than 5 ms, we have the wrong pair
-						double tmp_tdiff = pulser_time[i] - pulser_time[0];
-						if( tmp_tdiff > 5e6 ) tmp_tdiff = pulser_prev[i] - pulser_time[0];
-						else if( tmp_tdiff < -5e6 ) tmp_tdiff = pulser_time[i] - pulser_prev[0];
+						double tmp_tdiff = (double)pulser_time[i] - (double)pulser_time[0];
+						if( tmp_tdiff > 5e5 ) tmp_tdiff = (double)pulser_prev[i] - (double)pulser_time[0];
+						else if( tmp_tdiff < -5e5 ) tmp_tdiff = (double)pulser_time[i] - (double)pulser_prev[0];
 
 						pulser_tdiff->Fill( i, tmp_tdiff );
 						
 					}
 				
 				}
-				
+
+				pulser_prev[pulserID] = pulser_time[pulserID];
+				n_pulser[pulserID]++;
+
 			} // pulser code
 
 			// Check the pause events for each module
