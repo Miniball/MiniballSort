@@ -232,8 +232,8 @@ void MiniballConverter::MakeHists() {
 				   || ( cal->FebexType(i,j,k) == "Qint" && cal->FebexGain(i,j,k) > 0.0005 ) ) {
 					
 					ebins = 8000.0;
-					emin = -250.0;
-					emax = 4000000.0 + emin; // 4 GeV range
+					emin = -125.0;
+					emax = 2000000.0 + emin; // 2 GeV range
 					
 				}
 				
@@ -242,8 +242,8 @@ void MiniballConverter::MakeHists() {
 				   || ( cal->FebexType(i,j,k) == "Qint" && cal->FebexGain(i,j,k) > 0.00001 ) ) {
 					
 					ebins = 8000.0;
-					emin = -25.0;
-					emax = 400000.0 + emin; // 400 MeV range
+					emin = -12.5;
+					emax = 200000.0 + emin; // 200 MeV range
 					
 				}
 				
