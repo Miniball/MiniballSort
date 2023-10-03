@@ -2044,12 +2044,17 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					fill_pulser &= flag_pulser[i];
 				
 				if( fill_pulser ) {
-					
-					flag_pulser[pulserID] = false;
-					for( unsigned int i = 1; i < set->GetNumberOfPulsers(); i++ ) {
+
+					for( unsigned int i = 0; i < set->GetNumberOfPulsers(); i++ ) {
 						
 						flag_pulser[pulserID] = false;
-						pulser_tdiff->Fill( i, pulser_time[i]-pulser_time[0] );
+
+						// If diff is greater than 5 ms, we have the wrong pair
+						double tmp_tdiff = pulser_time[i] - pulser_time[0];
+						if( tmp_tdiff > 5e6 ) tmp_tdiff = pulser_prev[i] - pulser_time[0];
+						else if( tmp_tdiff < -5e6 ) tmp_tdiff = pulser_time[i] - pulser_prev[0];
+
+						pulser_tdiff->Fill( i, tmp_tdiff );
 						
 					}
 				
