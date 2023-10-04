@@ -270,9 +270,9 @@ private:
 	//------------//
 	
 	// Histogram limits
-	unsigned int GBIN = 4000;		// number of bins in gamma spectra
+	unsigned int GBIN = 6000;		// number of bins in gamma spectra
 	float GMIN = -0.5;				// lower limit of energy in gamma spectra
-	float GMAX = 1999.5;			// upper limit of energy in gamma spectra
+	float GMAX = 5999.5;			// upper limit of energy in gamma spectra
 	unsigned int EBIN = 2000;		// number of bins in electron spectra
 	float EMIN = -0.5;				// lower limit of energy in electron spectra
 	float EMAX = 1999.5;			// upper limit of energy in electron spectra
