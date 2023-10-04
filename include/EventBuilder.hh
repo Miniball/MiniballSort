@@ -89,7 +89,11 @@ public:
 		delete mbs_info;
 		log_file.close(); //?? to close or not to close?
 	}; ///< Closes the output files from this class
-	inline void PurgeOutput(){ output_file->Purge(2); }
+	inline void PurgeOutput(){
+		input_tree->Reset();
+		mbsinfo_tree->Reset();
+		output_file->Purge(2);
+	}
 
 
 private:

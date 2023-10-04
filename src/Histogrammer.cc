@@ -1411,6 +1411,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 	if( n_entries == 0 ){
 		
 		std::cout << " MiniballHistogrammer: Nothing to do..." << std::endl;
+		output_file->Write( nullptr, TObject::kOverwrite );
 		return n_entries;
 		
 	}

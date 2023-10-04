@@ -169,6 +169,11 @@ void* monitor_run( void* ptr ){
 		// bRunMon can be set by the GUI
 		while( bRunMon ) {
 			
+			// Clean up the trees before we start
+			conv_mon->GetSortedTree()->Reset();
+			conv_mon->GetMbsInfo()->Reset();
+			eb_mon->GetTree()->Reset();
+
 			// Convert - from MIDAS file
 			if( !flag_spy && !flag_mbs ) {
 				
@@ -254,7 +259,6 @@ void* monitor_run( void* ptr ){
 				TTree *mbsinfo_tree = conv_mon->GetMbsInfo()->CloneTree();
 				eb_mon->SetInputTree( sorted_tree );
 				eb_mon->SetMBSInfoTree( mbsinfo_tree );
-				eb_mon->GetTree()->Reset();
 				nbuild = eb_mon->BuildEvents();
 				eb_mon->PurgeOutput();
 				delete sorted_tree;

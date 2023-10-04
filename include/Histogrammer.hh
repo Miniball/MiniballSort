@@ -67,7 +67,10 @@ public:
 		input_tree->ResetBranchAddresses();
 		delete read_evts;
 	};
-	inline void PurgeOutput(){ output_file->Purge(2); }
+	inline void PurgeOutput(){
+		input_tree->Reset();
+		output_file->Purge(2);
+	}
 
 	inline TFile* GetFile(){ return output_file; };
 
