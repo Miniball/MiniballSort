@@ -728,7 +728,7 @@ void MiniballEventBuilder::ParticleFinder() {
 			std::vector<unsigned char>().swap(pindex);
 			std::vector<unsigned char>().swap(nindex);
 			std::vector<unsigned char>().swap(padindex);
-			int pmax_idx = -1, nmax_idx = -1, padmax_idx;
+			int pmax_idx = -1, nmax_idx = -1, padmax_idx = -1;
 			float pmax_en = -999., nmax_en = -999., padmax_en = 0.0;
 			float psum_en, nsum_en;
 			
@@ -780,8 +780,8 @@ void MiniballEventBuilder::ParticleFinder() {
 				// The following is a hack because of the cabling of the Pad
 				// detector in September 2023 for the IS656 run
 				if( i != pad_det_list.at(k) ) continue;
-				if( ( j == 0 || j == 2 ) && pad_sec_list.at(k) != 0 ) continue;
-				if( ( j == 1 || j == 3 ) && pad_sec_list.at(k) != 1 ) continue;
+				if( ( j == 0 || j == 3 ) && pad_sec_list.at(k) != 0 ) continue;
+				if( ( j == 1 || j == 2 ) && pad_sec_list.at(k) != 1 ) continue;
 
 				padindex.push_back(k);
 
