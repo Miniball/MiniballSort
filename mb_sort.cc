@@ -169,11 +169,6 @@ void* monitor_run( void* ptr ){
 		// bRunMon can be set by the GUI
 		while( bRunMon ) {
 			
-			// Clean up the trees before we start
-			conv_mon->GetSortedTree()->Reset();
-			conv_mon->GetMbsInfo()->Reset();
-			eb_mon->GetTree()->Reset();
-
 			// Convert - from MIDAS file
 			if( !flag_spy && !flag_mbs ) {
 				
@@ -193,6 +188,10 @@ void* monitor_run( void* ptr ){
 			// Convert - from MIDAS shared memory
 			else if( flag_spy && !flag_mbs ){
 			
+				// Clean up the trees before we start
+				conv_midas_mon->GetSortedTree()->Reset();
+				conv_midas_mon->GetMbsInfo()->Reset();
+				
 				// First check if we have data
 				std::cout << "Looking for data from DataSpy" << std::endl;
 				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
@@ -259,6 +258,7 @@ void* monitor_run( void* ptr ){
 				TTree *mbsinfo_tree = conv_mon->GetMbsInfo()->CloneTree();
 				eb_mon->SetInputTree( sorted_tree );
 				eb_mon->SetMBSInfoTree( mbsinfo_tree );
+				eb_mon->GetTree()->Reset();
 				nbuild = eb_mon->BuildEvents();
 				eb_mon->PurgeOutput();
 				delete sorted_tree;
