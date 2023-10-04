@@ -300,7 +300,7 @@ void MiniballEventBuilder::MakeEventHists(){
 	pulser_period = new TH1F( "pulser_period", "Period of pulser in FEBEX DAQ;T [ns]", 10e3, 0, 10e9 );
 	int npulserbins = set->GetNumberOfPulsers()-1;
 	if( npulserbins <= 0 ) npulserbins = 1;
-	pulser_tdiff = new TH2F( "pulser_tdiff", "TIme difference of pulser 0 to all other pulsers in FEBEX DAQ;Pulser ID;{#Delta}t [ns]",
+	pulser_tdiff = new TH2F( "pulser_tdiff", "Time difference of pulser 0 to all other pulsers in FEBEX DAQ;Pulser ID;{#Delta}t [ns]",
 							npulserbins, 0.5, set->GetNumberOfPulsers()-0.5, 2001, -10005, 10005 );
 	ebis_freq = new TProfile( "ebis_freq", "Frequency of EBIS events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	ebis_period = new TH1F( "ebis_period", "Period of EBIS events;T [ns]", 10e3, 0, 10e9 );
@@ -2041,8 +2041,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 						
 						// If diff is greater than 5 ms, we have the wrong pair
 						double tmp_tdiff = (double)pulser_time[i] - (double)pulser_time[0];
-						if( tmp_tdiff > 5e5 ) tmp_tdiff = (double)pulser_prev[i] - (double)pulser_time[0];
-						else if( tmp_tdiff < -5e5 ) tmp_tdiff = (double)pulser_time[i] - (double)pulser_prev[0];
+						if( tmp_tdiff > 1e4 ) tmp_tdiff = (double)pulser_prev[i] - (double)pulser_time[0];
+						else if( tmp_tdiff < -1e4 ) tmp_tdiff = (double)pulser_time[i] - (double)pulser_prev[0];
 
 						pulser_tdiff->Fill( i, tmp_tdiff );
 						
