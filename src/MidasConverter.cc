@@ -457,7 +457,7 @@ void MiniballMidasConverter::FinishFebexData(){
 		febex_data->SetEnergy( my_energy );
 
 		// Check if it's over threshold
-		if( my_adc_data > cal->FebexThreshold( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) )
+		if( adc_tmp_value > cal->FebexThreshold( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) )
 			febex_data->SetThreshold( true );
 		else febex_data->SetThreshold( false );
 
