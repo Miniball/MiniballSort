@@ -1319,7 +1319,7 @@ void MiniballEventBuilder::ParticleFinder() {
 					// Event 1 is with first p-side, but which n-side?
 					unsigned int nfriend_idx = nindex.at(0);
 					if( TMath::Abs( cd_en_list.at( pindex.at(0) ) - cd_en_list.at( nindex.at(1) ) )
-					    > TMath::Abs( cd_en_list.at( pindex.at(0) ) - cd_en_list.at( nindex.at(0) ) ) )
+					    < TMath::Abs( cd_en_list.at( pindex.at(0) ) - cd_en_list.at( nindex.at(0) ) ) )
 						nfriend_idx = nindex.at(1);
 					
 					// Set event
