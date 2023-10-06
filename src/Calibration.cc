@@ -283,23 +283,23 @@ void MiniballCalibration::ReadCalibration() {
 
 			for( unsigned char k = 0; k < set->GetNumberOfFebexChannels(); k++ ){
 				
-				fFebexOffset[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Offset", i, j, k ), 0. );
-				fFebexGain[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.25 );
-				fFebexGainQuadr[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), 0. );
-				fFebexThreshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), 0 );
+				fFebexOffset[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.Offset", i, j, k ), (double)0 );
+				fFebexGain[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.25 );
+				fFebexGainQuadr[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), (double)0 );
+				fFebexThreshold[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), (double)0 );
 				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), "Qshort" );
-				fFebexTime[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)0 );
-				fFebexMWD_Decay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), (int)default_MWD_Decay );
-				fFebexMWD_Rise[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (int)default_MWD_Rise );
-				fFebexMWD_Top[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (int)default_MWD_Top );
-				fFebexMWD_Baseline[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (int)default_MWD_Baseline );
-				fFebexMWD_Window[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (int)default_MWD_Window );
-				fFebexCFD_Delay[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), (int)default_CFD_Delay );
-				fFebexCFD_HoldOff[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.HoldOff", i, j, k ), (int)default_CFD_HoldOff );
-				fFebexCFD_Shaping[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.ShapingTime", i, j, k ), (int)default_CFD_Shaping );
-				fFebexCFD_Integration[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.IntegrationTime", i, j, k ), (int)default_CFD_Integration );
-				fFebexCFD_Threshold[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.Threshold", i, j, k ), (int)default_CFD_Threshold );
-				fFebexCFD_Fraction[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.CFD.Fraction", i, j, k ), default_CFD_Fraction );
+				fFebexTime[i][j][k] = (long)config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)0 );
+				fFebexMWD_Decay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), (double)default_MWD_Decay );
+				fFebexMWD_Rise[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (double)default_MWD_Rise );
+				fFebexMWD_Top[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (double)default_MWD_Top );
+				fFebexMWD_Baseline[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (double)default_MWD_Baseline );
+				fFebexMWD_Window[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (double)default_MWD_Window );
+				fFebexCFD_Delay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), double)default_CFD_Delay );
+				fFebexCFD_HoldOff[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.HoldOff", i, j, k ), (double)default_CFD_HoldOff );
+				fFebexCFD_Shaping[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.ShapingTime", i, j, k ), (double)default_CFD_Shaping );
+				fFebexCFD_Integration[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.IntegrationTime", i, j, k ), (double)default_CFD_Integration );
+				fFebexCFD_Threshold[i][j][k] = (int)config->GetValue( Form( "febex_%d_%d_%d.CFD.Threshold", i, j, k ), (double)default_CFD_Threshold );
+				fFebexCFD_Fraction[i][j][k] = (float)config->GetValue( Form( "febex_%d_%d_%d.CFD.Fraction", i, j, k ), (double)default_CFD_Fraction );
 
 			} // k: channel
 			
