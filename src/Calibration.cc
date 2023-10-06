@@ -294,7 +294,7 @@ void MiniballCalibration::ReadCalibration() {
 				fFebexMWD_Top[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (double)default_MWD_Top );
 				fFebexMWD_Baseline[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (double)default_MWD_Baseline );
 				fFebexMWD_Window[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (double)default_MWD_Window );
-				fFebexCFD_Delay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), double)default_CFD_Delay );
+				fFebexCFD_Delay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), (double)default_CFD_Delay );
 				fFebexCFD_HoldOff[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.HoldOff", i, j, k ), (double)default_CFD_HoldOff );
 				fFebexCFD_Shaping[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.ShapingTime", i, j, k ), (double)default_CFD_Shaping );
 				fFebexCFD_Integration[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.IntegrationTime", i, j, k ), (double)default_CFD_Integration );
