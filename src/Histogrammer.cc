@@ -1193,7 +1193,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 	}
 
 	// Recoil-gated spectra
-	if( react->IsRecoilDetected() ) {
+	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
 		
 		aE_costheta_recoil->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
 
@@ -1273,7 +1273,7 @@ void MiniballHistogrammer::FillParticleElectronHists( std::shared_ptr<SpedeEvt> 
 	}
 
 	// Recoil-gated spectra
-	if( react->IsRecoilDetected() ) {
+	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
 		
 		eE_costheta_recoil->Fill( e->GetEnergy(), react->CosTheta( e, false ), weight );
 		
@@ -1325,11 +1325,26 @@ void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRay
 	}
 	else return; // outside of either window, quit now
 
-	// Gamma-gamma
-	ggE_ejectile_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
-	ggE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
-	ggE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
+	// Ejectile-gated spectra
+	if( react->IsEjectileDetected() ) {
+		
+		// Gamma-gamma
+		ggE_ejectile_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
+		ggE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
+		ggE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
+		
+	}
+	
+	// Recoil-gated spectra
+	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
+		
+		// Gamma-gamma
+		ggE_recoil_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
+		ggE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
+		ggE_recoil_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
 
+	}
+	
 	return;
 	
 }
@@ -1347,10 +1362,25 @@ void MiniballHistogrammer::FillParticleGammaGammaHists( std::shared_ptr<GammaRay
 	}
 	else return; // outside of either window, quit now
 
-	// Gamma-gamma
-	aaE_ejectile_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
-	aaE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
-	aaE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
+	// Ejectile-gated spectra
+	if( react->IsEjectileDetected() ) {
+		
+		// Gamma-gamma
+		aaE_ejectile_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
+		aaE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
+		aaE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
+
+	}
+	
+	// Recoil-gated spectra
+	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
+		
+		// Gamma-gamma
+		aaE_recoil_dc_none->Fill( g1->GetEnergy(), g2->GetEnergy(), weight );
+		aaE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g1, true ), react->DopplerCorrection( g2, true ), weight );
+		aaE_recoil_dc_recoil->Fill( react->DopplerCorrection( g1, false ), react->DopplerCorrection( g2, false ), weight );
+
+	}
 
 	return;
 	
@@ -1369,10 +1399,25 @@ void MiniballHistogrammer::FillParticleElectronGammaHists( std::shared_ptr<Spede
 	}
 	else return; // outside of either window, quit now
 
-	// Gamma-gamma
-	egE_ejectile_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
-	egE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
-	egE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
+	// Ejectile-gated spectra
+	if( react->IsEjectileDetected() ) {
+		
+		// Electon-gamma
+		egE_ejectile_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
+		egE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
+		egE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
+
+	}
+	
+	// Recoil-gated spectra
+	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
+		
+		// Electon-gamma
+		egE_recoil_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
+		egE_recoil_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
+		egE_recoil_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
+
+	}
 
 	return;
 	
@@ -1391,11 +1436,26 @@ void MiniballHistogrammer::FillParticleElectronGammaHists( std::shared_ptr<Spede
 	}
 	else return; // outside of either window, quit now
 
-	// Gamma-gamma
-	eaE_ejectile_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
-	eaE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
-	eaE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
-
+	// Ejectile-gated spectra
+	if( react->IsEjectileDetected() ) {
+		
+		// Electon-gamma
+		eaE_ejectile_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
+		eaE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
+		eaE_ejectile_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
+		
+	}
+	
+	// Recoil-gated spectra
+	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
+		
+		// Electon-gamma
+		eaE_recoil_dc_none->Fill( e->GetEnergy(), g->GetEnergy(), weight );
+		eaE_recoil_dc_ejectile->Fill( react->DopplerCorrection( e, true ), react->DopplerCorrection( g, true ), weight );
+		eaE_recoil_dc_recoil->Fill( react->DopplerCorrection( e, false ), react->DopplerCorrection( g, false ), weight );
+		
+	}
+	
 	return;
 	
 }

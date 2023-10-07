@@ -218,7 +218,7 @@ public:
 
 	// Particle energy vs angle cuts
 	inline bool TransferCut( std::shared_ptr<ParticleEvt> p ){
-		return react->GetTransferCut()->IsInside( p->GetEnergy(), p->GetDeltaEnergy() );
+		return react->GetTransferCut()->IsInside( react->GetParticleTheta(p) * TMath::RadToDeg(), p->GetDeltaEnergy() );
 	}
 	inline bool EjectileCut( std::shared_ptr<ParticleEvt> p ){
 		return react->GetEjectileCut()->IsInside( react->GetParticleTheta(p) * TMath::RadToDeg(), p->GetEnergy() );
