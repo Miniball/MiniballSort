@@ -1734,6 +1734,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					// Particle-gamma-gamma coincidence spectra
 					FillParticleGammaGammaHists( gamma_evt, gamma_evt2 );
+					FillParticleGammaGammaHists( gamma_evt2, gamma_evt );
 
 				} // if prompt
 				
@@ -1800,6 +1801,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					// Particle-gamma-gamma coincidence spectra
 					FillParticleGammaGammaHists( gamma_ab_evt, gamma_ab_evt2 );
+					FillParticleGammaGammaHists( gamma_ab_evt2, gamma_ab_evt );
 
 				} // if prompt
 				
