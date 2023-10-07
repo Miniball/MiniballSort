@@ -452,6 +452,8 @@ public:
 	inline TCutG* GetEjectileCut(){ return ejectile_cut; };
 	inline TCutG* GetRecoilCut(){ return recoil_cut; };
 	inline TCutG* GetTransferCut(){ return transfer_cut; };
+	inline std::string GetTransferX(){ return transfercut_x; };
+	inline std::string GetTransferY(){ return transfercut_y; };
 
 	// Get particles
 	inline MiniballParticle* GetBeam(){ return &Beam; };
@@ -535,6 +537,7 @@ private:
 	std::string ejectilecutfile, ejectilecutname;
 	std::string recoilcutfile, recoilcutname;
 	std::string transfercutfile, transfercutname;
+	std::string transfercut_x, transfercut_y;
 	TFile *cut_file;
 	TCutG *ejectile_cut, *recoil_cut, *transfer_cut;
 	

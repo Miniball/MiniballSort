@@ -173,7 +173,9 @@ void MiniballReaction::ReadReaction() {
 	recoilcutname = config->GetValue( "RecoilCut.Name", "CUTG" );
 	transfercutfile = config->GetValue( "TransferCut.File", "NULL" );
 	transfercutname = config->GetValue( "TransferCut.Name", "CUTG" );
-
+	transfercut_x = config->GetValue( "TransferCut.X", "E" );
+	transfercut_y = config->GetValue( "TransferCut.Y", "dE" );
+	
 	// Check if beam cut is given by the user
 	if( ejectilecutfile != "NULL" ) {
 	
