@@ -59,8 +59,7 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gamma_particle_E_vs_td";
 	htitle = "Gamma-ray - Particle time difference versus gamma-ray energy;#Deltat;Gamma-ray energy (keV);Counts";
 	gamma_particle_E_vs_td = new TH2F( hname.data(), htitle.data(),
-								 200, -1.0*set->GetEventWindow()-50, 1.0*set->GetEventWindow()+50,
-								 GBIN/4., 0., 2000. );
+								 TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
 
 	hname = "gamma_gamma_td";
 	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat [ns];Counts";
