@@ -393,10 +393,11 @@ void MiniballEventBuilder::MakeEventHists(){
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 			
 			hname  = "cd_pen_id_" + std::to_string(i) + "_" + std::to_string(j);
-			htitle  = "CD p-side energy for sector " + std::to_string(i);
+			htitle  = "CD p-side energy for detector " + std::to_string(i);
+			htitle += ", sector " + std::to_string(j);
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 500 keV";
 			cd_pen_id[i][j] = new TH2F( hname.data(), htitle.data(),
-									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
+									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips() - 0.5,
 									   4000, 0, 2000e3 );
 			
 			hname  = "cd_nen_id_" + std::to_string(i) + "_" + std::to_string(j);
@@ -404,7 +405,7 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 500 keV";
 			cd_nen_id[i][j] = new TH2F( hname.data(), htitle.data(),
-									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips(),
+									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDNStrips() - 0.5,
 									   4000, 0, 2000e3 );
 			
 			hname  = "cd_pn_1v1_" + std::to_string(i) + "_" + std::to_string(j);
