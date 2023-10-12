@@ -319,10 +319,26 @@ void MiniballSettings::ReadSettings() {
 					mb_board[i][j][k] < n_febex_board &&
 					mb_ch[i][j][k] < n_febex_ch ){
 					
-					mb_cluster[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] = i;
-					mb_crystal[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] = j;
-					mb_segment[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] = k;
-
+					if( mb_cluster[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] >= 0 ||
+					    mb_crystal[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] >= 0 ||
+					    mb_segment[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] >= 0 ) {
+						
+						std::cout << "You have defined two Miniball detectors in the same channel:" << std::endl;
+						std::cout << "\tMiniball_" << mb_cluster[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] << "_";
+						std::cout << mb_crystal[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] << "_";
+						std::cout << mb_segment[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] << " and ";
+						std::cout << "Miniball_" << i << "_" << j << "_" << k << std::endl;
+						
+					}
+					
+					else {
+						
+						mb_cluster[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] = i;
+						mb_crystal[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] = j;
+						mb_segment[mb_sfp[i][j][k]][mb_board[i][j][k]][mb_ch[i][j][k]] = k;
+						
+					}
+					
 				}
 				
 				else {
@@ -386,10 +402,31 @@ void MiniballSettings::ReadSettings() {
 					   cd_board[i][j][k][l] < n_febex_board &&
 					   cd_ch[i][j][k][l] < n_febex_ch ){
 						
-						cd_det[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = i;
-						cd_sector[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = j;
-						cd_side[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = k;
-						cd_strip[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = l;
+						if( cd_det[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] >= 0 ||
+						   cd_sector[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] >= 0 ||
+						   cd_side[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] >= 0 ||
+						   cd_strip[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] >= 0 ) {
+							
+							std::cout << "You have defined two CD detector strips in the same channel:" << std::endl;
+							std::cout << "\tCD_" << cd_det[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] << "_";
+							std::cout << cd_sector[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] << "_";
+							std::cout << cd_strip[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]];
+							if( k == 0 ) std::cout << ".P and" << std::endl;
+							else std::cout << ".N and CD_" << std::endl;
+							std::cout << i << "_" << j << "_" << l;
+							if( k == 0 ) std::cout << ".P" << std::endl;
+							else std::cout << ".N" << std::endl;
+									
+						}
+						
+						else {
+
+							cd_det[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = i;
+							cd_sector[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = j;
+							cd_side[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = k;
+							cd_strip[cd_sfp[i][j][k][l]][cd_board[i][j][k][l]][cd_ch[i][j][k][l]] = l;
+							
+						}
 						
 					}
 					
@@ -434,8 +471,22 @@ void MiniballSettings::ReadSettings() {
 			   pad_board[i][j] < n_febex_board &&
 			   pad_ch[i][j] < n_febex_ch ){
 				
-				pad_det[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] = i;
-				pad_sector[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] = j;
+				if( pad_det[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] >= 0 ||
+				    pad_sector[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] >= 0 ) {
+					
+					std::cout << "You have defined two Pad detectors in the same channel:" << std::endl;
+					std::cout << "\tPad_" << pad_det[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] << "_";
+					std::cout << pad_sector[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] << "and";
+					std::cout << "Pad_" << i << "_" << j << std::endl;
+							
+				}
+				
+				else {
+					
+					pad_det[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] = i;
+					pad_sector[pad_sfp[i][j]][pad_board[i][j]][pad_ch[i][j]] = j;
+					
+				}
 				
 			}
 			
@@ -467,7 +518,19 @@ void MiniballSettings::ReadSettings() {
 		    bd_board[i] < n_febex_board &&
 		    bd_ch[i] < n_febex_ch ){
 			
-			bd_det[bd_sfp[i]][bd_board[i]][bd_ch[i]] = i;
+			if( bd_det[bd_sfp[i]][bd_board[i]][bd_ch[i]] >= 0 ){
+				
+				std::cout << "You have defined two beam-dump detectors in the same channel:" << std::endl;
+				std::cout << "\tBeamDump_" << bd_det[bd_sfp[i]][bd_board[i]][bd_ch[i]] << " and ";
+				std::cout << "BeamDump_" << i << std::endl;
+				
+			}
+			
+			else {
+			
+				bd_det[bd_sfp[i]][bd_board[i]][bd_ch[i]] = i;
+			
+			}
 			
 		}
 		
@@ -507,7 +570,19 @@ void MiniballSettings::ReadSettings() {
 		    spede_board[i] < n_febex_board &&
 		    spede_ch[i] < n_febex_ch ){
 			
-			spede_seg[spede_sfp[i]][spede_board[i]][spede_ch[i]] = i;
+			if( spede_seg[spede_sfp[i]][spede_board[i]][spede_ch[i]] >= 0 ){
+				
+				std::cout << "You have defined two SPEDE segments in the same channel:" << std::endl;
+				std::cout << "\tSpede_" << spede_seg[spede_sfp[i]][spede_board[i]][spede_ch[i]] << " and ";
+				std::cout << "Spede_" << i << std::endl;
+				
+			}
+			
+			else {
+			
+				spede_seg[spede_sfp[i]][spede_board[i]][spede_ch[i]] = i;
+			
+			}
 			
 		}
 		
@@ -534,10 +609,22 @@ void MiniballSettings::ReadSettings() {
 		ic_ch[i]		= config->GetValue( Form( "IonChamber_%d.Channel", i ), (int)((i+n_bd_det)*2+1) );
 		
 		if( ic_sfp[i] < n_febex_sfp &&
-		    ic_board[i] < n_febex_board &&
-		    ic_ch[i] < n_febex_ch ){
+		   ic_board[i] < n_febex_board &&
+		   ic_ch[i] < n_febex_ch ){
 			
-			ic_layer[ic_sfp[i]][ic_board[i]][ic_ch[i]] = i;
+			if( ic_layer[ic_sfp[i]][ic_board[i]][ic_ch[i]] >= 0 ){
+				
+				std::cout << "You have defined two IonChamber elements in the same channel:" << std::endl;
+				std::cout << "\tIonChamber_" << ic_layer[ic_sfp[i]][ic_board[i]][ic_ch[i]] << " and ";
+				std::cout << "IonChamber_" << i << std::endl;
+				
+			}
+			
+			else {
+				
+				ic_layer[ic_sfp[i]][ic_board[i]][ic_ch[i]] = i;
+				
+			}
 			
 		}
 		
@@ -568,7 +655,19 @@ void MiniballSettings::ReadSettings() {
 		    pulser_board[i] < n_febex_board &&
 		    pulser_ch[i] < n_febex_ch ){
 			
-			pulser[pulser_sfp[i]][pulser_board[i]][pulser_ch[i]] = i;
+			if( pulser[pulser_sfp[i]][pulser_board[i]][pulser_ch[i]] >= 0 ){
+				
+				std::cout << "You have defined two Sync Pulsers in the same channel:" << std::endl;
+				std::cout << "\tPulser_" << pulser[pulser_sfp[i]][pulser_board[i]][pulser_ch[i]] << " and ";
+				std::cout << "Pulser_" << i << std::endl;
+				
+			}
+			
+			else {
+				
+				pulser[pulser_sfp[i]][pulser_board[i]][pulser_ch[i]] = i;
+
+			}
 			
 		}
 		
