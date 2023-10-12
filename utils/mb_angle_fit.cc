@@ -115,7 +115,7 @@ public:
 int main( int argc, char *argv[] ) {
 	
 	if( argc < 4 ) {
-		std::cout << "useage: mb_angle_fit <settings_file> <reaction_file> <centroids_file>" << std::endl << std::endl;
+		std::cout << "usage: mb_angle_fit <settings_file> <reaction_file> <centroids_file>" << std::endl << std::endl;
 		std::cout << "where centroids_file contains the un-doppler corrected centroids for cores gated on each segment" << std::endl;
 		std::cout << "for some reference transition. The format for centroids_file is" << std::endl << std::endl;
 		std::cout << "cluster   crystal   segment    energy    uncertainty" << std::endl << std::endl;
