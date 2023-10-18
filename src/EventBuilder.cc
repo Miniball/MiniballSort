@@ -78,6 +78,7 @@ void MiniballEventBuilder::StartFile(){
 	n_info_data		= 0;
 
 	n_ebis			= 0;
+	n_rilis			= 0;
 	n_t1			= 0;
 	n_sc			= 0;
 
@@ -1768,6 +1769,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				TMath::Abs( (double)laser_time - (double)info_data->GetTime() ) > 1e3 ){
 				
 				laser_time = info_data->GetTime();
+				n_rilis++;
 				
 			} // SuperCycle code
 			
@@ -2055,6 +2057,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	for( unsigned int i = 0; i < set->GetNumberOfPulsers(); ++i )
 		ss_log << "   Pulser " << i << " events = " << n_pulser[i] << std::endl;
 	ss_log << "   EBIS events = " << n_ebis << std::endl;
+	ss_log << "   RILIS events = " << n_rilis << std::endl;
 	ss_log << "   T1 events = " << n_t1 << std::endl;
 	ss_log << "   SuperCycle events = " << n_sc << std::endl;
 	ss_log << "  Tree entries = " << output_tree->GetEntries() << std::endl;
