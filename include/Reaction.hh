@@ -164,6 +164,9 @@ public:
 		return fInputFile;
 	}
 	
+	// Get laser mode for histogramming
+	inline unsigned char GetLaserMode(){ return laser_mode; };
+	
 	// Get values for geometry
 	inline float			GetCDDistance( unsigned char det ){
 		if( det < cd_dist.size() ) return cd_dist.at(det);
@@ -529,6 +532,9 @@ private:
 	// SPEDE things
 	float spede_dist;	///< distance from target to SPEDE detector
 	float spede_offset;	///< phi rotation of the SPEDE detector
+	
+	// Laser status mode: 0 = OFF, 1 = ON, 2 = OFF or ON
+	unsigned char laser_mode;
 	
 	// Random numbers
 	TRandom rand;

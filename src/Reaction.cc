@@ -245,6 +245,9 @@ void MiniballReaction::ReadReaction() {
 	if( !transfer_cut_flag ) transfer_cut = new TCutG();
 
 	
+	// Laser mode
+	laser_mode = config->GetValue( "LaserMode", 2 );
+	
 	// EBIS time window
 	EBIS_On = config->GetValue( "EBIS.On", 1.2e6 );		// normally 1.2 ms in slow extraction
 	EBIS_Off = config->GetValue( "EBIS.Off", 2.52e7 );	// this allows a off window 20 times bigger than on

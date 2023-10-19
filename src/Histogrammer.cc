@@ -1488,6 +1488,15 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// Current event data
 		input_tree->GetEntry(i);
 		
+		// Get laser status
+		unsigned char laser_status = read_evts->GetLaserStatus();
+		
+		// Check laser mode
+		unsigned char laser_mode = react->GetLaserMode();
+		
+		// Test if we want to plot this event or not
+		if( laser_status != laser_mode && laser_mode != 2 ) continue;
+		
 		
 		// ------------------------- //
 		// Loop over particle events //

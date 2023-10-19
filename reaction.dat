@@ -36,6 +36,8 @@
 #TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
 #TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD or SPEDE distance)
 
+# Plot laser ON/OFF data? (0 = OFF, 1 = ON, 2 = OFF or ON)
+#LaserMode: 2
 
 # Miniball Detector geometry
 #MiniballCluster_0.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
