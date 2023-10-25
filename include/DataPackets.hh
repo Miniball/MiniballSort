@@ -48,7 +48,7 @@ public:
 		title += ", Board " + std::to_string( GetBoard() ) + ", Channel ";
 		title += std::to_string( GetChannel() ) + ";time [ns];signal";
 		for( unsigned short i = 0; i < GetTraceLength(); ++i ){
-			x.push_back( i * 20 );
+			x.push_back( i * 10 );
 			y.push_back( GetSample(i) );
 		}
 		std::unique_ptr<TGraph> g = std::make_unique<TGraph>(
