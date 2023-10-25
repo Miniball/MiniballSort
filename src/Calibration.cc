@@ -56,10 +56,10 @@ void FebexMWD::DoMWD() {
 		if( i >= cfd_shaping_time + skip && i >= cfd_integration_time + skip ) {
 			
 			// James - differential-integrating shaper
-			//differential[i] = trace[i] - trace[i-cfd_shaping_time];
-			//for( unsigned int j = 1; j <= cfd_integration_time; ++j )
-			//	shaper[i] += differential[i-j];
-			//shaper[i] /= cfd_integration_time;
+			differential[i] = trace[i] - trace[i-cfd_shaping_time];
+			for( unsigned int j = 1; j <= cfd_integration_time; ++j )
+				shaper[i] += differential[i-j];
+			shaper[i] /= cfd_integration_time;
 			
 			
 			// Liam - simple differential shaper
@@ -117,34 +117,6 @@ void FebexMWD::DoMWD() {
 	// plus he has updated his CFD and I don't have the new one
 	for( unsigned int i = skip; i < trace_length; ++i ) {
 		
-		// Do some baseline estimation at the same time
-		// Rolling average over the baseline window
-		// NB: Not required now because we have an averaged trace
-		//baseline_energy += stage4[i] / baseline_length;
-		//if( i >= baseline_length ) baseline_energy -= stage4[i-baseline_length] / baseline_length;
-		
-		// Baseline estimation comes from averaged trace
-		// Just in case a trigger comes before the baseline length, use whatever we can
-		if( cfd_list.size() == 0 ) {
-			
-			// First trigger with good baseline
-			if( i >= baseline_length )
-				baseline_energy = stage4[i-baseline_length];
-			
-			// Or just use the first sample
-			else baseline_energy = stage4[0];
-		}
-		
-		else {
-			
-			// Not the first trigger but still with good baseline
-			if( i >= baseline_length + cfd_list.back() )
-				baseline_energy = stage4[i-baseline_length];
-			
-			// Otherwise don't bother updating baseline, assume its the same
-			
-		}
-		
 		// Trigger when we pass the threshold on the CFD
 		if( i > cfd_delay + skip &&
 		   ( ( cfd[i] > threshold && threshold > 0 ) ||
@@ -154,11 +126,24 @@ void FebexMWD::DoMWD() {
 			unsigned int armed_at = i;
 			
 			// Find zero crossing - Liam version, but James effects the same thing
-			//while( cfd[i] * cfd[i-1] > 0 && i < trace_length ) i++;
+			bool xing = false;
+			while( !xing && i < trace_length ) {
 			
-			// Reject incorrect polarity - Liam version, but James effects the same thing
-			//if( threshold < 0 && cfd[i-1] > 0 ) continue;
-			//if( threshold > 0 && cfd[i-1] < 0 ) continue;
+				// Move to the next sample
+				i++;
+				
+				// Reject incorrect polarity - Liam version, but James effects the same thing
+				if( threshold < 0 && cfd[i-1] > 0 ) continue;
+				if( threshold > 0 && cfd[i-1] < 0 ) continue;
+			
+				// Found a zero-crossing
+				if( cfd[i] * cfd[i-1] > 0 ) xing = true;
+				
+			}
+			
+			// If we didn't find a crossing, stop now
+			if( !xing ) continue;
+			
 
 			// Check we have enough trace left to analyse
 			if( trace_length - i < flat_top )
@@ -173,6 +158,28 @@ void FebexMWD::DoMWD() {
 			//cfd_time /= 1.0 / TMath::Abs(cfd[i]) + 1.0 / TMath::Abs(cfd[i-1]);
 			//cfd_list.push_back( cfd_time );
 			
+			// Baseline estimation comes from averaged trace
+			// Just in case a trigger comes before the baseline length, use whatever we can
+			if( cfd_list.size() == 1 ) {
+				
+				// First trigger with good baseline
+				if( i >= baseline_length )
+					baseline_energy = stage4[i-baseline_length];
+				
+				// Or just use the first sample
+				else baseline_energy = stage4[0];
+			}
+			
+			else {
+				
+				// Not the first trigger but still with good baseline
+				if( i >= baseline_length + cfd_list.back() )
+					baseline_energy = stage4[i-baseline_length];
+				
+				// Otherwise don't bother updating baseline, assume its the same
+				
+			}
+			
 			// move to peak of the flat top
 			i += flat_top;
 
@@ -181,7 +188,7 @@ void FebexMWD::DoMWD() {
 			//energy_list.push_back( stage4[i] );
 			
 			// Move to the end of the whole thing
-			i += M + L - flat_top;
+			//i += M + L - flat_top;
 			
 			// Check we are beyond the trigger hold off
 			if( i < armed_at + cfd_hold )
