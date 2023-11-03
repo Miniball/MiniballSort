@@ -245,6 +245,9 @@ void MiniballReaction::ReadReaction() {
 	if( !transfer_cut_flag ) transfer_cut = new TCutG();
 
 	
+	// Velocity calculation for Doppler correction
+	doppler_mode = config->GetValue( "DopplerMode", 0 );
+	
 	// Laser mode
 	laser_mode = config->GetValue( "LaserMode", 2 );
 	
@@ -572,15 +575,13 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
-	if( stopping ) {
+	if( stopping && doppler_mode > 1 ) {
 		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] ); // ejectile in dead layer
 		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[0] ); // ejectile in target
 	}
 	Ejectile.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
 	Ejectile.SetTheta( GetParticleTheta(p) );
 	Ejectile.SetPhi( GetParticlePhi(p) );
-	//std::cout << "Theta = " << GetParticleTheta(p)*TMath::RadToDeg() << ": Energy = " << p->GetEnergy();
-	//std::cout << ", Eloss = " << eloss << ", beta = " << Ejectile.GetBeta() << std::endl;
 
 	// Calculate the centre of mass angle
 	double maxang = TMath::ASin( 1. / ( GetTau() * GetEpsilon() ) );
@@ -598,6 +599,21 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 
 	Ejectile.SetThetaCoM( GetParticleTheta(p) + y );
 	ejectile_detected = true;
+	
+	// Overwrite energy with kinematics if requested
+	if( doppler_mode == 0 ) {
+		
+		// Energy of the ejectile from the centre of mass angle
+		double En = TMath::Power( GetTau() * GetEpsilon(), 2.0 ) + 1.0;
+		En += 2.0 * GetTau() * GetEpsilon() * TMath::Cos( Ejectile.GetThetaCoM() );
+		En *= TMath::Power( Recoil.GetMass() / ( Recoil.GetMass() + Ejectile.GetMass() ), 2.0 );
+		En *= GetEnergyPrime();
+		Ejectile.SetEnergy( En );
+
+	}
+	
+	//std::cout << "Theta = " << GetParticleTheta(p)*TMath::RadToDeg() << ": Energy = " << p->GetEnergy();
+	//std::cout << ", Eloss = " << eloss << ", beta = " << Ejectile.GetBeta() << std::endl;
 
 }
 
@@ -606,7 +622,7 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
-	if( stopping ) {
+	if( stopping && doppler_mode > 1 ) {
 		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[3] ); // recoil in dead layer
 		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[1] ); // recoil in target
 	}
@@ -628,6 +644,18 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
 	recoil_detected = true;
 
+	// Overwrite energy with kinematics if requested
+	if( doppler_mode == 0 ) {
+		
+		// Energy of the recoil from the centre of mass angle
+		double En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
+		En += 2.0 * GetEpsilon() * TMath::Cos( Recoil.GetThetaCoM() );
+		En *= Recoil.GetMass() * Ejectile.GetMass() / TMath::Power( Recoil.GetMass() + Ejectile.GetMass(), 2.0 );
+		En *= GetEnergyPrime();
+		Recoil.SetEnergy( En );
+	
+	}
+
 }
 
 void MiniballReaction::CalculateEjectile(){
@@ -639,7 +667,7 @@ void MiniballReaction::CalculateEjectile(){
 	// Energy of the ejectile from the centre of mass angle
 	double En = TMath::Power( GetTau() * GetEpsilon(), 2.0 ) + 1.0;
 	En += 2.0 * GetTau() * GetEpsilon() * TMath::Cos( Ejectile.GetThetaCoM() );
-	En *= TMath::Power( Target.GetMass() / ( Target.GetMass() + Beam.GetMass() ), 2.0 );
+	En *= TMath::Power( Recoil.GetMass() / ( Recoil.GetMass() + Ejectile.GetMass() ), 2.0 );
 	En *= GetEnergyPrime();
 	
 	Ejectile.SetEnergy( En );
@@ -667,7 +695,7 @@ void MiniballReaction::CalculateRecoil(){
 	// Energy of the recoil from the centre of mass angle
 	double En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
 	En += 2.0 * GetEpsilon() * TMath::Cos( Recoil.GetThetaCoM() );
-	En *= Target.GetMass() * Beam.GetMass() / TMath::Power( Target.GetMass() + Beam.GetMass(), 2.0 );
+	En *= Recoil.GetMass() * Ejectile.GetMass() / TMath::Power( Recoil.GetMass() + Ejectile.GetMass(), 2.0 );
 	En *= GetEnergyPrime();
 	
 	Recoil.SetEnergy( En );

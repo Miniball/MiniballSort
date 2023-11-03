@@ -164,6 +164,9 @@ public:
 		return fInputFile;
 	}
 	
+	// Get Doppler mode for calculation the velocity in the Doppler correction
+	inline unsigned char GetDopplerMode(){ return doppler_mode; };
+	
 	// Get laser mode for histogramming
 	inline unsigned char GetLaserMode(){ return laser_mode; };
 	
@@ -532,6 +535,12 @@ private:
 	// SPEDE things
 	float spede_dist;	///< distance from target to SPEDE detector
 	float spede_offset;	///< phi rotation of the SPEDE detector
+	
+	// Doppler mode, calculating the velocity for Doppler correction
+	// 0 = use angles and two-body kinematics
+	// 1 = use energy of particle in the CD detector
+	// 2 = like 1, but corrected for energy loss in dead-layer and target
+	unsigned char doppler_mode;
 	
 	// Laser status mode: 0 = OFF, 1 = ON, 2 = OFF or ON
 	unsigned char laser_mode;
