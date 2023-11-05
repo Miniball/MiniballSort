@@ -1524,28 +1524,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			// Energy total versus energy loss, i.e. CD+PAD vs. CD
 			pE_dE[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
 			
-			
-			// Energy vs angle plot, after cuts
-			if( EjectileCut( particle_evt ) ) {
-				
-				pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
-				pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
-				
-			}
-			
-			if( RecoilCut( particle_evt ) ) {
-			
-				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
-				pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
-			}
-			
-			if( TransferCut( particle_evt ) ) {
-				
-				pE_dE_cut[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
-
-			}
-			
 			// Check for prompt coincidence with a gamma-ray
 			for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
 				
@@ -1589,6 +1568,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 				react->TransferProduct( particle_evt );
 				react->SetParticleTime( particle_evt->GetTime() );
 				event_used = true;
+				
+				pE_dE_cut[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
 
 			} // transfer event
 			
@@ -1616,6 +1597,12 @@ unsigned long MiniballHistogrammer::FillHists() {
 						react->SetParticleTime( particle_evt->GetTime() );
 					else react->SetParticleTime( particle_evt2->GetTime() );
 					event_used = true;
+					
+					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
+					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
+
 
 				} // 2-particle check
 				
@@ -1628,6 +1615,12 @@ unsigned long MiniballHistogrammer::FillHists() {
 						react->SetParticleTime( particle_evt->GetTime() );
 					else react->SetParticleTime( particle_evt2->GetTime() );
 					event_used = true;
+					
+					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
+					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
+
 					
 				} // 2-particle check
 
@@ -1643,7 +1636,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 				react->IdentifyEjectile( particle_evt );
 				react->CalculateRecoil();
 				react->SetParticleTime( particle_evt->GetTime() );
-				
+
+				pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+				pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
+
 			} // ejectile event
 
 			else if( RecoilCut( particle_evt ) ) {
@@ -1651,6 +1647,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 				react->IdentifyRecoil( particle_evt );
 				react->CalculateEjectile();
 				react->SetParticleTime( particle_evt->GetTime() );
+
+				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+				pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
 			} // recoil event
 

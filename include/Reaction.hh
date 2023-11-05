@@ -537,9 +537,10 @@ private:
 	float spede_offset;	///< phi rotation of the SPEDE detector
 	
 	// Doppler mode, calculating the velocity for Doppler correction
-	// 0 = use angles and two-body kinematics
-	// 1 = use energy of particle in the CD detector
-	// 2 = like 1, but corrected for energy loss in dead-layer and target
+	// 0 = use angles and two-body kinematics at centre of the target
+	// 1 = like 0, but corrected for energy loss throught the back of the target
+	// 2 = use energy of particle in the CD detector
+	// 3 = like 2, but corrected for energy loss in dead-layer and back of the target
 	unsigned char doppler_mode;
 	
 	// Laser status mode: 0 = OFF, 1 = ON, 2 = OFF or ON

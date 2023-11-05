@@ -246,7 +246,7 @@ void MiniballReaction::ReadReaction() {
 
 	
 	// Velocity calculation for Doppler correction
-	doppler_mode = config->GetValue( "DopplerMode", 0 );
+	doppler_mode = config->GetValue( "DopplerMode", 1 );
 	
 	// Laser mode
 	laser_mode = config->GetValue( "LaserMode", 2 );
@@ -575,7 +575,7 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
-	if( stopping && doppler_mode > 1 ) {
+	if( stopping && doppler_mode > 2 ) {
 		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] ); // ejectile in dead layer
 		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[0] ); // ejectile in target
 	}
@@ -601,14 +601,22 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	ejectile_detected = true;
 	
 	// Overwrite energy with kinematics if requested
-	if( doppler_mode == 0 ) {
+	if( doppler_mode < 2 ) {
 		
 		// Energy of the ejectile from the centre of mass angle
 		double En = TMath::Power( GetTau() * GetEpsilon(), 2.0 ) + 1.0;
 		En += 2.0 * GetTau() * GetEpsilon() * TMath::Cos( Ejectile.GetThetaCoM() );
 		En *= TMath::Power( Recoil.GetMass() / ( Recoil.GetMass() + Ejectile.GetMass() ), 2.0 );
 		En *= GetEnergyPrime();
-		Ejectile.SetEnergy( En );
+		
+		// Do energy loss out the back of target if requested
+		if( stopping && doppler_mode == 1 ) {
+			
+			eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos( GetParticleTheta(p) ), gStopping[0] );
+			Ejectile.SetEnergy( En - eloss );
+			
+		}
+		else Ejectile.SetEnergy( En );
 
 	}
 	
@@ -622,7 +630,7 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
-	if( stopping && doppler_mode > 1 ) {
+	if( stopping && doppler_mode > 2 ) {
 		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[3] ); // recoil in dead layer
 		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[1] ); // recoil in target
 	}
@@ -645,14 +653,22 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	recoil_detected = true;
 
 	// Overwrite energy with kinematics if requested
-	if( doppler_mode == 0 ) {
+	if( doppler_mode < 2 ) {
 		
 		// Energy of the recoil from the centre of mass angle
 		double En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
 		En += 2.0 * GetEpsilon() * TMath::Cos( Recoil.GetThetaCoM() );
 		En *= Recoil.GetMass() * Ejectile.GetMass() / TMath::Power( Recoil.GetMass() + Ejectile.GetMass(), 2.0 );
 		En *= GetEnergyPrime();
-		Recoil.SetEnergy( En );
+
+		// Do energy loss out the back of target if requested
+		if( stopping && doppler_mode == 1 ) {
+			
+			eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos( GetParticleTheta(p) ), gStopping[1] );
+			Recoil.SetEnergy( En - eloss );
+			
+		}
+		else Recoil.SetEnergy( En );
 	
 	}
 
@@ -670,8 +686,6 @@ void MiniballReaction::CalculateEjectile(){
 	En *= TMath::Power( Recoil.GetMass() / ( Recoil.GetMass() + Ejectile.GetMass() ), 2.0 );
 	En *= GetEnergyPrime();
 	
-	Ejectile.SetEnergy( En );
-	
 	// Angle from the centre of mass angle
 	// y = tan(theta_lab)
 	double y = TMath::Sin( Ejectile.GetThetaCoM() );
@@ -680,6 +694,15 @@ void MiniballReaction::CalculateEjectile(){
 	double Th = TMath::ATan(y);
 	if( Th < 0. ) Th += TMath::Pi();
 	
+	// Do energy loss out the back of target if requested
+	if( stopping && doppler_mode == 1 ) {
+		
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * Th, gStopping[0] );
+		Ejectile.SetEnergy( En - eloss );
+		
+	}
+	else Ejectile.SetEnergy( En );
+
 	Ejectile.SetTheta( Th );
 	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
 	ejectile_detected = false;
@@ -698,8 +721,6 @@ void MiniballReaction::CalculateRecoil(){
 	En *= Recoil.GetMass() * Ejectile.GetMass() / TMath::Power( Recoil.GetMass() + Ejectile.GetMass(), 2.0 );
 	En *= GetEnergyPrime();
 	
-	Recoil.SetEnergy( En );
-
 	// Angle from the centre of mass angle
 	// y = tan(theta_lab)
 	double y = TMath::Sin( Recoil.GetThetaCoM() );
@@ -707,6 +728,15 @@ void MiniballReaction::CalculateRecoil(){
 	
 	double Th = TMath::ATan(y);
 	if( Th < 0. ) Th += TMath::Pi();
+	
+	// Do energy loss out the back of target if requested
+	if( stopping && doppler_mode == 1 ) {
+		
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * Th, gStopping[1] );
+		Recoil.SetEnergy( En - eloss );
+		
+	}
+	else Recoil.SetEnergy( En );
 
 	Recoil.SetTheta( Th );
 	Recoil.SetPhi( TMath::Pi() + Ejectile.GetPhi() );
