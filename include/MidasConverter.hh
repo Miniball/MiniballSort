@@ -95,7 +95,7 @@ private:
 	static const int HEADER_SIZE = 24; // Size of header in bytes
 	static const int DATA_BLOCK_SIZE = 0x10000; // Block size for FEBEX data = 64 kB?
 	static const int MAIN_SIZE = DATA_BLOCK_SIZE - HEADER_SIZE;
-	static const int WORD_SIZE = MAIN_SIZE / sizeof(ULong64_t);
+	static const int WORD_SIZE = 5 * MAIN_SIZE / ( 5 * sizeof(ULong64_t) );
 
 	// Set the arrays for the block components.
 	char block_header[HEADER_SIZE];
