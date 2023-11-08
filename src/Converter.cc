@@ -65,6 +65,9 @@ void MiniballConverter::StartFile(){
 	jump_ctr = 0;	// timestamp jumps
 	warp_ctr = 0;	// timestamp warps
 	data_ctr = 0;	// total data items
+	reject_ctr = 0;	// rejected buffers
+	
+	buffer_full = false;	// first buffer not yet assumed to be full
 
 	return;
 	

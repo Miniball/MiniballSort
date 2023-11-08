@@ -65,6 +65,12 @@
 #PileUpRejection: false
 
 
+#-----------------------#
+# Buffer full Rejection #
+#-----------------------#
+#BufferFullRejection: false		# reject full buffers and their subsequent buffers
+
+
 #-------------#
 # Hit windows #
 #-------------#

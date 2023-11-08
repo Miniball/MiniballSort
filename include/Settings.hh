@@ -79,6 +79,10 @@ public:
 	inline double GetPileupRejection(){ return pileup_reject; };
 	
 
+	// Are we rejecting full buffers?
+	inline double GetBufferFullRejection(){ return bufferfull_reject; };
+	
+
 	// Miniball array
 	inline unsigned int GetNumberOfMiniballClusters(){ return n_mb_cluster; };
 	inline unsigned int GetNumberOfMiniballCrystals(){ return n_mb_crystal; };
@@ -280,7 +284,10 @@ private:
 	// Pile-up rejection
 	bool pileup_reject;
 	
+	// Buffer full rejection
+	bool bufferfull_reject;
 	
+
 };
 
 #endif
