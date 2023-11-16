@@ -330,7 +330,7 @@ public:
 		return Beam.GetMass() / Target.GetMass();
 	};
 	inline double GetEnergyPrime(){
-		return Beam.GetEnergy() - ( Ejectile.GetEx() + Recoil.GetEx() ) * ( 1 + GetTau() );
+		return Beam.GetEnergy() - ( Ejectile.GetEx() + Recoil.GetEx() ) * ( 1.0 + GetTau() );
 	};
 	inline double GetEpsilon(){
 		return TMath::Sqrt( Beam.GetEnergy() / GetEnergyPrime() );

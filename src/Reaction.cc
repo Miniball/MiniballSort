@@ -391,7 +391,8 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	else if( set->GetNumberOfCDNStrips() == 16 )	// CREX and TREX
 		x += ( pid + 0.5 ) * 2.0;
 
-	TVector3 vec( x, 0, cd_dist[det] );
+	TVector3 vec( x, 0, cd_dist[det] ); // set z now
+	//TVector3 vec( x, 0, 0 ); // set z later
 	
 	// Rotate by the phi angle
 	float phi = 90.0 * sec;
@@ -400,7 +401,7 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 
 		// New definition of CD segments
 		// calculate initial phi offset due to dead silicon layer
-	        float initial_offset = 0.000286 * TMath::Power(pid,4) - 0.00541 * TMath::Power(pid,3) + 0.04437 * TMath::Power(pid,2) + 0.01679 * pid + 2.4137;
+		float initial_offset = 0.000286 * TMath::Power(pid,4) - 0.00541 * TMath::Power(pid,3) + 0.04437 * TMath::Power(pid,2) + 0.01679 * pid + 2.4137;
 		
 		// calculate phi angular coverage for each annular strip and width of individual pixel
 		float coverage = -0.0044 * TMath::Power(pid,3) + 0.0451 * TMath::Power(pid,2) - 0.3646 * pid + 78.2188; // note parametrization is not 100% accurate
@@ -424,7 +425,11 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 		else phi += 70. + ( nid - 12 ) * 3.5; // last 4 strips singles (=4 nid)
 	
 	}
+	
+	// Rotate to the correct phi angle
 	vec.RotateZ( phi * TMath::DegToRad() );
+	
+	//vec.SetZ( cd_dist[det] ); // set z distance after rotation
 	
 	return vec;
 
@@ -441,6 +446,10 @@ TVector3 MiniballReaction::GetParticleVector( unsigned char det, unsigned char s
 	vec.SetX( vec.X() - x_offset );
 	vec.SetY( vec.Y() - y_offset );
 
+	//std::cout << "sec:pid:nid = " << (int)sec << ":" << (int)pid << ":" << (int)nid << std::endl;
+	//std::cout << "\ttheta,phi = " << vec.Theta() * TMath::RadToDeg();
+	//std::cout << ", " << vec.Phi() * TMath::RadToDeg() << std::endl;
+	
 	return vec;
 
 }
@@ -494,7 +503,14 @@ double MiniballReaction::CosTheta( std::shared_ptr<GammaRayEvt> g, bool ejectile
 	else p = Recoil;
 
 	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
-
+	
+	// Apply the X and Y offsets directly to the TVector3 input
+	// We move Miniball opposite to the target, which replicates the same
+	// geometrical shift that is observed with respect to the beam
+	// z-offset is already applied to the vector when the geometry is setup
+	gvec.SetX( gvec.X() - x_offset );
+	gvec.SetY( gvec.Y() - y_offset );
+	
 	return TMath::Cos( gvec.Angle( p.GetVector() ) );
 	
 }
@@ -517,12 +533,21 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, doub
 
 	/// Returns Doppler corrected gamma-ray energy assuming particle at (β,θ,φ).
 	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
+
+	// Apply the X and Y offsets directly to the TVector3 input
+	// We move Miniball opposite to the target, which replicates the same
+	// geometrical shift that is observed with respect to the beam
+	// z-offset is already applied to the vector when the geometry is setup
+	gvec.SetX( gvec.X() - x_offset );
+	gvec.SetY( gvec.Y() - y_offset );
+
+	// Setup the particle vector, no shifts becuase theta,phi explicitly given
 	TVector3 pvec( 0., 0., 1.0 );
 	pvec.SetTheta( ptheta );
 	pvec.SetPhi( pphi );
 	
 	double gamma = 1.0 / TMath::Sqrt( 1.0 - TMath::Power( pbeta, 2.0 ) );
-	double corr = 1. - pbeta * TMath::Cos( gvec.Angle( pvec ) );
+	double corr = 1.0 - pbeta * TMath::Cos( gvec.Angle( pvec ) );
 	corr *= gamma;
 	
 	return corr * g->GetEnergy();
@@ -537,7 +562,7 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool
 	if( ejectile ) p = Ejectile;
 	else p = Recoil;
 	
-	double corr = 1. - p.GetBeta() * CosTheta( g, ejectile );
+	double corr = 1.0 - p.GetBeta() * CosTheta( g, ejectile );
 	corr *= p.GetGamma();
 	
 	return corr * g->GetEnergy();
