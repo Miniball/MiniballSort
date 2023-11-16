@@ -100,7 +100,7 @@ public:
 		return GetMiniballID( sfp, board, ch, mb_segment );
 	};
 	inline double GetMiniballCrystalHitWindow(){ return mb_hit_window; };
-	inline double GetMiniballAddbackHitWindow(){ return mb_hit_window; };
+	inline double GetMiniballAddbackHitWindow(){ return ab_hit_window; };
 
 
 	// CD detector
