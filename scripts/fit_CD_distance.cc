@@ -11,8 +11,8 @@ double solid_angle_func( double *x, double *par ) {
 	double strip = x[0];
 	double dist = par[1];
 	
-	double Ra = 9.05 + (17. - x[0] ) * 2.;
-	double Rb = Ra - 2.;
+	double Rb = 9.05 + ( 15. - x[0] ) * 2.;
+	double Ra = Rb + 1.9;
 	
 	double Rda = Ra*Ra + dist*dist;
 	double Rdb = Rb*Rb + dist*dist;
