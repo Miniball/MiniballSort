@@ -102,15 +102,29 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 		}
 		
 	}
+	
+	// If the previous buffer was full and we want to reject the
+	// next buffer, because of the readout bugs in September 2023,
+	// this is the place to do it. Next buffer is good again!
+	if( buffer_full ){
+		
+		reject_ctr++;
+		buffer_full = false;
+		return;
+		
+	}
 
 	
-	// Process all words
+	// Process all words to check size of real data
+	UInt_t real_DataLen = 0;
 	for( UInt_t i = 0; i < WORD_SIZE; i++ ) {
 		
 		word = GetWord(i);
 		word_0 = (word & 0xFFFFFFFF00000000) >> 32;
 		word_1 = (word & 0x00000000FFFFFFFF);
 
+		real_DataLen = i;
+		
 		// Check the trailer: reject or keep the block.
 		if( ( ( word_0 & 0xFFFFFFFF ) == 0xFFFFFFFF &&
 		    ( word_1 & 0xFFFFFFFF ) == 0xFFFFFFFF ) ||
@@ -124,17 +138,38 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 			//std::cout << std::bitset<32>{word_1} << std::endl;
 
 			flag_terminator = true;
-			return;
+			break;
 			
 		}
+		
 		else if( i >= header_DataLen/sizeof(ULong64_t) ){
 			
 			flag_terminator = true;
-			return;
+			real_DataLen = header_DataLen/sizeof(ULong64_t);
+			break;
 
 		}
 		
-			
+	}
+	
+	// Check if this is a full buffer
+	if( real_DataLen == WORD_SIZE ) buffer_full = true;
+	
+	// Check if we should reject this event
+	if( buffer_full && set->GetBufferFullRejection() ) {
+		
+		reject_ctr++;
+		return;
+	
+	}
+		
+	// Process data in the buffer
+	for( UInt_t i = 0; i < real_DataLen; i++ ) {
+	
+		word = GetWord(i);
+		word_0 = (word & 0xFFFFFFFF00000000) >> 32;
+		word_1 = (word & 0x00000000FFFFFFFF);
+
 		// Data type is highest two bits
 		my_type = ( word_0 >> 30 ) & 0x3;
 		
@@ -756,14 +791,15 @@ bool MiniballMidasConverter::ProcessCurrentBlock( long nblock ) {
 	data = (ULong64_t *)(block_data);
 	ProcessBlockData( nblock );
 			
+	// Note 08/11/2023 - This isn't the right thing to do
 	// Check once more after going over left overs....
-	if( !flag_terminator ){
-
-		std::cout << std::endl << __PRETTY_FUNCTION__ << std::endl;
-		std::cout << "\tERROR - Terminator sequence not found in data.\n";
-		return false;
-		
-	}
+	//if( !flag_terminator ){
+	//
+	//	std::cout << std::endl << __PRETTY_FUNCTION__ << std::endl;
+	//	std::cout << "\tERROR - Terminator sequence not found in data.\n";
+	//	return false;
+	//
+	//}
 
 	return true;
 
@@ -891,6 +927,11 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	sslogs << "Number of timestamp warps = " << warp_ctr;
 	sslogs << " / " << data_ctr << " = ";
 	sslogs << 100.0 * (double)warp_ctr / (double)data_ctr;
+	sslogs << "\%" << std::endl;
+	
+	sslogs << "Number of rejected blocks = " << reject_ctr;
+	sslogs << " / " << BLOCKS_NUM << " = ";
+	sslogs << 100.0 * (double)reject_ctr / (double)BLOCKS_NUM;
 	sslogs << "\%" << std::endl;
 	
 	std::cout << sslogs.str() << std::endl;

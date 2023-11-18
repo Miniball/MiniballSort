@@ -606,6 +606,13 @@ void MiniballEventBuilder::GammaRayFinder() {
 			// Skip if it's not the same crystal and cluster
 			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
 			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
+
+			// Fill the time difference spectrum
+			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
+			
+			// Skip if we are outside of the hit window
+			if( TMath::Abs( (double)mb_ts_list.at(i) - (double)mb_ts_list.at(j) )
+			   > set->GetMiniballCrystalHitWindow() ) continue;
 			
 			// Fill the segment spectra with core energies
 			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
@@ -625,10 +632,10 @@ void MiniballEventBuilder::GammaRayFinder() {
 				
 			}
 			
-			// Fill the time difference spectrum
-			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
-			
 		} // j: matching segments
+		
+		//if( MaxSegId == 0 && mb_en_list.at(i) > 150.0 )
+		//	std::cout << std::endl << mb_en_list.at(i) << "\t" << MaxSegEnergy << std::endl;
 		
 		// Build the single crystal gamma-ray event
 		gamma_ctr++;
@@ -670,6 +677,11 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( write_evts->GetGammaRayEvt(i)->GetCluster() !=
 				write_evts->GetGammaRayEvt(j)->GetCluster() ) continue;
 			
+			// Skip if we are outside of the hit window
+			if( TMath::Abs( (double)write_evts->GetGammaRayEvt(i)->GetTime() -
+						    (double)write_evts->GetGammaRayEvt(j)->GetTime() )
+				> set->GetMiniballAddbackHitWindow() ) continue;
+
 			// Check we haven't already used this event
 			skip_event = false;
 			for( unsigned int k = 0; k < ab_index.size(); ++k )
