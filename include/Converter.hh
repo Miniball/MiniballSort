@@ -137,6 +137,9 @@ protected:
 	// Flag depending on the data type
 	bool mbs_data;
 	
+	// Flag to signify this buffer or the one before is full
+	bool buffer_full;
+	
 	// Maximum size of the ADC value
 	unsigned long long qmax_default;
 	
@@ -160,6 +163,7 @@ protected:
 	unsigned long int ctr_febex_ext;								// pulser timestamps
 	unsigned long int jump_ctr, warp_ctr;							// count timestamp jumps and warps
 	unsigned long int data_ctr;										// total number of data counted
+	unsigned long int reject_ctr;									// total number of reject buffers
 
 	
 	// Histograms
