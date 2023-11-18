@@ -611,8 +611,8 @@ void MiniballEventBuilder::GammaRayFinder() {
 			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
 			
 			// Skip if we are outside of the hit window
-			if( TMath::Abs( (double)mb_ts_list.at(i) - (double)mb_ts_list.at(j) ) > set->GetMiniballCrystalHitWindow() )
-				continue;
+			if( TMath::Abs( (double)mb_ts_list.at(i) - (double)mb_ts_list.at(j) )
+			   > set->GetMiniballCrystalHitWindow() ) continue;
 			
 			// Fill the segment spectra with core energies
 			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
@@ -633,6 +633,9 @@ void MiniballEventBuilder::GammaRayFinder() {
 			}
 			
 		} // j: matching segments
+		
+		//if( MaxSegId == 0 && mb_en_list.at(i) > 150.0 )
+		//	std::cout << std::endl << mb_en_list.at(i) << "\t" << MaxSegEnergy << std::endl;
 		
 		// Build the single crystal gamma-ray event
 		gamma_ctr++;
