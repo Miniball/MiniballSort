@@ -35,7 +35,7 @@ or
 The input options are described below
 
 ```
-use mb_sort with following flags:
+	use mb_sort with following flags:
 	[-i      <vector<string>>: List of input files]
 	[-o      <string        >: Output file for histogram file]
 	[-s      <string        >: Settings file]
@@ -44,6 +44,7 @@ use mb_sort with following flags:
 	[-f                      : Flag to force new ROOT conversion]
 	[-e                      : Flag to force new event builder (new calibration)]
 	[-source                 : Flag to define an source only run]
+	[-ebis                   : Flag to define an EBIS only run, discarding data >4ms after an EBIS event]
 	[-mbs                    : Flag to define input as MBS data type]
 	[-spy                    : Flag to run the DataSpy]
 	[-m      <int           >: Monitor input file every X seconds]
