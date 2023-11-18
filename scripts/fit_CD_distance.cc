@@ -17,12 +17,12 @@ double solid_angle_func( double *x, double *par ) {
 	double Rda = Ra*Ra + dist*dist;
 	double Rdb = Rb*Rb + dist*dist;
 	
-	double phi_coverage = -0.0044 * TMath::Power(strip,3);
-	phi_coverage +=  0.0451 * TMath::Power(strip,2);
-	phi_coverage += -0.3646 * strip;
-	phi_coverage += 78.2188; // parametrization from Konstantin Stoychev
+	double phi_coverage = -0.00625 * TMath::Power(strip,3);
+	phi_coverage +=  0.07056 * TMath::Power(strip,2);
+	phi_coverage += -0.54542 * strip;
+	phi_coverage += 77.66278; // parametrization from Konstantin Stoychev
 	phi_coverage /= 360.0;
-	
+
 	double solid_angle =  ( Rda - dist*TMath::Power( Rda, 0.5 ) ) / Rda;
 	solid_angle -= ( Rdb - dist*TMath::Power( Rdb, 0.5 ) ) / Rdb;
 	solid_angle *= 2. * TMath::Pi();

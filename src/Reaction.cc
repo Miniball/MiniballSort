@@ -401,11 +401,19 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 
 		// New definition of CD segments
 		// calculate initial phi offset due to dead silicon layer
-		float initial_offset = 0.000286 * TMath::Power(pid,4) - 0.00541 * TMath::Power(pid,3) + 0.04437 * TMath::Power(pid,2) + 0.01679 * pid + 2.4137;
+		float initial_offset = 0.000286 * TMath::Power(pid,4);
+		initial_offset += -0.00541 * TMath::Power(pid,3);
+		initial_offset += 0.04437 * TMath::Power(pid,2);
+		initial_offset += 0.01679 * pid;
+		initial_offset += 2.4137;
 		
 		// calculate phi angular coverage for each annular strip and width of individual pixel
-		float coverage = -0.0044 * TMath::Power(pid,3) + 0.0451 * TMath::Power(pid,2) - 0.3646 * pid + 78.2188; // note parametrization is not 100% accurate
-		float pixel_width = coverage / 12.;
+		double phi_coverage = -0.00625 * TMath::Power(pid,3);
+		phi_coverage +=  0.07056 * TMath::Power(pid,2);
+		phi_coverage += -0.54542 * pid;
+		phi_coverage += 77.66278; // parametrization from Konstantin Stoychev
+
+		float pixel_width = phi_coverage / 12.;
 
 		phi += initial_offset;
 		phi += pixel_width / 2.; 
