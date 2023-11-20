@@ -481,6 +481,9 @@ TVector3 MiniballReaction::GetSpedeVector( unsigned char seg, bool random ){
 	phi += 0.98 * mult * TMath::Pi() / 4.0; 			// rotate by half of one slice or random part thereof
 	phi += 0.01 * TMath::Pi() / 4.0; 					// add a small slice for the interstrip region
 
+	// Account for zero-degree offset
+	phi += spede_offset * TMath::DegToRad();
+
 	vec.RotateZ( phi );
 	
 	return vec;
@@ -599,7 +602,7 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ej
 	//corr *= p.GetGamma();
 	//corr -= e_mass;
 	
-	return corr;
+	//return corr;
 	
 }
 
