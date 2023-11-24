@@ -105,8 +105,8 @@ public:
 		return PromptCoincidence( s, p->GetTime() );
 	};
 	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
-		if( (double)s->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
-			(double)s->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
+		if( (double)s->GetTime() - (double)ptime > react->GetParticleElectronPromptTime(0) &&
+			(double)s->GetTime() - (double)ptime < react->GetParticleElectronPromptTime(1) )
 			return true;
 		else return false;
 	};
@@ -114,8 +114,8 @@ public:
 		return RandomCoincidence( s, p->GetTime() );
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
-		if( (double)s->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
-			(double)s->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
+		if( (double)s->GetTime() - (double)ptime > react->GetParticleElectronRandomTime(0) &&
+			(double)s->GetTime() - (double)ptime < react->GetParticleElectronRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -132,14 +132,14 @@ public:
 		else return false;
 	};
 	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s1, std::shared_ptr<SpedeEvt> s2 ){
-		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetGammaGammaPromptTime(0) &&
-			(double)s1->GetTime() - (double)s2->GetTime() < react->GetGammaGammaPromptTime(1) )
+		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetElectronElectronPromptTime(0) &&
+			(double)s1->GetTime() - (double)s2->GetTime() < react->GetElectronElectronPromptTime(1) )
 			return true;
 		else return false;
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s1, std::shared_ptr<SpedeEvt> s2 ){
-		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetGammaGammaRandomTime(0) &&
-			(double)s1->GetTime() - (double)s2->GetTime() < react->GetGammaGammaRandomTime(1) )
+		if( (double)s1->GetTime() - (double)s2->GetTime() > react->GetElectronElectronRandomTime(0) &&
+			(double)s1->GetTime() - (double)s2->GetTime() < react->GetElectronElectronRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -168,8 +168,8 @@ public:
 		else return false;
 	};
 	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g ){
-		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaGammaPromptTime(0) &&
-			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaGammaPromptTime(1) )
+		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaElectronPromptTime(0) &&
+			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaElectronPromptTime(1) )
 			return true;
 		else return false;
 	};
@@ -177,8 +177,8 @@ public:
 		return PromptCoincidence( s, g );
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g ){
-		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaGammaRandomTime(0) &&
-			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaGammaRandomTime(1) )
+		if( (double)s->GetTime() - (double)g->GetTime() > react->GetGammaElectronRandomTime(0) &&
+			(double)s->GetTime() - (double)g->GetTime() < react->GetGammaElectronRandomTime(1) )
 			return true;
 		else return false;
 	};
