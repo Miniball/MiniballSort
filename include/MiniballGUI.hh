@@ -109,8 +109,9 @@ protected:
 	TGLabel				*lab_set_file;		// label for settings file
 	TGLabel				*lab_cal_file;		// label for calibration file
 	TGLabel				*lab_rea_file;		// label for reaction file
+	TGLabel				*lab_out_dir;		// label for output directory
 	TGLabel				*lab_out_file;		// label for output file
-	
+
 	// Run list box
 	TGListBox           *run_list_box;
 	TList				*run_selected;
@@ -120,6 +121,7 @@ protected:
 	TGTextEntry         *text_set_file;		// text entry for settings file
 	TGTextEntry         *text_cal_file;		// text entry for calibration file
 	TGTextEntry         *text_rea_file;		// text entry for reaction file
+	TGTextEntry         *text_out_dir;		// text entry for output directory
 	TGTextEntry         *text_out_file;		// text entry for output file
 
 	// Check buttons
@@ -127,6 +129,7 @@ protected:
 	TGCheckButton       *check_event;		// check button to rebuild events
 	TGCheckButton       *check_source;		// check button to rebuild events
 	TGCheckButton       *check_mbs;			// check button to define MBS data
+	TGCheckButton       *check_ebis;		// check button to enable EBIS only sort
 
 	// Action buttons
 	TGTextButton        *but_sel;			// button to select files
@@ -138,6 +141,7 @@ protected:
 	TGTextButton        *but_set;			// button to open settings file
 	TGTextButton        *but_cal;			// button to open calibration file
 	TGTextButton        *but_rea;			// button to open reaction file
+	TGTextButton        *but_dir;			// button to open output directory
 	TGTextButton        *but_out;			// button to open output file
 
 	
@@ -154,6 +158,7 @@ protected:
 	bool flag_events;
 	bool flag_source;
 	bool flag_mbs;
+	bool flag_ebis;
 
 	
 public:
@@ -169,9 +174,11 @@ public:
 
 	// Slots
 	TString		get_filename();
+	TString		get_directory();
 	inline void on_set_clicked(){ text_set_file->SetText( get_filename() ); };
 	inline void on_cal_clicked(){ text_cal_file->SetText( get_filename() ); };
 	inline void on_rea_clicked(){ text_rea_file->SetText( get_filename() ); };
+	inline void on_dir_clicked(){ text_out_dir->SetText( get_directory() ); };
 	inline void on_out_clicked(){ text_out_file->SetText( get_filename() ); };
 	inline void on_open_clicked(){ LoadSetup( get_filename() ); };
 	inline void on_save_clicked(){ SaveSetup( get_filename() ); };
@@ -187,7 +194,8 @@ public:
 	// File list
 	std::vector<TString> filelist;
 	std::vector<bool> filestatus;
-	
+	std::string datadir_name;
+
 
 
 	ClassDef( MiniballGUI, 0 )

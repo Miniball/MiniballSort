@@ -139,8 +139,17 @@ MiniballGUI::MiniballGUI() {
 	centre_label->AddFrame( lab_rea_file,
 						 new TGLayoutHints( kLHintsCenterX | kLHintsTop, 2, 2, 5, 5 ) );
 
+	// Output directory
+	lab_out_dir = new TGLabel( centre_label, "Output directory" );
+	lab_out_dir->SetTextJustify( 36 );
+	lab_out_dir->SetMargins( 0, 0, 0, 0 );
+	lab_out_dir->SetWrapLength( -1 );
+	lab_out_dir->Resize( 80, lab_out_dir->GetDefaultHeight() );
+	centre_label->AddFrame( lab_out_dir,
+						 new TGLayoutHints( kLHintsCenterX | kLHintsTop, 2, 2, 5, 5 ) );
+
 	// Output file
-	lab_out_file = new TGLabel( centre_label, "Output file" );
+	lab_out_file = new TGLabel( centre_label, "Histogram file" );
 	lab_out_file->SetTextJustify( 36 );
 	lab_out_file->SetMargins( 0, 0, 0, 0 );
 	lab_out_file->SetWrapLength( -1 );
@@ -194,6 +203,13 @@ MiniballGUI::MiniballGUI() {
 	text_rea_file->Resize( 400, text_rea_file->GetDefaultHeight() );
 	centre_text->AddFrame( text_rea_file, new TGLayoutHints( kLHintsLeft | kLHintsExpandX, 2, 2, 2, 2 ) );
 	
+	// Output directory
+	text_out_dir = new TGTextEntry( centre_text, "./sorted" );
+	text_out_dir->SetMaxLength( 4096 );
+	text_out_dir->SetAlignment( kTextLeft );
+	text_out_dir->Resize( 400, text_out_dir->GetDefaultHeight() );
+	centre_text->AddFrame( text_out_dir, new TGLayoutHints( kLHintsLeft | kLHintsExpandX, 2, 2, 2, 2 ) );
+	
 	// Output file
 	text_out_file = new TGTextEntry( centre_text );
 	text_out_file->SetMaxLength( 4096 );
@@ -216,6 +232,9 @@ MiniballGUI::MiniballGUI() {
 
 	check_event = new TGCheckButton( centre_go, "Rebuild events" );
 	centre_go->AddFrame( check_event, new TGLayoutHints( kLHintsLeft, 2, 2, 2, 2 ) );
+
+	check_ebis = new TGCheckButton( centre_go, "EBIS only" );
+	centre_go->AddFrame( check_ebis, new TGLayoutHints( kLHintsLeft, 2, 2, 2, 2 ) );
 
 
 	//-----------------------//
@@ -275,6 +294,15 @@ MiniballGUI::MiniballGUI() {
 	but_rea->SetWrapLength( -1 );
 	but_rea->Resize( 65, 46 );
 	centre_button->AddFrame( but_rea, new TGLayoutHints( kLHintsRight | kLHintsExpandX, 2, 2, 2, 2 ) );
+
+	// Output directory
+	but_dir = new TGTextButton( centre_button, "Select", -1, TGTextButton::GetDefaultGC()(),
+							   TGTextButton::GetDefaultFontStruct(), kRaisedFrame );
+	but_dir->SetTextJustify( 36 );
+	but_dir->SetMargins( 0, 0, 0, 0 );
+	but_dir->SetWrapLength( -1 );
+	but_dir->Resize( 65, 46 );
+	centre_button->AddFrame( but_dir, new TGLayoutHints( kLHintsRight | kLHintsExpandX, 2, 2, 2, 2 ) );
 
 	// Output file
 	but_out = new TGTextButton( centre_button, "Open", -1, TGTextButton::GetDefaultGC()(),
@@ -355,6 +383,7 @@ MiniballGUI::MiniballGUI() {
 	but_set->Connect( "Clicked()", "MiniballGUI", this, "on_set_clicked()" );
 	but_cal->Connect( "Clicked()", "MiniballGUI", this, "on_cal_clicked()" );
 	but_rea->Connect( "Clicked()", "MiniballGUI", this, "on_rea_clicked()" );
+	but_dir->Connect( "Clicked()", "MiniballGUI", this, "on_dir_clicked()" );
 	but_out->Connect( "Clicked()", "MiniballGUI", this, "on_out_clicked()" );
 
 	
@@ -384,6 +413,21 @@ TString MiniballGUI::get_filename() {
 	new TGFileDialog( gClient->GetRoot(), main_frame, kFDOpen, &fi );
 	
 	return fi.fFilename;
+	
+}
+
+TString MiniballGUI::get_directory() {
+	
+	// Configure file dialog
+	TGFileInfo fi;
+	fi.SetMultipleSelection( false );
+	TString dir(".");
+	fi.fIniDir = StrDup(dir);
+	
+	// Open a file dialog
+	new TGFileDialog( gClient->GetRoot(), main_frame, kDOpen, &fi );
+	
+	return fi.fIniDir;
 	
 }
 
@@ -467,6 +511,8 @@ void MiniballGUI::SaveSetup( TString setupfile ) {
 	fSetup->SetValue( "filelist", list_of_files );
 	fSetup->SetValue( "force", check_force->IsOn() );
 	fSetup->SetValue( "events", check_event->IsOn() );
+	fSetup->SetValue( "ebis", check_ebis->IsOn() );
+	fSetup->SetValue( "mbs", check_mbs->IsOn() );
 
 	fSetup->WriteFile( setupfile );
 
@@ -502,6 +548,8 @@ void MiniballGUI::LoadSetup( TString setupfile ) {
 
 	check_force->SetOn( fSetup->GetValue( "force", false ) );
 	check_event->SetOn( fSetup->GetValue( "event", false ) );
+	check_ebis->SetOn( fSetup->GetValue( "ebis", false ) );
+	check_mbs->SetOn( fSetup->GetValue( "mbs", false ) );
 
 }
 
@@ -529,10 +577,17 @@ void MiniballGUI::gui_convert(){
 	for( unsigned int i = 0; i < filelist.size(); i++ ){
 			
 		name_input_file = filelist.at(i);
-		name_output_file = name_input_file( 0, name_input_file.Last('.') );
-		if( flag_source ) name_output_file = name_output_file + "_source.root";
-		else name_output_file = name_output_file + ".root";
+		name_input_file = name_input_file( name_input_file.Last('/')+1,
+								name_input_file.Length() - name_input_file.Last('/')-1 );
+		if( name_input_file.Contains('.') )
+			name_input_file = name_input_file( 0, name_input_file.Last('.') );
+
+		if( flag_source ) name_output_file = name_input_file + "_source.root";
+		else name_output_file = name_input_file + ".root";
 		
+		name_output_file = datadir_name + "/" + name_output_file;
+		name_input_file = filelist.at(i);
+
 		force_convert.push_back( false );
 		
 		// Skip the file if it's deleted
@@ -588,20 +643,22 @@ void MiniballGUI::gui_convert(){
 			if( flag_mbs ) {
 		
 				if( flag_source ) conv_mbs.SourceOnly();
+				if( flag_ebis ) conv_mbs.EBISOnly();
 				conv_mbs.SetOutput( name_output_file.Data() );
+				conv_mbs.AddCalibration( mycal );
 				conv_mbs.MakeTree();
 				conv_mbs.MakeHists();
-				conv_mbs.AddCalibration( mycal );
 				conv_mbs.ConvertFile( name_input_file.Data() );
 
 			}
 			else {
 				
 				if( flag_source ) conv_midas.SourceOnly();
+				if( flag_ebis ) conv_midas.EBISOnly();
 				conv_midas.SetOutput( name_output_file.Data() );
+				conv_midas.AddCalibration( mycal );
 				conv_midas.MakeTree();
 				conv_midas.MakeHists();
-				conv_midas.AddCalibration( mycal );
 				conv_midas.ConvertFile( name_input_file.Data() );
 				
 			}
@@ -675,12 +732,30 @@ void MiniballGUI::gui_build(){
 	for( unsigned int i = 0; i < filelist.size(); i++ ){
 
 		name_input_file = filelist.at(i);
-		name_input_file = name_input_file( 0, name_input_file.Last('.') );
-		name_output_file = name_input_file + "_events.root";
-		name_input_file += ".root";
-	
+		name_input_file = name_input_file( name_input_file.Last('/')+1,
+											name_input_file.Length() - name_input_file.Last('/')-1 );
+		if( name_input_file.Contains('.') )
+			name_input_file = name_input_file( 0, name_input_file.Last('.') );
+
+		name_output_file = datadir_name + "/" + name_input_file + "_events.root";
+		name_input_file = datadir_name + "/" + name_input_file + ".root";
+
 		// Skip the file if it's deleted
 		if( !filestatus.at(i) ) continue;
+
+		// If input doesn't exist, skip it
+		ftest.open( name_input_file.Data() );
+		if( !ftest.is_open() ) {
+
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+
+		}
+		else {
+			
+			ftest.close();
+			
+		}
 
 		// We need to do event builder if we just converted it
 		// specific request to do new event build with -e
@@ -733,6 +808,7 @@ void MiniballGUI::gui_build(){
 		gSystem->ProcessEvents();
 
 	}
+	
 	return;
 	
 }
@@ -751,6 +827,7 @@ void MiniballGUI::gui_hist(){
 
 	// Progress bar and filename
 	std::string prog_format;
+	std::ifstream ftest;
 	TString name_input_file;
 	TString name_output_file;
 	
@@ -769,8 +846,22 @@ void MiniballGUI::gui_hist(){
 		if( !filestatus.at(i) ) continue;
 		
 		name_input_file = filelist.at(i);
-		name_input_file = name_input_file( 0, name_input_file.Last('.') );
-		name_input_file += "_events.root";
+		name_input_file = name_input_file( name_input_file.Last('/')+1,
+										  name_input_file.Length() - name_input_file.Last('/')-1 );
+		if( name_input_file.Contains('.') )
+			name_input_file = name_input_file( 0, name_input_file.Last('.') );
+		name_input_file = datadir_name + "/" + name_input_file + "_events.root";
+		
+		// Test if the input file exists
+		ftest.open( name_input_file.Data() );
+		if( !ftest.is_open() ) {
+			
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+			
+		}
+		else ftest.close();
+
 		name_hist_files.push_back( name_input_file.Data() );
 
 	}
@@ -809,6 +900,9 @@ void MiniballGUI::on_sort_clicked() {
 	flag_source = check_source->IsOn();
 	flag_convert = check_force->IsOn();
 	flag_events = check_event->IsOn();
+	flag_ebis = check_ebis->IsOn();
+	flag_mbs = check_mbs->IsOn();
+	datadir_name = text_out_dir->GetText();
 
 	//------------------//
 	// Run the analysis //

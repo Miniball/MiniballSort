@@ -359,12 +359,10 @@ void do_convert() {
 
 		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
 								input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
-		name_input_file = name_input_file.substr( 0,
-												 name_input_file.find_last_of(".") );
-		name_output_file = name_input_file.substr( 0,
-								name_input_file.find_last_of(".") );
-		if( flag_source ) name_output_file = name_output_file + "_source.root";
-		else name_output_file = name_output_file + ".root";
+		name_input_file = name_input_file.substr( 0, name_input_file.find_last_of(".") );
+
+		if( flag_source ) name_output_file = name_input_file + "_source.root";
+		else name_output_file = name_input_file + ".root";
 		
 		name_output_file = datadir_name + "/" + name_output_file;
 		name_input_file = input_names.at(i);
@@ -469,12 +467,9 @@ bool do_build() {
 
 		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
 												   input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
-		name_input_file = name_input_file.substr( 0,
-												 name_input_file.find_last_of(".") );
-		name_output_file = name_input_file.substr( 0,
-												  name_input_file.find_last_of(".") );
+		name_input_file = name_input_file.substr( 0, name_input_file.find_last_of(".") );
 		
-		name_output_file = datadir_name + "/" + name_output_file + "_events.root";
+		name_output_file = datadir_name + "/" + name_input_file + "_events.root";
 		name_input_file = datadir_name + "/" + name_input_file + ".root";
 
 		// If input doesn't exist, skip it
