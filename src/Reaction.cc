@@ -399,29 +399,65 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	phi += cd_offset[det]; // left edge of first strip
 	if( set->GetNumberOfCDNStrips() == 12 )	{			// standard CD
 
-		// New definition of CD segments
-		// calculate initial phi offset due to dead silicon layer
-		float initial_offset = 0.000286 * TMath::Power(pid,4);
-		initial_offset += -0.00541 * TMath::Power(pid,3);
-		initial_offset += 0.04437 * TMath::Power(pid,2);
-		initial_offset += 0.01679 * pid;
-		initial_offset += 2.4137;
-		
-		// calculate phi angular coverage for each annular strip and width of individual pixel
-		double phi_coverage = -0.00625 * TMath::Power(pid,3);
-		phi_coverage +=  0.07056 * TMath::Power(pid,2);
-		phi_coverage += -0.54542 * pid;
-		phi_coverage += 77.66278; // parametrization from Konstantin Stoychev
+		// CD phi calculation using method from Tim Gray
+		double alpha = 82.0;
+		double offset = 1.625;
 
-		float pixel_width = phi_coverage / 12.;
+		double phi_body = ( 2.0*nid + 1.0 ) * alpha / 24.;
 
-		phi += initial_offset;
-		phi += pixel_width / 2.; 
-		phi += nid * pixel_width;
+		double r_lab = 9.0;
+		r_lab += ( 15.5 - pid ) * 2.0; // pid = 0 is outer ring and pid = 15 is inner ring
+		  
+		double beta = 180.0 - alpha / 2.0;
+		double bphi = beta + phi_body;
+		if( bphi > 180.0) bphi = 360.0 - bphi;
+
+		double r_d = offset / TMath::Sin( alpha * TMath::DegToRad() / 2.0 );  // from center of rings to center of sectors
+		double delta = TMath::ASin( r_d * TMath::Sin( bphi * TMath::DegToRad() ) / r_lab );
+		delta *= TMath::RadToDeg(); // angle between r_body and r_lab
+		  
+		double gamma = 180.0 - bphi - delta; // angle between r_d and r_lab
+
+		double r_body = TMath::Sin( gamma * TMath::DegToRad() ) / ( TMath::Sin( bphi * TMath::DegToRad() ) / r_lab ); // between sector center and point of interest
+
+		double x_body = r_body * TMath::Cos( phi_body * TMath::DegToRad() ); //in sector "body" coordinates
+		double y_body = r_body * TMath::Sin( phi_body * TMath::DegToRad() );
+
+		//transform back to ring "lab" coordinates
+		double y = y_body + offset;
+		double x = x_body + TMath::Sqrt( r_d*r_d - offset*offset );
+
+		//should have sqrt(x*x + y*y) = r_lab at this point
+		vec.SetX(x);
+		vec.SetY(y);
+
+		/*
+		 // New definition of CD segments - Konstantin Stoychev
+		 //// calculate initial phi offset due to dead silicon layer
+		 //float initial_offset = 0.000286 * TMath::Power(pid,4);
+		 //initial_offset += -0.00541 * TMath::Power(pid,3);
+		 //initial_offset += 0.04437 * TMath::Power(pid,2);
+		 //initial_offset += 0.01679 * pid;
+		 //initial_offset += 2.4137;
+		 
+		 //// calculate phi angular coverage for each annular strip and width of individual pixel
+		 //double phi_coverage = -0.00625 * TMath::Power(pid,3);
+		 //phi_coverage +=  0.07056 * TMath::Power(pid,2);
+		 //phi_coverage += -0.54542 * pid;
+		 //phi_coverage += 77.66278; // parametrization from Konstantin Stoychev
+		 
+		 //float pixel_width = phi_coverage / 12.;
+		 
+		 //phi += initial_offset;
+		 //phi += pixel_width / 2.;
+		 //phi += nid * pixel_width;
+		 */
 		
-		// Old definition of CD segments
-		//phi += 3.5; // move the centre of first strip to zero degrees
-		//phi += nid * 7.0;
+		/*
+		 // Old definition of CD segments
+		 //phi += 3.5; // move the centre of first strip to zero degrees
+		 //phi += nid * 7.0;
+		 */
 	
 	}
 	
