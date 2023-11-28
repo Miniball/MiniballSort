@@ -893,6 +893,8 @@ void MiniballGUI::on_sort_clicked() {
 
 	myset = std::make_shared<MiniballSettings>( name_set_file );
 	mycal = std::make_shared<MiniballCalibration>( name_cal_file, myset );
+	if( flag_mbs ) mycal->SetDefaultQint();
+	mycal->ReadCalibration();
 	myrea = std::make_shared<MiniballReaction>( name_rea_file, myset );
 	
 	// select what steps of the analysis to be forced

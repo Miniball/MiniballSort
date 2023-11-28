@@ -206,9 +206,9 @@ MiniballCalibration::MiniballCalibration( std::string filename, std::shared_ptr<
 
 	SetFile( filename );
 	set = myset;
-	ReadCalibration();
 	fRand = std::make_unique<TRandom>();
-		
+	default_qint = false;
+
 }
 
 void MiniballCalibration::ReadCalibration() {
@@ -226,6 +226,9 @@ void MiniballCalibration::ReadCalibration() {
 	default_CFD_Integration	= 10;
 	default_CFD_Threshold	= 500;
 	default_CFD_Fraction	= 0.3;
+	
+	std::string default_type = config->GetValue( "febex_default.Type", "Qshort" );
+	if( default_qint ) default_type = "Qint"; // override for MBS
 
 	
 	// FEBEX initialisation
@@ -294,7 +297,7 @@ void MiniballCalibration::ReadCalibration() {
 				fFebexGain[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.25 );
 				fFebexGainQuadr[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), (double)0 );
 				fFebexThreshold[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), (double)0 );
-				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), "Qshort" );
+				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), default_type.data() );
 				fFebexTime[i][j][k] = (long)config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)0 );
 				fFebexMWD_Decay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), (double)default_MWD_Decay );
 				fFebexMWD_Rise[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (double)default_MWD_Rise );

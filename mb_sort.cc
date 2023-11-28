@@ -400,7 +400,7 @@ void do_convert() {
 			std::cout << name_output_file << std::endl;
 			
 			if( flag_mbs ) {
-			
+
 				if( flag_source ) conv_mbs.SourceOnly();
 				if( flag_ebis ) conv_mbs.EBISOnly();
 				conv_mbs.SetOutput( name_output_file );
@@ -815,6 +815,8 @@ int main( int argc, char *argv[] ){
 	
 	myset = std::make_shared<MiniballSettings>( name_set_file );
 	mycal = std::make_shared<MiniballCalibration>( name_cal_file, myset );
+	if( flag_mbs ) mycal->SetDefaultQint();
+	mycal->ReadCalibration();
 	myreact = std::make_shared<MiniballReaction>( name_react_file, myset );
 
 	// Force data block size for MBS data

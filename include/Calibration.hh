@@ -186,12 +186,16 @@ public:
 	unsigned int GetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch );
 	int GetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch );
 
+	// Global default to Qint instead of Qshort
+	inline void SetDefaultQint(){ default_qint = true; };
+
 	
 private:
 
 	std::string fInputFile;
 	std::unique_ptr<TRandom> fRand;
-
+	
+	bool default_qint;
 	
 	std::shared_ptr<MiniballSettings> set;
 
@@ -227,7 +231,7 @@ private:
 	int default_CFD_Threshold;
 
 	
-	ClassDef( MiniballCalibration, 3 )
+	ClassDef( MiniballCalibration, 4 )
    
 };
 

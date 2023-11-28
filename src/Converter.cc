@@ -38,10 +38,6 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	// No progress bar by default
 	_prog_ = false;
 	
-	// Maximum ADC value depends on MBS or MIDAS
-	if( mbs_data ) qmax_default = 1 << 23;
-	else qmax_default = 4294967296;
-
 }
 
 void MiniballConverter::StartFile(){
@@ -123,6 +119,10 @@ void MiniballConverter::MakeHists() {
 	std::string hname, htitle;
 	std::string dirname, maindirname, subdirname;
 	
+	// Maximum ADC value depends on MBS or MIDAS
+	if( mbs_data ) qmax_default = 8388608;
+	else qmax_default = 4294967296;
+
 	// Make directories - just one DAQ type for now, no sub directories
 	// if you do add a directory here, please use a trailing slash
 	maindirname = "";

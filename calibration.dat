@@ -25,3 +25,7 @@
 # febex_<sfp>_<board>_<ch>.CFD.ShapingTime:			# this is the differential shaping time of the CFD. Ignored in this algorithm at the moment to match James Lawson's firmware on the FEBEX4 cards.
 # febex_<sfp>_<board>_<ch>.CFD.IntegrationTime:		# this is the integral shaping time of the CFD - set to 1 to be equivalent to Liam's method. Ignored in this algorithm at the moment to match James Lawson's firmware on the FEBEX4 cards
 # febex_<sfp>_<board>_<ch>.CFD.Fraction:			# this is fraction of the signal taken for the delayed subtraction. Ignored in this algorithm at the moment to match James Lawson's firmware on the FEBEX4 cards.
+
+
+# The above can be set to some default parameters, and then overridden on a channel-by-channel basis using
+#febex_default.<parameter>:
