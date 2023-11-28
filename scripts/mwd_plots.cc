@@ -17,7 +17,8 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 	
 	// Calibration file
 	MiniballCalibration *cal = new MiniballCalibration( calfile.data(), myset );
-		
+	cal->ReadCalibration();
+	
 	// Get entries
 	unsigned long long nentries = t->GetEntries();
 	//if( nentries > 1000 ) nentries = 1000;

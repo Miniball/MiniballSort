@@ -20,7 +20,8 @@ void mwd_optimisation( std::string filename = "test/R4_13.root", unsigned int sf
 	
 	// Calibration file
 	MiniballCalibration *cal = new MiniballCalibration( calfile.data(), myset );
-		
+	cal->ReadCalibration();
+
 	// Get entries
 	unsigned long long n_entries = t->GetEntries();
 	//if( nentries > 1000 ) n_entries = 1000;
