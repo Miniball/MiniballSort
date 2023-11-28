@@ -108,9 +108,13 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 	// this is the place to do it. Next buffer is good again!
 	if( buffer_full ){
 		
-		reject_ctr++;
 		buffer_full = false;
-		return;
+		if( set->GetBufferPartRejection() ) {
+		
+			reject_ctr++;
+			return;
+		
+		}
 		
 	}
 

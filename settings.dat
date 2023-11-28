@@ -68,7 +68,8 @@
 #-----------------------#
 # Buffer full Rejection #
 #-----------------------#
-#BufferFullRejection: false		# reject full buffers and their subsequent buffers
+#BufferFullRejection: false		# reject full buffers
+#BufferPartRejection: false		# reject partial buffers after a full buffer
 
 
 #-------------#

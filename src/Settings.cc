@@ -219,7 +219,8 @@ void MiniballSettings::ReadSettings() {
 	
 	// Buffer full rejection
 	bufferfull_reject	= config->GetValue( "BufferFullRejection", false );
-	
+	bufferpart_reject	= config->GetValue( "BufferPartRejection", false );
+
 	
 	// Electronics mapping
 	mb_cluster.resize( n_febex_sfp );

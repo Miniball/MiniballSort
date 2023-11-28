@@ -81,7 +81,8 @@ public:
 
 	// Are we rejecting full buffers?
 	inline double GetBufferFullRejection(){ return bufferfull_reject; };
-	
+	inline double GetBufferPartRejection(){ return bufferpart_reject; };
+
 
 	// Miniball array
 	inline unsigned int GetNumberOfMiniballClusters(){ return n_mb_cluster; };
@@ -286,7 +287,8 @@ private:
 	
 	// Buffer full rejection
 	bool bufferfull_reject;
-	
+	bool bufferpart_reject;
+
 
 };
 
