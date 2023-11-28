@@ -179,8 +179,9 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				
 				// Make a FebexData item
 				febex_data->SetQint( my_adc_data_int );
-				febex_data->SetTime( my_tm_stp + my_hit_time );
-				//febex_data->SetTime( my_hit_time );
+				if( set->GetMbsEventMode() )
+					febex_data->SetTime( my_hit_time );
+				else febex_data->SetTime( my_tm_stp + my_hit_time );
 				febex_data->SetEventID( my_event_id );
 				febex_data->SetSfp( my_sfp_id );
 				febex_data->SetBoard( my_board_id );
@@ -294,11 +295,16 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 
 			// Make a FebexData item
 			febex_data->SetQint( mwd.GetEnergy(i) );
-			febex_data->SetTime( my_tm_stp + mwd.GetCfdTime(i) );
+			if( set->GetMbsEventMode() )
+				febex_data->SetTime( mwd.GetCfdTime(i) );
+			else febex_data->SetTime( my_tm_stp + mwd.GetCfdTime(i) );
 			febex_data->SetSfp( my_sfp_id );
 			febex_data->SetBoard( my_board_id );
 			febex_data->SetChannel( my_ch_id );
-			febex_data->SetPileUp( 0 );
+			if( mwd.NumberOfTriggers() > 1 )
+				febex_data->SetPileUp( true );
+			else febex_data->SetPileUp( false );
+
 
 			// Close the data packet and clean up
 			FinishFebexData();
@@ -548,6 +554,9 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 		ev = mbs.GetNextEvent();
 		if( !ev ) break;
 		my_event_id = ev->GetEventID();
+		
+		if( my_event_id == 0 )
+			std::cout << "Bad event ID in data" << std::endl;
 
 		// Write the MBS event info
 		mbsinfo_packet->SetTime( my_good_tm_stp );

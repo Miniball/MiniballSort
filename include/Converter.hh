@@ -48,6 +48,7 @@ public:
 	void StartFile();
 	void BuildMbsIndex();
 	void BodgeMidasSort();
+	void NoSortTree();
 	unsigned long long int SortTree();
 
 	void SetOutput( std::string output_file_name );

@@ -412,7 +412,9 @@ void do_convert() {
 				// Sort the tree before writing and closing
 				if( !flag_source ){
 					conv_mbs.BuildMbsIndex();
-					conv_mbs.SortTree();
+					if( myset->GetMbsEventMode() )
+						conv_mbs.NoSortTree();
+					else conv_mbs.SortTree();
 				}
 				conv_mbs.CloseOutput();
 				

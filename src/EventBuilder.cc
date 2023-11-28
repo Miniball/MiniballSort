@@ -1503,25 +1503,30 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 		}
 
 		// Get the time of the event
-		mytime = in_data->GetTime(); // this is normal
-		myhittime = in_data->GetTime();	// this is for is697 (not used otherwise)
-		//mytime = myeventtime + myhittime; // this is for is697
+		if( set->GetMbsEventMode() ) {
 		
-		// check time stamp monotonically increases!
-		if( time_prev > mytime ) {
+			myhittime = in_data->GetTime();
+			mytime = myeventtime + myhittime;
+			
+		}
+		
+		else mytime = in_data->GetTime();
+		
+		// check time stamp monotonically increases in time-ordered mode!
+		if( time_prev > mytime && !set->GetMbsEventMode() ) {
 			
 			std::cout << "Out of order event in ";
 			std::cout << input_tree->GetName() << std::endl;
 			
 		}
 			
-		// check event id is increasing
-		//if( preveventid > myeventid ) {
+		// check event id is increasing in MBS event ordered mode
+		if( preveventid > myeventid && set->GetMbsEventMode() ) {
 
-		//	std::cout << "Out of order event " << myeventid;
-		//	std::cout << " < " << preveventid << std::endl;
+			std::cout << "Out of order MBS event " << myeventid;
+			std::cout << " < " << preveventid << std::endl;
 
-		//}
+		}
 		
 		// record time of this event
 		time_prev = mytime;

@@ -199,6 +199,7 @@ void MiniballSettings::ReadSettings() {
 	
 	// Event builder
 	event_window	= config->GetValue( "EventWindow", 3e3 );
+	mbs_event_sort	= config->GetValue( "MbsEventSort", true );
 
 	// Hit windows for complex events
 	mb_hit_window	= config->GetValue( "MiniballCrystalHitWindow", 400. );

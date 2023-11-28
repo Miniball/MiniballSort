@@ -57,7 +57,7 @@
 # Event builder #
 #---------------#
 #EventWindow: 3e3 # in ns. Default is 3 µs
-
+#MbsEventSort: true	# in MBS mode, sort data by readout event ID instead of time (default: true)
 
 #-------------------#
 # Pile-up Rejection #

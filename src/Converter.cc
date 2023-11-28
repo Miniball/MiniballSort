@@ -405,6 +405,57 @@ void MiniballConverter::BuildMbsIndex(){
 	
 }
 
+void MiniballConverter::NoSortTree(){
+
+	std::cout << "Filtering data, but not time ordering" << std::endl;
+	
+	// Loop on entries and fill sorted tree
+	long long int n_ents = output_tree->GetEntries();
+	for( long long int i = 0; i < n_ents; ++i ) {
+
+		// Read entry
+		output_tree->GetEntry(i);
+
+		// Write the data to the sorted tree
+		sorted_tree->Fill();
+
+		// Progress bar
+		bool update_progress = false;
+		if( n_ents < 200 )
+			update_progress = true;
+		else if( i % (n_ents/100) == 0 || i+1 == n_ents )
+			update_progress = true;
+		
+		if( update_progress ) {
+			
+			// Percent complete
+			float percent = (float)(i+1)*100.0/(float)n_ents;
+			
+			// Progress bar in GUI
+			if( _prog_ ) {
+				
+				prog->SetPosition( percent );
+				gSystem->ProcessEvents();
+				
+			}
+			
+			// Progress bar in terminal
+			std::cout << " " << std::setw(6) << std::setprecision(4);
+			std::cout << percent << "%    \r";
+			std::cout.flush();
+			
+		}
+
+		
+	}
+	
+	// Reset the output tree so it's empty after we've finished
+	output_tree->FlushBaskets();
+	output_tree->Reset();
+
+	return;
+}
+
 void MiniballConverter::BodgeMidasSort(){
 	
 	std::cout << "Filtering data, but not time ordering" << std::endl;

@@ -67,7 +67,8 @@ public:
 
 	// Event builder
 	inline double GetEventWindow(){ return event_window; };
-	
+	inline double GetMbsEventMode(){ return mbs_event_sort; };
+
 	
 	// Data settings
 	void SetBlockSize( unsigned int size ){ block_size = size; };
@@ -270,6 +271,7 @@ private:
 
 	// Event builder
 	double event_window;			///< Event builder time window in ns
+	bool mbs_event_sort;			///< Flag to define if we sort MBS data by readout event (true), or by global time (false)
 	
 	// Hit windows for complex events
 	double mb_hit_window;			///< Prompt time for correlated Miniball events in crystal, i.e. segmen-core events
