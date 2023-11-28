@@ -1948,10 +1948,17 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 			// BELOW IS THE TIME-ORDERED METHOD!
 
-			// Get next time
-			myhittime = in_data->GetTime(); // not used in MIDAS implementation
-			//mytime = myhittime + myeventtime;
-			mytime = in_data->GetTime();
+			// Get the time of the next event
+			if( set->GetMbsEventMode() ) {
+			
+				myhittime = in_data->GetTime();
+				mytime = myeventtime + myhittime;
+				
+			}
+			
+			else mytime = in_data->GetTime();
+
+			// Calculate time diff
 			time_diff = mytime - time_first;
 
 			// window = time_stamp_first + time_window
