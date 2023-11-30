@@ -1737,7 +1737,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			if( info_data->GetCode() == set->GetEBISCode() &&
 				TMath::Abs( (double)ebis_time - (double)info_data->GetTime() ) > 1e3 ) {
 				
+				// Get the time of the EBIS
 				ebis_time = info_data->GetTime();
+				if( set->GetMbsEventMode() ) ebis_time += myeventtime;
+
 				ebis_T = (double)ebis_time - (double)ebis_prev;
 				ebis_f = 1e9 / ebis_T;
 				if( ebis_prev != 0 ) {
@@ -1753,7 +1756,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			if( info_data->GetCode() == set->GetT1Code() &&
 				TMath::Abs( (double)t1_time - (double)info_data->GetTime() ) > 1e3 ){
 				
+				// Get the time of the T1
 				t1_time = info_data->GetTime();
+				if( set->GetMbsEventMode() ) t1_time += myeventtime;
+
 				t1_T = (double)t1_time - (double)t1_prev;
 				t1_f = 1e9 / t1_T;
 				if( t1_prev != 0 ) {
@@ -1769,7 +1775,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			if( info_data->GetCode() == set->GetSCCode() &&
 				TMath::Abs( (double)sc_time - (double)info_data->GetTime() ) > 1e3 ){
 				
+				// Get the time of the T1
 				sc_time = info_data->GetTime();
+				if( set->GetMbsEventMode() ) sc_time += myeventtime;
+
 				sc_T = (double)sc_time - (double)sc_prev;
 				sc_f = 1e9 / sc_T;
 				if( sc_prev != 0 ) {
@@ -1785,7 +1794,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			if( info_data->GetCode() == set->GetRILISCode() &&
 				TMath::Abs( (double)laser_time - (double)info_data->GetTime() ) > 1e3 ){
 				
+				// Get the time of the T1
 				laser_time = info_data->GetTime();
+				if( set->GetMbsEventMode() ) laser_time += myeventtime;
+
 				n_rilis++;
 				
 			} // SuperCycle code
@@ -1796,6 +1808,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 				unsigned int pulserID = info_data->GetCode() - set->GetPulserCode();
 				pulser_time[pulserID] = info_data->GetTime();
+				if( set->GetMbsEventMode() ) pulser_time[pulserID] += myeventtime;
 				pulser_T = (double)pulser_time[pulserID] - (double)pulser_prev[pulserID];
 				pulser_f = 1e9 / pulser_T;
 				if( pulserID == 0 && pulser_prev[pulserID] != 0 ) {
