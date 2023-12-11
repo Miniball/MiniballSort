@@ -189,10 +189,9 @@ public:
 	inline std::vector<double>	GetParticleThetas(){
 		std::vector<double> cd_angles;
 		for( unsigned char i = 0; i < set->GetNumberOfCDDetectors(); i++ )
-			for( unsigned char j = 0; j < set->GetNumberOfCDPStrips(); j++ )
-				cd_angles.push_back( GetCDVector(i,0,(float)(j-0.5),(float)0).Theta() * TMath::RadToDeg() );
+			for( unsigned char j = 0; j <= set->GetNumberOfCDPStrips(); j++ )
+				cd_angles.push_back( GetCDVector(i,0,(float)j-0.5,(float)0).Theta() * TMath::RadToDeg() );
 		std::sort( cd_angles.begin(), cd_angles.end() );
-		cd_angles.push_back( cd_angles.back() + 2.0 );
 		return cd_angles;
 	};
 	TVector3		GetCDVector( unsigned char det, unsigned char sec, float pid, float nid );
