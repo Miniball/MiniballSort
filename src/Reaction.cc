@@ -684,7 +684,7 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 		// Do energy loss out the back of target if requested
 		if( stopping && doppler_mode == 1 ) {
 			
-			eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos( GetParticleTheta(p) ), gStopping[0] );
+			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos( GetParticleTheta(p) ), gStopping[0] );
 			Ejectile.SetEnergy( En - eloss );
 			
 		}
@@ -736,7 +736,7 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 		// Do energy loss out the back of target if requested
 		if( stopping && doppler_mode == 1 ) {
 			
-			eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos( GetParticleTheta(p) ), gStopping[1] );
+			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos( GetParticleTheta(p) ), gStopping[1] );
 			Recoil.SetEnergy( En - eloss );
 			
 		}
@@ -769,7 +769,7 @@ void MiniballReaction::CalculateEjectile(){
 	// Do energy loss out the back of target if requested
 	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
 		
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos(Th), gStopping[0] );
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos(Th), gStopping[0] );
 		Ejectile.SetEnergy( En - eloss );
 		
 	}
@@ -804,7 +804,7 @@ void MiniballReaction::CalculateRecoil(){
 	// Do energy loss out the back of target if requested
 	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
 
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos(Th), gStopping[1] );
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos(Th), gStopping[1] );
 		Recoil.SetEnergy( En - eloss );
 		
 	}
