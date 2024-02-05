@@ -767,9 +767,9 @@ void MiniballReaction::CalculateEjectile(){
 	if( Th < 0. ) Th += TMath::Pi();
 	
 	// Do energy loss out the back of target if requested
-	if( stopping && doppler_mode == 1 ) {
+	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
 		
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * Th, gStopping[0] );
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos(Th), gStopping[0] );
 		Ejectile.SetEnergy( En - eloss );
 		
 	}
@@ -802,9 +802,9 @@ void MiniballReaction::CalculateRecoil(){
 	if( Th < 0. ) Th += TMath::Pi();
 	
 	// Do energy loss out the back of target if requested
-	if( stopping && doppler_mode == 1 ) {
-		
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * Th, gStopping[1] );
+	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
+
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness * TMath::Cos(Th), gStopping[1] );
 		Recoil.SetEnergy( En - eloss );
 		
 	}
