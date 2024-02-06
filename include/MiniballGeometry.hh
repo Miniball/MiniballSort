@@ -9,8 +9,8 @@
 #include <TMath.h>
 
 #define ROOTTHREEOVER2 0.8660254
-#define DIST_CORE_CORNER 34.5 // first iteration was 34.0
-#define NOMINAL_CLUSTER_DIST 420.0 // first iteration was 400.0
+#define DIST_CORE_CORNER 34.0 // first iteration was 34.0 - new 34.5
+#define NOMINAL_CLUSTER_DIST 400.0 // first iteration was 400.0 - new 430.0
 #define INTERACTION_DEPTH 15.0 // first iteration was 0.0
 #define INTER_CRYSTAL_GAP 2.5 // first iteration was 0.0
 
