@@ -804,7 +804,7 @@ void MiniballReaction::CalculateRecoil(){
 	// Do energy loss out the back of target if requested
 	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
 
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos(Th), gStopping[1] );
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[1] );
 		Recoil.SetEnergy( En - eloss );
 		
 	}
@@ -865,11 +865,16 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 	double dx = dist/(double)Nmeshpoints;
 	double E = Ei;
 	
+	// Create a spline for the provided TGraph
+	std::unique_ptr<TSpline3> spline( "spline", g.get(), "akima" ); // Use akima spline to make energy loss graph smoother
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
 
+		double eloss = spline->Eval(E) * dx
+		if( eloss > E ) eloss = E; // incase we are "stopped"
+
+		E -= eloss;
 		if( E < 100. ) break; // when we fall below 100 keV we assume maximum energy loss
-		E -= g->Eval(E) * dx;
-		
+
 	}
 	
 	return Ei - E;
