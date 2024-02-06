@@ -8,7 +8,6 @@
 #include <string>
 #include <sstream>
 #include <map>
-#include <cmath>
 
 #include "TSystem.h"
 #include "TEnv.h"
