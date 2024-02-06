@@ -59,13 +59,13 @@ void MiniballGeometry::SetupCluster() {
 			seg_offset[i][j].SetZ( NOMINAL_CLUSTER_DIST );
 
 			// Rotate out to focal point of crystal (goes up in MB frame)
-			seg_offset[i][j].RotateY( TMath::ATan( DIST_CORE_CORNER / NOMINAL_CLUSTER_DIST ) );
+			seg_offset[i][j].RotateY( TMath::ATan( ( DIST_CORE_CORNER + 0.5*INTER_CRYSTAL_GAP ) / NOMINAL_CLUSTER_DIST ) );
 			
 			// rotate around the appropriate angle for each crystal
 			seg_offset[i][j].RotateZ( -TMath::TwoPi() * i / 3.0 );
 			
-			// Now bring it all back to the correct distance
-			seg_offset[i][j].SetZ( seg_offset[i][j].Z() - NOMINAL_CLUSTER_DIST + r );
+			// Now bring it all back to the correct distance and shift to the interaction depth
+			seg_offset[i][j].SetZ( seg_offset[i][j].Z() - NOMINAL_CLUSTER_DIST + INTERACTION_DEPTH + r );
 			
 		}
 	

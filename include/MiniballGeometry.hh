@@ -9,8 +9,10 @@
 #include <TMath.h>
 
 #define ROOTTHREEOVER2 0.8660254
-#define DIST_CORE_CORNER 34.0
-#define NOMINAL_CLUSTER_DIST 400.0
+#define DIST_CORE_CORNER 34.5 // first iteration was 34.0
+#define NOMINAL_CLUSTER_DIST 420.0 // first iteration was 400.0
+#define INTERACTION_DEPTH 15.0 // first iteration was 0.0
+#define INTER_CRYSTAL_GAP 2.5 // first iteration was 0.0
 
 /// Functions to convert Miniball angles read from the frame
 
@@ -23,15 +25,15 @@
 /// crystal and segment in frame geometry or true/beam geometry.
 
 class MiniballGeometry : public TObject {
-
-	public:
-   
+	
+public:
+	
 	/// Constructor
 	MiniballGeometry() {};
 	
 	/// Destructor
 	~MiniballGeometry() {};
-
+	
 	/// Setup cluster main routine
 	void SetupCluster();
 	/// Setup the cluster with coordinate values
@@ -41,7 +43,7 @@ class MiniballGeometry : public TObject {
 	/// \param user_r distance from target to detector [mm]
 	/// \param user_z distance from target to origin in beam direction [mm]
 	void SetupCluster( double user_theta, double user_phi, double user_alpha, double user_r, double user_z );
-
+	
 	/// Set the theta angle measured from the frame
 	/// \param user_theta in the MB frame of reference [degrees]
 	inline void SetCluTheta( double user_theta ){ theta = user_theta * TMath::DegToRad(); };
@@ -61,28 +63,28 @@ class MiniballGeometry : public TObject {
 	/// Set the distance between the origin and the target position along the beam axis
 	/// \param user_z distance from target to origin in beam direction [mm]
 	inline void SetCluZ( double user_z ) { z = user_z; };
-
+	
 	/// Get the theta angle of the crystal with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \return theta of cry in beam reference (radians)
 	inline double GetCryTheta( unsigned char cry ){
-		return GetCryVector(cry).Phi();
+		return GetCryVector(cry).Theta();
 	};
-
+	
 	/// Get the phi angle of the crystal with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \return phi of cry in beam reference (radians)
 	inline double GetCryPhi( unsigned char cry ){
 		return GetCryVector(cry).Phi();
 	};
-
+	
 	/// Get a unit vector pointing towards the core
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \return TVector3 of the crystal  position with respect to the nominal centre
 	inline TVector3 GetCryVector( unsigned char cry ){
 		return GetSegVector(cry,0);
 	};
-
+	
 	/// Get the theta angle of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -90,7 +92,7 @@ class MiniballGeometry : public TObject {
 	inline double GetSegTheta( unsigned char cry, unsigned char seg ){
 		return GetSegVector(cry,seg).Theta();
 	};
-
+	
 	/// Get the phi angle of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -98,7 +100,7 @@ class MiniballGeometry : public TObject {
 	inline double GetSegPhi( unsigned char cry, unsigned char seg ){
 		return GetSegVector(cry,seg).Phi();
 	};
-
+	
 	/// Get the x position of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -106,7 +108,7 @@ class MiniballGeometry : public TObject {
 	inline double GetSegX( unsigned char cry, unsigned char seg ){
 		return GetSegVector(cry,seg).X();
 	};
-
+	
 	/// Get the y position of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -114,7 +116,7 @@ class MiniballGeometry : public TObject {
 	inline double GetSegY( unsigned char cry, unsigned char seg ){
 		return GetSegVector(cry,seg).Y();
 	};
-
+	
 	/// Get the z position of a segment with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -122,7 +124,7 @@ class MiniballGeometry : public TObject {
 	inline double GetSegZ( unsigned char cry, unsigned char seg ){
 		return GetSegVector(cry,seg).Z();
 	};
-
+	
 	/// Get a unit vector pointing towards the segment
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \param seg number of the segment within the crystal: 0 is core, 1-6 for segments
@@ -130,13 +132,13 @@ class MiniballGeometry : public TObject {
 	inline TVector3 GetSegVector( unsigned char cry, unsigned char seg ){
 		return seg_offset[cry][seg];
 	};
-
-	private:
+	
+private:
 	
 	// Segments etc
 	const unsigned char ncry = 3;
 	const unsigned char nseg = 7; // 6 segments plus core
-
+	
 	// Current values of theta, phi, alpha and r
 	double theta;	///< theta angle in radians
 	double phi;		///< phi angle in radians
@@ -147,8 +149,8 @@ class MiniballGeometry : public TObject {
 	// Geometry
 	std::vector<std::vector<TVector3>> seg_offset;	///< vector for segment centre (0 = core)
 	TVector3 mbzoffset;								///< Offset of target from origin in direction of beam in mm.
-													///< This shift is independent of the CD detector distance which is relative.
-
+	///< This shift is independent of the CD detector distance which is relative.
+	
 	ClassDef( MiniballGeometry, 2 );
 	
 };
