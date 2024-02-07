@@ -871,10 +871,10 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
 
 		double eloss = spline->Eval(E) * dx;
-		if( eloss > E ) eloss = E; // incase we are "stopped"
+		if( eloss > E && eloss > 0 ) eloss = E; // incase we are "stopped"
 
 		E -= eloss;
-		if( E < 100. ) break; // when we fall below 100 keV we assume maximum energy loss
+		if( E < 100. && eloss > 0 ) break; // when we fall below 100 keV we assume maximum energy loss
 
 	}
 	
