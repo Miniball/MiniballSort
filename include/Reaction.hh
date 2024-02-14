@@ -467,6 +467,11 @@ public:
 	
 	// Timing for coincidence
 	inline unsigned long long GetParticleTime(){ return particle_time; };
+	inline void ResetParticles(){
+		ejectile_detected = false;
+		recoil_detected = false;
+		transfer_detected = false;
+	};
 	inline void SetParticleTime( unsigned long long t ){ particle_time = t; };
 	inline bool IsEjectileDetected(){ return ejectile_detected; };
 	inline bool IsRecoilDetected(){ return recoil_detected; };

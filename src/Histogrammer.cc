@@ -1501,6 +1501,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// ------------------------- //
 		// Loop over particle events //
 		// ------------------------- //
+		react->ResetParticles();
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 			
 			// Get particle event
