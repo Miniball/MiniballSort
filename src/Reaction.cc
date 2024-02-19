@@ -122,9 +122,10 @@ void MiniballReaction::ReadReaction() {
 		
 	}
 	Beam.SetBindingEnergy( ame_be.at( Beam.GetIsotope() ) );
+	Beam.SetEx( config->GetValue( "BeamEx", 0. ) );
 
 	Eb = config->GetValue( "BeamE", 4500.0 ); // in keV per nucleon
-	Eb *= Beam.GetA(); // keV
+	Eb *= Beam.GetMass_u(); // keV
 	Beam.SetEnergy( Eb ); // keV
 	
 	Target.SetA( config->GetValue( "TargetA", 120 ) );
@@ -138,6 +139,7 @@ void MiniballReaction::ReadReaction() {
 		
 	}
 	Target.SetBindingEnergy( ame_be.at( Target.GetIsotope() ) );
+	Target.SetEx( config->GetValue( "TargetEx", 0. ) );
 
 	Ejectile.SetA( config->GetValue( "EjectileA", 185 ) );
 	Ejectile.SetZ( config->GetValue( "EjectileZ", 80 ) );

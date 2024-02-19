@@ -84,6 +84,7 @@ public:
 		double mass = (double)GetN() * n_mass;
 		mass += (double)GetZ() * p_mass;
 		mass -= (double)GetA() * bindingE;
+		mass += GetEx();
 		return mass;
 	};		// returns mass in keV/c^2
 	inline int			GetA(){ return A; };	// returns mass number
