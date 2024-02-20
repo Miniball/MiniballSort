@@ -1,7 +1,7 @@
 //#include "DataPackets.hh"
 //#include "Settings.hh"
 
-//R__LOAD_LIBRARY(libmb_sort.so)
+R__LOAD_LIBRARY(libmb_sort.so)
 
 void check_repeated_events( std::string filename = "test/R4_13.root",
 						    std::string settingsname = "default" ){
