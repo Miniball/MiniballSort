@@ -27,14 +27,39 @@
 #include <TG3DLine.h>
 #include <RQ_OBJECT.h>
 
-// My code include.
-#include "Settings.hh"
-#include "Calibration.hh"
-#include "MidasConverter.hh"
-#include "MbsConverter.hh"
-#include "EventBuilder.hh"
-#include "Reaction.hh"
-#include "Histogrammer.hh"
+// Settings header
+#ifndef __SETTINGS_HH
+# include "Settings.hh"
+#endif
+
+// Calibration header
+#ifndef __CALIBRATION_HH
+# include "Calibration.hh"
+#endif
+
+// Reaction header
+#ifndef __REACTION_HH
+# include "Reaction.hh"
+#endif
+
+// Converter headers
+#ifndef __MIDASCONVERTER_HH
+# include "MidasConverter.hh"
+#endif
+#ifndef __MBSSCONVERTER_HH
+# include "MbsConverter.hh"
+#endif
+
+// EventBuilder header
+#ifndef __EVENTBUILDER_HH
+# include "EventBuilder.hh"
+#endif
+
+// Histogrammer header
+#ifndef __HISTOGRAMMER_HH
+# include "Histogrammer.hh"
+#endif
+
 
 // C++ include.
 #include <string>

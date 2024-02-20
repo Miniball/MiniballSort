@@ -1,15 +1,4 @@
 // My code include.
-#include "Settings.hh"
-#include "Calibration.hh"
-#include "MidasConverter.hh"
-#include "MbsConverter.hh"
-#include "EventBuilder.hh"
-#include "Reaction.hh"
-#include "Histogrammer.hh"
-#include "DataSpy.hh"
-#include "MbsFormat.hh"
-#include "MiniballGUI.hh"
-
 #include "mb_sort.hh"
 
 // Default parameters and name
