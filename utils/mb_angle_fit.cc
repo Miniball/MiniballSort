@@ -129,7 +129,7 @@ int main( int argc, char *argv[] ) {
 	
 	TFile *file = new TFile("MiniballAngleFits.root", "recreate");
 	
-	//set up parameters, bounds
+	// set up parameters, bounds
 	std::vector<double> pars(1+7*4);
 	std::vector<std::string> names(1+7*4);
 	std::vector<double> LL(1+7*4);

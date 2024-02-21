@@ -153,6 +153,9 @@ public:
 	MiniballReaction( std::string filename, std::shared_ptr<MiniballSettings> myset );
 	~MiniballReaction() {};
 	
+	// Print the reaction data to a file
+	void PrintReaction( std::ostream &stream, std::string opt );
+	
 	// Main functions
 	void AddBindingEnergy( short Ai, short Zi, TString ame_be_str );
 	void ReadMassTables();
@@ -171,15 +174,15 @@ public:
 	inline unsigned char GetLaserMode(){ return laser_mode; };
 	
 	// Get values for geometry
-	inline float			GetCDDistance( unsigned char det ){
+	inline double			GetCDDistance( unsigned char det ){
 		if( det < cd_dist.size() ) return cd_dist.at(det);
 		else return 0.0;
 	};
-	inline float			GetCDPhiOffset( unsigned char det ){
+	inline double			GetCDPhiOffset( unsigned char det ){
 		if( det < cd_offset.size() ) return cd_offset.at(det);
 		else return 0.0;
 	};
-	inline float			GetCDDeadLayer( unsigned char det ){
+	inline double			GetCDDeadLayer( unsigned char det ){
 		if( det < dead_layer.size() ) return dead_layer.at(det);
 		else return 0.0;
 	};
@@ -199,19 +202,19 @@ public:
 		return GetCDVector( det, sec, (float)pid, (float)nid );
 	};
 	TVector3		GetParticleVector( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid );
-	inline float	GetParticleTheta( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	inline double	GetParticleTheta( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Theta();
 	};
-	inline float	GetParticlePhi( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	inline double	GetParticlePhi( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Phi();
 	};
-	inline float	GetParticleX( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	inline double	GetParticleX( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).X();
 	};
-	inline float	GetParticleY( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	inline double	GetParticleY( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Y();
 	};
-	inline float	GetParticleZ( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
+	inline double	GetParticleZ( unsigned char det, unsigned char sec, unsigned char pid, unsigned char nid ){
 		return GetParticleVector( det, sec, pid, nid ).Z();
 	};
 	inline TVector3	GetCDVector( std::shared_ptr<ParticleEvt> p ){
@@ -220,19 +223,19 @@ public:
 	inline TVector3	GetParticleVector( std::shared_ptr<ParticleEvt> p ){
 		return GetParticleVector( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline float	GetParticleTheta( std::shared_ptr<ParticleEvt> p ){
+	inline double	GetParticleTheta( std::shared_ptr<ParticleEvt> p ){
 		return GetParticleTheta( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline float	GetParticlePhi( std::shared_ptr<ParticleEvt> p ){
+	inline double	GetParticlePhi( std::shared_ptr<ParticleEvt> p ){
 		return GetParticlePhi( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline float	GetParticleX( std::shared_ptr<ParticleEvt> p ){
+	inline double	GetParticleX( std::shared_ptr<ParticleEvt> p ){
 		return GetParticleX( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline float	GetParticleY( std::shared_ptr<ParticleEvt> p ){
+	inline double	GetParticleY( std::shared_ptr<ParticleEvt> p ){
 		return GetParticleY( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
-	inline float	GetParticleZ( std::shared_ptr<ParticleEvt> p ){
+	inline double	GetParticleZ( std::shared_ptr<ParticleEvt> p ){
 		return GetParticleZ( p->GetDetector(), p->GetSector(), p->GetStripP(), p->GetStripN() );
 	};
 
@@ -240,52 +243,64 @@ public:
 	inline void   SetupCluster( unsigned char clu, double user_theta, double user_phi, double user_alpha, double user_r, double user_z) {
 		mb_geo[clu].SetupCluster(user_theta, user_phi, user_alpha, user_r, user_z);
 	}
-	inline float	GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
+	inline double	GetMiniballTheta( unsigned char clu ){
+		return mb_geo[clu].GetCluTheta();
+	};
+	inline double	GetMiniballPhi( unsigned char clu ){
+		return mb_geo[clu].GetCluPhi();
+	};
+	inline double	GetMiniballAlpha( unsigned char clu ){
+		return mb_geo[clu].GetCluAlpha();
+	};
+	inline double	GetMiniballR( unsigned char clu ){
+		return mb_geo[clu].GetCluR();
+	};
+	inline double	GetGammaTheta( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegTheta( cry, seg );
 	};
-	inline float	GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
+	inline double	GetGammaPhi( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegPhi( cry, seg );
 	};
-	inline float	GetGammaX( unsigned char clu, unsigned char cry, unsigned char seg ){
+	inline double	GetGammaX( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegX( cry, seg );
 	};
-	inline float	GetGammaY( unsigned char clu, unsigned char cry, unsigned char seg ){
+	inline double	GetGammaY( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegY( cry, seg );
 	};
-	inline float	GetGammaZ( unsigned char clu, unsigned char cry, unsigned char seg ){
+	inline double	GetGammaZ( unsigned char clu, unsigned char cry, unsigned char seg ){
 		return mb_geo[clu].GetSegZ( cry, seg );
 	};
-	inline float	GetGammaTheta( std::shared_ptr<GammaRayEvt> g ){
+	inline double	GetGammaTheta( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaTheta( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaPhi( std::shared_ptr<GammaRayEvt> g ){
+	inline double	GetGammaPhi( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaPhi( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaX( std::shared_ptr<GammaRayEvt> g ){
+	inline double	GetGammaX( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaX( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaY( std::shared_ptr<GammaRayEvt> g ){
+	inline double	GetGammaY( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaY( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
-	inline float	GetGammaZ( std::shared_ptr<GammaRayEvt> g ){
+	inline double	GetGammaZ( std::shared_ptr<GammaRayEvt> g ){
 		return GetGammaZ( g->GetCluster(), g->GetCrystal(), g->GetSegment() );
 	};
 
 	// SPEDE and electron geometry
-	inline float	GetSpedeDistance(){ return spede_dist; };
-	inline float	GetSpedePhiOffset(){ return spede_offset; };
+	inline double	GetSpedeDistance(){ return spede_dist; };
+	inline double	GetSpedePhiOffset(){ return spede_offset; };
 	TVector3		GetSpedeVector( unsigned char seg, bool random = false );
 	TVector3		GetElectronVector( unsigned char seg );
-	inline float	GetElectronTheta( unsigned char seg ){
+	inline double	GetElectronTheta( unsigned char seg ){
 		return GetElectronVector(seg).Theta();
 	};
-	inline float	GetElectronTheta( SpedeEvt *s ){
+	inline double	GetElectronTheta( SpedeEvt *s ){
 		return GetElectronTheta( s->GetSegment() );
 	};
-	inline float	GetElectronPhi( unsigned char seg ){
+	inline double	GetElectronPhi( unsigned char seg ){
 		return GetElectronVector(seg).Phi();
 	};
-	inline float	GetElectronPhi( SpedeEvt *s ){
+	inline double	GetElectronPhi( SpedeEvt *s ){
 		return GetElectronPhi( s->GetSegment() );
 	};
 
@@ -337,6 +352,7 @@ public:
 
 	
 	// Doppler correction
+	double DopplerShift( double gen, double pbeta, double costheta );
 	double DopplerCorrection( std::shared_ptr<GammaRayEvt> g, double pbeta, double ptheta, double pphi );
 	double DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile );
 	double DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile );
@@ -453,6 +469,11 @@ public:
 	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g );
 
 	
+	// Getter for target offsets
+	inline double GetOffsetX(){ return x_offset; };
+	inline double GetOffsetY(){ return y_offset; };
+	inline double GetOffsetZ(){ return z_offset; };
+
 	// Get cuts
 	inline TCutG* GetEjectileCut(){ return ejectile_cut; };
 	inline TCutG* GetRecoilCut(){ return recoil_cut; };
@@ -518,27 +539,27 @@ private:
 	int ee_random[2];	// electron-electron random
 	int pe_prompt[2];	// particle-electron prompt
 	int pe_random[2];	// particle-electron random
-	float pg_ratio, gg_ratio, pp_ratio; // fill ratios
-	float pe_ratio, ge_ratio, ee_ratio; // fill ratios
+	double pg_ratio, gg_ratio, pp_ratio; // fill ratios
+	double pe_ratio, ge_ratio, ee_ratio; // fill ratios
 
 	// Target thickness and offsets
-	float target_thickness;	///< target thickness in units of mg/cm^2
-	float x_offset;			///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
-	float y_offset;			///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
-	float z_offset;			///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
+	double target_thickness;	///< target thickness in units of mg/cm^2
+	double x_offset;			///< horizontal offset of the target/beam position, with respect to the CD and Miniball in mm
+	double y_offset;			///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
+	double z_offset;			///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
 
 	// CD detector things
-	std::vector<float> cd_dist;		///< distance from target to CD detector in mm
-	std::vector<float> cd_offset;	///< phi rotation of the CD in degrees
-	std::vector<float> dead_layer;	///< dead layer thickness in mm
+	std::vector<double> cd_dist;		///< distance from target to CD detector in mm
+	std::vector<double> cd_offset;	///< phi rotation of the CD in degrees
+	std::vector<double> dead_layer;	///< dead layer thickness in mm
 
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;
-	std::vector<float> mb_theta, mb_phi, mb_alpha, mb_r;
+	std::vector<double> mb_theta, mb_phi, mb_alpha, mb_r;
 
 	// SPEDE things
-	float spede_dist;	///< distance from target to SPEDE detector
-	float spede_offset;	///< phi rotation of the SPEDE detector
+	double spede_dist;	///< distance from target to SPEDE detector
+	double spede_offset;	///< phi rotation of the SPEDE detector
 	
 	// Doppler mode, calculating the velocity for Doppler correction
 	// 0 = use angles and two-body kinematics at centre of the target

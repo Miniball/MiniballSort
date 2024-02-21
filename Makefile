@@ -64,6 +64,7 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 				$(SRC_DIR)/MbsConverter.o \
 				$(SRC_DIR)/MbsFormat.o \
 				$(SRC_DIR)/MidasConverter.o \
+				$(SRC_DIR)/MiniballAngleFitter.o \
 				$(SRC_DIR)/MiniballEvts.o \
 				$(SRC_DIR)/MiniballGeometry.o \
 				$(SRC_DIR)/Reaction.o \
@@ -81,6 +82,7 @@ DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/MbsConverter.hh \
 				$(INC_DIR)/MbsFormat.hh \
 				$(INC_DIR)/MidasConverter.hh \
+				$(INC_DIR)/MiniballAngleFitter.hh \
 				$(INC_DIR)/MiniballEvts.hh \
 				$(INC_DIR)/MiniballGeometry.hh \
 				$(INC_DIR)/Reaction.hh \

@@ -22,6 +22,7 @@
 #pragma link C++ class MBSInfoPackets+;
 #pragma link C++ class MiniballReaction+;
 #pragma link C++ class MiniballParticle+;
+#pragma link C++ class MiniballAngleFitter+;
 #pragma link C++ class MiniballGUI+;
 #pragma link C++ class MyDialog+;
 #endif
