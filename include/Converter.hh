@@ -139,7 +139,8 @@ protected:
 	bool mbs_data;
 	
 	// Flag to signify this buffer or the one before is full
-	bool buffer_full;
+	bool buffer_full = false;
+	bool buffer_part = false;
 	
 	// Maximum size of the ADC value
 	unsigned long long qmax_default;

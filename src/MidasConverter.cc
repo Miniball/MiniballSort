@@ -105,23 +105,19 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 	
 	// If the previous buffer was full and we want to reject the
 	// next buffer, because of the readout bugs in September 2023,
-	// this is the place to do it. Next buffer is good again!
+	// this is the place to do it. Next buffer might be good again!
 	if( buffer_full ){
 		
 		buffer_full = false;
-		if( set->GetBufferPartRejection() ) {
-		
-			reject_ctr++;
-			return;
-		
-		}
-		
+		buffer_part = true;
+
 	}
+	else buffer_part = false;
 
 	
 	// Process all words to check size of real data
 	UInt_t real_DataLen = 0;
-	for( UInt_t i = 0; i < WORD_SIZE; i++ ) {
+	for( UInt_t i = 0; i <= WORD_SIZE; i++ ) {
 		
 		word = GetWord(i);
 		word_0 = (word & 0xFFFFFFFF00000000) >> 32;
@@ -159,8 +155,13 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 	// Check if this is a full buffer
 	if( real_DataLen == WORD_SIZE ) buffer_full = true;
 	
+	//std::cout << "header_DataLen = " << header_DataLen/sizeof(ULong64_t);
+	//std::cout << "\treal_DataLen = " << real_DataLen;
+	//std::cout << "\tWORD_SIZE = " << WORD_SIZE << std::endl;
+	
 	// Check if we should reject this event
-	if( buffer_full && set->GetBufferFullRejection() ) {
+	if( ( buffer_full && set->GetBufferFullRejection() ) ||
+        ( buffer_part && set->GetBufferPartRejection() ) ) {
 		
 		reject_ctr++;
 		return;
@@ -450,7 +451,7 @@ void MiniballMidasConverter::FinishFebexData(){
 	
 	// Timestamp with offset
 	unsigned long long int time_corr;
-	
+
 	// Got all items in fast readout mode or trace only mode
 	//if( ( flag_febex_data0 && flag_febex_data1 &&
 	//    flag_febex_data2 && flag_febex_data3 ) || flag_febex_trace ){
@@ -465,171 +466,178 @@ void MiniballMidasConverter::FinishFebexData(){
 		time_corr  = febex_data->GetTime();
 		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
-		// Combine the two halfs of the 32-bit integer point ADC energy
-		my_adc_data_int = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
-		febex_data->SetQint( my_adc_data_int );
+		// Skip large forwards time jumps in same board, maybe?
+		if( tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] != 0 &&
+		   febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] > 300e9 ) {
+			
+			std::cerr << "Timestamp jump in SFP = " << std::dec << (int)febex_data->GetSfp();
+			std::cerr << ", board = " << (int)febex_data->GetBoard();
+			std::cerr << ", channel = " << (int)febex_data->GetChannel();
+			std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
+			std::cerr << " >> " << tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()]/10;
+			std::cerr << std::dec << std::endl;
+			
+			jump_ctr++;
+			data_ctr++;
 
-		// Bodge to match Vic's data format on 09/02/2023
-		//my_adc_data_int = my_adc_data_lsb & 0xFFFF;
-		//febex_data->SetQint( my_adc_data_int );
-
-		// Calibrate and set energies
-		unsigned int adc_tmp_value;
-		if( cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) == "Qshort" )
-			adc_tmp_value = febex_data->GetQshort();
-
-		else if( cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) == "Qint" )
-			adc_tmp_value = febex_data->GetQint();
+		}
 		
+		// What if we jump backwards on an individual channel?
+		else if( tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] != 0 &&
+				febex_data->GetTime() < tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] ) {
+			
+			std::cerr << "Timestamp warp in SFP = " << std::dec << (int)febex_data->GetSfp();
+			std::cerr << ", board = " << (int)febex_data->GetBoard();
+			std::cerr << ", channel = " << (int)febex_data->GetChannel();
+			std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
+			std::cerr << " < " << tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]/10;
+			std::cerr << std::dec << std::endl;
+			
+			warp_ctr++;
+			data_ctr++;
+
+		}
+			
+		// Otherwise we can carry on because it's good data
 		else {
-			
-			std::cerr << "Unrecognised data type: " << cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
-			std::cerr << " in SFP " << (int)febex_data->GetSfp() << std::endl;
-			std::cerr << ", board " << (int)febex_data->GetBoard() << std::endl;
-			std::cerr << ", channel " << (int)febex_data->GetChannel() << std::endl;
-			std::cout << "\tDefault to Qshort" << std::endl;
-			adc_tmp_value = febex_data->GetQshort();
-			
-		}
-
-		my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), adc_tmp_value );
-		febex_data->SetEnergy( my_energy );
-
-		// Check if it's over threshold
-		if( adc_tmp_value > cal->FebexThreshold( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) )
-			febex_data->SetThreshold( true );
-		else febex_data->SetThreshold( false );
-
-		// Check if this is actually just a timestamp or info like event
-		flag_febex_info = false;
-		if( set->IsPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) ) {
-			
-			flag_febex_info = true;
-			unsigned int pulserID = set->GetPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
-			my_info_code = set->GetPulserCode() + pulserID;
-			hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
-			ctr_febex_ext++;
-
-		}
 		
-		else if( febex_data->GetSfp()     == set->GetEBISSfp()     &&
-				 febex_data->GetBoard()   == set->GetEBISBoard()   &&
-				 febex_data->GetChannel() == set->GetEBISChannel() ){
+			// Combine the two halfs of the 32-bit integer point ADC energy
+			my_adc_data_int = ( my_adc_data_hsb << 16 ) | ( my_adc_data_lsb & 0xFFFF );
+			febex_data->SetQint( my_adc_data_int );
 			
-			flag_febex_info = true;
-			my_info_code = 21; // EBIS is always 21 (defined here)
+			// Bodge to match Vic's data format on 09/02/2023
+			//my_adc_data_int = my_adc_data_lsb & 0xFFFF;
+			//febex_data->SetQint( my_adc_data_int );
 			
-			// Check EBIS time and period
-			if( ebis_tm_stp != 0 && ebis_period == 0 &&
-			   febex_data->GetTime() > (long long)ebis_tm_stp ){
+			// Calibrate and set energies
+			unsigned int adc_tmp_value;
+			if( cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) == "Qshort" )
+				adc_tmp_value = febex_data->GetQshort();
+			
+			else if( cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) == "Qint" )
+				adc_tmp_value = febex_data->GetQint();
+			
+			else {
 				
-				ebis_period = febex_data->GetTime() - ebis_tm_stp;
-				ebis_first = ebis_tm_stp;
-				std::cout << "EBIS period detected = " << ebis_period;
-				std::cout << " ns" << std::endl;
-			
+				std::cerr << "Unrecognised data type: " << cal->FebexType( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
+				std::cerr << " in SFP " << (int)febex_data->GetSfp() << std::endl;
+				std::cerr << ", board " << (int)febex_data->GetBoard() << std::endl;
+				std::cerr << ", channel " << (int)febex_data->GetChannel() << std::endl;
+				std::cout << "\tDefault to Qshort" << std::endl;
+				adc_tmp_value = febex_data->GetQshort();
+				
 			}
 			
-			ebis_tm_stp = febex_data->GetTime();
+			my_energy = cal->FebexEnergy( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel(), adc_tmp_value );
+			febex_data->SetEnergy( my_energy );
 			
-		}
-		
-		else if( febex_data->GetSfp()     == set->GetT1Sfp()     &&
-				 febex_data->GetBoard()   == set->GetT1Board()   &&
-				 febex_data->GetChannel() == set->GetT1Channel() ){
+			// Check if it's over threshold
+			if( adc_tmp_value > cal->FebexThreshold( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) )
+				febex_data->SetThreshold( true );
+			else febex_data->SetThreshold( false );
 			
-			flag_febex_info = true;
-			my_info_code = 22; // T1 is always 22 (defined here)
-			
-		}
-
-		else if( febex_data->GetSfp()     == set->GetSCSfp()     &&
-				 febex_data->GetBoard()   == set->GetSCBoard()   &&
-				 febex_data->GetChannel() == set->GetSCChannel() ){
-			
-			flag_febex_info = true;
-			my_info_code = 23; // SC is always 23 (defined here)
-			
-		}
-
-		else if( febex_data->GetSfp()     == set->GetRILISSfp()     &&
-				 febex_data->GetBoard()   == set->GetRILISBoard()   &&
-				 febex_data->GetChannel() == set->GetRILISChannel() ){
-			
-			flag_febex_info = true;
-			my_info_code = 24; // RILIS is always 24 (defined here)
-			
-		}
-
-		// If this is a timestamp, fill an info event
-		if( flag_febex_info ) {
-		
-			info_data->SetTime( time_corr );
-			info_data->SetSfp( febex_data->GetSfp() );
-			info_data->SetBoard( febex_data->GetBoard() );
-			info_data->SetCode( my_info_code );
-			data_packet->SetData( info_data );
-			
-			// Fill only if we are not doing a source run
-			if( !flag_source ) output_tree->Fill();
-			data_ctr++;
-
-		}
-
-		// Otherwise it is real data, so fill a FEBEX event
-		// but only if we are in an EBIS time window or we want all data
-		else if( !flag_ebis || EBISWindow( febex_data->GetTime() ) ) {
-			
-			// Set this data and fill event to tree
-			// Also add the time offset when we do this
-			febex_data->SetTime( time_corr );
-			data_packet->SetData( febex_data );
-			
-			// Skip large forwards time jumps in same board, maybe?
-			if( tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] != 0 &&
-			   febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] > 300e9 ) {
+			// Check if this is actually just a timestamp or info like event
+			flag_febex_info = false;
+			if( set->IsPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() ) ) {
 				
-				std::cerr << "Timestamp jump in SFP = " << std::dec << (int)febex_data->GetSfp();
-				std::cerr << ", board = " << (int)febex_data->GetBoard();
-				std::cerr << ", channel = " << (int)febex_data->GetChannel();
-				std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
-				std::cerr << " >> " << tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()]/10;
-				std::cerr << std::dec << std::endl;
-				
-				jump_ctr++;
-
-			}
-			
-			// What if we jump backwards on an individual channel?
-			else if( tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] != 0 &&
-					febex_data->GetTime() < tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] ) {
-				
-				std::cerr << "Timestamp warp in SFP = " << std::dec << (int)febex_data->GetSfp();
-				std::cerr << ", board = " << (int)febex_data->GetBoard();
-				std::cerr << ", channel = " << (int)febex_data->GetChannel();
-				std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
-				std::cerr << " < " << tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]/10;
-				std::cerr << std::dec << std::endl;
-				
-				warp_ctr++;
+				flag_febex_info = true;
+				unsigned int pulserID = set->GetPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
+				my_info_code = set->GetPulserCode() + pulserID;
+				hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
+				ctr_febex_ext++;
 				
 			}
-				
-			// Fill only if we are not doing a source run
-			else if( !flag_source ) output_tree->Fill();
-			data_ctr++;
-
-		}
-
-		// Fill histograms
-		hfebex_qshort[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQshort() );
-		hfebex_qint[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
-		hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
 			
-		// Reset the latest board and channel timestamps
-		tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] = febex_data->GetTime();
-		tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] = febex_data->GetTime();
+			else if( febex_data->GetSfp()     == set->GetEBISSfp()     &&
+					febex_data->GetBoard()   == set->GetEBISBoard()   &&
+					febex_data->GetChannel() == set->GetEBISChannel() ){
+				
+				flag_febex_info = true;
+				my_info_code = 21; // EBIS is always 21 (defined here)
+				
+				// Check EBIS time and period
+				if( ebis_tm_stp != 0 && ebis_period == 0 &&
+				   febex_data->GetTime() > (long long)ebis_tm_stp ){
+					
+					ebis_period = febex_data->GetTime() - ebis_tm_stp;
+					ebis_first = ebis_tm_stp;
+					std::cout << "EBIS period detected = " << ebis_period;
+					std::cout << " ns" << std::endl;
+					
+				}
+				
+				ebis_tm_stp = febex_data->GetTime();
+				
+			}
+			
+			else if( febex_data->GetSfp()     == set->GetT1Sfp()     &&
+					febex_data->GetBoard()   == set->GetT1Board()   &&
+					febex_data->GetChannel() == set->GetT1Channel() ){
+				
+				flag_febex_info = true;
+				my_info_code = 22; // T1 is always 22 (defined here)
+				
+			}
+			
+			else if( febex_data->GetSfp()     == set->GetSCSfp()     &&
+					febex_data->GetBoard()   == set->GetSCBoard()   &&
+					febex_data->GetChannel() == set->GetSCChannel() ){
+				
+				flag_febex_info = true;
+				my_info_code = 23; // SC is always 23 (defined here)
+				
+			}
+			
+			else if( febex_data->GetSfp()     == set->GetRILISSfp()     &&
+					febex_data->GetBoard()   == set->GetRILISBoard()   &&
+					febex_data->GetChannel() == set->GetRILISChannel() ){
+				
+				flag_febex_info = true;
+				my_info_code = 24; // RILIS is always 24 (defined here)
+				
+			}
+			
+			// If this is a timestamp, fill an info event
+			if( flag_febex_info ) {
+				
+				info_data->SetTime( time_corr );
+				info_data->SetSfp( febex_data->GetSfp() );
+				info_data->SetBoard( febex_data->GetBoard() );
+				info_data->SetCode( my_info_code );
+				data_packet->SetData( info_data );
+				
+				// Fill only if we are not doing a source run
+				if( !flag_source ) output_tree->Fill();
+				data_ctr++;
+				
+			}
+			
+			// Otherwise it is real data, so fill a FEBEX event
+			// but only if we are in an EBIS time window or we want all data
+			else if( !flag_ebis || EBISWindow( febex_data->GetTime() ) ) {
+				
+				// Set this data and fill event to tree
+				// Also add the time offset when we do this
+				febex_data->SetTime( time_corr );
+				data_packet->SetData( febex_data );
+				
+				// Fill only if we are not doing a source run
+				if( !flag_source ) output_tree->Fill();
+				data_ctr++;
+				
+			}
+			
+			// Fill histograms
+			hfebex_qshort[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQshort() );
+			hfebex_qint[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+			
+			// Reset the latest board and channel timestamps
+			tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] = febex_data->GetTime();
+			tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] = febex_data->GetTime();
 
+		} // not being rejecting for jumps or warps
+		
 	}
 
 	// missing something
