@@ -385,9 +385,9 @@ void MiniballReaction::PrintReaction( std::ostream &stream, std::string opt = ""
 	// Loop over clusters
 	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
 
-		stream << Form( "MiniballCluster_%d.Theta: %f", i, GetMiniballTheta(i) ) << std::endl;
-		stream << Form( "MiniballCluster_%d.Phi: %f", i, GetMiniballPhi(i) ) << std::endl;
-		stream << Form( "MiniballCluster_%d.Alpha: %f", i, GetMiniballAlpha(i) ) << std::endl;
+		stream << Form( "MiniballCluster_%d.Theta: %f", i, GetMiniballTheta(i) * TMath::RadToDeg() ) << std::endl;
+		stream << Form( "MiniballCluster_%d.Phi: %f", i, GetMiniballPhi(i) * TMath::RadToDeg() ) << std::endl;
+		stream << Form( "MiniballCluster_%d.Alpha: %f", i, GetMiniballAlpha(i) * TMath::RadToDeg() ) << std::endl;
 		stream << Form( "MiniballCluster_%d.R: %f", i, GetMiniballR(i) ) << std::endl;
 
 	}

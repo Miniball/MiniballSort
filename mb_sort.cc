@@ -629,18 +629,20 @@ void do_angle_fit(){
 	if( input_names.size() ){
 
 		// Perform the hadd (doesn't work on Windows)
+		gErrorIgnoreLevel = kError;
 		std::string cmd = "hadd -k -T -v 0 -f ";
 		cmd += name_output_file;
 		cmd += hadd_file_list;
 		gSystem->Exec( cmd.data() );
-		
+		gErrorIgnoreLevel = kInfo;
+
 		// Give this file to the angle fitter
 		if( !angle_fit.SetInputROOTFile( name_output_file ) ) return;
 		
 	}
 	
 	// Otherwise we have to take the energies from the file
-	if( !angle_fit.SetInputEnergiesFile( name_angle_file ) ) return;
+	else if( !angle_fit.SetInputEnergiesFile( name_angle_file ) ) return;
 	
 	// Perform the fitting
 	angle_fit.DoFit();

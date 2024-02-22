@@ -1,16 +1,5 @@
 #include "MiniballAngleFitter.hh"
 
-MiniballAngleFunction::MiniballAngleFunction() {
-	
-	// Settings and reaction files - dummies
-	myset = std::make_shared<MiniballSettings>( "default" );
-	myreact = std::make_shared<MiniballReaction>( "default", myset );
-	
-	// Now initialise everything
-	Initialise();
-	
-}
-
 MiniballAngleFunction::MiniballAngleFunction( std::shared_ptr<MiniballSettings> _myset, std::shared_ptr<MiniballReaction> _myreact ) {
 
 	// Settings and reaction files
@@ -61,28 +50,52 @@ void MiniballAngleFunction::Initialise() {
 	
 }
 
-void MiniballAngleFunction::FitPeak( TH1D *h, double &en, double &er ){
+bool MiniballAngleFunction::FitPeak( TH1D *h, double &en, double &er ){
+	
+	// Work out some limits
+	double low_lim = en*0.92 - 5.;
+	double upp_lim = en*1.08 + 5.;
+	if( eref < 500. && upp_lim > 500. ) upp_lim = 500.;
+	
+	// Draw the thing
+	auto c1 = std::make_unique<TCanvas>();
+	h->GetXaxis()->SetRangeUser( low_lim - 20., upp_lim + 20. );
+	h->Draw();
 	
 	// Make a TF1
-	auto peakfit = std::make_unique<TF1>( "peakfit", "gaus(0)+pol1(3)", en*0.925 - 10., en*1.075 + 10. );
+	auto peakfit = std::make_unique<TF1>( "peakfit", "gaus(0)+pol1(3)", low_lim, upp_lim );
 	
 	// Set initial parameters
+	double en_est = h->GetBinCenter( h->GetMaximumBin() );
 	double sig_est = 1.7; // 1.7 keV guess for sigma = 4.0 keV for FWHM
-	double bg_est = h->GetBinContent( h->FindBin(en+10.) );
-	double amp_est = h->GetBinContent( h->FindBin(en) ) - bg_est;
-	amp_est *= TMath::TwoPi() * sig_est;
+	double bg_est = h->GetBinContent( h->FindBin( en_est - 5.0 * sig_est ) );
+	double amp_est = h->GetBinContent( h->GetMaximumBin() );
+	amp_est -= bg_est;
+	if( amp_est < 1.0 ) amp_est = h->GetBinContent( h->GetMaximumBin() );
 	peakfit->SetParameter( 0, amp_est );	// amplitude
-	peakfit->SetParameter( 1, en );			// centroid
+	peakfit->SetParameter( 1, en_est );		// centroid
 	peakfit->SetParameter( 2, sig_est );	// sigma width
 	peakfit->SetParameter( 3, bg_est );		// bg const
 	peakfit->SetParameter( 4, 1e-9 );		// bg gradient
-
-	// Make fit
-	h->Fit( peakfit.get(), "LRE" );
 	
-	// Set parameters back
-	en = peakfit->GetParameter(1);
-	er = peakfit->GetParError(1);
+	// Parameter limits
+	peakfit->SetParLimits( 0, 1.0, h->Integral( h->FindBin(low_lim), h->FindBin(upp_lim) ) );		// amplitude limit
+	peakfit->SetParLimits( 1, low_lim, upp_lim );			// centroid limit
+	peakfit->SetParLimits( 2, sig_est*0.25, sig_est*4.0 );	// sigma limit
+
+	// Make fit and check for success
+	auto res = h->Fit( peakfit.get(), "LRSQ" );
+	c1->Print("peak_fits.pdf");
+	if( res == 0 ) {
+		
+		// Set parameters back
+		en = peakfit->GetParameter(1);
+		er = peakfit->GetParError(1);
+		return true;
+
+	}
+	
+	else return false;
 
 }
 
@@ -91,9 +104,14 @@ void MiniballAngleFunction::FitSegmentEnergies( std::shared_ptr<TFile> infile ){
 	// Names of the spectra in the events file
 	std::string hname, folder = "/miniball/cluster_", base = "mb_en_core_seg_";
 	
-	// Histogram object
-	TH1D *h;
+	// Histogram objects
+	TH1D *h1;
+	TH2D *h2;
 	
+	// Open the pdf file for peak fits
+	auto c1 = std::make_unique<TCanvas>();
+	c1->Print("peak_fits.pdf(");
+
 	// Loop over all clusters
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
 		
@@ -101,20 +119,30 @@ void MiniballAngleFunction::FitSegmentEnergies( std::shared_ptr<TFile> infile ){
 		for( unsigned int cry = 0; cry < myset->GetNumberOfMiniballCrystals(); ++cry ) {
 			
 			// Loop over segments
-			for( unsigned int seg = 0; seg < myset->GetNumberOfMiniballSegments(); ++seg ) {
+			for( unsigned int seg = 1; seg < myset->GetNumberOfMiniballSegments(); ++seg ) {
 
-				// Build up the histogram name
+				// Build up the 2D histogram name
 				hname  = folder + std::to_string(clu) + "/";
 				hname += base + std::to_string(clu) + "_";
+				hname += std::to_string(cry) + "_ebis_on";
+				
+				// Get 2D histogram from file
+				h2 = static_cast<TH2D*>( infile->Get( hname.data() ) );
+				
+				// Build up the 1D histogram name
+				hname  = std::to_string(clu) + "_";
 				hname += std::to_string(cry) + "_";
-				hname += std::to_string(seg) + "_ebis";
+				hname += std::to_string(seg) + "_ebis_on";
 
-				// Get histogram from file
-				h = static_cast<TH1D*>( infile->Get( hname.data() ) );
+				// Project a 1D histogram from this
+				h1 = static_cast<TH1D*>( h2->ProjectionY( hname.data(), seg+1, seg+1 ) );
 				
 				// Check if we have some counts
-				if( h->Integral() > 0 )
+				if( h1->Integral() > 0 ) {
+					cluster[clu] = true;
 					present[clu][cry][seg] = true;
+				}
+				else break;
 				
 				// Predict the centroid from intial guesses
 				double en_init = myreact->DopplerShift( eref, myreact->GetBeta(),
@@ -122,17 +150,21 @@ void MiniballAngleFunction::FitSegmentEnergies( std::shared_ptr<TFile> infile ){
 				
 				// Fit peak and update the energy and error
 				energy[clu][cry][seg] = en_init;
-				FitPeak( h, energy[clu][cry][seg], err[clu][cry][seg] );
+				if( !FitPeak( h1, energy[clu][cry][seg], err[clu][cry][seg] ) )
+					present[clu][cry][seg] = false;
 
-				
 			} // seg
 			
 		} // cry
 		
 	} // clu
 	
+	// Close the pdf file for peak fits
+	c1->Print("peak_fits.pdf)");
+
 	// Clean up
-	delete h;
+	delete h1;
+	delete h2;
 		
 }
 
@@ -255,7 +287,7 @@ MiniballAngleFitter::MiniballAngleFitter( std::shared_ptr<MiniballSettings> _mys
 // Input ROOT file
 bool MiniballAngleFitter::SetInputROOTFile( std::string fname ){
 	
-	// Open input file.
+	// Open input file
 	input_root_file = std::make_shared<TFile>( fname.data(), "read" );
 	if( input_root_file->IsZombie() ) {
 		
@@ -267,11 +299,8 @@ bool MiniballAngleFitter::SetInputROOTFile( std::string fname ){
 	// Set the flag for fitting the peaks from the ROOT file
 	flag_fit_peaks = true;
 	
-	// Hack at the moment because we can't fit stuff
-	return false;
-
 	// Of course, when it works, we should return true here
-	//return true;
+	return true;
 	
 }
 
@@ -322,9 +351,9 @@ void MiniballAngleFitter::Initialise() {
 		int indx = 1 + 4 * clu;
 		
 		// get starting guesses from the reaction file
-		pars[indx+0]	= myreact->GetMiniballTheta(clu);
-		pars[indx+1]	= myreact->GetMiniballPhi(clu);
-		pars[indx+2]	= myreact->GetMiniballAlpha(clu);
+		pars[indx+0]	= myreact->GetMiniballTheta(clu) * TMath::RadToDeg();
+		pars[indx+1]	= myreact->GetMiniballPhi(clu) * TMath::RadToDeg();
+		pars[indx+2]	= myreact->GetMiniballAlpha(clu) * TMath::RadToDeg();
 		pars[indx+3]	= myreact->GetMiniballR(clu);
 		
 		// Names of the parameters
@@ -395,7 +424,7 @@ void MiniballAngleFitter::DoFit() {
 		int indx = 1 + 4 * clu;
 		
 		// Setup the cluster again
-		myreact->SetupCluster(clu, min->X()[indx], min->X()[indx+1], min->X()[indx+2], min->X()[indx+3], 0.0 );
+		myreact->SetupCluster( clu, min->X()[indx], min->X()[indx+1], min->X()[indx+2], min->X()[indx+3], 0.0 );
 
 	}
 	
@@ -435,15 +464,20 @@ void MiniballAngleFitter::DoFit() {
 													beta, TMath::Cos(theta) );
 				double corr = ff.GetReferenceEnergy() / edop;
 				
-				engraph->AddPoint( engraph->GetN(), ff.GetExpEnergy( clu, cry, seg ) );
+				// channel index
+				double indx = seg;
+				indx += cry * myset->GetNumberOfMiniballSegments();
+				indx += clu * myset->GetNumberOfMiniballCrystals() * myset->GetNumberOfMiniballSegments();
+				
+				engraph->AddPoint( indx, ff.GetExpEnergy( clu, cry, seg ) );
 				engraph->SetPointError( engraph->GetN()-1, 0, ff.GetExpError( clu, cry, seg ) );
 				
-				corrgraph->AddPoint( engraph->GetN(), ff.GetExpEnergy( clu, cry, seg ) * corr );
+				corrgraph->AddPoint( indx, ff.GetExpEnergy( clu, cry, seg ) * corr );
 				corrgraph->SetPointError( engraph->GetN()-1, 0, ff.GetExpError( clu, cry, seg ) );
 				
-				calcgraph->AddPoint( calcgraph->GetN(), edop );
+				calcgraph->AddPoint( indx, edop );
 				
-				resgraph->AddPoint( resgraph->GetN(), edop - ff.GetExpEnergy( clu, cry, seg ) );
+				resgraph->AddPoint( indx, edop - ff.GetExpEnergy( clu, cry, seg ) );
 				resgraph->SetPointError( resgraph->GetN()-1, 0, ff.GetExpError( clu, cry, seg ) );
 
 			} // seg
@@ -459,11 +493,11 @@ void MiniballAngleFitter::DoFit() {
 	engraph->SetMarkerColor(kRed);
 	engraph->SetLineColor(kRed);
 	engraph->Draw("AP");
-	engraph->Write();
+	//engraph->Write();
 	calcgraph->SetMarkerStyle(kFullCircle);
 	calcgraph->SetMarkerSize(0.5);
 	calcgraph->Draw("P");
-	calcgraph->Write();
+	//calcgraph->Write();
 
 	// Add a legend
 	auto leg = std::make_unique<TLegend>(0.1,0.75,0.3,0.9);
@@ -478,7 +512,7 @@ void MiniballAngleFitter::DoFit() {
 	resgraph->SetMarkerStyle(kFullCircle);
 	resgraph->SetMarkerSize(0.5);
 	resgraph->Draw("AP");
-	resgraph->Write();
+	//resgraph->Write();
 	auto func = std::make_unique<TF1>("func", "[0]", 0, 168);
 	func->SetParameter( 0, 0.0 );
 	func->Draw("same");
@@ -490,7 +524,7 @@ void MiniballAngleFitter::DoFit() {
 	corrgraph->SetMarkerStyle(kFullCircle);
 	corrgraph->SetMarkerSize(0.5);
 	corrgraph->Draw("AP");
-	corrgraph->Write();
+	//corrgraph->Write();
 	func->SetParameter( 0, ff.GetReferenceEnergy() );
 	func->Draw("same");
 	
@@ -600,35 +634,35 @@ void MiniballAngleFitter::DoFit() {
 	tp_mg->GetYaxis()->SetLimits(-180,180);
 	tp_mg->GetXaxis()->SetTitle("Reaction Theta [deg]");
 	tp_mg->GetYaxis()->SetTitle("Reaction Phi [deg]");
-	tp_mg->Write();
+	//tp_mg->Write();
 	c1->Print("position_cal.pdf");
 	
 	// Draw the multigraph for xy-forward
 	xy_f_mg->Draw("AP");
 	xy_f_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_f_mg->GetXaxis()->SetTitle("y [mm]");
-	xy_f_mg->Write();
+	//xy_f_mg->Write();
 	c1->Print("position_cal.pdf");
 
 	// Draw the multigraph for xy-backwards
 	xy_b_mg->Draw("AP");
 	xy_b_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_b_mg->GetXaxis()->SetTitle("y [mm]");
-	xy_b_mg->Write();
+	//xy_b_mg->Write();
 	c1->Print("position_cal.pdf");
 
 	// Draw the multigraph for xz-right
 	xz_r_mg->Draw("AP");
 	xz_r_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_r_mg->GetXaxis()->SetTitle("z [mm]");
-	xz_r_mg->Write();
+	//xz_r_mg->Write();
 	c1->Print("position_cal.pdf");
 	
 	// Draw the multigraph for xz-left
 	xz_l_mg->Draw("AP");
 	xz_l_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_l_mg->GetXaxis()->SetTitle("z [mm]");
-	xz_l_mg->Write();
+	//xz_l_mg->Write();
 	c1->Print("position_cal.pdf)");
 	
 	// Print final results to terminal
@@ -638,7 +672,7 @@ void MiniballAngleFitter::DoFit() {
 
 		if( !ff.IsPresent(clu) ) continue;
 		int indx = 1 + 4*clu;
-		printf("Cl%i   %6.2f    %6.2f    %6.2f    %6.2f\n", clu, min->X()[indx], min->X()[indx+1], min->X()[indx+2], min->X()[indx+3]);
+		printf("MB%i   %6.2f    %6.2f    %6.2f    %6.2f\n", clu, min->X()[indx], min->X()[indx+1], min->X()[indx+2], min->X()[indx+3]);
 
 	}
 	std::cout << std::endl << std::endl;
@@ -654,7 +688,7 @@ void MiniballAngleFitter::SaveReactionFile( std::string fname ){
 	
 	// Output
 	std::ofstream react_file;
-	react_file.open( fname );
+	react_file.open( fname, std::ios::out );
 	if( react_file.is_open() ) {
 
 		myreact->PrintReaction( react_file, "ae" );
@@ -662,11 +696,6 @@ void MiniballAngleFitter::SaveReactionFile( std::string fname ){
 
 	}
 
-	else {
-
-		std::cerr << "Couldn't open " << fname;
-		std::cerr << std::endl;
-		
-	}
+	else std::cerr << "Couldn't open " << fname << std::endl;
 	
 }

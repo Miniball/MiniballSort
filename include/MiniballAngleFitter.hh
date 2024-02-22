@@ -17,6 +17,7 @@
 #include "TGraphErrors.h"
 #include "TF1.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TLegend.h"
 #include "Math/Functor.h"
 #include "Math/Factory.h"
@@ -39,7 +40,7 @@ class MiniballAngleFunction {
 public:
 	
 	// ctors and dtors
-	MiniballAngleFunction();
+	MiniballAngleFunction(){};
 	~MiniballAngleFunction(){};
 	MiniballAngleFunction( std::shared_ptr<MiniballSettings> _myset, std::shared_ptr<MiniballReaction> _myreact );
 
@@ -47,7 +48,7 @@ public:
 	void Initialise();
 		
 	// Fit the segment spectra to get the energies
-	void FitPeak( TH1D *h, double &en, double &er );
+	bool FitPeak( TH1D *h, double &en, double &er );
 	void FitSegmentEnergies( std::shared_ptr<TFile> infile );
 
 	// Load energies
@@ -150,7 +151,6 @@ private:
 	std::vector<std::string> names;
 	std::vector<double> LL;
 	std::vector<double> UL;
-
 
 };
 
