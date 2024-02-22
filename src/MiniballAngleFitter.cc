@@ -421,6 +421,27 @@ void MiniballAngleFitter::Initialise() {
 
 	}
 	
+	// Some colours and marker styles
+	mystyles.push_back( kFullCircle );
+	mystyles.push_back( kFullSquare );
+	mystyles.push_back( kFullTriangleUp );
+	mystyles.push_back( kFullTriangleDown );
+	mystyles.push_back( kFullCross );
+	mystyles.push_back( kFullStar );
+	mystyles.push_back( kFullDiamond );
+	mystyles.push_back( kFullCrossX );
+	mystyles.push_back( kFullFourTrianglesX );
+	mystyles.push_back( kFullThreeTriangles );
+	mystyles.push_back( kFullDoubleDiamond );
+	mystyles.push_back( kFourSquaresX );
+	mystyles.push_back( kFourSquaresPlus );
+	mycolors.push_back( kRed+1 );
+	mycolors.push_back( kBlue+1 );
+	mycolors.push_back( kGreen+1 );
+	mycolors.push_back( kMagenta+1 );
+	mycolors.push_back( kYellow+1 );
+	mycolors.push_back( kCyan+1 );
+
 }
 
 void MiniballAngleFitter::DoFit() {
@@ -576,9 +597,6 @@ void MiniballAngleFitter::DoFit() {
 	// Save third plot as a PDF
 	c1->Print("position_cal.pdf");
 	
-	// Define a colour scheme for the next bit
-	int colors[8] = {632, 416, 600, 400, 616, 432, 800, 900};
-
 	// A multi-graph showing all the positions in theta-phi, xy, xz, etc
 	auto tp_mg = std::make_unique<TMultiGraph>();
 	auto xy_f_mg = std::make_unique<TMultiGraph>();
@@ -601,6 +619,12 @@ void MiniballAngleFitter::DoFit() {
 	xz_l.resize( myset->GetNumberOfMiniballClusters() );
 	xz_r.resize( myset->GetNumberOfMiniballClusters() );
 
+	// Add a legend and make space for it on the pad
+	std::string leg_lab;
+	auto leg2 = std::make_unique<TLegend>( 0.79, 0.15, 0.95, 0.90 );
+	auto p1 = c1->cd();
+	p1->SetMargin( 0.15, 0.21, 0.15, 0.10 );
+	
 	// Loop over clusters
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
 
@@ -620,6 +644,9 @@ void MiniballAngleFitter::DoFit() {
 			xz_l[clu][cry] = new TGraph();
 			xz_r[clu][cry] = new TGraph();
 			
+			leg_lab = "MB" + std::to_string(clu) + static_cast<char>(cry+65);
+			leg2->AddEntry( theta_phi[clu][cry], leg_lab.data() );
+
 			// But then skip if there's no data
 			if( !ff.IsPresent( clu ) ) continue;
 
@@ -644,20 +671,20 @@ void MiniballAngleFitter::DoFit() {
 			
 			// Set colours etc
 			theta_phi[clu][cry]->SetMarkerSize(1.0);
-			theta_phi[clu][cry]->SetMarkerStyle(kFullCircle);
-			theta_phi[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			theta_phi[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			theta_phi[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xy_f[clu][cry]->SetMarkerSize(1.0);
-			xy_f[clu][cry]->SetMarkerStyle(kFullCircle);
-			xy_f[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xy_f[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xy_f[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xy_b[clu][cry]->SetMarkerSize(1.0);
-			xy_b[clu][cry]->SetMarkerStyle(kFullCircle);
-			xy_b[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xy_b[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xy_b[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xz_r[clu][cry]->SetMarkerSize(1.0);
-			xz_r[clu][cry]->SetMarkerStyle(kFullCircle);
-			xz_r[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xz_r[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xz_r[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xz_l[clu][cry]->SetMarkerSize(1.0);
-			xz_l[clu][cry]->SetMarkerStyle(kFullCircle);
-			xz_l[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xz_l[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xz_l[clu][cry]->SetMarkerColor(mycolors[cry]);
 			
 			// Add to multi-graph
 			if( theta_phi[clu][cry]->GetN() > 0 ) tp_mg->Add( theta_phi[clu][cry] );
@@ -679,6 +706,7 @@ void MiniballAngleFitter::DoFit() {
 	tp_mg->GetXaxis()->SetTitle("Reaction Theta [deg]");
 	tp_mg->GetYaxis()->SetTitle("Reaction Phi [deg]");
 	tp_mg->Draw("AP");
+	leg2->Draw();
 	//tp_mg->Write();
 	c1->Print("position_cal.pdf");
 	
@@ -686,6 +714,7 @@ void MiniballAngleFitter::DoFit() {
 	xy_f_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_f_mg->GetXaxis()->SetTitle("y [mm]");
 	xy_f_mg->Draw("AP");
+	leg2->Draw();
 	//xy_f_mg->Write();
 	c1->Print("position_cal.pdf");
 
@@ -693,6 +722,7 @@ void MiniballAngleFitter::DoFit() {
 	xy_b_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_b_mg->GetXaxis()->SetTitle("y [mm]");
 	xy_b_mg->Draw("AP");
+	leg2->Draw();
 	//xy_b_mg->Write();
 	c1->Print("position_cal.pdf");
 
@@ -700,6 +730,7 @@ void MiniballAngleFitter::DoFit() {
 	xz_r_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_r_mg->GetXaxis()->SetTitle("z [mm]");
 	xz_r_mg->Draw("AP");
+	leg2->Draw();
 	//xz_r_mg->Write();
 	c1->Print("position_cal.pdf");
 	
@@ -707,6 +738,7 @@ void MiniballAngleFitter::DoFit() {
 	xz_l_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_l_mg->GetXaxis()->SetTitle("z [mm]");
 	xz_l_mg->Draw("AP");
+	leg2->Draw();
 	//xz_l_mg->Write();
 	c1->Print("position_cal.pdf)");
 	gErrorIgnoreLevel = kInfo;
