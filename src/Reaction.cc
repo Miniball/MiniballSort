@@ -376,6 +376,24 @@ void MiniballReaction::ReadReaction() {
 
 }
 
+void MiniballReaction::PrintReaction( std::ostream &stream, std::string opt = "" ) {
+
+	// Check options (not yet implemented)
+	if( opt.length() > 0 )
+		stream << "# The following print options were used: " << opt << std::endl;
+	
+	// Loop over clusters
+	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
+
+		stream << Form( "MiniballCluster_%d.Theta: %f", i, GetMiniballTheta(i) * TMath::RadToDeg() ) << std::endl;
+		stream << Form( "MiniballCluster_%d.Phi: %f", i, GetMiniballPhi(i) * TMath::RadToDeg() ) << std::endl;
+		stream << Form( "MiniballCluster_%d.Alpha: %f", i, GetMiniballAlpha(i) * TMath::RadToDeg() ) << std::endl;
+		stream << Form( "MiniballCluster_%d.R: %f", i, GetMiniballR(i) ) << std::endl;
+
+	}
+	
+}
+
 TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, float pid, float nid ){
 	
 	// Check that we have a real CD detector
@@ -576,6 +594,17 @@ double MiniballReaction::CosTheta( std::shared_ptr<SpedeEvt> s, bool ejectile ) 
 	
 	return TMath::Cos( evec.Angle( p.GetVector() ) );
 
+}
+
+double MiniballReaction::DopplerShift( double gen, double pbeta, double costheta ) {
+
+	/// Returns Doppler shifted gamma-ray energy
+	double gamma = 1.0 / TMath::Sqrt( 1.0 - TMath::Power( pbeta, 2.0 ) );
+	double corr = 1.0 - pbeta * costheta;
+	corr *= gamma;
+	
+	return gen / corr;
+	
 }
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, double pbeta, double ptheta, double pphi ) {

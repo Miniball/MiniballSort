@@ -60,6 +60,10 @@
 # include "MiniballGUI.hh"
 #endif
 
+// MiniballAngleFit header
+#ifndef __MINIBALLANGLEFITTER_HH
+# include "MiniballAngleFitter.hh"
+#endif
 
 // Command line interface
 #ifndef __COMMAND_LINE_INTERFACE_HH

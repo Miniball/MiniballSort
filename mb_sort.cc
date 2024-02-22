@@ -7,6 +7,7 @@ std::string datadir_name;
 std::string name_set_file;
 std::string name_cal_file;
 std::string name_react_file;
+std::string name_angle_file = "";
 std::vector<std::string> input_names;
 
 // a flag at the input to force the conversion
@@ -28,6 +29,9 @@ bool gui_flag = false;
 
 // Input data type
 bool flag_mbs = false;
+
+// Do we want to fit the 22Ne angle data?
+bool flag_angle_fit = false;
 
 // DataSpy
 bool flag_spy = false;
@@ -571,6 +575,88 @@ void do_hist() {
 	
 }
 
+void do_angle_fit(){
+
+	//------------------------------------------//
+	// Run angle fitting routine with 22Ne data //
+	//------------------------------------------//
+	MiniballAngleFitter angle_fit( myset, myreact );
+	std::cout << "\n +++ Miniball Analysis:: processing MiniballAngleFitter +++" << std::endl;
+
+	TFile *rtest;
+	std::ifstream ftest;
+	std::string name_input_file;
+	std::string name_output_file = "22Ne_angle_fit.root";
+	std::string hadd_file_list = "";
+	std::string name_results_file = "22Ne_angle_fit.cal";
+	
+	// Check each file
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+	
+		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
+												   input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
+		name_input_file = name_input_file.substr( 0,
+												 name_input_file.find_last_of(".") );
+		name_input_file = datadir_name + "/" + name_input_file + "_events.root";
+	
+		// Add to list if the converted file exists
+		ftest.open( name_input_file.data() );
+		if( ftest.is_open() ) {
+	
+			ftest.close();
+			rtest = new TFile( name_input_file.data() );
+			if( !rtest->IsZombie() ) {
+				hadd_file_list += " " + name_input_file;
+			}
+			else {
+				std::cout << "Skipping " << name_input_file;
+				std::cout << ", it's broken" << std::endl;
+			}
+			rtest->Close();
+	
+		}
+	
+		else {
+	
+			std::cout << "Skipping " << name_input_file;
+			std::cout << ", file does not exist" << std::endl;
+	
+		}
+	
+	}
+	
+	// If we have some ROOT files, add them and pass to the fitter
+	if( input_names.size() ){
+
+		// Perform the hadd (doesn't work on Windows)
+		gErrorIgnoreLevel = kError;
+		std::string cmd = "hadd -k -T -v 0 -f ";
+		cmd += name_output_file;
+		cmd += hadd_file_list;
+		gSystem->Exec( cmd.data() );
+		gErrorIgnoreLevel = kInfo;
+
+		// Give this file to the angle fitter
+		if( !angle_fit.SetInputROOTFile( name_output_file ) ) return;
+		
+	}
+	
+	// Otherwise we have to take the energies from the file
+	else if( !angle_fit.SetInputEnergiesFile( name_angle_file ) ) return;
+	
+	// Perform the fitting
+	angle_fit.DoFit();
+
+	// Save the experimental energies and angles to a file
+	if( input_names.size() )
+		angle_fit.SaveExpEnergies( "22Ne_fitted_energies.dat" );
+	angle_fit.SaveReactionFile( name_results_file );
+	
+	// Close the ROOT file
+	angle_fit.CloseROOTFile();
+	
+}
+
 int main( int argc, char *argv[] ){
 	
 	// Command line interface, stolen from MiniballCoulexSort
@@ -585,8 +671,10 @@ int main( int argc, char *argv[] ){
 	interface->Add("-e", "Flag to force new event builder (new calibration)", &flag_events );
 	interface->Add("-source", "Flag to define an source only run", &flag_source );
 	interface->Add("-ebis", "Flag to define an EBIS only run, discarding data >4ms after an EBIS event", &flag_ebis );
-    interface->Add("-mbs", "Flag to define input as MBS data type", &flag_mbs );
-    interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
+	interface->Add("-mbs", "Flag to define input as MBS data type", &flag_mbs );
+	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
+	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
+	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
 	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
 	interface->Add("-d", "Directory to put the sorted data default is /path/to/data/sorted", &datadir_name );
@@ -612,17 +700,37 @@ int main( int argc, char *argv[] ){
 
 	}
 
-	// Check we have data files
-	if( !input_names.size() && !flag_spy  ) {
+	// Check if we are doing the angle fit
+	if( flag_angle_fit ) {
+		
+		if( input_names.size() == 0 && name_angle_file.length() > 0 )
+			std::cout << "Angle fitting using energies from a file" << std::endl;
 			
-			std::cout << "You have to provide at least one input file unless you are in DataSpy mode!" << std::endl;
+		else if( input_names.size() > 0 && name_angle_file.length() == 0 )
+			std::cout << "Angle fitting using 22Ne data files, with automatic peak fitting" << std::endl;
+
+		else {
+			
+			std::cout << "When fitting the 22Ne angle data, you must give segments energy file as input" << std::endl;
+			std::cout << "using the -angledata flag. Alternatively, you can give the raw data files using" << std::endl;
+			std::cout << "the -i flag and the peaks will be automatically fitted from the events file." << std::endl;
 			return 1;
+			
+		}
+		
+	}
+	
+	// Check we have data files
+	else if( !input_names.size() && !flag_spy ) {
+			
+		std::cout << "You have to provide at least one input file unless you are in DataSpy mode!" << std::endl;
+		return 1;
 			
 	}
 	
 	// Check if it should be MBS format
-	if( !flag_mbs && !flag_spy ){
-		
+	if( !flag_mbs && !flag_spy && !name_angle_file.length() ){
+
 		std::string extension = input_names.at(0).substr( input_names.at(0).find_last_of(".")+1,
 														 input_names.at(0).length()-input_names.at(0).find_last_of(".")-1 );
 		
@@ -631,9 +739,9 @@ int main( int argc, char *argv[] ){
 			flag_mbs = true;
 			std::cout << "Assuming we have MBS data because of the .lmd extension" << std::endl;
 			std::cout << "Forcing the data block size to 32 kB" << std::endl;
-
-		}
 			
+		}
+		
 	}
 	
 	// Check if we should be monitoring the input
@@ -646,7 +754,7 @@ int main( int argc, char *argv[] ){
 		
 	}
 	
-	else if( mon_time >= 0 && input_names.size() == 1 ) {
+	else if( mon_time >= 0 && input_names.size() == 1 && !flag_angle_fit ) {
 		
 		flag_monitor = true;
 		std::cout << "Running sort in a loop every " << mon_time;
@@ -658,7 +766,7 @@ int main( int argc, char *argv[] ){
 		
 		flag_monitor = false;
 		std::cout << "Cannot monitor multiple input files, switching to normal mode" << std::endl;
-				
+		
 	}
 	
 	// Check the directory we are writing to
@@ -681,7 +789,9 @@ int main( int argc, char *argv[] ){
 			
 		}
 		
-		else datadir_name = "dataspy";
+		else if( flag_spy ) datadir_name = "dataspy";
+		else if( flag_angle_fit ) datadir_name = "positions";
+		else datadir_name = "mb_sort_outputs";
 		
 		// Create the directory if it doesn't exist (not Windows compliant)
 		std::string cmd = "mkdir -p " + datadir_name;
@@ -690,7 +800,7 @@ int main( int argc, char *argv[] ){
 		std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
 		
 	}
-
+	
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
 
@@ -701,10 +811,19 @@ int main( int argc, char *argv[] ){
 			name_input_file = name_input_file.substr( 0,
 													 name_input_file.find_last_of(".") );
 			
-			if( input_names.size() > 1 ) {
+			if( flag_angle_fit ) {
+				
+				output_name = datadir_name + "/" + name_input_file + "_results.root";
+
+			}
+			
+			else if( input_names.size() > 1 ) {
+				
 				output_name = datadir_name + "/" + name_input_file + "_hists_";
 				output_name += std::to_string(input_names.size()) + "_subruns.root";
+			
 			}
+			
 			else
 				output_name = datadir_name + "/" + name_input_file + "_hists.root";
 				
@@ -807,7 +926,7 @@ int main( int argc, char *argv[] ){
 	if( flag_mbs ) mycal->SetDefaultQint();
 	mycal->ReadCalibration();
 	myreact = std::make_shared<MiniballReaction>( name_react_file, myset );
-
+	
 	// Force data block size for MBS data
 	if( flag_mbs ) myset->SetBlockSize( 0x8000 );
 	
@@ -854,7 +973,11 @@ int main( int argc, char *argv[] ){
 	// Run the analysis //
 	//------------------//
 	do_convert();
-	if( !flag_source ) {
+	if( flag_angle_fit ){
+		do_build();
+		do_angle_fit();
+	}
+	else if( !flag_source ) {
 		if( do_build() )
 			do_hist();
 	}

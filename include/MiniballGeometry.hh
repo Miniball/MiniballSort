@@ -64,6 +64,12 @@ public:
 	/// \param user_z distance from target to origin in beam direction [mm]
 	inline void SetCluZ( double user_z ) { z = user_z; };
 	
+	/// Getters for the various setters
+	inline double GetCluTheta(){ return theta; };
+	inline double GetCluPhi(){ return phi; };
+	inline double GetCluAlpha(){ return alpha; };
+	inline double GetCluR(){ return r; };
+
 	/// Get the theta angle of the crystal with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
 	/// \return theta of cry in beam reference (radians)
