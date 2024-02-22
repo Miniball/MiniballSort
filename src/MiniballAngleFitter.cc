@@ -146,7 +146,10 @@ void MiniballAngleFunction::FitSegmentEnergies( TFile *infile ){
 					cluster[clu] = true;
 					present[clu][cry][seg] = true;
 				}
-				else break;
+				else {
+					present[clu][cry][seg] = false;
+					continue;
+				}
 				
 				// Predict the centroid from intial guesses
 				double en_init = myreact->DopplerShift( eref, myreact->GetBeta(),
@@ -158,7 +161,7 @@ void MiniballAngleFunction::FitSegmentEnergies( TFile *infile ){
 					present[clu][cry][seg] = false;
 
 				// Don't include data with big errors, probably a fitting issue
-				if( err[clu][cry][seg] > 1.0 )
+				if( err[clu][cry][seg] > 0.6 )
 					present[clu][cry][seg] = false;
 
 			} // seg
@@ -221,6 +224,37 @@ void MiniballAngleFunction::LoadExpEnergies( std::string energy_file ){
 	energyfile.close();
 	
 };
+
+void MiniballAngleFunction::SaveExpEnergies( std::string energy_file ){
+
+	// Open file
+	std::ofstream energyfile( energy_file, std::ios::out );
+
+	// Loop over all clusters
+	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
+		
+		// Loop over crystals
+		for( unsigned int cry = 0; cry < myset->GetNumberOfMiniballCrystals(); ++cry ) {
+			
+			// Loop over segments
+			for( unsigned int seg = 1; seg < myset->GetNumberOfMiniballSegments(); ++seg ) {
+				
+				if( present[clu][cry][seg] ){
+					
+					energyfile << clu << "\t" << cry << "\t" << seg << "\t";
+					energyfile << energy[clu][cry][seg] << "\t" << err[clu][cry][seg] << std::endl;
+				
+				}
+				
+			} // seg
+			
+		} // cry
+		
+	} // clu
+	
+	energyfile.close();
+				
+}
 
 double MiniballAngleFunction::operator() ( const double *p ) {
 

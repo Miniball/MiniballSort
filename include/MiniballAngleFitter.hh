@@ -51,8 +51,9 @@ public:
 	bool FitPeak( TH1D *h, double &en, double &er );
 	void FitSegmentEnergies( TFile *infile );
 
-	// Load energies
+	// Load/save energies
 	void LoadExpEnergies( std::string energy_file );
+	void SaveExpEnergies( std::string energy_file );
 	
 	// Check if segment is present
 	inline bool IsPresent( unsigned int clu ){
@@ -112,6 +113,11 @@ public:
 	
 	// Write the results to a reaction file
 	void SaveReactionFile( std::string fname );
+	
+	// Save experimental energies
+	inline void SaveExpEnergies( std::string energy_file ){
+		ff.SaveExpEnergies( energy_file );
+	};
 	
 	// Set the input ROOT file
 	bool SetInputROOTFile( std::string fname );

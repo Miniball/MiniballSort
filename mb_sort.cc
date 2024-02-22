@@ -646,7 +646,13 @@ void do_angle_fit(){
 	
 	// Perform the fitting
 	angle_fit.DoFit();
+
+	// Save the experimental energies and angles to a file
+	if( input_names.size() )
+		angle_fit.SaveExpEnergies( "22Ne_fitted_energies.dat" );
 	angle_fit.SaveReactionFile( name_results_file );
+	
+	// Close the ROOT file
 	angle_fit.CloseROOTFile();
 	
 }
