@@ -479,15 +479,15 @@ void MiniballAngleFitter::DoFit() {
 
 	TGraph *calcgraph = new TGraph();
 	calcgraph->SetName("calcgraph");
-	engraph->SetTitle("Calculated energies; Channel index; Energy [keV]");
+	calcgraph->SetTitle("Calculated energies; Channel index; Energy [keV]");
 
 	TGraphErrors *resgraph = new TGraphErrors();
 	resgraph->SetName("resgraph");
-	engraph->SetTitle("Residuals; Channel index; Energy [keV]");
+	resgraph->SetTitle("Residuals; Channel index; Energy [keV]");
 
 	TGraphErrors *corrgraph = new TGraphErrors();
 	corrgraph->SetName("corrgraph");
-	engraph->SetTitle("Doppler-corrected energies; Channel index; Energy [keV]");
+	corrgraph->SetTitle("Doppler-corrected energies; Channel index; Energy [keV]");
 
 	
 	// Loop over clusters
@@ -674,39 +674,39 @@ void MiniballAngleFitter::DoFit() {
 	} // clu
 	
 	// Draw the multigraph for theta-phi
-	tp_mg->Draw("AP");
 	tp_mg->GetXaxis()->SetLimits(0,180);
 	tp_mg->GetYaxis()->SetLimits(-180,180);
 	tp_mg->GetXaxis()->SetTitle("Reaction Theta [deg]");
 	tp_mg->GetYaxis()->SetTitle("Reaction Phi [deg]");
+	tp_mg->Draw("AP");
 	//tp_mg->Write();
 	c1->Print("position_cal.pdf");
 	
 	// Draw the multigraph for xy-forward
-	xy_f_mg->Draw("AP");
 	xy_f_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_f_mg->GetXaxis()->SetTitle("y [mm]");
+	xy_f_mg->Draw("AP");
 	//xy_f_mg->Write();
 	c1->Print("position_cal.pdf");
 
 	// Draw the multigraph for xy-backwards
-	xy_b_mg->Draw("AP");
 	xy_b_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_b_mg->GetXaxis()->SetTitle("y [mm]");
+	xy_b_mg->Draw("AP");
 	//xy_b_mg->Write();
 	c1->Print("position_cal.pdf");
 
 	// Draw the multigraph for xz-right
-	xz_r_mg->Draw("AP");
 	xz_r_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_r_mg->GetXaxis()->SetTitle("z [mm]");
+	xz_r_mg->Draw("AP");
 	//xz_r_mg->Write();
 	c1->Print("position_cal.pdf");
 	
 	// Draw the multigraph for xz-left
-	xz_l_mg->Draw("AP");
 	xz_l_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_l_mg->GetXaxis()->SetTitle("z [mm]");
+	xz_l_mg->Draw("AP");
 	//xz_l_mg->Write();
 	c1->Print("position_cal.pdf)");
 	gErrorIgnoreLevel = kInfo;
