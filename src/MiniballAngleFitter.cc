@@ -71,7 +71,7 @@ bool MiniballAngleFunction::FitPeak( TH1D *h, double &en, double &er ){
 	double bg_est = h->GetBinContent( h->FindBin( en_est - 5.0 * sig_est ) );
 	double amp_est = h->GetBinContent( h->GetMaximumBin() );
 	amp_est -= bg_est;
-	if( amp_est < 1.0 ) amp_est = h->GetBinContent( h->GetMaximumBin() );
+	if( amp_est < 1.0 ) amp_est = h->GetBinContent( h->GetMaximumBin() ) + 1.0;
 	peakfit->SetParameter( 0, amp_est );	// amplitude
 	peakfit->SetParameter( 1, en_est );		// centroid
 	peakfit->SetParameter( 2, sig_est );	// sigma width
@@ -79,14 +79,17 @@ bool MiniballAngleFunction::FitPeak( TH1D *h, double &en, double &er ){
 	peakfit->SetParameter( 4, 1e-9 );		// bg gradient
 	
 	// Parameter limits
-	peakfit->SetParLimits( 0, 1.0, h->Integral( h->FindBin(low_lim), h->FindBin(upp_lim) ) );		// amplitude limit
+	double integral = h->Integral( h->FindBin(low_lim), h->FindBin(upp_lim) );
+	peakfit->SetParLimits( 0, 1.0, integral );				// amplitude limit
 	peakfit->SetParLimits( 1, low_lim, upp_lim );			// centroid limit
 	peakfit->SetParLimits( 2, sig_est*0.25, sig_est*4.0 );	// sigma limit
 
 	// Make fit and check for success
+	gErrorIgnoreLevel = kError;
 	auto res = h->Fit( peakfit.get(), "LRSQ" );
 	c1->Print("peak_fits.pdf");
-	if( res == 0 ) {
+	gErrorIgnoreLevel = kInfo;
+	if( res == 0 && integral > 150. ) {
 		
 		// Set parameters back
 		en = peakfit->GetParameter(1);
@@ -99,7 +102,7 @@ bool MiniballAngleFunction::FitPeak( TH1D *h, double &en, double &er ){
 
 }
 
-void MiniballAngleFunction::FitSegmentEnergies( std::shared_ptr<TFile> infile ){
+void MiniballAngleFunction::FitSegmentEnergies( TFile *infile ){
 
 	// Names of the spectra in the events file
 	std::string hname, folder = "/miniball/cluster_", base = "mb_en_core_seg_";
@@ -110,6 +113,7 @@ void MiniballAngleFunction::FitSegmentEnergies( std::shared_ptr<TFile> infile ){
 	
 	// Open the pdf file for peak fits
 	auto c1 = std::make_unique<TCanvas>();
+	gErrorIgnoreLevel = kWarning;
 	c1->Print("peak_fits.pdf(");
 
 	// Loop over all clusters
@@ -153,6 +157,10 @@ void MiniballAngleFunction::FitSegmentEnergies( std::shared_ptr<TFile> infile ){
 				if( !FitPeak( h1, energy[clu][cry][seg], err[clu][cry][seg] ) )
 					present[clu][cry][seg] = false;
 
+				// Don't include data with big errors, probably a fitting issue
+				if( err[clu][cry][seg] > 1.0 )
+					present[clu][cry][seg] = false;
+
 			} // seg
 			
 		} // cry
@@ -165,7 +173,9 @@ void MiniballAngleFunction::FitSegmentEnergies( std::shared_ptr<TFile> infile ){
 	// Clean up
 	delete h1;
 	delete h2;
-		
+
+	gErrorIgnoreLevel = kInfo;
+
 }
 
 void MiniballAngleFunction::LoadExpEnergies( std::string energy_file ){
@@ -288,7 +298,7 @@ MiniballAngleFitter::MiniballAngleFitter( std::shared_ptr<MiniballSettings> _mys
 bool MiniballAngleFitter::SetInputROOTFile( std::string fname ){
 	
 	// Open input file
-	input_root_file = std::make_shared<TFile>( fname.data(), "read" );
+	input_root_file = new TFile( fname.data(), "read" );
 	if( input_root_file->IsZombie() ) {
 		
 		std::cout << "Cannot open " << fname << std::endl;
@@ -506,6 +516,7 @@ void MiniballAngleFitter::DoFit() {
 	leg->Draw();
 	
 	// Save first plot as a PDF
+	gErrorIgnoreLevel = kWarning;
 	c1->Print("position_cal.pdf(");
 	
 	// Draw the residuals
@@ -545,11 +556,11 @@ void MiniballAngleFitter::DoFit() {
 	xy_b_mg->SetName("xy_b_mg");
 	xz_r_mg->SetName("xz_r_mg");
 	xz_l_mg->SetName("xz_l_mg");
-	std::vector< std::vector< std::unique_ptr<TGraph> > > theta_phi;
-	std::vector< std::vector< std::unique_ptr<TGraph> > > xy_f;
-	std::vector< std::vector< std::unique_ptr<TGraph> > > xy_b;
-	std::vector< std::vector< std::unique_ptr<TGraph> > > xz_l;
-	std::vector< std::vector< std::unique_ptr<TGraph> > > xz_r;
+	std::vector< std::vector<TGraph*> > theta_phi;
+	std::vector< std::vector<TGraph*> > xy_f;
+	std::vector< std::vector<TGraph*> > xy_b;
+	std::vector< std::vector<TGraph*> > xz_l;
+	std::vector< std::vector<TGraph*> > xz_r;
 	theta_phi.resize( myset->GetNumberOfMiniballClusters() );
 	xy_f.resize( myset->GetNumberOfMiniballClusters() );
 	xy_b.resize( myset->GetNumberOfMiniballClusters() );
@@ -569,11 +580,11 @@ void MiniballAngleFitter::DoFit() {
 		for( unsigned int cry = 0; cry < myset->GetNumberOfMiniballCrystals(); ++cry ) {
 
 			// Make the graphs to prevent any issues
-			theta_phi[clu][cry] = std::make_unique<TGraph>();
-			xy_f[clu][cry] = std::make_unique<TGraph>();
-			xy_b[clu][cry] = std::make_unique<TGraph>();
-			xz_l[clu][cry] = std::make_unique<TGraph>();
-			xz_r[clu][cry] = std::make_unique<TGraph>();
+			theta_phi[clu][cry] = new TGraph();
+			xy_f[clu][cry] = new TGraph();
+			xy_b[clu][cry] = new TGraph();
+			xz_l[clu][cry] = new TGraph();
+			xz_r[clu][cry] = new TGraph();
 			
 			// But then skip if there's no data
 			if( !ff.IsPresent( clu ) ) continue;
@@ -615,11 +626,11 @@ void MiniballAngleFitter::DoFit() {
 			xz_l[clu][cry]->SetMarkerColor(colors[clu]+cry);
 			
 			// Add to multi-graph
-			tp_mg->Add( theta_phi[clu][cry].get() );
-			xy_f_mg->Add( xy_f[clu][cry].get() );
-			xy_b_mg->Add( xy_b[clu][cry].get() );
-			xz_r_mg->Add( xz_r[clu][cry].get() );
-			xz_l_mg->Add( xz_l[clu][cry].get() );
+			if( theta_phi[clu][cry]->GetN() > 0 ) tp_mg->Add( theta_phi[clu][cry] );
+			if( xy_f[clu][cry]->GetN() > 0 ) xy_f_mg->Add( xy_f[clu][cry] );
+			if( xy_b[clu][cry]->GetN() > 0 ) xy_b_mg->Add( xy_b[clu][cry] );
+			if( xz_r[clu][cry]->GetN() > 0 ) xz_r_mg->Add( xz_r[clu][cry] );
+			if( xz_l[clu][cry]->GetN() > 0 ) xz_l_mg->Add( xz_l[clu][cry] );
 
 		} // cry
 		
@@ -664,7 +675,8 @@ void MiniballAngleFitter::DoFit() {
 	xz_l_mg->GetXaxis()->SetTitle("z [mm]");
 	//xz_l_mg->Write();
 	c1->Print("position_cal.pdf)");
-	
+	gErrorIgnoreLevel = kInfo;
+
 	// Print final results to terminal
 	std::cout << "fitted beta = " << beta << std::endl;
 	printf("       theta       phi     alpha         R\n");

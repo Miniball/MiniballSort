@@ -647,6 +647,7 @@ void do_angle_fit(){
 	// Perform the fitting
 	angle_fit.DoFit();
 	angle_fit.SaveReactionFile( name_results_file );
+	angle_fit.CloseROOTFile();
 	
 }
 

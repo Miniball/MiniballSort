@@ -49,7 +49,7 @@ public:
 		
 	// Fit the segment spectra to get the energies
 	bool FitPeak( TH1D *h, double &en, double &er );
-	void FitSegmentEnergies( std::shared_ptr<TFile> infile );
+	void FitSegmentEnergies( TFile *infile );
 
 	// Load energies
 	void LoadExpEnergies( std::string energy_file );
@@ -115,6 +115,9 @@ public:
 	
 	// Set the input ROOT file
 	bool SetInputROOTFile( std::string fname );
+	inline void CloseROOTFile(){
+		if( input_root_file != nullptr ) input_root_file->Close();
+	};
 	
 	// Set the input data file with energies
 	bool SetInputEnergiesFile( std::string fname );
@@ -131,7 +134,7 @@ private:
 	std::shared_ptr<MiniballReaction> myreact;
 	
 	// Input ROOT file
-	std::shared_ptr<TFile> input_root_file;
+	TFile *input_root_file = nullptr;
 	
 	// Input data file
 	std::string input_data_filename;
