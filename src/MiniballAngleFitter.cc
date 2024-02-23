@@ -15,29 +15,41 @@ void MiniballAngleFunction::Initialise() {
 	
 	// Loop over clusters
 	present.resize( myset->GetNumberOfMiniballClusters() );
+	phiconst.resize( myset->GetNumberOfMiniballClusters() );
 	energy.resize( myset->GetNumberOfMiniballClusters() );
 	err.resize( myset->GetNumberOfMiniballClusters() );
+	phic.resize( myset->GetNumberOfMiniballClusters() );
+	phie.resize( myset->GetNumberOfMiniballClusters() );
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
 		
 		cluster.push_back(false);
 		present[clu].resize( myset->GetNumberOfMiniballCrystals() );
+		phiconst[clu].resize( myset->GetNumberOfMiniballCrystals() );
 		energy[clu].resize( myset->GetNumberOfMiniballCrystals() );
 		err[clu].resize( myset->GetNumberOfMiniballCrystals() );
+		phic[clu].resize( myset->GetNumberOfMiniballCrystals() );
+		phie[clu].resize( myset->GetNumberOfMiniballCrystals() );
 
 		// Loop over crystals
 		for( unsigned int cry = 0; cry < myset->GetNumberOfMiniballCrystals(); ++cry ) {
 			
 			present[clu][cry].resize( myset->GetNumberOfMiniballSegments() );
+			phiconst[clu][cry].resize( myset->GetNumberOfMiniballSegments() );
 			energy[clu][cry].resize( myset->GetNumberOfMiniballSegments() );
 			err[clu][cry].resize( myset->GetNumberOfMiniballSegments() );
+			phic[clu][cry].resize( myset->GetNumberOfMiniballSegments() );
+			phie[clu][cry].resize( myset->GetNumberOfMiniballSegments() );
 
 			// Loop over segments
 			for( unsigned int seg = 0; seg < myset->GetNumberOfMiniballSegments(); ++seg ) {
 				
 				present[clu][cry].push_back(false);
+				phiconst[clu][cry].push_back(false);
 				energy[clu][cry].push_back(0.0);
-				err[clu][cry].push_back(0.0);
-			
+				err[clu][cry].push_back(9.9);
+				phic[clu][cry].push_back(0.0);
+				phie[clu][cry].push_back(9.9);
+
 			} // seg
 		
 		} // cry
@@ -186,38 +198,78 @@ void MiniballAngleFunction::LoadExpEnergies( std::string energy_file ){
 	// Open file
 	std::ifstream energyfile( energy_file );
 
-	// Some parameters to read in
-	int cl, cr, sg;
-	double en, er;
+	// Loop over the whole file line-by-line
+	std::string data_line;
+	while( std::getline( energyfile, data_line ) ) {
 
-	// Loop over the whole file
-	while( energyfile >> cl >> cr >> sg >> en >> er ) {
+		// Make a string stream to get the data
+		std::stringstream data_stream( data_line );
+		
+		// And the package it up in to a vector
+		int parsed_int;
+		double parsed_double;
+		std::vector<int> detid;
+		std::vector<double> data;
+		
+		// Just the detector id first
+		while( data_stream >> parsed_int ) {
 
-		if( cl >= (int)myset->GetNumberOfMiniballClusters() || cl < 0 ) {
+			detid.push_back( parsed_int );
+			if( detid.size() == 3 ) break;
 			
-			std::cerr << "Bad cluster number = " << cl << std::endl;
+		}
+		
+		// If we didn't get a full ID, skip it
+		if( detid.size() != 3 ) continue;
+		
+		// Otherwise we can split the id
+		int clu = detid[0], cry = detid[1], seg = detid[2];
+		
+		// Check the cluster number is sensible
+		if( clu >= (int)myset->GetNumberOfMiniballClusters() || clu < 0 ) {
+			
+			std::cerr << "Bad cluster number = " << clu << std::endl;
 			continue;
 			
 		}
 
-		if( cr >= (int)myset->GetNumberOfMiniballCrystals() || cr < 0 ) {
+		// Check the crystal number is sensible
+		if( cry >= (int)myset->GetNumberOfMiniballCrystals() || cry < 0 ) {
 			
-			std::cerr << "Bad crystal number = " << cr << std::endl;
+			std::cerr << "Bad crystal number = " << cry << std::endl;
 			continue;
 			
 		}
 
-		if( sg >= (int)myset->GetNumberOfMiniballSegments() || sg < 0 ) {
+		// Check the segment number is sensible
+		if( seg >= (int)myset->GetNumberOfMiniballSegments() || seg < 0 ) {
 			
-			std::cerr << "Bad segment number = " << sg << std::endl;
+			std::cerr << "Bad segment number = " << seg << std::endl;
 			continue;
 			
 		}
-
-		present[cl][cr][sg] = true;
-		energy[cl][cr][sg] = en;
-		err[cl][cr][sg] = er;
-		cluster[cl] = true;
+		
+		// Then let's take the data for that segment
+		while( data_stream >> parsed_double )
+			data.push_back( parsed_double );
+		
+		// We should have 2 or 4 items
+		if( data.size() != 2 && data.size() != 4 ) continue;
+		
+		// Then we at least have the energy
+		present[clu][cry][seg] = true;
+		energy[clu][cry][seg] = data[0];
+		err[clu][cry][seg] = data[1];
+		cluster[clu] = true;
+		
+		// If we have a phi constraint, we have 4 data items
+		if( data.size() == 4 ) {
+			
+			phiconst[clu][cry][seg] = true;
+			phic[clu][cry][seg] = data[2];
+			phie[clu][cry][seg] = data[3];
+			
+		}
 
 	}
 	
@@ -282,12 +334,28 @@ double MiniballAngleFunction::operator() ( const double *p ) {
 			// Loop over segments
 			for( unsigned int seg = 0; seg < myset->GetNumberOfMiniballSegments(); ++seg ) {
 				
+				// Only include segments with data
 				if( !present[clu][cry][seg] ) continue;
+				
+				// Get the theta and phi of the reaction
 				double theta = myreact->GetGammaTheta( clu, cry, seg );
+				double phi = myreact->GetGammaPhi( clu, cry, seg );
+				
+				// Zeroth parameter is beta
 				double beta = p[0];
+				
+				// Doppler corrected energy
 				double edop = myreact->DopplerShift( eref, beta, TMath::Cos(theta) );
+				
+				// Compare to fitted energy, increase chisq value
 				chisq += TMath::Power( ( energy[clu][cry][seg] - edop ) / err[clu][cry][seg], 2.0 );
 
+				// Check if we have a phi constraint for this segment
+				if( !phiconst[clu][cry][seg] ) continue;
+
+				// If so, then increase chisq value
+				chisq += TMath::Power( ( phic[clu][cry][seg] - phi ) / phie[clu][cry][seg], 2.0 );
+				
 			}
 
 		}
