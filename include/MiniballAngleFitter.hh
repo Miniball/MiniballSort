@@ -151,6 +151,9 @@ private:
 	// Output directory
 	std::string datadir;
 	
+	// Some colours and marker styles
+	std::vector<int> mystyles, mycolors;
+	
 	// Flag if we need to fit the peaks ourselves, or they are given
 	bool flag_fit_peaks = false;
 	

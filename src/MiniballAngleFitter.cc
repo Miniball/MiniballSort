@@ -385,8 +385,8 @@ void MiniballAngleFitter::Initialise() {
 	// set the initial velocity from the reaction file
 	pars[0] = myreact->GetBeta();
 	names[0] = "beta";
-	LL[0] = 0.01;
-	UL[0] = 0.5;
+	LL[0] = myreact->GetBeta() * 0.5;
+	UL[0] = myreact->GetBeta() * 1.2;
 	
 	// Set the initial guesses for angles of each cluster from the reaction file
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
@@ -408,19 +408,40 @@ void MiniballAngleFitter::Initialise() {
 
 		// Lower limits
 		// these may cause issue if we need to cross over the 0/360 boundary
-		LL[indx+0]	= 0.0;
-		LL[indx+1]	= 0.0;
-		LL[indx+2]	= 0.0;
-		LL[indx+3]	= 10.0;
+		LL[indx+0]	= pars[indx+0] - 60.0;
+		LL[indx+1]	= pars[indx+1] - 60.0;
+		LL[indx+2]	= pars[indx+2] - 60.0;
+		LL[indx+3]	= pars[indx+3] - 60.0;
 		
 		// Upper limits
-		UL[indx+0]	= 180.0;
-		UL[indx+1]	= 360.0;
-		UL[indx+2]	= 360.0;
-		UL[indx+3]	= 400.0;
+		UL[indx+0]	= pars[indx+0] + 60.0;
+		UL[indx+1]	= pars[indx+1] + 60.0;
+		UL[indx+2]	= pars[indx+2] + 60.0;
+		UL[indx+3]	= pars[indx+3] + 60.0;
 
 	}
 	
+	// Some colours and marker styles
+	mystyles.push_back( kFullCircle );
+	mystyles.push_back( kFullSquare );
+	mystyles.push_back( kFullTriangleUp );
+	mystyles.push_back( kFullTriangleDown );
+	mystyles.push_back( kFullCross );
+	mystyles.push_back( kFullStar );
+	mystyles.push_back( kFullDiamond );
+	mystyles.push_back( kFullCrossX );
+	mystyles.push_back( kFullFourTrianglesX );
+	mystyles.push_back( kFullThreeTriangles );
+	mystyles.push_back( kFullDoubleDiamond );
+	mystyles.push_back( kFourSquaresX );
+	mystyles.push_back( kFourSquaresPlus );
+	mycolors.push_back( kRed+1 );
+	mycolors.push_back( kBlue+1 );
+	mycolors.push_back( kGreen+1 );
+	mycolors.push_back( kMagenta+1 );
+	mycolors.push_back( kYellow+1 );
+	mycolors.push_back( kCyan+1 );
+
 }
 
 void MiniballAngleFitter::DoFit() {
@@ -433,14 +454,17 @@ void MiniballAngleFitter::DoFit() {
 	// Create minimizer
 	ROOT::Math::Minimizer *min =
 		ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
+
+	// Set print level
+	//min->SetPrintLevel(1);
 	
 	// Create function for the fitting
 	ROOT::Math::Functor f_init( ff, npars );
 	
 	// Some fit controls
 	min->SetErrorDef(1.);
-	min->SetMaxFunctionCalls(1000);
-	min->SetMaxIterations(1000);
+	min->SetMaxFunctionCalls(1e8);
+	min->SetMaxIterations(1e7);
 	min->SetTolerance(0.001);
 	min->SetPrecision(1e-6);
 	min->SetFunction(f_init);
@@ -453,13 +477,28 @@ void MiniballAngleFitter::DoFit() {
 	
 	// Set the variable step size for beta
 	min->SetVariableStepSize( 0, 0.001 );
+	
+	// If a cluster is missing, fix the parameters
+	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
+
+		int indx = 1 + 4*clu;
+		if( !ff.IsPresent(clu) ){
+
+			min->SetFixedVariable( indx+0, names.at(indx+0), pars.at(indx+0) );
+			min->SetFixedVariable( indx+1, names.at(indx+1), pars.at(indx+1) );
+			min->SetFixedVariable( indx+2, names.at(indx+2), pars.at(indx+2) );
+			min->SetFixedVariable( indx+3, names.at(indx+3), pars.at(indx+3) );
+
+		}
+		
+	} // clu
 
 	// Call the minimisation procedure
 	min->Minimize();
 	
 	// Print the results to the terminal
 	min->PrintResults();
-	
+
 	// Copy results into reaction object
 	double beta = min->X()[0];
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
@@ -479,15 +518,15 @@ void MiniballAngleFitter::DoFit() {
 
 	TGraph *calcgraph = new TGraph();
 	calcgraph->SetName("calcgraph");
-	engraph->SetTitle("Calculated energies; Channel index; Energy [keV]");
+	calcgraph->SetTitle("Calculated energies; Channel index; Energy [keV]");
 
 	TGraphErrors *resgraph = new TGraphErrors();
 	resgraph->SetName("resgraph");
-	engraph->SetTitle("Residuals; Channel index; Energy [keV]");
+	resgraph->SetTitle("Residuals; Channel index; Energy [keV]");
 
 	TGraphErrors *corrgraph = new TGraphErrors();
 	corrgraph->SetName("corrgraph");
-	engraph->SetTitle("Doppler-corrected energies; Channel index; Energy [keV]");
+	corrgraph->SetTitle("Doppler-corrected energies; Channel index; Energy [keV]");
 
 	
 	// Loop over clusters
@@ -576,9 +615,6 @@ void MiniballAngleFitter::DoFit() {
 	// Save third plot as a PDF
 	c1->Print("position_cal.pdf");
 	
-	// Define a colour scheme for the next bit
-	int colors[8] = {632, 416, 600, 400, 616, 432, 800, 900};
-
 	// A multi-graph showing all the positions in theta-phi, xy, xz, etc
 	auto tp_mg = std::make_unique<TMultiGraph>();
 	auto xy_f_mg = std::make_unique<TMultiGraph>();
@@ -601,6 +637,12 @@ void MiniballAngleFitter::DoFit() {
 	xz_l.resize( myset->GetNumberOfMiniballClusters() );
 	xz_r.resize( myset->GetNumberOfMiniballClusters() );
 
+	// Add a legend and make space for it on the pad
+	std::string leg_lab;
+	auto leg2 = std::make_unique<TLegend>( 0.79, 0.15, 0.95, 0.90 );
+	auto p1 = c1->cd();
+	p1->SetMargin( 0.15, 0.21, 0.15, 0.10 );
+	
 	// Loop over clusters
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
 
@@ -620,6 +662,9 @@ void MiniballAngleFitter::DoFit() {
 			xz_l[clu][cry] = new TGraph();
 			xz_r[clu][cry] = new TGraph();
 			
+			leg_lab = "MB" + std::to_string(clu) + static_cast<char>(cry+65);
+			leg2->AddEntry( theta_phi[clu][cry], leg_lab.data() );
+
 			// But then skip if there's no data
 			if( !ff.IsPresent( clu ) ) continue;
 
@@ -644,20 +689,20 @@ void MiniballAngleFitter::DoFit() {
 			
 			// Set colours etc
 			theta_phi[clu][cry]->SetMarkerSize(1.0);
-			theta_phi[clu][cry]->SetMarkerStyle(kFullCircle);
-			theta_phi[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			theta_phi[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			theta_phi[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xy_f[clu][cry]->SetMarkerSize(1.0);
-			xy_f[clu][cry]->SetMarkerStyle(kFullCircle);
-			xy_f[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xy_f[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xy_f[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xy_b[clu][cry]->SetMarkerSize(1.0);
-			xy_b[clu][cry]->SetMarkerStyle(kFullCircle);
-			xy_b[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xy_b[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xy_b[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xz_r[clu][cry]->SetMarkerSize(1.0);
-			xz_r[clu][cry]->SetMarkerStyle(kFullCircle);
-			xz_r[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xz_r[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xz_r[clu][cry]->SetMarkerColor(mycolors[cry]);
 			xz_l[clu][cry]->SetMarkerSize(1.0);
-			xz_l[clu][cry]->SetMarkerStyle(kFullCircle);
-			xz_l[clu][cry]->SetMarkerColor(colors[clu]+cry);
+			xz_l[clu][cry]->SetMarkerStyle(mystyles[clu]);
+			xz_l[clu][cry]->SetMarkerColor(mycolors[cry]);
 			
 			// Add to multi-graph
 			if( theta_phi[clu][cry]->GetN() > 0 ) tp_mg->Add( theta_phi[clu][cry] );
@@ -674,39 +719,44 @@ void MiniballAngleFitter::DoFit() {
 	} // clu
 	
 	// Draw the multigraph for theta-phi
-	tp_mg->Draw("AP");
 	tp_mg->GetXaxis()->SetLimits(0,180);
 	tp_mg->GetYaxis()->SetLimits(-180,180);
 	tp_mg->GetXaxis()->SetTitle("Reaction Theta [deg]");
 	tp_mg->GetYaxis()->SetTitle("Reaction Phi [deg]");
+	tp_mg->Draw("AP");
+	leg2->Draw();
 	//tp_mg->Write();
 	c1->Print("position_cal.pdf");
 	
 	// Draw the multigraph for xy-forward
-	xy_f_mg->Draw("AP");
 	xy_f_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_f_mg->GetXaxis()->SetTitle("y [mm]");
+	xy_f_mg->Draw("AP");
+	leg2->Draw();
 	//xy_f_mg->Write();
 	c1->Print("position_cal.pdf");
 
 	// Draw the multigraph for xy-backwards
-	xy_b_mg->Draw("AP");
 	xy_b_mg->GetYaxis()->SetTitle("x [mm]");
 	xy_b_mg->GetXaxis()->SetTitle("y [mm]");
+	xy_b_mg->Draw("AP");
+	leg2->Draw();
 	//xy_b_mg->Write();
 	c1->Print("position_cal.pdf");
 
 	// Draw the multigraph for xz-right
-	xz_r_mg->Draw("AP");
 	xz_r_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_r_mg->GetXaxis()->SetTitle("z [mm]");
+	xz_r_mg->Draw("AP");
+	leg2->Draw();
 	//xz_r_mg->Write();
 	c1->Print("position_cal.pdf");
 	
 	// Draw the multigraph for xz-left
-	xz_l_mg->Draw("AP");
 	xz_l_mg->GetYaxis()->SetTitle("x [mm]");
 	xz_l_mg->GetXaxis()->SetTitle("z [mm]");
+	xz_l_mg->Draw("AP");
+	leg2->Draw();
 	//xz_l_mg->Write();
 	c1->Print("position_cal.pdf)");
 	gErrorIgnoreLevel = kInfo;
