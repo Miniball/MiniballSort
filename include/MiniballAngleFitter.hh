@@ -55,12 +55,15 @@ public:
 	void LoadExpEnergies( std::string energy_file );
 	void SaveExpEnergies( std::string energy_file );
 	
-	// Check if segment is present
+	// Check if segment is present and has a phi constraint
 	inline bool IsPresent( unsigned int clu ){
 		return cluster[clu];
 	};
 	inline bool IsPresent( unsigned int clu, unsigned int cry, unsigned int seg ){
 		return present[clu][cry][seg];
+	};
+	inline bool HasPhiConstraint( unsigned int clu, unsigned int cry, unsigned int seg ){
+		return phiconst[clu][cry][seg];
 	};
 
 	// Setter and getter for reference energy
@@ -82,8 +85,11 @@ private:
 	
 	// Vectors for data, etc
 	std::vector<std::vector<std::vector<bool>>> present;
+	std::vector<std::vector<std::vector<bool>>> phiconst;
 	std::vector<std::vector<std::vector<double>>> energy;
 	std::vector<std::vector<std::vector<double>>> err;
+	std::vector<std::vector<std::vector<double>>> phic; // phi constraint
+	std::vector<std::vector<std::vector<double>>> phie; // phi error
 	std::vector<bool> cluster;
 	
 	// Settings files, etc
