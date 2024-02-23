@@ -262,13 +262,12 @@ double MiniballAngleFunction::operator() ( const double *p ) {
 	// p[0] = beta
 	// p[1] = theta1, p[2] = phi1, p[3] = alpha1, p[4] = r1,
 	// p[5] = theta2, p[6] = phi2, p[7] = alpha2, p[8] = r2, etc.
-	int indx = 1;
 
 	// Loop over clusters
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
 
+		int indx = 1 + 4*clu;
 		myreact->SetupCluster( clu, p[indx], p[indx+1], p[indx+2], p[indx+3], user_z );
-		indx += 4;
 
 	}
 	
@@ -453,7 +452,7 @@ void MiniballAngleFitter::DoFit() {
 		
 	// Create minimizer
 	ROOT::Math::Minimizer *min =
-		ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
+		ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined");
 
 	// Set print level
 	//min->SetPrintLevel(1);
@@ -463,10 +462,10 @@ void MiniballAngleFitter::DoFit() {
 	
 	// Some fit controls
 	min->SetErrorDef(1.);
-	min->SetMaxFunctionCalls(1e8);
-	min->SetMaxIterations(1e7);
-	min->SetTolerance(0.001);
-	min->SetPrecision(1e-6);
+	min->SetMaxFunctionCalls(1e5);
+	min->SetMaxIterations(1e6);
+	//min->SetPrecision(1e-9);
+	//min->SetTolerance(1e-3);
 	min->SetFunction(f_init);
 
 	// Set limits in fit
@@ -484,10 +483,10 @@ void MiniballAngleFitter::DoFit() {
 		int indx = 1 + 4*clu;
 		if( !ff.IsPresent(clu) ){
 
-			min->SetFixedVariable( indx+0, names.at(indx+0), pars.at(indx+0) );
-			min->SetFixedVariable( indx+1, names.at(indx+1), pars.at(indx+1) );
-			min->SetFixedVariable( indx+2, names.at(indx+2), pars.at(indx+2) );
-			min->SetFixedVariable( indx+3, names.at(indx+3), pars.at(indx+3) );
+			min->FixVariable( indx+0 );
+			min->FixVariable( indx+1 );
+			min->FixVariable( indx+2 );
+			min->FixVariable( indx+3 );
 
 		}
 		
