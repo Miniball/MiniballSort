@@ -4,6 +4,8 @@
 
 Sort code for Miniball data using the new FEBEX/MIDAS DAQ from the 2022 campaign onwards. Also now updated to take data from the MBS DAQ.
 
+There is a [Wiki](https://github.com/Miniball/MiniballSort/wiki) page for this code, giving some more detailed instructions of how to analyse data.
+
 Please cite the code using the DOI if you use it for your publications: [doi:10.5281/zenodo.7867979](http://doi.org/10.5281/zenodo.7867978).
 
 ## Download
