@@ -385,8 +385,8 @@ void MiniballAngleFitter::Initialise() {
 	// set the initial velocity from the reaction file
 	pars[0] = myreact->GetBeta();
 	names[0] = "beta";
-	LL[0] = 0.01;
-	UL[0] = 0.5;
+	LL[0] = myreact->GetBeta() * 0.5;
+	UL[0] = myreact->GetBeta() * 1.2;
 	
 	// Set the initial guesses for angles of each cluster from the reaction file
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
@@ -408,16 +408,16 @@ void MiniballAngleFitter::Initialise() {
 
 		// Lower limits
 		// these may cause issue if we need to cross over the 0/360 boundary
-		LL[indx+0]	= 0.0;
-		LL[indx+1]	= 0.0;
-		LL[indx+2]	= 0.0;
-		LL[indx+3]	= 10.0;
+		LL[indx+0]	= pars[indx+0] - 60.0;
+		LL[indx+1]	= pars[indx+1] - 60.0;
+		LL[indx+2]	= pars[indx+2] - 60.0;
+		LL[indx+3]	= pars[indx+3] - 60.0;
 		
 		// Upper limits
-		UL[indx+0]	= 180.0;
-		UL[indx+1]	= 360.0;
-		UL[indx+2]	= 360.0;
-		UL[indx+3]	= 400.0;
+		UL[indx+0]	= pars[indx+0] + 60.0;
+		UL[indx+1]	= pars[indx+1] + 60.0;
+		UL[indx+2]	= pars[indx+2] + 60.0;
+		UL[indx+3]	= pars[indx+3] + 60.0;
 
 	}
 	
@@ -454,14 +454,17 @@ void MiniballAngleFitter::DoFit() {
 	// Create minimizer
 	ROOT::Math::Minimizer *min =
 		ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
+
+	// Set print level
+	//min->SetPrintLevel(1);
 	
 	// Create function for the fitting
 	ROOT::Math::Functor f_init( ff, npars );
 	
 	// Some fit controls
 	min->SetErrorDef(1.);
-	min->SetMaxFunctionCalls(1000);
-	min->SetMaxIterations(1000);
+	min->SetMaxFunctionCalls(1e8);
+	min->SetMaxIterations(1e7);
 	min->SetTolerance(0.001);
 	min->SetPrecision(1e-6);
 	min->SetFunction(f_init);
@@ -474,13 +477,28 @@ void MiniballAngleFitter::DoFit() {
 	
 	// Set the variable step size for beta
 	min->SetVariableStepSize( 0, 0.001 );
+	
+	// If a cluster is missing, fix the parameters
+	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
+
+		int indx = 1 + 4*clu;
+		if( !ff.IsPresent(clu) ){
+
+			min->SetFixedVariable( indx+0, names.at(indx+0), pars.at(indx+0) );
+			min->SetFixedVariable( indx+1, names.at(indx+1), pars.at(indx+1) );
+			min->SetFixedVariable( indx+2, names.at(indx+2), pars.at(indx+2) );
+			min->SetFixedVariable( indx+3, names.at(indx+3), pars.at(indx+3) );
+
+		}
+		
+	} // clu
 
 	// Call the minimisation procedure
 	min->Minimize();
 	
 	// Print the results to the terminal
 	min->PrintResults();
-	
+
 	// Copy results into reaction object
 	double beta = min->X()[0];
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
