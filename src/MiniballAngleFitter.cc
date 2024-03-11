@@ -341,6 +341,10 @@ double MiniballAngleFunction::operator() ( const double *p ) {
 				double theta = myreact->GetGammaTheta( clu, cry, seg );
 				double phi = myreact->GetGammaPhi( clu, cry, seg );
 				
+				// Phi should be compared to user input, which will be 0˚-360˚
+				phi *= TMath::RadToDeg();
+				if( phi < 0 ) phi += 360.;
+				
 				// Zeroth parameter is beta
 				double beta = p[0];
 				

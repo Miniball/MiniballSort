@@ -2,6 +2,11 @@
 // in the x-y and theta-phi planes. It does not consider segment swaps.
 //
 // Written by Liam Gaffney (liam.gaffney@liverpool.ac.uk) - 20/02/2024
+//
+// To run you need to do the following in ROOT:
+// root [0]: .L show_miniball_positions.cc
+// root [1]: show_miniball_positions( "reaction.dat", "settings.dat" )
+// where the settings and reaction files match those from your experiment
 
 R__LOAD_LIBRARY(libmb_sort.so)
 

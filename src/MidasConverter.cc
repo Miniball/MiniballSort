@@ -169,6 +169,7 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 	}
 		
 	// Process data in the buffer
+	NewBuffer();
 	for( UInt_t i = 0; i < real_DataLen; i++ ) {
 	
 		word = GetWord(i);
@@ -182,7 +183,8 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 		if( my_type == 0x3 ){
 			
 			ProcessFebexData();
-			if( flag_febex_data0 || !flag_febex_data1 || flag_febex_data2 || flag_febex_data3 ) FinishFebexData();
+			if( flag_febex_data0 || !flag_febex_data1 || flag_febex_data2 || flag_febex_data3 )
+				FinishFebexData();
 
 		}
 		
@@ -349,6 +351,17 @@ void MiniballMidasConverter::ProcessFebexData(){
 	// FEBEX timestamps are in 10ns precision?
 	my_tm_stp = my_tm_stp*10;
 	
+	// If this is the first full data item of the buffer,
+	// we need to update the read timestamp to check things are good
+	if( first_data[my_sfp_id] ) {
+		
+		// Update timestamp and set first data
+		tm_stp_read[my_sfp_id] = my_tm_stp;
+		first_data[my_sfp_id] = false;
+		//std::cout << std::hex << my_tm_stp << std::endl;
+		
+	}
+	
 	// First of the data items
 	if( !flag_febex_data0 && !flag_febex_data1 &&
 	    !flag_febex_data2 && !flag_febex_data3 ){
@@ -466,9 +479,29 @@ void MiniballMidasConverter::FinishFebexData(){
 		time_corr  = febex_data->GetTime();
 		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
+		// Timestamp checks
+		long long int sfp_check		= febex_data->GetTime() - tm_stp_read[febex_data->GetSfp()];
+		long long int board_check	= febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()];
+		long long int channel_check	= febex_data->GetTime() - tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()];
+		
+		// Check how we compare to the first timestamp from this buffer (30 seconds)
+		if( !first_data[febex_data->GetSfp()] && ( sfp_check > 30e9 || sfp_check < -30e9 ) ){
+			
+			std::cerr << "Timestamp mash in SFP = " << std::dec << (int)febex_data->GetSfp();
+			std::cerr << ", board = " << (int)febex_data->GetBoard();
+			std::cerr << ", channel = " << (int)febex_data->GetChannel();
+			std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
+			std::cerr << " ~/~ " << tm_stp_read[febex_data->GetSfp()]/10;
+			std::cerr << std::dec << std::endl;
+			
+			mash_ctr++;
+			data_ctr++;
+			
+		}
+		
 		// Skip large forwards time jumps in same board, maybe?
-		if( tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] != 0 &&
-		   febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] > 300e9 ) {
+		else if( tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] != 0 &&
+		   board_check > 300e9 ) {
 			
 			std::cerr << "Timestamp jump in SFP = " << std::dec << (int)febex_data->GetSfp();
 			std::cerr << ", board = " << (int)febex_data->GetBoard();
@@ -484,7 +517,7 @@ void MiniballMidasConverter::FinishFebexData(){
 		
 		// What if we jump backwards on an individual channel?
 		else if( tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] != 0 &&
-				febex_data->GetTime() < tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] ) {
+				channel_check < 0 ) {
 			
 			std::cerr << "Timestamp warp in SFP = " << std::dec << (int)febex_data->GetSfp();
 			std::cerr << ", board = " << (int)febex_data->GetBoard();
@@ -729,10 +762,17 @@ void MiniballMidasConverter::ProcessInfoData(){
 	// HSB of FEBEX extended timestamp
 	if( my_info_code == set->GetTimestampCode() ) {
 		
-		//my_tm_stp_hsb = my_info_field & 0x0000FFFF;
-		my_tm_stp_hsb = 0;
+		// Check that the timestamp isn't weird
+		int tmp_tm_stp = my_info_field & 0x0000FFFF;
+		if( tmp_tm_stp == 0x0000A5A5 &&
+		   ( my_tm_stp_hsb & 0x0000FF00 ) == 0x0000A500 ) {
+		
+			//my_tm_stp_hsb = tmp_tm_stp;
+			my_tm_stp_hsb = 0;
+			
+		}
 
-		if( (my_info_field & 0x0000FFFF) > 0 )
+		if( ( my_info_field & 0x0000FFFF ) > 0 )
 			my_flagbit = true;
 		else my_flagbit = false;
 
@@ -744,9 +784,16 @@ void MiniballMidasConverter::ProcessInfoData(){
 		//if(my_tm_stp_hsb>0)
 		//	std::cout << my_tm_stp_hsb << " " << my_tm_stp_msb << std::endl;
 		
-		// In FEBEX this would be the extended timestamp
-		my_tm_stp_msb = my_info_field & 0x000FFFFF;
-		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
+		// Check that the timestamp isn't weird
+		int tmp_tm_stp = my_info_field & 0x000FFFFF;
+		if( ( tmp_tm_stp & 0x000FFFF0 ) != 0x000A5A50 &&
+		   ( my_tm_stp_msb & 0x0000FF00 ) != 0x0000A500 ) {
+		
+			// In FEBEX this would be the extended timestamp
+			my_tm_stp_msb = tmp_tm_stp;
+			my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
+
+		}
 
 	}
 		
@@ -931,17 +978,22 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	input_file.close();
 
 	// Print the number of warps and jumps
-	sslogs << "Number of timestamp jumps = " << jump_ctr;
+	sslogs << "Number of timestamp jumps  = " << jump_ctr;
 	sslogs << " / " << data_ctr << " = ";
 	sslogs << 100.0 * (double)jump_ctr / (double)data_ctr;
 	sslogs << "\%" << std::endl;
 	
-	sslogs << "Number of timestamp warps = " << warp_ctr;
+	sslogs << "Number of timestamp warps  = " << warp_ctr;
 	sslogs << " / " << data_ctr << " = ";
 	sslogs << 100.0 * (double)warp_ctr / (double)data_ctr;
 	sslogs << "\%" << std::endl;
 	
-	sslogs << "Number of rejected blocks = " << reject_ctr;
+	sslogs << "Number of timestamp mashes = " << mash_ctr;
+	sslogs << " / " << data_ctr << " = ";
+	sslogs << 100.0 * (double)mash_ctr / (double)data_ctr;
+	sslogs << "\%" << std::endl;
+	
+	sslogs << "Number of rejected blocks  = " << reject_ctr;
 	sslogs << " / " << BLOCKS_NUM << " = ";
 	sslogs << 100.0 * (double)reject_ctr / (double)BLOCKS_NUM;
 	sslogs << "\%" << std::endl;

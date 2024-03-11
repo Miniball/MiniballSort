@@ -13,6 +13,9 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	ctr_febex_pause.resize( set->GetNumberOfFebexSfps() );
 	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
 
+	first_data.resize( set->GetNumberOfFebexSfps(), true );
+
+	tm_stp_read.resize( set->GetNumberOfFebexSfps(), 0 );
 	tm_stp_febex.resize( set->GetNumberOfFebexSfps() );
 	tm_stp_febex_ch.resize( set->GetNumberOfFebexSfps() );
 
@@ -40,6 +43,17 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	
 }
 
+void MiniballConverter::NewBuffer(){
+
+	// Reset check on first data item per SFP
+	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+
+		first_data[i] = true;
+		
+	}
+	
+}
+
 void MiniballConverter::StartFile(){
 	
 	// Start counters at zero
@@ -58,8 +72,9 @@ void MiniballConverter::StartFile(){
 
 	ctr_febex_ext = 0;	// pulser trigger
 	
-	jump_ctr = 0;	// timestamp jumps
-	warp_ctr = 0;	// timestamp warps
+	jump_ctr = 0;	// timestamp jumps (jumps more than 300s in same board)
+	warp_ctr = 0;	// timestamp warps (goes back in time, wrong board ID)
+	mash_ctr = 0;	// timestamp mashes (mangled bits, with 16-bit shift)
 	data_ctr = 0;	// total data items
 	reject_ctr = 0;	// rejected buffers
 	
