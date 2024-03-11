@@ -43,6 +43,7 @@ public:
 	~MiniballConverter() {};
 
 	void MakeHists();
+	void NewBuffer();
 	void ResetHists();
 	void MakeTree();
 	void StartFile();
@@ -163,7 +164,7 @@ protected:
 	std::vector<std::vector<unsigned long int>> ctr_febex_pause;   	// pause acq for module
 	std::vector<std::vector<unsigned long int>> ctr_febex_resume;  	// resume acq for module
 	unsigned long int ctr_febex_ext;								// pulser timestamps
-	unsigned long int jump_ctr, warp_ctr;							// count timestamp jumps and warps
+	unsigned long int jump_ctr, warp_ctr, mash_ctr;					// count timestamp jumps and warps
 	unsigned long int data_ctr;										// total number of data counted
 	unsigned long int reject_ctr;									// total number of reject buffers
 
@@ -182,8 +183,11 @@ protected:
 	TH1F *hhit_time;
 	
 	// Timestamp tracking
+	std::vector<bool> first_data;
+	std::vector<long long int> tm_stp_read;
 	std::vector<std::vector<long long int>> tm_stp_febex;
 	std::vector<std::vector<std::vector<long long int>>> tm_stp_febex_ch;
+
 
 	// 	Settings file
 	std::shared_ptr<MiniballSettings> set;
