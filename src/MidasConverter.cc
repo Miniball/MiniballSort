@@ -355,6 +355,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 	// we need to update the read timestamp to check things are good
 	if( first_data[my_sfp_id] ) {
 		
+		// Update timestamp and set first data
 		tm_stp_read[my_sfp_id] = my_tm_stp;
 		first_data[my_sfp_id] = false;
 		//std::cout << std::hex << my_tm_stp << std::endl;
@@ -490,7 +491,7 @@ void MiniballMidasConverter::FinishFebexData(){
 			std::cerr << ", board = " << (int)febex_data->GetBoard();
 			std::cerr << ", channel = " << (int)febex_data->GetChannel();
 			std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
-			std::cerr << " > " << tm_stp_read[febex_data->GetSfp()]/10;
+			std::cerr << " ~/~ " << tm_stp_read[febex_data->GetSfp()]/10;
 			std::cerr << std::dec << std::endl;
 			
 			mash_ctr++;
@@ -761,10 +762,17 @@ void MiniballMidasConverter::ProcessInfoData(){
 	// HSB of FEBEX extended timestamp
 	if( my_info_code == set->GetTimestampCode() ) {
 		
-		//my_tm_stp_hsb = my_info_field & 0x0000FFFF;
-		my_tm_stp_hsb = 0;
+		// Check that the timestamp isn't weird
+		int tmp_tm_stp = my_info_field & 0x0000FFFF;
+		if( tmp_tm_stp == 0x0000A5A5 &&
+		   ( my_tm_stp_hsb & 0x0000FF00 ) == 0x0000A500 ) {
+		
+			//my_tm_stp_hsb = tmp_tm_stp;
+			my_tm_stp_hsb = 0;
+			
+		}
 
-		if( (my_info_field & 0x0000FFFF) > 0 )
+		if( ( my_info_field & 0x0000FFFF ) > 0 )
 			my_flagbit = true;
 		else my_flagbit = false;
 
@@ -776,9 +784,16 @@ void MiniballMidasConverter::ProcessInfoData(){
 		//if(my_tm_stp_hsb>0)
 		//	std::cout << my_tm_stp_hsb << " " << my_tm_stp_msb << std::endl;
 		
-		// In FEBEX this would be the extended timestamp
-		my_tm_stp_msb = my_info_field & 0x000FFFFF;
-		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
+		// Check that the timestamp isn't weird
+		int tmp_tm_stp = my_info_field & 0x000FFFFF;
+		if( ( tmp_tm_stp & 0x000FFFF0 ) != 0x000A5A50 &&
+		   ( my_tm_stp_msb & 0x0000FF00 ) != 0x0000A500 ) {
+		
+			// In FEBEX this would be the extended timestamp
+			my_tm_stp_msb = tmp_tm_stp;
+			my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
+
+		}
 
 	}
 		
