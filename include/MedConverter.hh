@@ -1,5 +1,5 @@
-#ifndef __MBSCONVERTER_HH
-#define __MBSCONVERTER_HH
+#ifndef __MEDCONVERTER_HH
+#define __MEDCONVERTER_HH
 
 // MiniballConverter header
 #ifndef __CONVERTER_HH
@@ -11,21 +11,19 @@
 # include "MbsFormat.hh"
 #endif
 
-class MiniballMbsConverter : public MiniballConverter {
+class MiniballMedConverter : public MiniballConverter {
 
 public:
 	
-	MiniballMbsConverter( std::shared_ptr<MiniballSettings> myset )
+	MiniballMedConverter( std::shared_ptr<MiniballSettings> myset )
 		: MiniballConverter( myset ) {
 			ev = nullptr;
 			data = nullptr;
-			n_double_hits = 0;
-			n_single_hits = 0;
-			mbs_data = true;
+			mbs_data = false;
 			midas_data = false;
-			med_data = false;
+			med_data = true;
 	};
-	~MiniballMbsConverter() {};
+	~MiniballMedConverter() {};
 	
 
 	int ConvertFile( std::string input_file_name,
@@ -46,10 +44,7 @@ private:
 	const MBSEvent *ev;
 	const UInt_t *data;
 	size_t ndata;
-	
-	// Counters
-	unsigned long n_single_hits;
-	unsigned long n_double_hits;
+	MBSSubEvent *mbs_sevt;
 
 };
 

@@ -5,9 +5,11 @@
 #pragma link C++ class FebexMWD+;
 #pragma link C++ class MiniballCalibration+;
 #pragma link C++ class MiniballSettings+;
-#pragma link C++ class MiniballMidasConverter+;
-#pragma link C++ class MiniballEventBuilder+;
-#pragma link C++ class MiniballHistogrammer+;
+//#pragma link C++ class MiniballMidasConverter+;
+//#pragma link C++ class MiniballMbsConverter+;
+//#pragma link C++ class MiniballMedConverter+;
+//#pragma link C++ class MiniballEventBuilder+;
+//#pragma link C++ class MiniballHistogrammer+;
 #pragma link C++ class MiniballGeometry+;
 #pragma link C++ class MiniballEvts+;
 #pragma link C++ class GammaRayEvt+;

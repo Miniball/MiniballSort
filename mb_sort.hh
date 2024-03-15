@@ -36,8 +36,11 @@
 #ifndef __MIDASCONVERTER_HH
 # include "MidasConverter.hh"
 #endif
-#ifndef __MBSSCONVERTER_HH
+#ifndef __MBSCONVERTER_HH
 # include "MbsConverter.hh"
+#endif
+#ifndef __MEDCONVERTER_HH
+# include "MedConverter.hh"
 #endif
 
 // EventBuilder header

@@ -28,7 +28,9 @@ bool help_flag = false;
 bool gui_flag = false;
 
 // Input data type
+bool flag_midas = false;
 bool flag_mbs = false;
+bool flag_med = false;
 
 // Do we want to fit the 22Ne angle data?
 bool flag_angle_fit = false;
@@ -94,6 +96,9 @@ void start_monitor(){
 // Function to call the monitoring loop
 void* monitor_run( void* ptr ){
 	
+	// This doesn't make sense for MED data which is historical
+	if( flag_med ) return 0;
+	
 	// Get the settings, file etc.
 	thptr *calfiles = (thptr*)ptr;
 	
@@ -106,7 +111,7 @@ void* monitor_run( void* ptr ){
 		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( calfiles->myset );
 		conv_mon.reset( conv_mbs_mon.get() );
 	}
-	else {
+	else if( flag_midas ) {
 		conv_midas_mon = std::make_shared<MiniballMidasConverter>( calfiles->myset );
 		conv_mon.reset( conv_midas_mon.get() );
 	}
@@ -115,7 +120,7 @@ void* monitor_run( void* ptr ){
 
 	
 	// Data blocks for Data spy
-	if( flag_spy && ( myset->GetBlockSize() != 0x10000 && !flag_mbs ) ) {
+	if( flag_spy && ( myset->GetBlockSize() != 0x10000 && flag_midas ) ) {
 	
 		// only 64 kB supported atm
 		std::cerr << "Currently only supporting 64 kB block size" << std::endl;
@@ -127,7 +132,7 @@ void* monitor_run( void* ptr ){
 	DataSpy myspy;
 	long long buffer[8*1024];
 	int file_id = 0; ///> TapeServer volume = /dev/file/<id> ... <id> = 0 on issdaqpc2
-	if( flag_spy && !flag_mbs ) myspy.Open( file_id ); /// open the data spy
+	if( flag_spy && flag_midas ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
 	
 	// GSI MBS EventServer
@@ -163,7 +168,7 @@ void* monitor_run( void* ptr ){
 		while( bRunMon ) {
 			
 			// Convert - from MIDAS file
-			if( !flag_spy && !flag_mbs ) {
+			if( !flag_spy && flag_midas ) {
 				
 				nblocks = conv_midas_mon->ConvertFile( curFileMon, start_block );
 				start_block = nblocks;
@@ -179,7 +184,7 @@ void* monitor_run( void* ptr ){
 			}
 			
 			// Convert - from MIDAS shared memory
-			else if( flag_spy && !flag_mbs ){
+			else if( flag_spy && flag_midas ){
 			
 				// Clean up the trees before we start
 				conv_midas_mon->GetSortedTree()->Reset();
@@ -288,7 +293,7 @@ void* monitor_run( void* ptr ){
 	} // always running
 	
 	// Close the dataSpy before exiting (no point really)
-	if( flag_spy && !flag_mbs ) myspy.Close( file_id );
+	if( flag_spy && flag_midas ) myspy.Close( file_id );
 	if( flag_spy && flag_mbs ) mbs.CloseEventServer();
 
 	// Close all outputs (we never reach here anyway)
@@ -297,7 +302,6 @@ void* monitor_run( void* ptr ){
 	hist_mon->CloseOutput();
 
 	return 0;
-
 	
 }
 
@@ -337,9 +341,10 @@ void do_convert() {
 	//------------------------//
 	// Run conversion to ROOT //
 	//------------------------//
-	// TODO: Find a better way to have a converter object without creating everything twice
+	// TODO: Find a better way to have a converter object without creating everything thrice
 	MiniballMidasConverter conv_midas( myset );
 	MiniballMbsConverter conv_mbs( myset );
+	MiniballMedConverter conv_med( myset );
 	std::cout << "\n +++ Miniball Analysis:: processing MiniballConverter +++" << std::endl;
 
 	TFile *rtest;
@@ -413,7 +418,7 @@ void do_convert() {
 				
 			}
 			
-			else {
+			else if( flag_midas ) {
 				
 				if( flag_source ) conv_midas.SourceOnly();
 				if( flag_ebis ) conv_midas.EBISOnly();
@@ -430,6 +435,24 @@ void do_convert() {
 				}
 				conv_midas.CloseOutput();
 				
+			}
+			
+			else if( flag_med ){
+				
+				if( flag_source ) conv_med.SourceOnly();
+				if( flag_ebis ) conv_med.EBISOnly();
+				conv_med.SetOutput( name_output_file );
+				conv_med.AddCalibration( mycal );
+				conv_med.MakeTree();
+				conv_med.MakeHists();
+				conv_med.ConvertFile( name_input_file );
+
+				// Sort the tree before writing and closing
+				if( !flag_source ) {
+					conv_med.SortTree();
+				}
+				conv_med.CloseOutput();
+
 			}
 
 		}
@@ -671,7 +694,9 @@ int main( int argc, char *argv[] ){
 	interface->Add("-e", "Flag to force new event builder (new calibration)", &flag_events );
 	interface->Add("-source", "Flag to define an source only run", &flag_source );
 	interface->Add("-ebis", "Flag to define an EBIS only run, discarding data >4ms after an EBIS event", &flag_ebis );
-	interface->Add("-mbs", "Flag to define input as MBS data type", &flag_mbs );
+	interface->Add("-midas", "Flag to define input as MIDAS data type (FEBEX with Daresbury firmware - default)", &flag_midas );
+	interface->Add("-mbs", "Flag to define input as MBS data type (FEBEX with GSI firmware)", &flag_mbs );
+	interface->Add("-med", "Flag to define input as MED data type (DGF and MADC)", &flag_med );
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
@@ -728,8 +753,8 @@ int main( int argc, char *argv[] ){
 			
 	}
 	
-	// Check if it should be MBS format
-	if( !flag_mbs && !flag_spy && !name_angle_file.length() ){
+	// Check if it should be MBS or MED format
+	if( !flag_mbs && !flag_med && !flag_spy && !name_angle_file.length() ){
 
 		std::string extension = input_names.at(0).substr( input_names.at(0).find_last_of(".")+1,
 														 input_names.at(0).length()-input_names.at(0).find_last_of(".")-1 );
@@ -738,6 +763,14 @@ int main( int argc, char *argv[] ){
 			
 			flag_mbs = true;
 			std::cout << "Assuming we have MBS data because of the .lmd extension" << std::endl;
+			std::cout << "Forcing the data block size to 32 kB" << std::endl;
+			
+		}
+		
+		else if( extension == "med" ) {
+			
+			flag_mbs = true;
+			std::cout << "Assuming we have MED data because of the .med extension" << std::endl;
 			std::cout << "Forcing the data block size to 32 kB" << std::endl;
 			
 		}
@@ -923,21 +956,30 @@ int main( int argc, char *argv[] ){
 	
 	myset = std::make_shared<MiniballSettings>( name_set_file );
 	mycal = std::make_shared<MiniballCalibration>( name_cal_file, myset );
-	if( flag_mbs ) mycal->SetDefaultQint();
+	if( flag_mbs || flag_med ) mycal->SetDefaultQint();
 	mycal->ReadCalibration();
 	myreact = std::make_shared<MiniballReaction>( name_react_file, myset );
 	
-	// Force data block size for MBS data
-	if( flag_mbs ) myset->SetBlockSize( 0x8000 );
+	// Force data block size for MBS and MED data
+	if( flag_mbs || flag_med ) myset->SetBlockSize( 0x8000 );
 	
 	//-------------------//
 	// Online monitoring //
 	//-------------------//
 	if( flag_monitor || flag_spy ) {
 		
+		// Don't support MBS data spy
 		if( flag_mbs && flag_spy ){
 			
 			std::cout << "MBS data spy not yet supported" << std::endl;
+			return 0;
+			
+		}
+		
+		// Don't support MED data spy (historical data)
+		if( flag_med && flag_spy ){
+			
+			std::cout << "MED data spy not supported because data is historical" << std::endl;
 			return 0;
 			
 		}

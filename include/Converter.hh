@@ -137,7 +137,7 @@ protected:
 	unsigned int nsamples;
 
 	// Flag depending on the data type
-	bool mbs_data;
+	bool mbs_data, midas_data, med_data;
 	
 	// Flag to signify this buffer or the one before is full
 	bool buffer_full = false;

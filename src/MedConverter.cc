@@ -1,7 +1,7 @@
-#include "MbsConverter.hh"
+#include "MedConverter.hh"
 
 // Function to process header words and then the data
-void MiniballMbsConverter::ProcessBlock( unsigned long nblock ){
+void MiniballMedConverter::ProcessBlock( unsigned long nblock ){
 		
 	// Get number of 32-bit words and pointer to them
 	ndata = ev->GetNData();
@@ -51,7 +51,7 @@ void MiniballMbsConverter::ProcessBlock( unsigned long nblock ){
 // Treat a channel - this should always start with a byte 0x34. If chan is 0 to
 // 15, that is a trace for the corresponding channel. If it is 255, this is the
 // special channel, where the energies from the FPGA are stored.
-void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
+void MiniballMedConverter::ProcessFebexData( UInt_t &pos ) {
 	
 	flag_febex_data0 = false;
 	flag_febex_trace = false;
@@ -127,8 +127,6 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				if( only_one_hit_in_cha )
 					std::cerr << "Error: One hit and multiple hits flagged" << std::endl;
 				
-				n_double_hits++;
-				
 			}
 			
 			else if( only_one_hit_in_cha ) {
@@ -141,8 +139,6 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				my_hit_time *= 10;
 				
 				hhit_time->Fill( my_hit_time );
-
-				n_single_hits++;
 
 			}
 
@@ -328,7 +324,7 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 }
 
 
-bool MiniballMbsConverter::GetFebexChanID( unsigned int x ){
+bool MiniballMedConverter::GetFebexChanID( unsigned int x ){
 	
 	// Decode the channel ID
 	my_tag_id = (x & 0xFF);
@@ -371,7 +367,7 @@ bool MiniballMbsConverter::GetFebexChanID( unsigned int x ){
 	
 }
 	
-void MiniballMbsConverter::FinishFebexData(){
+void MiniballMedConverter::FinishFebexData(){
 	
 	// Timestamp with offset
 	unsigned long long time_corr;
@@ -471,7 +467,7 @@ void MiniballMbsConverter::FinishFebexData(){
 }
 
 // Function to run the conversion for a single file
-int MiniballMbsConverter::ConvertFile( std::string input_file_name,
+int MiniballMedConverter::ConvertFile( std::string input_file_name,
 							 unsigned long start_subevt,
 							 long end_subevt ) {
 	
@@ -577,8 +573,6 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 	
 	// Print stats
 	std::cout << std::endl;
-	std::cout << "Number of single hits = " << n_single_hits << std::endl;
-	std::cout << "Number of double hits = " << n_double_hits << std::endl;
 
 	return mbsevt;
 	
