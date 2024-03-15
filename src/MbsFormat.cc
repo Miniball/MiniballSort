@@ -466,6 +466,9 @@ const MBSEvent* MBS::GetNextMedEvent() {
 			mbs_sevt.AddData( var16[i] );
 		}
 		
+		// Store this sub event
+		evt.StoreSubEvent( mbs_sevt );
+		
 		// Move the pointer on
 		pos += wc * sizeof(UChar_t);
 			

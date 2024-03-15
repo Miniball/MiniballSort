@@ -181,8 +181,8 @@ public:
 	};
 	
 	// Getter functions
-	unsigned int GetType(){ return type; };
-	int GetHeaderSize(){ return hsize; };
+	unsigned int GetType() const { return type; };
+	int GetHeaderSize() const { return hsize; };
 
 	// Other functions
 	void IncrementHit(){ hit++; };
@@ -217,8 +217,8 @@ public:
 	unsigned int GetDataLength(){ return data.size(); };
 	
 	// Getters
-	MBSBufferElem GetSubEventElement(){ return stype; };
-	unsigned int GetSubEventType(){ return stype.GetType(); };
+	MBSBufferElem GetSubEventElement() const { return stype; };
+	unsigned int GetSubEventType() const { return stype.GetType(); };
 	ULong_t GetSubEventID() const { return seventid; };
 	UInt_t GetDataLength() const { return data_len; };
 	UChar_t GetProcessorType() const { return proctype; };
@@ -288,8 +288,8 @@ public:
 	};
 	
 	// Get the sub events
-	unsigned int GetNumberOfSubEvents(){ return sevts.size(); };
-	MBSSubEvent *GetSubEvent( unsigned int i ){
+	unsigned int GetNumberOfSubEvents() const { return sevts.size(); };
+	const MBSSubEvent *GetSubEvent( unsigned int i ) const {
 		if( i < sevts.size() ) return &sevts[i];
 		else return nullptr;
 	};

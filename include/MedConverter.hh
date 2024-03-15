@@ -18,7 +18,7 @@ public:
 	MiniballMedConverter( std::shared_ptr<MiniballSettings> myset )
 		: MiniballConverter( myset ) {
 			ev = nullptr;
-			data = nullptr;
+			mbs_sevt = nullptr;
 			mbs_data = false;
 			midas_data = false;
 			med_data = true;
@@ -31,9 +31,14 @@ public:
 					long end_block = -1 );
 
 	void ProcessBlock( unsigned long nblock );
-	void ProcessFebexData( UInt_t &pos );
-	bool GetFebexChanID( unsigned int x );
-	void FinishFebexData();
+	void ProcessMesytecAdcData();
+	void ProcessCaenAdcData();
+	void ProcessDgfData();
+	void ProcessDgfTimeStamp();
+	void ProcessDgfScaler();
+	void ProcessPatternUnitData();
+	void ProcessScalerData();
+	void ClearDataBuffer();
 
 	void SetMBSEvent( const MBSEvent *myev ){ ev = myev; };
 
@@ -42,9 +47,11 @@ private:
 
 	// MBS Event holder and data pointers
 	const MBSEvent *ev;
-	const UInt_t *data;
+	const MBSSubEvent *mbs_sevt;
 	size_t ndata;
-	MBSSubEvent *mbs_sevt;
+	
+	// Need a buffer before filling the tree
+	std::vector<MiniballDataPackets> output_buffer;
 
 };
 

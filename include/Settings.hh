@@ -37,6 +37,43 @@ public:
 	inline unsigned int GetNumberOfFebexBoards(){ return n_febex_board; };
 	inline unsigned int GetNumberOfFebexChannels(){ return n_febex_ch; };
 	
+	// Old DAQ settings - DGF
+	inline unsigned int GetNumberOfDgfModules(){ return n_dgf_mod; };
+	inline unsigned int GetNumberOfDgfChannels(){ return n_dgf_ch; };
+	inline unsigned int GetDgfModuleNumber( unsigned int i ){
+		if( i >= dgf_mod_offset && i < dgf_mod_offset + n_dgf_mod )
+			return i - dgf_mod_offset;
+		else {
+			std::cerr << "Bad DGF module requested: " << i << std::endl;
+			return 0;
+		}
+	};
+
+	// Old DAQ settings - CAEN ADCs
+	inline unsigned int GetNumberOfCaenAdcModules(){ return n_caen_mod; };
+	inline unsigned int GetNumberOfCaenAdcChannels(){ return n_caen_ch; };
+	inline unsigned int GetCaenAdcModuleNumber( unsigned int i ){
+		if( i >= caen_mod_offset && i < caen_mod_offset + n_caen_mod )
+			return i - caen_mod_offset;
+		else {
+			std::cerr << "Bad CAEN ADC module requested: " << i << std::endl;
+			return 0;
+		}
+	};
+
+	// Old DAQ settings - Mesytex
+	inline unsigned int GetNumberOfMesytecAdcModules(){ return n_madc_mod; };
+	inline unsigned int GetNumberOfMesytecAdcChannels(){ return n_madc_ch; };
+	inline unsigned int GetMesytecAdcModuleNumber( unsigned int i ){
+		if( i >= madc_mod_offset && i < madc_mod_offset + n_madc_mod )
+			return i - madc_mod_offset;
+		else {
+			std::cerr << "Bad Mesytec ADC module requested: " << i << std::endl;
+			return 0;
+		}
+	};
+
+
 	// Info settings
 	inline unsigned int GetSyncCode(){ return sync_code; };
 	inline unsigned int GetTimestampCode(){ return thsb_code; };
@@ -172,7 +209,17 @@ private:
 	unsigned int n_febex_board;		///< Maximum number of boards per SFP
 	unsigned int n_febex_ch;		///< Number of channels per board (16 for FEBEX4)
 	
-	
+	// Old DAQ settings
+	unsigned int n_dgf_mod;			///< Number of DGF modules
+	unsigned int n_dgf_ch;			///< Number of DGF channels
+	unsigned int dgf_mod_offset;	///< module number offset for the DGFs
+	unsigned int n_caen_mod;		///< Number of CAEN ADC modules
+	unsigned int n_caen_ch;			///< Number of CAENADC channels
+	unsigned int caen_mod_offset;	///< module number offset for the CAEN ADCs
+	unsigned int n_madc_mod;		///< Number of Mesytec ADC modules
+	unsigned int n_madc_ch;			///< Number of Mesytec ADC channels
+	unsigned int madc_mod_offset;	///< module number offset for the MADCs
+
 	// Miniball array settings
 	unsigned int n_mb_cluster;		///< Miniball usuall has 8 triple cluster detectors
 	unsigned int n_mb_crystal;		///< Number of crystals in a triple cluster is 3
@@ -253,14 +300,17 @@ private:
 	unsigned int resume_code;       	///< Info code when acquisition has resumed after a pause.
 	unsigned int pulser_code;			///< Info code when we have a pulser event in InfoData packets
 	unsigned int ebis_sfp;				///< Location of the EBIS signal in the FEBEX system (sfp)
+	unsigned int ebis_dgf;				///< Location of the EBIS signal in the DGF system (module)
 	unsigned int ebis_board;			///< Location of the EBIS signal in the FEBEX system (board)
 	unsigned int ebis_ch;				///< Location of the EBIS signal in the FEBEX system (channel)
 	unsigned int ebis_code;				///< Info code when we have an EBIS event in InfoData packets
 	unsigned int t1_sfp;				///< Location of the T1 signal in the FEBEX system (sfp)
+	unsigned int t1_dgf;				///< Location of the T1 signal in the DGF system (module)
 	unsigned int t1_board;				///< Location of the T1 signal in the FEBEX system (board)
 	unsigned int t1_ch;					///< Location of the T1 signal in the FEBEX system (channel)
 	unsigned int t1_code;				///< Info code when we have a T1 event in InfoData packets
 	unsigned int sc_sfp;				///< Location of the SuperCycle signal in the FEBEX system (sfp)
+	unsigned int sc_dgf;				///< Location of the SuperCycle signal in the DGF system (module)
 	unsigned int sc_board;				///< Location of the SuperCycle signal in the FEBEX system (board)
 	unsigned int sc_ch;					///< Location of the SuperCycle signal in the FEBEX system (channel)
 	unsigned int sc_code;				///< Info code when we have a SuperCycle event in InfoData packets
@@ -290,6 +340,9 @@ private:
 	// Buffer full rejection
 	bool bufferfull_reject;
 	bool bufferpart_reject;
+	
+	// DGF timestamp delay
+	long dgf_ts_delay;
 
 
 };

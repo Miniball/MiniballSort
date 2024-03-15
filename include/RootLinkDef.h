@@ -19,6 +19,10 @@
 #pragma link C++ class SpedeEvt+;
 #pragma link C++ class IonChamberEvt+;
 #pragma link C++ class MiniballDataPackets+;
+#pragma link C++ class DgfData+;
+#pragma link C++ class MesytecAdcData+;
+#pragma link C++ class CaenAdcData+;
+#pragma link C++ class FebexData+;
 #pragma link C++ class FebexData+;
 #pragma link C++ class InfoData+;
 #pragma link C++ class MBSInfoPackets+;

@@ -1,6 +1,7 @@
 #ifndef __MBSCONVERTER_HH
 #define __MBSCONVERTER_HH
 
+// MBS defines
 #define MBS_ID_WORD				"%MBS_RAW_DATA%"			/*!< magic id */
 #define MBS_SIZEOF_DATA_W		0x4000						/*!< length of data (words) */
 #define MBS_SIZEOF_DATA_B		0x8000						/*!< length of data (bytes) */
@@ -97,5 +98,55 @@
 #define MBS_L_NAME				64								/*!< lenght of a name string */
 
 #define MBS_ODD_NOF_PARAMS		1								/*!< indicates an odd number of params */
+
+// Module data defines
+#define CAEN7X5_NBOFCHAN  32
+#define CAEN_V7X5_SH_TYPE_OF_WORD 0x18
+#define CAEN_V7X5_M_TYPE_OF_WORD 0x7
+#define CAEN_V7X5_D_HDR 0x2
+#define CAEN_V7X5_D_VALID_DATUM 0x0
+#define CAEN_V7X5_D_EOB 0x4
+#define CAEN_V7X5_SH_CRATENR 0x10
+#define CAEN_V7X5_M_CRATENR 0xff
+#define CAEN_V7X5_SH_WC 0x8
+#define CAEN_V7X5_M_WC  0x3f
+#define CAEN_V7X5_M_MSERIAL 0xff
+#define CAEN_V7X5_SH_CHN 0x10
+#define CAEN_V7X5_M_CHN 0x3f
+#define CAEN_V7X5_B_OVERFLOW 0x1000
+#define CAEN_V7X5_B_UNDERTHRESH 0x2000
+#define CAEN_V7X5_M_ADCDATA 0xfff
+#define CAEN_V7X5_M_EVENTCOUNTER 0xffffff
+
+#define SIS3600_D_HDR     (0x1 << 15)
+#define SIS3600_MSERIAL   (0xff)
+
+#define SCALER_SH_CRATENR 0x10
+#define SCALER_M_CRATENR 0xff
+#define SCALER_M_SERIAL 0xffff
+
+#define DGF_SCALER_END_OF_BUFFER 0x5252
+#define DGF_SCALER_MAGIC_WORD 0x2525
+
+#define BRAGG_CHAMBER_HEADER        (0x1 << 15)
+#define BRAGG_CHAMBER_MODULE_NUMBER  0xFF
+#define BRAGG_CHAMBER_MODULE_ID      0x7F
+#define BRAGG_CHAMBER_SH_ModuleId   8
+
+#define MESYTEC_MADC_NBOFCHAN  32
+#define MESYTEC_MADC_MODULE_ID 0xff
+#define MESYTEC_MADC_OUTPUT_FORMAT 0x8000 //should be zero
+#define MESYTEC_MADC_ADC_RESOLUTION 0x7000 //0=2k,1=4k,2=4k hires,3=8k,4=8k hires
+#define MESYTEC_MADC_WORD_COUNT 0xfff
+#define MESYTEC_MADC_CHANNEL_NUMBER 0x1f
+#define MESYTEC_MADC_VALUE 0x1fff
+#define MESYTEC_MADC_OUT_OF_RANGE 0x4000
+#define MESYTEC_MADC_EXTENDED_TIMESTAMP 0x80
+#define MESYTEC_MADC_EXTENDED_TIMESTAMP_SHIFT 30
+#define MESYTEC_MADC_EXTENDED_TIMESTAMP_DATA 0xffff
+#define MESYTEC_MADC_END_OF_EVENT 0xc0000000
+#define MESYTEC_MADC_TIMESTAMP 0x3fffffff
+
+
 
 #endif

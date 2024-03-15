@@ -7,6 +7,48 @@
 #include "TVector.h"
 #include "TGraph.h"
 
+class MesytecAdcData : public TObject {
+	
+public:
+	
+	MesytecAdcData(){};
+	~MesytecAdcData() {};
+	
+protected:
+
+
+	ClassDef( MesytecAdcData, 1 )
+
+};
+
+class CaenAdcData : public TObject {
+	
+public:
+	
+	CaenAdcData(){};
+	~CaenAdcData() {};
+	
+protected:
+
+
+	ClassDef( CaenAdcData, 1 )
+
+};
+
+class DgfData : public TObject {
+	
+public:
+	
+	DgfData(){};
+	~DgfData() {};
+	
+protected:
+
+
+	ClassDef( DgfData, 1 )
+
+};
+
 class FebexData : public TObject {
 	
 public:
@@ -151,13 +193,19 @@ public:
 	MiniballDataPackets() {};
 	~MiniballDataPackets() {};
 
-	inline bool	IsFebex() { return febex_packets.size(); };
-	inline bool	IsInfo() { return info_packets.size(); };
+	inline bool	IsDgf()			{ return dgf_packets.size(); };
+	inline bool	IsCaenAdc() 	{ return caen_packets.size(); };
+	inline bool	IsMesytecAdc()	{ return madc_packets.size(); };
+	inline bool	IsFebex()		{ return febex_packets.size(); };
+	inline bool	IsInfo()		{ return info_packets.size(); };
 	
 	void SetData( std::shared_ptr<FebexData> data );
 	void SetData( std::shared_ptr<InfoData> data );
 
 	// These methods are not very safe for access
+	inline std::shared_ptr<DgfData> GetDgfData() { return std::make_shared<DgfData>( dgf_packets.at(0) ); };
+	inline std::shared_ptr<CaenAdcData> GetCaenAdcData() { return std::make_shared<CaenAdcData>( caen_packets.at(0) ); };
+	inline std::shared_ptr<MesytecAdcData> GetMesytecAdcData() { return std::make_shared<MesytecAdcData>( madc_packets.at(0) ); };
 	inline std::shared_ptr<FebexData> GetFebexData() { return std::make_shared<FebexData>( febex_packets.at(0) ); };
 	inline std::shared_ptr<InfoData> GetInfoData() { return std::make_shared<InfoData>( info_packets.at(0) ); };
 	
@@ -174,10 +222,13 @@ public:
 
 protected:
 	
-	std::vector<FebexData>	febex_packets;
-	std::vector<InfoData>	info_packets;
+	std::vector<DgfData>		dgf_packets;
+	std::vector<CaenAdcData>	caen_packets;
+	std::vector<MesytecAdcData>	madc_packets;
+	std::vector<FebexData>		febex_packets;
+	std::vector<InfoData>		info_packets;
 
-	ClassDef( MiniballDataPackets, 2 )
+	ClassDef( MiniballDataPackets, 3 )
 
 };
 

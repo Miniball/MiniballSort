@@ -2,6 +2,9 @@
 
 ClassImp(FebexData)
 ClassImp(InfoData)
+ClassImp(MesytecAdcData)
+ClassImp(CaenAdcData)
+ClassImp(DgfData)
 ClassImp(MiniballDataPackets)
 ClassImp(MBSInfoPackets)
 
@@ -65,6 +68,9 @@ void MiniballDataPackets::SetData( std::shared_ptr<InfoData> data ){
 
 void MiniballDataPackets::ClearData(){
 	
+	dgf_packets.clear();
+	caen_packets.clear();
+	madc_packets.clear();
 	febex_packets.clear();
 	info_packets.clear();
 	
@@ -74,8 +80,11 @@ void MiniballDataPackets::ClearData(){
 
 unsigned long long int MiniballDataPackets::GetEventID(){
 		
-	if( IsFebex() ) return GetFebexData()->GetEventID();
-	if( IsInfo() ) return GetInfoData()->GetEventID();
+	//if( IsDgf() )			return GetDgfData()->GetEventID();
+	//if( IsCaenAdc() )		return GetCaenAdcData()->GetEventID();
+	//if( IsMesytecAdc() )	return GetMesytecAdcData()->GetEventID();
+	if( IsFebex() )			return GetFebexData()->GetEventID();
+	if( IsInfo() )			return GetInfoData()->GetEventID();
 
 	return 0;
 	
@@ -83,8 +92,11 @@ unsigned long long int MiniballDataPackets::GetEventID(){
 
 long long int MiniballDataPackets::GetTime(){
 	
-	if( IsFebex() ) return GetFebexData()->GetTime();
-	if( IsInfo() ) return GetInfoData()->GetTime();
+	//if( IsDgf() )			return GetDgfData()->GetTime();
+	//if( IsCaenAdc() )		return GetCaenAdcData()->GetTime();
+	//if( IsMesytecAdc() )	return GetMesytecAdcData()->GetTime();
+	if( IsFebex() )			return GetFebexData()->GetTime();
+	if( IsInfo() )			return GetInfoData()->GetTime();
 	
 	return 0;
 	
@@ -104,8 +116,8 @@ UInt_t MiniballDataPackets::GetTimeLSB(){
 
 unsigned char MiniballDataPackets::GetSfp(){
 	
-	if( IsFebex() ) return GetFebexData()->GetSfp();
-	if( IsInfo() ) return GetInfoData()->GetSfp();
+	if( IsFebex() )		return GetFebexData()->GetSfp();
+	if( IsInfo() )		return GetInfoData()->GetSfp();
 	
 	return 0;
 	
@@ -113,8 +125,8 @@ unsigned char MiniballDataPackets::GetSfp(){
 
 unsigned char MiniballDataPackets::GetBoard(){
 	
-	if( IsFebex() ) return GetFebexData()->GetSfp();
-	if( IsInfo() ) return GetInfoData()->GetSfp();
+	if( IsFebex() )		return GetFebexData()->GetBoard();
+	if( IsInfo() )		return GetInfoData()->GetBoard();
 	
 	return 0;
 	
@@ -122,8 +134,11 @@ unsigned char MiniballDataPackets::GetBoard(){
 
 unsigned char MiniballDataPackets::GetChannel(){
 	
-	if( IsFebex() ) return GetFebexData()->GetSfp();
-	if( IsInfo() ) return 0;
+	//if( IsDgf() )			return GetDgfData()->GetChannel();
+	//if( IsCaenAdc() )		return GetCaenAdcData()->GetChannel();
+	//if( IsMesytecAdc() )	return GetMesytecAdcData()->GetChannel();
+	if( IsFebex() )			return GetFebexData()->GetChannel();
+	if( IsInfo() )			return 0;
 	
 	return 0;
 	

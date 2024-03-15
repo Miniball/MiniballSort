@@ -141,7 +141,23 @@ void MiniballSettings::ReadSettings() {
 	n_febex_sfp		= config->GetValue( "NumberOfFebexSfps", 2 );
 	n_febex_board	= config->GetValue( "NumberOfFebexBoards", 16 );
 	n_febex_ch		= config->GetValue( "NumberOfFebexChannels", 16 );
-	
+
+	// DGF initialisation
+	n_dgf_mod		= config->GetValue( "NumberOfDgfModules", 0 );
+	n_dgf_ch		= config->GetValue( "NumberOfDgfChannels", 4 );
+	dgf_mod_offset	= config->GetValue( "DgfModuleOffset", 1 );
+	dgf_ts_delay	= config->GetValue( "DgfTimeStampDelay", 65527 );
+
+	// CAEN ADC initialisation
+	n_caen_mod		= config->GetValue( "NumberOfCaenAdcModules", 0 );
+	n_caen_ch		= config->GetValue( "NumberOfCaenAdcChannels", 4 );
+	caen_mod_offset	= config->GetValue( "CaenAdcModuleOffset", 60 );
+
+	// Mesytec ADC initialisation
+	n_madc_mod		= config->GetValue( "NumberOfMesytecAdcModules", 0 );
+	n_madc_ch		= config->GetValue( "NumberOfMesytecAdcChannels", 4 );
+	madc_mod_offset	= config->GetValue( "MesytecAdcModuleOffset", 55 );
+
 	// Miniball array initialisation
 	n_mb_cluster	= config->GetValue( "NumberOfMiniballClusters", 8 );
 	n_mb_crystal	= config->GetValue( "NumberOfMiniballCrystals", 3 );
@@ -181,15 +197,18 @@ void MiniballSettings::ReadSettings() {
 	pulser_code		= 30;	// code for first channel, others are pulser_code+id
 	ebis_sfp		= config->GetValue( "EBIS.Sfp", 1 );
 	ebis_board		= config->GetValue( "EBIS.Board", 10 );
-	ebis_ch			= config->GetValue( "EBIS.Channel", 0 );
+	ebis_ch			= config->GetValue( "EBIS.Channel", 0 ); // ch 0 if in DGF too!
+	ebis_dgf		= config->GetValue( "EBIS.Dgf", 53 );
 	ebis_code		= 21;
 	t1_sfp			= config->GetValue( "T1.Sfp", 1 );
 	t1_board		= config->GetValue( "T1.Board", 10 );
 	t1_ch			= config->GetValue( "T1.Channel", 2 );
+	t1_dgf			= config->GetValue( "T1.Dgf", 53 );
 	t1_code			= 22;
 	sc_sfp			= config->GetValue( "SC.Sfp", 1 );
 	sc_board		= config->GetValue( "SC.Board", 10 );
 	sc_ch			= config->GetValue( "SC.Channel", 4 );
+	sc_dgf			= config->GetValue( "SC.Dgf", 53 );
 	sc_code			= 23;
 	laser_sfp		= config->GetValue( "RILIS.Sfp", 1 );
 	laser_board		= config->GetValue( "RILIS.Board", 10 );

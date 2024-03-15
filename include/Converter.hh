@@ -160,6 +160,9 @@ protected:
 	TTree *mbsinfo_tree;
 
 	// Counters
+	std::vector<unsigned long int> ctr_dgf_hit;						// hits on each DGF module
+	std::vector<unsigned long int> ctr_madc_hit;					// hits on each Mesytec ADC module
+	std::vector<unsigned long int> ctr_caen_hit;					// hits on each CAEN ADC module
 	std::vector<std::vector<unsigned long int>> ctr_febex_hit;		// hits on each Febex module
 	std::vector<std::vector<unsigned long int>> ctr_febex_pause;   	// pause acq for module
 	std::vector<std::vector<unsigned long int>> ctr_febex_resume;  	// resume acq for module
