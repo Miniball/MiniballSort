@@ -20,11 +20,14 @@
 #pragma link C++ class IonChamberEvt+;
 #pragma link C++ class MiniballDataPackets+;
 #pragma link C++ class DgfData+;
+#pragma link C++ class MiniballAdcData+;
 #pragma link C++ class MesytecAdcData+;
 #pragma link C++ class CaenAdcData+;
 #pragma link C++ class FebexData+;
-#pragma link C++ class FebexData+;
 #pragma link C++ class InfoData+;
+#pragma link C++ class PatternUnitData+;
+#pragma link C++ class ScalerUnitData+;
+#pragma link C++ class DgfScalerData+;
 #pragma link C++ class MBSInfoPackets+;
 #pragma link C++ class MiniballReaction+;
 #pragma link C++ class MiniballParticle+;
