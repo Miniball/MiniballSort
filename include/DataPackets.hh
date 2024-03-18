@@ -7,8 +7,179 @@
 #include "TVector.h"
 #include "TGraph.h"
 
-class MesytecAdcData : public TObject {
+class PatternUnitData : public TObject {
+
+public:
 	
+	PatternUnitData( unsigned char _id, unsigned int _val ){
+		id = _id;
+		val = _val;
+	};
+	PatternUnitData(){
+		id = 255;
+		val = 0;
+	};
+	~PatternUnitData() {};
+	
+	void ClearData();
+	
+	// Setters
+	void SetPattern( unsigned char _id, unsigned int _val ){
+		id = _id;
+		val = _val;
+	};
+	
+	// Getters
+	unsigned char	GetID(){ return id; };
+	unsigned int	GetValue(){ return val; };
+
+protected:
+
+	unsigned char				id; 		///< ID of the channel/pattern being read
+	unsigned int				val;		///< value of the pattern
+
+	ClassDef( PatternUnitData, 1 )
+
+};
+
+class ScalerUnitData : public TObject {
+
+public:
+	
+	ScalerUnitData( unsigned char _id, unsigned int _val ){
+		id = _id;
+		val = _val;
+	};
+	ScalerUnitData(){
+		id = 255;
+		val = 0;
+	};
+	~ScalerUnitData() {};
+	
+	void ClearData();
+	
+	// Setters
+	void SetScaler( unsigned char _id, unsigned int _val ){
+		id = _id;
+		val = _val;
+	};
+	
+	// Getters
+	unsigned char	GetID(){ return id; };
+	unsigned int	GetValue(){ return val; };
+
+protected:
+
+	unsigned char				id; 		///< ID of the channel/scaler being read
+	unsigned int				val;		///< value of the pattern
+
+	ClassDef( ScalerUnitData, 1 )
+
+};
+
+class DgfScalerData : public TObject {
+
+public:
+	
+	DgfScalerData(){};
+	DgfScalerData( unsigned short n ) : fNumberOfDgfChannels(n) {
+		fLiveTime.resize( n, 0 );
+		fFastPeak.resize( n, 0 );
+	};
+	~DgfScalerData() {};
+	
+	void ClearData();
+	
+	// Setters
+	void SetModule( unsigned short id ) { mod = id; };
+	void SetClusterID( unsigned short id ) { clu = id; };
+	void SetRealTime( long long time ){ fRealTime = time; };
+	void SetRunTime( long long time ) { fRunTime = time; };
+	void SetGSLTTime( long long time ) { fGSLTTime = time; };
+	void SetNumberOfEvents( unsigned short n ) { fNumberOfEvents = n; };
+	void SetLiveTime( unsigned short i, long long time ) {
+		if( i < fNumberOfDgfChannels ) fLiveTime[i] = time;
+	};
+	void SetFastPeak( unsigned short i, unsigned int fp ) {
+		if( i < fNumberOfDgfChannels ) fFastPeak[i] = fp;
+	};
+	
+	// Getters
+	unsigned short	GetModule(){ return mod; };
+	unsigned short	GetCluster(){ return clu; };
+	long long		GetRealTime(){ return fRealTime; };
+	long long		GetRunTime() { return fRunTime; };
+	long long		GetGSLTTime() { return fGSLTTime; };
+	unsigned short	GetNumberOfEvents() { return fNumberOfEvents; };
+	long long		GetLiveTime( unsigned short i ) {
+		if( i < fNumberOfDgfChannels ) return fLiveTime[i];
+		else return -1;
+	};
+	unsigned int	SetFastPeak( unsigned short i ) {
+		if( i < fNumberOfDgfChannels ) return fFastPeak[i];
+		else return 0;
+	};
+
+protected:
+
+	unsigned short	mod; 		///< DGF module being read
+	unsigned short	clu;		///< cluster ID
+	
+	long long fRealTime;
+	long long fRunTime;
+	long long fGSLTTime;
+	unsigned short fNumberOfEvents;
+	std::vector<long long> fLiveTime;
+	std::vector<int> fFastPeak;
+	
+	unsigned short fNumberOfDgfChannels;
+
+	ClassDef( DgfScalerData, 1 )
+
+};
+
+class MiniballAdcData : public TObject {
+
+public:
+	
+	MiniballAdcData(){};
+	~MiniballAdcData() {};
+	
+	void ClearData();
+
+	// Setters
+	inline void SetTime( long long t ){ time = t; };
+	inline void SetQint( unsigned short q ){ Qint = q; };
+	inline void SetEnergy( float e ){ energy = e; };
+	inline void SetModule( unsigned char m ){ mod = m; };
+	inline void SetChannel( unsigned char c ){ ch = c; };
+	inline void SetThreshold( bool t ){ thres = t; };
+
+	// Getters
+	long long							GetTime(){ return time; };
+	unsigned char						GetModule(){ return mod; };
+	unsigned char						GetChannel(){ return ch; };
+	inline unsigned long long int		GetEventID() { return eventid; };
+	inline unsigned int					GetQint() { return Qint; };
+	inline float						GetEnergy() { return energy; };
+	inline bool							IsOverThreshold() { return thres; };
+
+protected:
+
+	unsigned long long int		eventid;
+	long long 					time;
+	float						energy;
+	unsigned short				Qint;
+	unsigned char				mod; 		///< module number of ADC
+	unsigned char				ch; 		///< channel number of ADC
+	bool						thres;		///< is the energy over threshold?
+
+	ClassDef( MiniballAdcData, 1 )
+
+};
+
+class MesytecAdcData : public MiniballAdcData {
+
 public:
 	
 	MesytecAdcData(){};
@@ -16,12 +187,11 @@ public:
 	
 protected:
 
-
 	ClassDef( MesytecAdcData, 1 )
 
 };
 
-class CaenAdcData : public TObject {
+class CaenAdcData : public MiniballAdcData {
 	
 public:
 	
@@ -42,7 +212,56 @@ public:
 	DgfData(){};
 	~DgfData() {};
 	
+	// Reset
+	void ClearData();
+	
+	// Setters
+	inline void SetHitPattern( unsigned short hp ) {
+		HitPattern = hp;
+	};
+	inline void SetEventTime( unsigned short RunTime, unsigned short EventTimeHigh, unsigned short EventTimeLow ){
+		EventTime = EventTimeLow + 65536ll*EventTimeHigh + 65536ll*65536ll*RunTime;
+	};
+	inline void SetFastTriggerTime( unsigned short t ){ FastTriggerTime = t; };
+	inline void SetQint( unsigned short q ){ Qint = q; };
+	inline void SetEnergy( float e ){ energy = e; };
+	inline void SetLongFastTriggerTime( unsigned short RunTime, unsigned short EventTimeHigh, unsigned short EventTimeLow ) {
+		if( FastTriggerTime > EventTimeLow) // check for overflow
+			LongFastTriggerTime = FastTriggerTime + 65536ll*EventTimeHigh + 65536ll*65536ll*RunTime;
+		else
+			LongFastTriggerTime = FastTriggerTime + 65536ll*EventTimeHigh + 65536ll + 65536ll*65536ll*RunTime;
+	};
+	inline void SetUserValues( std::vector<unsigned short> q ) { UserValues = q; };
+	inline void SetModule( unsigned char m ){ mod = m; };
+	inline void SetChannel( unsigned char c ){ ch = c; };
+	inline void SetThreshold( bool t ){ thres = t; };
+
+	// Getters
+	long long							GetTime(){ return EventTime + LongFastTriggerTime; };
+	unsigned char						GetModule(){ return mod; };
+	unsigned char						GetChannel(){ return ch; };
+	inline unsigned long long int		GetEventID() { return eventid; };
+	inline unsigned int					GetQint() { return Qint; };
+	inline float						GetEnergy() { return energy; };
+	inline unsigned short				GetHitPattern(){ return HitPattern; };
+	inline bool							IsOverThreshold() { return thres; };
+
+
+	
 protected:
+
+	//long long int 				time
+	unsigned long long int		eventid;
+	long long 					EventTime;
+	float						energy;
+	unsigned short				Qint;
+	unsigned short 				HitPattern;
+	unsigned short				FastTriggerTime;
+	long long					LongFastTriggerTime;
+	unsigned char				mod;	///< module number of DGF
+	unsigned char				ch; 	///< channel number of DGF
+	std::vector<unsigned short>	UserValues;
+	bool						thres;		///< is the energy over threshold?
 
 
 	ClassDef( DgfData, 1 )
@@ -240,8 +459,12 @@ public:
 	MBSInfoPackets() {
 		time = 0;
 		eventid = 0;
+		std::vector<PatternUnitData>().swap(patterns);
+		std::vector<ScalerUnitData>().swap(scalers);
 	};
 	~MBSInfoPackets() {};
+	
+	void ClearData();
 	
 	inline long long int			GetTime(){ return time; };
 	inline unsigned long long int	GetEventID(){ return eventid; };
@@ -249,10 +472,87 @@ public:
 	inline void SetTime( long long int t ){ time = t; };
 	inline void SetEventID( unsigned long long int id ){ eventid = id; };
 
+	// Patterns
+	inline void AddPattern( PatternUnitData p ){
+		patterns.push_back(p);
+	};
+	inline void AddPattern( unsigned char _id, unsigned int _val ){
+		PatternUnitData tmp(_id,_val);
+		AddPattern(tmp);
+	};
+	inline unsigned int GetPatternValue( unsigned char id ){
+		unsigned int tmp = 0;
+		for( unsigned int i = 0; i < patterns.size(); i++ ){
+			if( patterns[i].GetID() == id ) {
+				tmp = patterns[i].GetValue();
+				break;
+			}
+		}
+		return tmp;
+	};
+	inline PatternUnitData GetPattern( unsigned char id ){
+		PatternUnitData tmp;
+		for( unsigned int i = 0; i < patterns.size(); i++ ){
+			if( patterns[i].GetID() == id ) {
+				tmp = patterns[i];
+				break;
+			}
+		}
+		return tmp;
+	};
+
+	// Scalers
+	inline void AddScaler( ScalerUnitData s ){
+		scalers.push_back(s);
+	};
+	inline void AddScaler( unsigned char _id, unsigned int _val ){
+		ScalerUnitData tmp(_id,_val);
+		AddScaler(tmp);
+	};
+	inline unsigned int GetScalerValue( unsigned char id ){
+		unsigned int tmp = 0;
+		for( unsigned int i = 0; i < scalers.size(); i++ ){
+			if( scalers[i].GetID() == id ) {
+				tmp = scalers[i].GetValue();
+				break;
+			}
+		}
+		return tmp;
+	};
+	inline ScalerUnitData GetScaler( unsigned char id ){
+		ScalerUnitData tmp;
+		for( unsigned int i = 0; i < scalers.size(); i++ ){
+			if( scalers[i].GetID() == id ) {
+				tmp = scalers[i];
+				break;
+			}
+		}
+		return tmp;
+	};
+
+	// DGF Scalers
+	inline void AddDgfScaler( DgfScalerData s ){
+		dgfscalers.push_back(s);
+	};
+	DgfScalerData GetDgfScaler( unsigned char mod ){
+		DgfScalerData tmp;
+		for( unsigned int i = 0; i < dgfscalers.size(); i++ ){
+			if( dgfscalers[i].GetModule() == mod ) {
+				tmp = dgfscalers[i];
+				break;
+			}
+		}
+		return tmp;
+	};
+
+
 	protected:
 	
-	long long int			time;		///< timestamp of info event
-	unsigned long long int	eventid;	///< timestamp of info event
+	long long int					time;		///< timestamp of info event
+	unsigned long long int			eventid;	///< timestamp of info event
+	std::vector<PatternUnitData> 	patterns;	///< pattern unit data
+	std::vector<ScalerUnitData> 	scalers;	///< scaler unit data
+	std::vector<DgfScalerData> 		dgfscalers;	///<DGF  scaler data
 
 	ClassDef( MBSInfoPackets, 3 )
 	

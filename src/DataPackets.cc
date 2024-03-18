@@ -2,6 +2,10 @@
 
 ClassImp(FebexData)
 ClassImp(InfoData)
+ClassImp(PatternUnitData)
+ClassImp(ScalerUnitData)
+ClassImp(DgfScalerData)
+ClassImp(MiniballAdcData)
 ClassImp(MesytecAdcData)
 ClassImp(CaenAdcData)
 ClassImp(DgfData)
@@ -80,9 +84,9 @@ void MiniballDataPackets::ClearData(){
 
 unsigned long long int MiniballDataPackets::GetEventID(){
 		
-	//if( IsDgf() )			return GetDgfData()->GetEventID();
-	//if( IsCaenAdc() )		return GetCaenAdcData()->GetEventID();
-	//if( IsMesytecAdc() )	return GetMesytecAdcData()->GetEventID();
+	if( IsDgf() )			return GetDgfData()->GetEventID();
+	if( IsCaenAdc() )		return GetCaenAdcData()->GetEventID();
+	if( IsMesytecAdc() )	return GetMesytecAdcData()->GetEventID();
 	if( IsFebex() )			return GetFebexData()->GetEventID();
 	if( IsInfo() )			return GetInfoData()->GetEventID();
 
@@ -92,9 +96,9 @@ unsigned long long int MiniballDataPackets::GetEventID(){
 
 long long int MiniballDataPackets::GetTime(){
 	
-	//if( IsDgf() )			return GetDgfData()->GetTime();
-	//if( IsCaenAdc() )		return GetCaenAdcData()->GetTime();
-	//if( IsMesytecAdc() )	return GetMesytecAdcData()->GetTime();
+	if( IsDgf() )			return GetDgfData()->GetTime();
+	if( IsCaenAdc() )		return GetCaenAdcData()->GetTime();
+	if( IsMesytecAdc() )	return GetMesytecAdcData()->GetTime();
 	if( IsFebex() )			return GetFebexData()->GetTime();
 	if( IsInfo() )			return GetInfoData()->GetTime();
 	
@@ -144,6 +148,53 @@ unsigned char MiniballDataPackets::GetChannel(){
 	
 }
 
+void PatternUnitData::ClearData() {
+	
+	id = 255;
+	val = 0;
+	
+}
+
+void MiniballAdcData::ClearData(){
+	
+	energy = -99;
+	eventid = 0;
+	Qint = 0;
+	time = 0;
+	mod = 255;
+	ch = 255;
+	
+}
+
+void DgfData::ClearData(){
+	
+	energy = -99;
+	eventid = 0;
+	Qint = 0;
+	EventTime = 0;
+	FastTriggerTime = 0;
+	LongFastTriggerTime = 0;
+	mod = 255;
+	ch = 255;
+	UserValues.clear();
+	std::vector<unsigned short>().swap(UserValues);
+	
+}
+
+void DgfScalerData::ClearData(){
+	
+	mod = 0xffff;
+	clu = 0xffff;
+	
+	fRealTime = 0;
+	fRunTime = 0;
+	fGSLTTime = 0;
+	fNumberOfEvents = 0;
+	fLiveTime.clear();
+	fFastPeak.clear();
+	
+};
+
 
 void FebexData::ClearData(){
 	
@@ -176,3 +227,17 @@ void InfoData::ClearData(){
 	return;
 	
 }
+
+void MBSInfoPackets::ClearData(){
+
+	time = 0;
+	eventid = 0;
+	patterns.clear();
+	scalers.clear();
+	dgfscalers.clear();
+	std::vector<PatternUnitData>().swap(patterns);
+	std::vector<ScalerUnitData>().swap(scalers);
+	std::vector<DgfScalerData>().swap(dgfscalers);
+
+}
+
