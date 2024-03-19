@@ -5,9 +5,7 @@ ClassImp(InfoData)
 ClassImp(PatternUnitData)
 ClassImp(ScalerUnitData)
 ClassImp(DgfScalerData)
-ClassImp(MiniballAdcData)
-ClassImp(MesytecAdcData)
-ClassImp(CaenAdcData)
+ClassImp(AdcData)
 ClassImp(DgfData)
 ClassImp(MiniballDataPackets)
 ClassImp(MBSInfoPackets)
@@ -23,6 +21,56 @@ FebexData::FebexData( long long int t, unsigned long long int id,
 InfoData::InfoData( long long int t, unsigned long long int id, unsigned char c,
 				    unsigned char s, unsigned char b ) :
 					time(t), eventid(id), code(c), sfp(s), board(b) {}
+
+void MiniballDataPackets::SetData( std::shared_ptr<DgfData> data ){
+	
+	// Reset the vector to size = 0
+	// We only want to have one element per Tree entry
+	ClearData();
+	
+	// Make a copy of the input data and push it back
+	DgfData fill_data;
+	
+	fill_data.SetRunTime( data->GetRunTime() );
+	fill_data.SetFastTriggerTime( data->GetFastTriggerTime() );
+	fill_data.SetLongFastTriggerTime( data->GetLongFastTriggerTime() );
+	fill_data.SetRunTime( data->GetRunTime() );
+	fill_data.SetEventTime( data->GetEventTime() );
+	fill_data.SetEventID( data->GetEventID() );
+	fill_data.SetQint( data->GetQint() );
+	fill_data.SetModule( data->GetModule() );
+	fill_data.SetChannel( data->GetChannel() );
+	fill_data.SetEnergy( data->GetEnergy() );
+	fill_data.SetTrace( data->GetTrace() );
+	fill_data.SetThreshold( data->IsOverThreshold() );
+	fill_data.SetHitPattern( data->GetHitPattern() );
+	fill_data.SetUserValues( data->GetUserValues() );
+
+	dgf_packets.push_back( fill_data );
+
+}
+
+void MiniballDataPackets::SetData( std::shared_ptr<AdcData> data ){
+	
+	// Reset the vector to size = 0
+	// We only want to have one element per Tree entry
+	ClearData();
+	
+	// Make a copy of the input data and push it back
+	AdcData fill_data;
+	
+	fill_data.SetTime( data->GetTime() );
+	fill_data.SetEventID( data->GetEventID() );
+	fill_data.SetQint( data->GetQint() );
+	fill_data.SetModule( data->GetModule() );
+	fill_data.SetChannel( data->GetChannel() );
+	fill_data.SetEnergy( data->GetEnergy() );
+	fill_data.SetThreshold( data->IsOverThreshold() );
+	fill_data.SetClipped( data->IsClipped() );
+
+	adc_packets.push_back( fill_data );
+
+}
 
 void MiniballDataPackets::SetData( std::shared_ptr<FebexData> data ){
 	
@@ -73,20 +121,21 @@ void MiniballDataPackets::SetData( std::shared_ptr<InfoData> data ){
 void MiniballDataPackets::ClearData(){
 	
 	dgf_packets.clear();
-	caen_packets.clear();
-	madc_packets.clear();
+	adc_packets.clear();
 	febex_packets.clear();
 	info_packets.clear();
 	
-	return;
+	std::vector<DgfData>().swap(dgf_packets);
+	std::vector<AdcData>().swap(adc_packets);
+	std::vector<FebexData>().swap(febex_packets);
+	std::vector<InfoData>().swap(info_packets);
 	
 }
 
 unsigned long long int MiniballDataPackets::GetEventID(){
 		
 	if( IsDgf() )			return GetDgfData()->GetEventID();
-	if( IsCaenAdc() )		return GetCaenAdcData()->GetEventID();
-	if( IsMesytecAdc() )	return GetMesytecAdcData()->GetEventID();
+	if( IsAdc() )			return GetAdcData()->GetEventID();
 	if( IsFebex() )			return GetFebexData()->GetEventID();
 	if( IsInfo() )			return GetInfoData()->GetEventID();
 
@@ -97,8 +146,7 @@ unsigned long long int MiniballDataPackets::GetEventID(){
 long long int MiniballDataPackets::GetTime(){
 	
 	if( IsDgf() )			return GetDgfData()->GetTime();
-	if( IsCaenAdc() )		return GetCaenAdcData()->GetTime();
-	if( IsMesytecAdc() )	return GetMesytecAdcData()->GetTime();
+	if( IsAdc() )			return GetAdcData()->GetTime();
 	if( IsFebex() )			return GetFebexData()->GetTime();
 	if( IsInfo() )			return GetInfoData()->GetTime();
 	
@@ -129,6 +177,19 @@ unsigned char MiniballDataPackets::GetSfp(){
 
 unsigned char MiniballDataPackets::GetBoard(){
 	
+	if( IsDgf() )		return GetDgfData()->GetModule();
+	if( IsAdc() )		return GetAdcData()->GetModule();
+	if( IsFebex() )		return GetFebexData()->GetBoard();
+	if( IsInfo() )		return GetInfoData()->GetBoard();
+	
+	return 0;
+	
+}
+
+unsigned char MiniballDataPackets::GetModule(){
+	
+	if( IsDgf() )		return GetDgfData()->GetModule();
+	if( IsAdc() )		return GetAdcData()->GetModule();
 	if( IsFebex() )		return GetFebexData()->GetBoard();
 	if( IsInfo() )		return GetInfoData()->GetBoard();
 	
@@ -138,11 +199,10 @@ unsigned char MiniballDataPackets::GetBoard(){
 
 unsigned char MiniballDataPackets::GetChannel(){
 	
-	//if( IsDgf() )			return GetDgfData()->GetChannel();
-	//if( IsCaenAdc() )		return GetCaenAdcData()->GetChannel();
-	//if( IsMesytecAdc() )	return GetMesytecAdcData()->GetChannel();
-	if( IsFebex() )			return GetFebexData()->GetChannel();
-	if( IsInfo() )			return 0;
+	if( IsDgf() )		return GetDgfData()->GetChannel();
+	if( IsAdc() )		return GetAdcData()->GetChannel();
+	if( IsFebex() )		return GetFebexData()->GetChannel();
+	if( IsInfo() )		return 0;
 	
 	return 0;
 	
@@ -155,7 +215,7 @@ void PatternUnitData::ClearData() {
 	
 }
 
-void MiniballAdcData::ClearData(){
+void AdcData::ClearData(){
 	
 	energy = -99;
 	eventid = 0;
@@ -178,7 +238,9 @@ void DgfData::ClearData(){
 	ch = 255;
 	UserValues.clear();
 	std::vector<unsigned short>().swap(UserValues);
-	
+	trace.clear();
+	std::vector<unsigned short>().swap(trace);
+
 }
 
 void DgfScalerData::ClearData(){

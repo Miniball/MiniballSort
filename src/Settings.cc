@@ -146,17 +146,28 @@ void MiniballSettings::ReadSettings() {
 	n_dgf_mod		= config->GetValue( "NumberOfDgfModules", 0 );
 	n_dgf_ch		= config->GetValue( "NumberOfDgfChannels", 4 );
 	dgf_mod_offset	= config->GetValue( "DgfModuleOffset", 1 );
-	dgf_ts_delay	= config->GetValue( "DgfTimeStampDelay", 65527 );
+	dgf_ts_delay	= config->GetValue( "DgfTimestampDelay", 65527 );
+	dgf_ts_units	= config->GetValue( "DgfTimestampUnits", 25. );
 
 	// CAEN ADC initialisation
 	n_caen_mod		= config->GetValue( "NumberOfCaenAdcModules", 0 );
 	n_caen_ch		= config->GetValue( "NumberOfCaenAdcChannels", 4 );
 	caen_mod_offset	= config->GetValue( "CaenAdcModuleOffset", 60 );
+	caen_ts_units	= config->GetValue( "CaenAdcTimestampUnits", 25. );
 
 	// Mesytec ADC initialisation
 	n_madc_mod		= config->GetValue( "NumberOfMesytecAdcModules", 0 );
 	n_madc_ch		= config->GetValue( "NumberOfMesytecAdcChannels", 4 );
 	madc_mod_offset	= config->GetValue( "MesytecAdcModuleOffset", 55 );
+	madc_ts_units	= config->GetValue( "MesytecAdcTimestampUnits", 25. );
+
+	// Pattern unit initialisation
+	n_pattern_unit		= config->GetValue( "NumberOfPatternUnits", 1 );
+	pattern_unit_offset	= config->GetValue( "PatternUnitOffset", 67 );
+
+	// Scaler unit initialisation
+	n_scaler_unit		= config->GetValue( "NumberOfScalerUnits", 1 );
+	scaler_unit_offset	= config->GetValue( "ScalerUnitOffset", 0 );
 
 	// Miniball array initialisation
 	n_mb_cluster	= config->GetValue( "NumberOfMiniballClusters", 8 );

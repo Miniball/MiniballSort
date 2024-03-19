@@ -200,38 +200,54 @@ class MBSSubEvent {
 	
 private:
 
-	std::vector<UChar_t> data;
-	UInt_t data_len;			///< length of the sub event
-	ULong_t seventid;			///< subevent counter
-	UChar_t proctype;			///< processor type
-	UChar_t crateid;			///< crate number
-	UShort_t modid; 			///< module ID
+	std::vector<unsigned char> data;
+	unsigned int data_len;			///< length of the sub event
+	unsigned long seventid;			///< subevent counter
+	unsigned char proctype;			///< processor type
+	unsigned char crateid;			///< crate number
+	unsigned short modid; 			///< module ID
 	MBSBufferElem stype;		///< type class identifier
 
 public:
 	
-	// Tracking data
+	// Tracking data - 16-bit words
 	void AddData( UChar_t datum ){
 		data.push_back(datum);
 	};
-	unsigned int GetDataLength(){ return data.size(); };
-	
+	unsigned char GetData16( unsigned int i ) const {
+		if( i < data.size() ) return data.at(i);
+		return 0;
+	};
+	unsigned int	GetNumberOfData16() const { return data.size(); };
+
+	// Return 32-bit words
+	unsigned short	GetData32( unsigned int i ) const {
+		if( i < data.size()/2 )
+			return ( (short)data.at(2*i) | ( (short)data.at(2*i+1) << 16 ) );
+		return 0;
+	};
+	unsigned int	GetNumberOfData32() const { return data.size()/2; };
+
+	// Default return value is 32-bits
+	unsigned short	GetData( unsigned int i ) const { return GetData32(i); };
+	unsigned int	GetNumberOfData() const { return GetNumberOfData32(); };
+
 	// Getters
-	MBSBufferElem GetSubEventElement() const { return stype; };
-	unsigned int GetSubEventType() const { return stype.GetType(); };
-	ULong_t GetSubEventID() const { return seventid; };
-	UInt_t GetDataLength() const { return data_len; };
-	UChar_t GetProcessorType() const { return proctype; };
-	UChar_t GetCrateID() const { return crateid; };
-	UShort_t GetModuleID() const { return modid; };
+	MBSBufferElem	GetSubEventElement() const { return stype; };
+	unsigned int	GetSubEventType() const { return stype.GetType(); };
+	unsigned long	GetSubEventID() const { return seventid; };
+	unsigned int	GetDataLength() const { return data_len; };
+	unsigned char	GetProcessorType() const { return proctype; };
+	unsigned char	GetCrateID() const { return crateid; };
+	unsigned short	GetModuleID() const { return modid; };
 
 	// Setters
 	void SetSubEventElement( MBSBufferElem _stype ){ stype = _stype; };
-	void SetSubEventID( ULong_t id ){ seventid = id; };
-	void SetDataLength( UInt_t len ){ data_len = len; };
-	void SetProcessorType( UChar_t ptype ){ proctype = ptype; };
-	void SetCrateID( UChar_t id ){ crateid = id; };
-	void SetModuleID( UShort_t id ){ modid = id; };
+	void SetSubEventID( unsigned long id ){ seventid = id; };
+	void SetDataLength( unsigned int len ){ data_len = len; };
+	void SetProcessorType( unsigned char ptype ){ proctype = ptype; };
+	void SetCrateID( unsigned char id ){ crateid = id; };
+	void SetModuleID( unsigned short id ){ modid = id; };
 
 };
 

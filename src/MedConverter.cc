@@ -70,7 +70,157 @@ void MiniballMedConverter::ProcessBlock( unsigned long nblock ){
 // Treat a Mesytec ADC data item
 void MiniballMedConverter::ProcessMesytecAdcData() {
 
-	// Do nothing with it for now, because I'm lazy
+	// TODO: Check it really is a Mesytec ADC according to user settings?
+
+	// Need to know total number of ADCs for Marabou numbering
+	unsigned short total_adcs = set->GetNumberOfMesytecAdcModules();
+	total_adcs += set->GetNumberOfCaenAdcModules();
+
+	
+	// Loop over all the available data
+	unsigned int i = 0;
+	while( i < mbs_sevt->GetNumberOfData() ){
+
+		// Header of the sub event (module number in first word)
+		unsigned short header = mbs_sevt->GetData(i++);
+		unsigned short mod = header & MESYTEC_MADC_MODULE_ID;
+		
+		// Convert to logical module from Marabou numbering
+		if( mod >= total_adcs )
+			mod = set->GetMesytecAdcModuleNumber( mod );
+		else mod--; // Mesytec modules count from 1 in Marabou!!
+		
+		// Get second word of the header and test format
+		header = mbs_sevt->GetData(i++);
+		if( header & MESYTEC_MADC_OUTPUT_FORMAT ) {
+
+			std::cerr << __PRETTY_FUNCTION__ << ": Error, output ";
+			std::cerr << "format (highest bit) should be zero (header = ";
+			std::cerr << std::hex << header << std::dec << ")" << std::endl;
+			return;
+
+		}
+		
+		// If format is fine, we have the word count in here
+		int wc = header & MESYTEC_MADC_WORD_COUNT;
+		
+		// Is module number ok? If not, get next item
+		if( mod < 0 ) {
+			i += wc * 2; // skip rest of event (2 shorts per word)
+			continue;
+		}
+		
+		// check number of Channels (MESYTEC_MADC_NBOFCHAN=32 + 1 word End of Event + 1 extended timestamp)
+		// -> skip TOTAL subevent if wrong number of Channels
+		if( wc <= 0 || wc > (int)set->GetNumberOfMesytecAdcChannels() + 2 ) {
+
+			std::cout << __PRETTY_FUNCTION__ << ": read event nr. ";
+			std::cout << my_event_id << ": wrong Word Count: ";
+			std::cout << wc << " -> skip TOTAL subevent" << std::endl;
+			return;
+
+		}
+
+		// Loop over number of channels for which data follows (maybe also extended timestamp)
+		// Might not be all channel, so use wc, but wc includes the end of event
+		std::vector<unsigned short> ch_vec;
+		std::vector<unsigned short> qint_vec;
+		long long Timestamp = 0;
+		bool clipped = false;
+		for( unsigned short ch = 0; ch < wc - 1; ch++ ) {
+
+			// Check if type of word (highest two bits) is end of event
+			unsigned short test = mbs_sevt->GetData(i++);
+
+			// 00 => data, 11 => end of event
+			if( ( test & MESYTEC_MADC_END_OF_EVENT ) == MESYTEC_MADC_END_OF_EVENT ) {
+
+				std::cerr << "Error, found end of event data (" << test << ") after " << ch+1;
+				std::cerr << " words but should have a word count of " << wc << std::endl;
+				return;
+
+			}
+			
+			// What if only one of the higest two bits is non-zero? weird
+			else if( test & MESYTEC_MADC_END_OF_EVENT )	{
+
+				std::cerr << "Error, found weird data (" << test << ") after ";
+				std::cerr << ch+1 << " words with word count of " << wc << std::endl;
+				return;
+
+			}
+			
+			// Check whether this is the extended timestamp
+			if( test & MESYTEC_MADC_EXTENDED_TIMESTAMP ) {
+
+				Timestamp = ((long long)mbs_sevt->GetData(i++)) << MESYTEC_MADC_EXTENDED_TIMESTAMP_SHIFT;
+				continue;
+
+			}
+			
+			// If we don't have the timestamp here, test has the channel number
+			// Get actual Channel number (bits[21...16] of data word)
+			ch_vec.push_back( test & MESYTEC_MADC_CHANNEL_NUMBER );
+
+			// But the energy is in the next word
+			qint_vec.push_back( mbs_sevt->GetData(i++) & MESYTEC_MADC_VALUE );
+
+			// Check the out of range bit
+			if( qint_vec.back() & MESYTEC_MADC_OUT_OF_RANGE )
+				clipped = true;
+			else clipped = false;
+			
+		} // loop over wc - 1
+		
+		// Trailer of the sub event (module number in first word)
+		unsigned int trailer = ( (unsigned int)mbs_sevt->GetData(i++) ) << 16;
+		trailer |= (unsigned int)mbs_sevt->GetData(i++);
+
+		// Check type of word (highest two bits should be set)
+		if ( ( trailer & MESYTEC_MADC_END_OF_EVENT ) != MESYTEC_MADC_END_OF_EVENT ) {
+
+			std::cout << __PRETTY_FUNCTION__ << ": read event nr. " << my_event_id;
+			std::cout << ": wrong EOE word of type: " << ( trailer & MESYTEC_MADC_END_OF_EVENT );
+			std::cout << " -> skip TOTAL subevent" << std::endl;
+			return;
+
+		}
+
+		// Merge the full time stamp and add the DGF delay
+		Timestamp |= ( trailer & MESYTEC_MADC_TIMESTAMP );
+		Timestamp += set->GetDgfTimestampDelay();
+		Timestamp *= set->GetMesytecAdcTimestampUnits();
+		
+		// Now we have the data, fill the tree
+		for( unsigned item = 0; item < qint_vec.size(); item++ ){
+			
+			// Clear the old stuff
+			adc_data->ClearData();
+			data_packet->ClearData();
+			
+			// Some basic info for every event
+			adc_data->SetEventID( my_event_id );
+			
+			// Calculate energy and threshold
+			float energy = cal->AdcEnergy( mod, ch_vec[i], qint_vec[i] );
+			bool thresh = cal->AdcThreshold( mod, ch_vec[i] );
+			
+			// Set values for data item
+			adc_data->SetTime( Timestamp );
+			adc_data->SetQint( qint_vec[i] );
+			adc_data->SetModule( mod );
+			adc_data->SetChannel( ch_vec[i] );
+			adc_data->SetEnergy( energy );
+			adc_data->SetThreshold( thresh );
+			
+			// Fill the tree
+			data_packet->SetData( adc_data );
+			sorted_tree->Fill();
+			
+		}
+		
+	}
+	
 	return;
 	
 }
@@ -85,19 +235,78 @@ void MiniballMedConverter::ProcessCaenAdcData() {
 }
 
 //-----------------------------------------------------------------------------
-// Treat a pattern unit data item
+// Decode the pattern unit data and add it to the packets
 void MiniballMedConverter::ProcessPatternUnitData() {
 
-	// Do nothing with it for now, because I'm lazy
+	// Loop over data and reconstruct header and data
+	for( unsigned int i = 0; i < mbs_sevt->GetNumberOfData(); i++ ) {
+		
+		// Get the header
+		unsigned int header = (unsigned int)mbs_sevt->GetData(i++);
+		if( ( header & SIS3600_D_HDR ) == 0 ) {
+			
+			std::cout << __PRETTY_FUNCTION__ << ": read event nr. ";
+			std::cout << my_event_id << ", sub event nr. ";
+			std::cout << (int)mbs_sevt->GetSubEventID();
+			std::cout << ": wrong Header word of type 0x (";
+			std::cout << header << ") -> skip subevent" << std::endl;
+			return;
+			
+		}
+		
+		// Get the module number
+		int mod = set->GetPatternUnitNumber( header & SIS3600_MSERIAL );
+		if( mod < 0 ) return;
+		
+		// Next item is the word count
+		int wc = (int)mbs_sevt->GetData(i++);
+		
+		// Loop over data and reconstruct integers
+		for( int j = 0; j < wc; j++ ) {
+			
+			unsigned int data;
+			data  = ( (unsigned int)mbs_sevt->GetData(i++) ) << 16;
+			data |= ( (unsigned int)mbs_sevt->GetData(i++) );
+			
+			if( data > 0 )
+				mbsinfo_packet->AddPattern( mod, j, data );
+			
+		}
+		
+	}
+		
 	return;
-	
+
 }
 
 //-----------------------------------------------------------------------------
-// Treat a scaler data item
+// Decode the scaler unit data and add it to the packets
 void MiniballMedConverter::ProcessScalerData() {
+	
+	// TODO: Test data comes from scaler unit?
+	
+	// Check we have an even number of data
+	if( mbs_sevt->GetNumberOfData() % 2 != 0 ){
+		
+		std::cerr << __PRETTY_FUNCTION__;
+		std::cerr << ": Errorr - expecting even number of words in MbsSubEvent but there are ";
+		std::cerr << mbs_sevt->GetNumberOfData() << std::endl;
+		return;
+		
+	}
+	
+	// Loop over data and reconstruct integers
+	for( unsigned int i = 0; i < mbs_sevt->GetNumberOfData()/2; i++ ) {
 
-	// Do nothing with it for now, because I'm lazy
+		unsigned int data;
+		data  = ( (unsigned int)mbs_sevt->GetData(i+0) ) << 16;
+		data |= ( (unsigned int)mbs_sevt->GetData(i+1) );
+		
+		if( data > 0 )
+			mbsinfo_packet->AddScaler( i, data );
+
+	}
+	
 	return;
 	
 }
@@ -106,7 +315,104 @@ void MiniballMedConverter::ProcessScalerData() {
 // Treat a DGF scaler data item
 void MiniballMedConverter::ProcessDgfScaler() {
 
-	// Do nothing with it for now, because I'm lazy
+	// Loop over all the available data
+	unsigned int i = 0;
+	while( i < mbs_sevt->GetNumberOfData() ){
+		
+		// Finish the data?
+		if( mbs_sevt->GetData(i) == DGF_SCALER_END_OF_BUFFER )
+			break;
+	
+		// Check for magic word at the start
+		if( mbs_sevt->GetData(i++) != DGF_SCALER_MAGIC_WORD ){
+			
+			std::cerr << "Internal dgf scalers: data out of phase - 0x";
+			std::cerr << std::hex << mbs_sevt->GetData(--i);
+			std::cerr << " (should be magic word 0x" << DGF_SCALER_MAGIC_WORD ;
+			std::cerr << ")" << std::dec << std::endl;
+			return;
+			
+		}
+		
+		// Get the header data
+		int wc  = mbs_sevt->GetData(i++);	// word count
+		int clu = mbs_sevt->GetData(i++);	// cluster id
+		int mod = mbs_sevt->GetData(i++); 	// module id
+		
+		// Break if we have nonsense
+		if( clu < 0 || mod < 0 ) return;
+		if( wc < 0 ){
+			std::cerr << "Word count negative: " << wc << std::endl;
+			return;
+		}
+		if( (int)mbs_sevt->GetNumberOfData() - (int)i < DGF_SCALER_MIN_SIZE ){
+			std::cerr << "Not enough data left in sub event for new DGF scaler: ";
+			std::cerr << mbs_sevt->GetNumberOfData() - i << " < " << DGF_SCALER_MIN_SIZE << std::endl;
+			return;
+		}
+		if( (int)mbs_sevt->GetNumberOfData() - (int)i < wc ){
+			std::cerr << "Not enough data left in sub event for new DGF scaler: ";
+			std::cerr << mbs_sevt->GetNumberOfData() - i << " < wc(" << wc << ")" << std::endl;
+			return;
+		}
+
+		// Get the real time data
+		unsigned int index = i + DGF_SCALER_INDEX_REALTIME;
+		long long realTime = mbs_sevt->GetData(index);
+		realTime |= ( (unsigned long long)mbs_sevt->GetData(index+1) ) << 16;
+		realTime |= ( (unsigned long long)mbs_sevt->GetData(index+2) ) << 32;
+
+		// Get the run time data
+		index = i + DGF_SCALER_INDEX_RUNTIME;
+		long long runTime = mbs_sevt->GetData(index);
+		runTime |= ( (unsigned long long)mbs_sevt->GetData(index+1) ) << 16;
+		runTime |= ( (unsigned long long)mbs_sevt->GetData(index+2) ) << 32;
+
+		// Get the GSLT time data
+		index = i + DGF_SCALER_INDEX_GSLTTIME;
+		long long gsltTime = mbs_sevt->GetData(index);
+		gsltTime |= ( (unsigned long long)mbs_sevt->GetData(index+1) ) << 16;
+		gsltTime |= ( (unsigned long long)mbs_sevt->GetData(index+2) ) << 32;
+
+		// Get the number of events
+		index = i + DGF_SCALER_INDEX_NEVENTS;
+		long long nEvents = mbs_sevt->GetData(index);
+		nEvents |= ( (unsigned long long)mbs_sevt->GetData(index+1) ) << 16;
+		nEvents |= ( (unsigned long long)mbs_sevt->GetData(index+2) ) << 32;
+		
+		// Make a DGF scaler event and add it to the packets
+		DgfScalerData s( set->GetNumberOfDgfChannels() );
+		s.SetModule( mod );
+		s.SetClusterID( clu );
+		s.SetRealTime( realTime );
+		s.SetRunTime( runTime );
+		s.SetGSLTTime( gsltTime );
+	
+		// Get channel by channel data
+		for( unsigned int j = 0; j < set->GetNumberOfDgfChannels(); j++ ){
+			
+			index  = i + DGF_SCALER_INDEX_CH_OFFSET;
+			index += j * DGF_SCALER_INDEX_CH_SIZE;
+			
+			// Get LiveTime for this channel
+			long long liveTime = mbs_sevt->GetData(index);
+			liveTime |= ( (unsigned long long)mbs_sevt->GetData(index+1) ) << 16;
+			liveTime |= ( (unsigned long long)mbs_sevt->GetData(index+2) ) << 32;
+			
+			// Get FastPeak for this channel
+			int fastPeak = mbs_sevt->GetData(index+3);
+			fastPeak |= ( (unsigned long long)mbs_sevt->GetData(index+4) ) << 16;
+
+			s.SetLiveTime( j, liveTime );
+			s.SetFastPeak( j, gsltTime );
+
+		}
+		
+		// Move forward to next data item
+		i += wc - 4; // 4 header words included in word count
+
+	}
+	
 	return;
 	
 }
@@ -124,9 +430,197 @@ void MiniballMedConverter::ProcessDgfTimeStamp() {
 //-----------------------------------------------------------------------------
 // Treat a DGF data item
 void MiniballMedConverter::ProcessDgfData() {
-	
-	
 
+	// Loop over all the available data
+	unsigned int i = 0;
+	while( i < mbs_sevt->GetNumberOfData() ){
+
+		// Header of the sub event
+		unsigned short start = mbs_sevt->GetData(i++);
+		unsigned short length = mbs_sevt->GetData(i++);
+		unsigned short end = start + length;
+		unsigned short mod = mbs_sevt->GetData(i++);
+		
+		// Check length
+		if( end > mbs_sevt->GetNumberOfData() ){
+			
+			std::cout << __PRETTY_FUNCTION__ << ": XIA wrong buffer length: ";
+			std::cout << length << ", Start: " << start;
+			std::cout << ", End: " << end << std::endl;
+			return; // skip total subevent
+
+		}
+
+		// Get buffer format descriptor (=RUNTASK)
+		unsigned short format = mbs_sevt->GetData(i++);
+		
+		// Parameters for holding the time
+		unsigned short RunTimeA, RunTimeB, RunTimeC;
+		long long BufferTime, RunTime;
+
+		// Check if known buffer format
+		if( ( format != STD_LM_BUFFORMAT )   &&
+		    ( format != COMP_LM_BUFFORMAT )  &&
+		    ( format != COMP_FLM_BUFFORMAT ) &&
+		    ( format != COMP3_LM_BUFFORMAT ) &&
+		    ( format != STD_FLM_BUFFORMAT ) ) {
+			
+			std::cout << __PRETTY_FUNCTION__ << ": read out event ";
+			std::cout << my_event_id << ": wrong buffer format: ";
+			std::cout << format << " !!!" << std::endl;
+			return; // skip total subevent
+			
+		}
+		
+		else {
+			
+			// read words 3-5 of buffer header: 3.: high-, 4.: middle-, 5.: low-word of run start time
+			RunTimeA = mbs_sevt->GetData(i++);      // high
+			RunTimeB = mbs_sevt->GetData(i++);      // mid
+			RunTimeC = mbs_sevt->GetData(i++);      // low
+			
+			// set 'buffertime' and 'runtime'
+			RunTime     = ( (long long)RunTimeA ) << 32;
+			BufferTime  = ( (long long)RunTimeB ) << 16;
+			BufferTime |= ( (long long)RunTimeC );
+			RunTime    |= BufferTime;
+
+			// Update timestamp using a DGF module
+			if( my_good_tm_stp == 0 )
+				my_good_tm_stp = RunTime * set->GetDgfTimestampUnits();
+
+		}
+
+		// from here on: always check buffer format (=RUNTASK) before filling 'dgf' or 'dgf_rt259'
+		// beam dump module has format 'COMP3_LM_BUFFORMAT'
+		// determine corrected module number
+		mod = set->GetDgfModuleNumber( mod );
+		if( mod < 0 ) return;
+		
+		// Work out what type of DGF event we have
+		int DgfType = mbs_sevt->GetSubEventType() - XIA_EVENT;
+		(void)DgfType; // not yet used anywhere
+		
+		// Get data for this module
+		while( i < end ){
+			
+			// Read 3 words of event header
+			// 1.: hitpattern, 2.: high-, 3.: low-word of event time
+			unsigned short HitPattern    = mbs_sevt->GetData(i++);
+			unsigned short EventTimeHigh = mbs_sevt->GetData(i++);
+			unsigned short EventTimeLow  = mbs_sevt->GetData(i++);
+
+			// Set 'eventtime'
+			long long EventTime = ( (long long)EventTimeHigh ) << 16;
+			EventTime |= (long long)EventTimeLow;
+
+			// Check for overflow and build full event time
+			if( EventTime <= BufferTime )
+				EventTime |= ( (long long)RunTimeA ) << 32;
+			else EventTime |= ( (long long)(RunTimeA+1) ) << 32;
+
+			
+			// check hitpattern: at least one channel bit has to be set
+			// for all but TS_EBIS_T1_T2_MODULE and 4 CD TS-modules
+			// _all_ timestamp modules with RUNTASK!=259 -> 'ModuleNumber'
+			// can be directly compared with 'analysis module number'
+			if( !( HitPattern & 0xf ) && !set->IsTimestampModule(mod) ) {
+				
+				std::cout << __PRETTY_FUNCTION__ << ": XIA hitpattern error: hitpattern = ";
+				std::cout << HitPattern << mod << ": module: " << mod;
+				std::cout << ", i: " << i << ", end: " << end;
+				std::cout << ", Data in SubEvent: " << mbs_sevt->GetNumberOfData();
+				std::cout << std::endl;
+				
+				// skip module, but not full sub event
+				i = end;
+				break;
+				
+			}
+			
+			else {
+				
+				// Process hit for all channels
+				for( unsigned int ch = 0; ch < set->GetNumberOfDgfChannels(); ch++ ) {
+					
+					// Channel mask to make sure it's got data
+					if( ( HitPattern & ( 1 << ch ) ) != 0 ) {
+						
+						// Now different data following for RUNTASK=259 resp. others
+						// RUNTASK!=259: now #of words for this channel
+						unsigned short ChannelLength;
+						if( format != COMP3_LM_BUFFORMAT )
+							ChannelLength = mbs_sevt->GetData(i++);
+						
+						// Next 2 words: fast trigger time & energy for ALL diff. RUNTASKs
+						unsigned short FastTriggerTime = mbs_sevt->GetData(i++);
+						unsigned short Qint = mbs_sevt->GetData(i++);
+
+						// Sort out long fast trigger time and wrap around
+						long long LongFastTriggerTime;
+						if( FastTriggerTime > EventTimeLow )
+							LongFastTriggerTime = 65536ll*EventTimeHigh + 65536ll*65536ll*RunTime;
+						else
+							LongFastTriggerTime = 65536ll*(EventTimeHigh+1) + 65536ll*65536ll*RunTime;
+							
+						// Get calibrated energy and check threshold
+						float energy = cal->DgfEnergy( mod, ch, Qint );
+						bool thresh = cal->DgfThreshold( mod, ch );
+						
+						// For RUNTASK!=259, now 6 user PSA values (& possible trace) follow
+						std::vector<unsigned short> UserValues;
+						std::vector<unsigned short> trace;
+						if( format != COMP3_LM_BUFFORMAT ) {
+							
+							// Get 6 user values for PSA
+							for( unsigned char j = 0; j < 6; j++ )
+								UserValues.push_back( mbs_sevt->GetData(i++) );
+							
+							// Read out trace
+							unsigned int TraceLength = (int)ChannelLength - CHANHEADLEN;
+							for( unsigned char j = 0; j < TraceLength; j++ )
+									trace.push_back( mbs_sevt->GetData(i++) );
+							
+						} // check format for PSA and trace
+						
+						//-----------
+						// Now let's add the data
+						//------------
+						
+						// Clear the old stuff
+						dgf_data->ClearData();
+						data_packet->ClearData();
+						
+						// Set values for data item
+						dgf_data->SetEventID( my_event_id );
+						dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
+						dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
+						dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
+						dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+						dgf_data->SetHitPattern( HitPattern );
+						dgf_data->SetQint( Qint );
+						dgf_data->SetModule( mod );
+						dgf_data->SetChannel( ch );
+						dgf_data->SetEnergy( energy );
+						dgf_data->SetThreshold( thresh );
+						dgf_data->SetUserValues( UserValues );
+						dgf_data->SetUserValues( trace );
+
+						// Fill the tree
+						data_packet->SetData( dgf_data );
+						sorted_tree->Fill();
+
+						
+					} // channel mask, we have data in this channel
+					
+				} // loop over channels
+				
+			} // else of 'if(!(HitPattern&0xf) && ModuleNumber!=TS_EBIS_T1_T2_MODULE...)'
+			
+		} // i < mod: data for this module
+
+	} // data in this sub event
+	
 	return;
 	
 }
@@ -186,7 +680,7 @@ int MiniballMedConverter::ConvertFile( std::string input_file_name,
 	mbs.SetBufferSize( set->GetBlockSize() );
 	mbs.OpenMedFile( input_file_name );
 
-	// Loop over all the MBS Events.
+	// Loop over all the MBS Events
 	unsigned long mbsevt = 0, nblock = 0;
 	for( mbsevt = 0; ; mbsevt++ ){
 		
@@ -214,24 +708,26 @@ int MiniballMedConverter::ConvertFile( std::string input_file_name,
 		
 		// Get the next event - returns nullptr at the end of the file
 		ev = mbs.GetNextMedEvent();
-		if( !ev ) break;
+		if( !ev ) continue;
 		my_event_id = ev->GetEventID();
 		
 		if( my_event_id == 0 )
 			std::cout << "Bad event ID in data" << std::endl;
 
-		// Write the MBS event info
-		mbsinfo_packet->SetTime( my_good_tm_stp );
-		mbsinfo_packet->SetEventID( my_event_id );
-		mbsinfo_tree->Fill();
 
 		// Check if we are before the start sub event or after the end sub events
 		if( mbsevt < start_subevt || ( (long)mbsevt > end_subevt && end_subevt > 0 ) )
 			continue;
 
 		// Process current block
+		mbsinfo_packet->ClearData();
 		ProcessBlock( mbsevt );
-		
+
+		// Write the MBS event info
+		mbsinfo_packet->SetTime( my_good_tm_stp );
+		mbsinfo_packet->SetEventID( my_event_id );
+		mbsinfo_tree->Fill();
+
 	} // loop - mbsevt < MBS_EVENTS
 	
 	// Close the file

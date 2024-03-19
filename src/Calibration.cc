@@ -316,6 +316,72 @@ void MiniballCalibration::ReadCalibration() {
 		} // j: board
 		
 	} // i: sfp
+	
+	// Work out total number of ADCs we have
+	total_adcs = set->GetNumberOfCaenAdcModules();
+	total_adcs += set->GetNumberOfMesytecAdcModules();
+	
+	// Maximum number of channels, because it could be Mesytec or CAEN
+	// both of them should be 32 channels anyway, but better safe than sorry
+	max_adc_chs = set->GetNumberOfMesytecAdcChannels();
+	if( set->GetNumberOfCaenAdcChannels() > max_adc_chs )
+		max_adc_chs = set->GetNumberOfCaenAdcChannels();
+
+	// ADC initialisation
+	fAdcOffset.resize( total_adcs );
+	fAdcGain.resize( total_adcs );
+	fAdcGainQuadr.resize( total_adcs );
+	fAdcThreshold.resize( total_adcs );
+	fAdcTime.resize( total_adcs );
+
+	// ADC parameter read
+	for( unsigned char i = 0; i < total_adcs; i++ ){
+
+		fAdcOffset[i].resize( max_adc_chs );
+		fAdcGain[i].resize( max_adc_chs );
+		fAdcGainQuadr[i].resize( max_adc_chs );
+		fAdcThreshold[i].resize( max_adc_chs );
+		fAdcTime[i].resize( max_adc_chs );
+	
+		for( unsigned char j = 0; j < max_adc_chs; j++ ){
+
+			fAdcOffset[i][j] = config->GetValue( Form( "adc_%d_%d.Offset", i, j ), (double)0.0 );
+			fAdcGain[i][j] = config->GetValue( Form( "adc_%d_%d.Gain", i, j ), (double)1.0 );
+			fAdcGainQuadr[i][j] = config->GetValue( Form( "adc_%d_%d.GainQuadr", i, j ), (double)0.0 );
+			fAdcThreshold[i][j] = (unsigned int)config->GetValue( Form( "adc_%d_%d.Threshold", i, j ), (double)0 );
+			fAdcTime[i][j] = (long)config->GetValue( Form( "adc_%d_%d.Time", i, j ), (double)0 );
+			
+		}
+
+	}
+
+	// DGF initialisation
+	fDgfOffset.resize( total_adcs );
+	fDgfGain.resize( total_adcs );
+	fDgfGainQuadr.resize( total_adcs );
+	fDgfThreshold.resize( total_adcs );
+	fDgfTime.resize( total_adcs );
+
+	// DGF parameter read
+	for( unsigned char i = 0; i < set->GetNumberOfDgfModules(); i++ ){
+
+		fDgfOffset[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfGain[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfGainQuadr[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfThreshold[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfTime[i].resize( set->GetNumberOfDgfChannels() );
+	
+		for( unsigned char j = 0; j < set->GetNumberOfDgfChannels(); j++ ){
+
+			fDgfOffset[i][j] = config->GetValue( Form( "dgf_%d_%d.Offset", i, j ), (double)0.0 );
+			fDgfGain[i][j] = config->GetValue( Form( "dgf_%d_%d.Gain", i, j ), (double)1.0 );
+			fDgfGainQuadr[i][j] = config->GetValue( Form( "dgf_%d_%d.GainQuadr", i, j ), (double)0.0 );
+			fDgfThreshold[i][j] = (unsigned int)config->GetValue( Form( "dgf_%d_%d.Threshold", i, j ), (double)0 );
+			fDgfTime[i][j] = (long)config->GetValue( Form( "dgf_%d_%d.Time", i, j ), (double)0 );
+			
+		}
+
+	}
 
 }
 
@@ -337,6 +403,57 @@ float MiniballCalibration::FebexEnergy( unsigned char sfp, unsigned char board, 
 		if( TMath::Abs( fFebexGainQuadr[sfp][board][ch] ) < 1e-6 &&
 		    TMath::Abs( fFebexGain[sfp][board][ch] - 1.0 ) < 1e-6 &&
 		    TMath::Abs( fFebexOffset[sfp][board][ch] ) < 1e-6 )
+			
+			return raw;
+		
+		else return energy;
+		
+	}
+	
+	return -1;
+	
+}
+
+float MiniballCalibration::DgfEnergy( unsigned char mod, unsigned char ch, unsigned int raw ) {
+	
+	float energy, raw_rand;
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		raw_rand = raw + 0.5 - fRand->Uniform();
+
+		energy  = fDgfGain[mod][ch] * raw_rand;
+		energy += fDgfOffset[mod][ch];
+
+		// Check if we have defaults
+		if( TMath::Abs( fDgfGain[mod][ch] - 1.0 ) < 1e-6 &&
+		    TMath::Abs( fDgfOffset[mod][ch] ) < 1e-6 )
+			
+			return raw;
+		
+		else return energy;
+		
+	}
+	
+	return -1;
+	
+}
+
+float MiniballCalibration::AdcEnergy( unsigned char mod, unsigned char ch, unsigned int raw ) {
+	
+	float energy, raw_rand;
+	
+	if( mod < total_adcs && ch < max_adc_chs ) {
+
+		raw_rand = raw + 0.5 - fRand->Uniform();
+
+		energy  = fAdcGain[mod][ch] * raw_rand;
+		energy += fAdcOffset[mod][ch];
+
+		// Check if we have defaults
+		if( TMath::Abs( fAdcGain[mod][ch] - 1.0 ) < 1e-6 &&
+		    TMath::Abs( fAdcOffset[mod][ch] ) < 1e-6 )
 			
 			return raw;
 		
@@ -465,6 +582,132 @@ std::string MiniballCalibration::FebexType( unsigned char sfp, unsigned char boa
 	
 }
 
+double MiniballCalibration::DgfOffset( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfOffset[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+double MiniballCalibration::DgfGain( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfGain[mod][ch];
+		
+	}
+	
+	return 1.0;
+	
+}
+
+double MiniballCalibration::DgfGainQuadr( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfGainQuadr[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+unsigned int MiniballCalibration::DgfThreshold( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfThreshold[mod][ch];
+		
+	}
+	
+	return -1;
+	
+}
+
+long MiniballCalibration::DgfTime( unsigned char mod, unsigned char ch ){
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfTime[mod][ch];
+		
+	}
+	
+	return 0;
+	
+}
+double MiniballCalibration::AdcOffset( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < total_adcs && ch < max_adc_chs ) {
+
+		return fAdcOffset[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+double MiniballCalibration::AdcGain( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < total_adcs && ch < max_adc_chs ) {
+
+		return fAdcGain[mod][ch];
+		
+	}
+	
+	return 1.0;
+	
+}
+
+double MiniballCalibration::AdcGainQuadr( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < total_adcs && ch < max_adc_chs ) {
+
+		return fAdcGainQuadr[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+unsigned int MiniballCalibration::AdcThreshold( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < total_adcs && ch < max_adc_chs ) {
+
+		return fAdcThreshold[mod][ch];
+		
+	}
+	
+	return -1;
+	
+}
+
+long MiniballCalibration::AdcTime( unsigned char mod, unsigned char ch ){
+	
+	if( mod < total_adcs && ch < max_adc_chs ) {
+
+		return fAdcTime[mod][ch];
+		
+	}
+	
+	return 0;
+	
+}
+
+
+// MWD
 void MiniballCalibration::SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int decay ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&

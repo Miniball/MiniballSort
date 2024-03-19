@@ -11,11 +11,13 @@ class PatternUnitData : public TObject {
 
 public:
 	
-	PatternUnitData( unsigned char _id, unsigned int _val ){
+	PatternUnitData( unsigned char _mod, unsigned char _id, unsigned int _val ){
+		mod = _mod;
 		id = _id;
 		val = _val;
 	};
 	PatternUnitData(){
+		mod = 255;
 		id = 255;
 		val = 0;
 	};
@@ -24,17 +26,20 @@ public:
 	void ClearData();
 	
 	// Setters
-	void SetPattern( unsigned char _id, unsigned int _val ){
+	inline void SetPattern( unsigned char _mod, unsigned char _id, unsigned int _val ){
+		mod = _mod;
 		id = _id;
 		val = _val;
 	};
 	
 	// Getters
-	unsigned char	GetID(){ return id; };
-	unsigned int	GetValue(){ return val; };
+	inline unsigned char	GetModule(){ return mod; };
+	inline unsigned char	GetID(){ return id; };
+	inline unsigned int		GetValue(){ return val; };
 
 protected:
 
+	unsigned char				mod; 		///< module number of the pattern being read
 	unsigned char				id; 		///< ID of the channel/pattern being read
 	unsigned int				val;		///< value of the pattern
 
@@ -59,19 +64,19 @@ public:
 	void ClearData();
 	
 	// Setters
-	void SetScaler( unsigned char _id, unsigned int _val ){
+	inline void SetScaler( unsigned char _id, unsigned int _val ){
 		id = _id;
 		val = _val;
 	};
 	
 	// Getters
-	unsigned char	GetID(){ return id; };
-	unsigned int	GetValue(){ return val; };
+	inline unsigned char	GetID(){ return id; };
+	inline unsigned int		GetValue(){ return val; };
 
 protected:
 
-	unsigned char				id; 		///< ID of the channel/scaler being read
-	unsigned int				val;		///< value of the pattern
+	unsigned char		id; 		///< ID of the channel/scaler being read
+	unsigned int		val;		///< value of the pattern
 
 	ClassDef( ScalerUnitData, 1 )
 
@@ -91,33 +96,33 @@ public:
 	void ClearData();
 	
 	// Setters
-	void SetModule( unsigned short id ) { mod = id; };
-	void SetClusterID( unsigned short id ) { clu = id; };
-	void SetRealTime( long long time ){ fRealTime = time; };
-	void SetRunTime( long long time ) { fRunTime = time; };
-	void SetGSLTTime( long long time ) { fGSLTTime = time; };
-	void SetNumberOfEvents( unsigned short n ) { fNumberOfEvents = n; };
-	void SetLiveTime( unsigned short i, long long time ) {
+	inline void SetModule( unsigned short id ) { mod = id; };
+	inline void SetClusterID( unsigned short id ) { clu = id; };
+	inline void SetRealTime( long long time ){ fRealTime = time; };
+	inline void SetRunTime( long long time ) { fRunTime = time; };
+	inline void SetGSLTTime( long long time ) { fGSLTTime = time; };
+	inline void SetNumberOfEvents( unsigned short n ) { fNumberOfEvents = n; };
+	inline void SetLiveTime( unsigned short i, long long time ) {
 		if( i < fNumberOfDgfChannels ) fLiveTime[i] = time;
 	};
-	void SetFastPeak( unsigned short i, unsigned int fp ) {
+	inline void SetFastPeak( unsigned short i, unsigned int fp ) {
 		if( i < fNumberOfDgfChannels ) fFastPeak[i] = fp;
 	};
 	
 	// Getters
-	unsigned short	GetModule(){ return mod; };
-	unsigned short	GetCluster(){ return clu; };
-	long long		GetRealTime(){ return fRealTime; };
-	long long		GetRunTime() { return fRunTime; };
-	long long		GetGSLTTime() { return fGSLTTime; };
-	unsigned short	GetNumberOfEvents() { return fNumberOfEvents; };
-	long long		GetLiveTime( unsigned short i ) {
+	inline unsigned short	GetModule(){ return mod; };
+	inline unsigned short	GetCluster(){ return clu; };
+	inline long long		GetRealTime(){ return fRealTime; };
+	inline long long		GetRunTime() { return fRunTime; };
+	inline long long		GetGSLTTime() { return fGSLTTime; };
+	inline unsigned short	GetNumberOfEvents() { return fNumberOfEvents; };
+	inline long long		GetLiveTime( unsigned short i ) {
 		if( i < fNumberOfDgfChannels ) return fLiveTime[i];
 		else return -1;
 	};
-	unsigned int	SetFastPeak( unsigned short i ) {
+	inline int	SetFastPeak( unsigned short i ) {
 		if( i < fNumberOfDgfChannels ) return fFastPeak[i];
-		else return 0;
+		else return -1;
 	};
 
 protected:
@@ -138,31 +143,34 @@ protected:
 
 };
 
-class MiniballAdcData : public TObject {
+class AdcData : public TObject {
 
 public:
 	
-	MiniballAdcData(){};
-	~MiniballAdcData() {};
+	AdcData(){};
+	~AdcData() {};
 	
 	void ClearData();
 
 	// Setters
+	inline void	SetEventID( unsigned long long int id ) { eventid = id; };
 	inline void SetTime( long long t ){ time = t; };
 	inline void SetQint( unsigned short q ){ Qint = q; };
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetModule( unsigned char m ){ mod = m; };
 	inline void SetChannel( unsigned char c ){ ch = c; };
 	inline void SetThreshold( bool t ){ thres = t; };
+	inline void SetClipped( bool c ){ clipped = c; };
 
 	// Getters
-	long long							GetTime(){ return time; };
-	unsigned char						GetModule(){ return mod; };
-	unsigned char						GetChannel(){ return ch; };
-	inline unsigned long long int		GetEventID() { return eventid; };
-	inline unsigned int					GetQint() { return Qint; };
-	inline float						GetEnergy() { return energy; };
-	inline bool							IsOverThreshold() { return thres; };
+	inline long long				GetTime(){ return time; };
+	inline unsigned char			GetModule(){ return mod; };
+	inline unsigned char			GetChannel(){ return ch; };
+	inline unsigned long long int	GetEventID() { return eventid; };
+	inline unsigned int				GetQint() { return Qint; };
+	inline float					GetEnergy() { return energy; };
+	inline bool						IsOverThreshold() { return thres; };
+	inline bool						IsClipped() { return clipped; };
 
 protected:
 
@@ -173,35 +181,9 @@ protected:
 	unsigned char				mod; 		///< module number of ADC
 	unsigned char				ch; 		///< channel number of ADC
 	bool						thres;		///< is the energy over threshold?
+	bool						clipped;	///< is the ADC value over range?
 
-	ClassDef( MiniballAdcData, 1 )
-
-};
-
-class MesytecAdcData : public MiniballAdcData {
-
-public:
-	
-	MesytecAdcData(){};
-	~MesytecAdcData() {};
-	
-protected:
-
-	ClassDef( MesytecAdcData, 1 )
-
-};
-
-class CaenAdcData : public MiniballAdcData {
-	
-public:
-	
-	CaenAdcData(){};
-	~CaenAdcData() {};
-	
-protected:
-
-
-	ClassDef( CaenAdcData, 1 )
+	ClassDef( AdcData, 1 )
 
 };
 
@@ -216,35 +198,55 @@ public:
 	void ClearData();
 	
 	// Setters
-	inline void SetHitPattern( unsigned short hp ) {
-		HitPattern = hp;
-	};
-	inline void SetEventTime( unsigned short RunTime, unsigned short EventTimeHigh, unsigned short EventTimeLow ){
-		EventTime = EventTimeLow + 65536ll*EventTimeHigh + 65536ll*65536ll*RunTime;
-	};
-	inline void SetFastTriggerTime( unsigned short t ){ FastTriggerTime = t; };
+	inline void	SetEventID( unsigned long long int id ) { eventid = id; };
+	inline void SetHitPattern( unsigned short hp ) { HitPattern = hp; };
+	inline void SetEventTime( long long time ){ EventTime = time; };
 	inline void SetQint( unsigned short q ){ Qint = q; };
 	inline void SetEnergy( float e ){ energy = e; };
-	inline void SetLongFastTriggerTime( unsigned short RunTime, unsigned short EventTimeHigh, unsigned short EventTimeLow ) {
-		if( FastTriggerTime > EventTimeLow) // check for overflow
-			LongFastTriggerTime = FastTriggerTime + 65536ll*EventTimeHigh + 65536ll*65536ll*RunTime;
-		else
-			LongFastTriggerTime = FastTriggerTime + 65536ll*EventTimeHigh + 65536ll + 65536ll*65536ll*RunTime;
-	};
+	inline void SetRunTime( unsigned short time ){ RunTime = time; };
+	inline void SetFastTriggerTime( unsigned short time ){ FastTriggerTime = time; };
+	inline void SetLongFastTriggerTime( long long time ){ LongFastTriggerTime = time; };
 	inline void SetUserValues( std::vector<unsigned short> q ) { UserValues = q; };
+	inline void	SetTrace( std::vector<unsigned short> t ) { trace = t; };
+	inline void AddSample( unsigned short s ) { trace.push_back(s); };
 	inline void SetModule( unsigned char m ){ mod = m; };
 	inline void SetChannel( unsigned char c ){ ch = c; };
 	inline void SetThreshold( bool t ){ thres = t; };
 
 	// Getters
-	long long							GetTime(){ return EventTime + LongFastTriggerTime; };
-	unsigned char						GetModule(){ return mod; };
-	unsigned char						GetChannel(){ return ch; };
+	inline long long					GetTime(){ return EventTime + LongFastTriggerTime; };
+	inline long long					GetEventTime(){ return EventTime; };
+	inline long long					GetLongFastTriggerTime(){ return LongFastTriggerTime; };
+	inline unsigned short				GetFastTriggerTime(){ return FastTriggerTime; };
+	inline unsigned short				GetRunTime(){ return RunTime; };
+	inline unsigned char				GetModule(){ return mod; };
+	inline unsigned char				GetChannel(){ return ch; };
 	inline unsigned long long int		GetEventID() { return eventid; };
 	inline unsigned int					GetQint() { return Qint; };
 	inline float						GetEnergy() { return energy; };
 	inline unsigned short				GetHitPattern(){ return HitPattern; };
+	inline std::vector<unsigned short>	GetUserValues(){ return UserValues; };
 	inline bool							IsOverThreshold() { return thres; };
+	inline unsigned short				GetTraceLength() { return trace.size(); };
+	inline std::vector<unsigned short>	GetTrace() { return trace; };
+	inline TGraph* GetTraceGraph() {
+		std::vector<int> x, y;
+		std::string title = "Trace for DGF Mod " + std::to_string( GetModule() );
+		title += ", Channel " + std::to_string( GetChannel() );
+		title += ";time [ns];signal";
+		for( unsigned short i = 0; i < GetTraceLength(); ++i ){
+			x.push_back( i * 10 );
+			y.push_back( GetSample(i) );
+		}
+		std::unique_ptr<TGraph> g = std::make_unique<TGraph>(
+                            GetTraceLength(), x.data(), y.data() );
+        g.get()->SetTitle( title.data() );
+		return (TGraph*)g.get()->Clone();
+	};
+	inline unsigned short				GetSample( unsigned int i = 0 ) {
+		if( i >= trace.size() ) return 0;
+		return trace.at(i);
+	};
 
 
 	
@@ -253,6 +255,7 @@ protected:
 	//long long int 				time
 	unsigned long long int		eventid;
 	long long 					EventTime;
+	unsigned short				RunTime;
 	float						energy;
 	unsigned short				Qint;
 	unsigned short 				HitPattern;
@@ -261,6 +264,7 @@ protected:
 	unsigned char				mod;	///< module number of DGF
 	unsigned char				ch; 	///< channel number of DGF
 	std::vector<unsigned short>	UserValues;
+	std::vector<unsigned short>	trace;
 	bool						thres;		///< is the energy over threshold?
 
 
@@ -412,19 +416,19 @@ public:
 	MiniballDataPackets() {};
 	~MiniballDataPackets() {};
 
-	inline bool	IsDgf()			{ return dgf_packets.size(); };
-	inline bool	IsCaenAdc() 	{ return caen_packets.size(); };
-	inline bool	IsMesytecAdc()	{ return madc_packets.size(); };
-	inline bool	IsFebex()		{ return febex_packets.size(); };
-	inline bool	IsInfo()		{ return info_packets.size(); };
+	inline bool	IsDgf()		{ return dgf_packets.size(); };
+	inline bool	IsAdc() 	{ return adc_packets.size(); };
+	inline bool	IsFebex()	{ return febex_packets.size(); };
+	inline bool	IsInfo()	{ return info_packets.size(); };
 	
+	void SetData( std::shared_ptr<DgfData> data );
+	void SetData( std::shared_ptr<AdcData> data );
 	void SetData( std::shared_ptr<FebexData> data );
 	void SetData( std::shared_ptr<InfoData> data );
 
 	// These methods are not very safe for access
 	inline std::shared_ptr<DgfData> GetDgfData() { return std::make_shared<DgfData>( dgf_packets.at(0) ); };
-	inline std::shared_ptr<CaenAdcData> GetCaenAdcData() { return std::make_shared<CaenAdcData>( caen_packets.at(0) ); };
-	inline std::shared_ptr<MesytecAdcData> GetMesytecAdcData() { return std::make_shared<MesytecAdcData>( madc_packets.at(0) ); };
+	inline std::shared_ptr<AdcData> GetAdcData() { return std::make_shared<AdcData>( adc_packets.at(0) ); };
 	inline std::shared_ptr<FebexData> GetFebexData() { return std::make_shared<FebexData>( febex_packets.at(0) ); };
 	inline std::shared_ptr<InfoData> GetInfoData() { return std::make_shared<InfoData>( info_packets.at(0) ); };
 	
@@ -435,6 +439,7 @@ public:
 	UInt_t GetTimeLSB();
 	unsigned char GetSfp();
 	unsigned char GetBoard();
+	unsigned char GetModule();
 	unsigned char GetChannel();
 
 	void ClearData();
@@ -442,8 +447,7 @@ public:
 protected:
 	
 	std::vector<DgfData>		dgf_packets;
-	std::vector<CaenAdcData>	caen_packets;
-	std::vector<MesytecAdcData>	madc_packets;
+	std::vector<AdcData>		adc_packets;
 	std::vector<FebexData>		febex_packets;
 	std::vector<InfoData>		info_packets;
 
@@ -461,6 +465,7 @@ public:
 		eventid = 0;
 		std::vector<PatternUnitData>().swap(patterns);
 		std::vector<ScalerUnitData>().swap(scalers);
+		std::vector<DgfScalerData>().swap(dgfscalers);
 	};
 	~MBSInfoPackets() {};
 	
@@ -476,14 +481,14 @@ public:
 	inline void AddPattern( PatternUnitData p ){
 		patterns.push_back(p);
 	};
-	inline void AddPattern( unsigned char _id, unsigned int _val ){
-		PatternUnitData tmp(_id,_val);
+	inline void AddPattern( unsigned char _mod, unsigned char _id, unsigned int _val ){
+		PatternUnitData tmp(_mod,_id,_val);
 		AddPattern(tmp);
 	};
-	inline unsigned int GetPatternValue( unsigned char id ){
+	inline unsigned int GetPatternValue( unsigned char mod, unsigned char id ){
 		unsigned int tmp = 0;
 		for( unsigned int i = 0; i < patterns.size(); i++ ){
-			if( patterns[i].GetID() == id ) {
+			if( patterns[i].GetModule() == mod && patterns[i].GetID() == id ) {
 				tmp = patterns[i].GetValue();
 				break;
 			}
@@ -502,9 +507,7 @@ public:
 	};
 
 	// Scalers
-	inline void AddScaler( ScalerUnitData s ){
-		scalers.push_back(s);
-	};
+	inline void AddScaler( ScalerUnitData s ){ scalers.push_back(s); };
 	inline void AddScaler( unsigned char _id, unsigned int _val ){
 		ScalerUnitData tmp(_id,_val);
 		AddScaler(tmp);

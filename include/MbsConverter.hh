@@ -6,6 +6,11 @@
 # include "Converter.hh"
 #endif
 
+// MBS Defines header
+#ifndef __MBSDEFINES_HH
+# include "MbsDefines.hh"
+#endif
+
 // MBS Data Format header
 #ifndef __MBSFORMAT_HH
 # include "MbsFormat.hh"

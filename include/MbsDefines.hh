@@ -1,5 +1,5 @@
-#ifndef __MBSCONVERTER_HH
-#define __MBSCONVERTER_HH
+#ifndef __MBSDEFINES_HH
+#define __MBSDEFINES_HH
 
 // MBS defines
 #define MBS_ID_WORD				"%MBS_RAW_DATA%"			/*!< magic id */
@@ -127,13 +127,19 @@
 
 #define DGF_SCALER_END_OF_BUFFER 0x5252
 #define DGF_SCALER_MAGIC_WORD 0x2525
+#define DGF_SCALER_INDEX_REALTIME 0
+#define DGF_SCALER_INDEX_RUNTIME 3
+#define DGF_SCALER_INDEX_GSLTTIME 6
+#define DGF_SCALER_INDEX_NEVENTS 9
+#define DGF_SCALER_INDEX_CH_OFFSET 62
+#define DGF_SCALER_INDEX_CH_SIZE 24
+#define DGF_SCALER_MIN_SIZE 158
 
 #define BRAGG_CHAMBER_HEADER        (0x1 << 15)
 #define BRAGG_CHAMBER_MODULE_NUMBER  0xFF
 #define BRAGG_CHAMBER_MODULE_ID      0x7F
 #define BRAGG_CHAMBER_SH_ModuleId   8
 
-#define MESYTEC_MADC_NBOFCHAN  32
 #define MESYTEC_MADC_MODULE_ID 0xff
 #define MESYTEC_MADC_OUTPUT_FORMAT 0x8000 //should be zero
 #define MESYTEC_MADC_ADC_RESOLUTION 0x7000 //0=2k,1=4k,2=4k hires,3=8k,4=8k hires
@@ -147,6 +153,47 @@
 #define MESYTEC_MADC_END_OF_EVENT 0xc0000000
 #define MESYTEC_MADC_TIMESTAMP 0x3fffffff
 
+// XIA defines
+#define BUFHEADLEN 6
+#define EVENTHEADLEN 3
+#define CHANHEADLEN 9
+
+// standard list mode
+#define STD_LM               0
+#define STD_LM_RUNTASK     256
+#define STD_LM_BUFFORMAT   256
+
+// compressed list mode
+#define COMP_LM              1
+#define COMP_LM_RUNTASK    257
+#define COMP_LM_BUFFORMAT  257
+
+// standard fast list mode
+#define STD_FLM              2
+#define STD_FLM_RUNTASK    512
+#define STD_FLM_BUFFORMAT  512
+
+// compressed fast list mode
+#define COMP_FLM             3
+#define COMP_FLM_RUNTASK   513
+#define COMP_FLM_BUFFORMAT 513
+
+// list mode - Compression 3
+#define COMP3_LM             4
+#define COMP3_LM_RUNTASK   259
+#define COMP3_LM_BUFFORMAT 259
+
+// default run mode
+#define DEFAULT_RUNTASK   STD_LM_RUNTASK
+#define DEFAULT_BUFFORMAT STD_LM_BUFFORMAT
+
+// XIA subevent type
+#define XIA_EVENT          666
+
+#define XIA_STD_LM         (XIA_EVENT+STD_LM)
+#define XIA_COMP_LM        (XIA_EVENT+COMP_LM)
+#define XIA_STD_FLM         (XIA_EVENT+STD_FLM)
+#define XIA_COMP_FLM        (XIA_EVENT+COMP_FLM)
 
 
 #endif

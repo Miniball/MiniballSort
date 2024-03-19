@@ -39,37 +39,68 @@ public:
 	
 	// Old DAQ settings - DGF
 	inline unsigned int GetNumberOfDgfModules(){ return n_dgf_mod; };
+	inline unsigned int GetNumberOfDgfTimestampModules(){ return n_dgf_ts_mod; };
 	inline unsigned int GetNumberOfDgfChannels(){ return n_dgf_ch; };
-	inline unsigned int GetDgfModuleNumber( unsigned int i ){
+	inline int GetDgfModuleNumber( unsigned int i ){
 		if( i >= dgf_mod_offset && i < dgf_mod_offset + n_dgf_mod )
 			return i - dgf_mod_offset;
 		else {
 			std::cerr << "Bad DGF module requested: " << i << std::endl;
-			return 0;
+			return -1;
 		}
+	};
+	inline double GetDgfTimestampDelay(){ return dgf_ts_delay; };
+	inline double GetDgfTimestampUnits(){ return dgf_ts_units; };
+	inline bool IsTimestampModule( unsigned int m ){
+		if( m >= n_dgf_mod - n_dgf_ts_mod ) return true;
+		else return false;
 	};
 
 	// Old DAQ settings - CAEN ADCs
 	inline unsigned int GetNumberOfCaenAdcModules(){ return n_caen_mod; };
 	inline unsigned int GetNumberOfCaenAdcChannels(){ return n_caen_ch; };
-	inline unsigned int GetCaenAdcModuleNumber( unsigned int i ){
+	inline int GetCaenAdcModuleNumber( unsigned int i ){
 		if( i >= caen_mod_offset && i < caen_mod_offset + n_caen_mod )
 			return i - caen_mod_offset;
 		else {
 			std::cerr << "Bad CAEN ADC module requested: " << i << std::endl;
-			return 0;
+			return -1;
 		}
 	};
+	inline double GetCaenAdcTimestampUnits(){ return caen_ts_units; };
 
-	// Old DAQ settings - Mesytex
+	// Old DAQ settings - Mesytec
 	inline unsigned int GetNumberOfMesytecAdcModules(){ return n_madc_mod; };
 	inline unsigned int GetNumberOfMesytecAdcChannels(){ return n_madc_ch; };
-	inline unsigned int GetMesytecAdcModuleNumber( unsigned int i ){
+	inline int GetMesytecAdcModuleNumber( unsigned int i ){
 		if( i >= madc_mod_offset && i < madc_mod_offset + n_madc_mod )
 			return i - madc_mod_offset;
 		else {
 			std::cerr << "Bad Mesytec ADC module requested: " << i << std::endl;
-			return 0;
+			return -1;
+		}
+	};
+	inline double GetMesytecAdcTimestampUnits(){ return madc_ts_units; };
+
+	// Old DAQ settings - Pattern Units
+	inline unsigned int GetNumberOfPatternUnits(){ return n_pattern_unit; };
+	inline int GetPatternUnitNumber( unsigned int i ){
+		if( i >= pattern_unit_offset && i < pattern_unit_offset + n_pattern_unit )
+			return i - pattern_unit_offset;
+		else {
+			std::cerr << "Bad Pattern Unit module requested: " << i << std::endl;
+			return -1;
+		}
+	};
+
+	// Old DAQ settings - Scaler Units
+	inline unsigned int GetNumberOfScalerUnits(){ return n_scaler_unit; };
+	inline int GetScalerUnitNumber( unsigned int i ){
+		if( i >= scaler_unit_offset && i < scaler_unit_offset + n_scaler_unit )
+			return i - scaler_unit_offset;
+		else {
+			std::cerr << "Bad Scaler Unit module requested: " << i << std::endl;
+			return -1;
 		}
 	};
 
@@ -210,15 +241,20 @@ private:
 	unsigned int n_febex_ch;		///< Number of channels per board (16 for FEBEX4)
 	
 	// Old DAQ settings
-	unsigned int n_dgf_mod;			///< Number of DGF modules
-	unsigned int n_dgf_ch;			///< Number of DGF channels
-	unsigned int dgf_mod_offset;	///< module number offset for the DGFs
-	unsigned int n_caen_mod;		///< Number of CAEN ADC modules
-	unsigned int n_caen_ch;			///< Number of CAENADC channels
-	unsigned int caen_mod_offset;	///< module number offset for the CAEN ADCs
-	unsigned int n_madc_mod;		///< Number of Mesytec ADC modules
-	unsigned int n_madc_ch;			///< Number of Mesytec ADC channels
-	unsigned int madc_mod_offset;	///< module number offset for the MADCs
+	unsigned int n_dgf_mod;				///< Number of DGF modules
+	unsigned int n_dgf_ts_mod;			///< Number of DGF timestamp modules (subset of n_dgf_mod)
+	unsigned int n_dgf_ch;				///< Number of DGF channels
+	unsigned int dgf_mod_offset;		///< module number offset for the DGFs
+	unsigned int n_caen_mod;			///< Number of CAEN ADC modules
+	unsigned int n_caen_ch;				///< Number of CAENADC channels
+	unsigned int caen_mod_offset;		///< module number offset for the CAEN ADCs
+	unsigned int n_madc_mod;			///< Number of Mesytec ADC modules
+	unsigned int n_madc_ch;				///< Number of Mesytec ADC channels
+	unsigned int madc_mod_offset;		///< module number offset for the MADCs
+	unsigned int n_pattern_unit;		///< Number of pattern unit modules
+	unsigned int pattern_unit_offset;	///< module number offset for the pattern units
+	unsigned int n_scaler_unit;			///< Number of scaler unit modules
+	unsigned int scaler_unit_offset;	///< module number offset for the scaler units
 
 	// Miniball array settings
 	unsigned int n_mb_cluster;		///< Miniball usuall has 8 triple cluster detectors
@@ -343,6 +379,12 @@ private:
 	
 	// DGF timestamp delay
 	long dgf_ts_delay;
+	
+	// Timestamp units (ns per tick)
+	double dgf_ts_units;
+	double caen_ts_units;
+	double madc_ts_units;
+
 
 
 };
