@@ -216,7 +216,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			bool thresh = cal->AdcThreshold( mod, ch_vec[i] );
 			
 			// Set values for data item
-			adc_data->SetTime( Timestamp );
+			adc_data->SetTime( Timestamp ); // only works for MADC, CAEN needs reconstruction
 			adc_data->SetQint( qint_vec[i] );
 			adc_data->SetModule( mod );
 			adc_data->SetChannel( ch_vec[i] );
