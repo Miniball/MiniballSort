@@ -567,7 +567,7 @@ public:
 	std::vector<ScalerUnitData> 	scalers;	///< scaler unit data
 	std::vector<DgfScalerData> 		dgfscalers;	///<DGF  scaler data
 
-	ClassDef( MBSInfoPackets, 3 )
+	ClassDef( MBSInfoPackets, 4 )
 	
 };
 

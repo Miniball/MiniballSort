@@ -753,8 +753,8 @@ int main( int argc, char *argv[] ){
 			
 	}
 	
-	// Check if it should be MBS or MED format
-	if( !flag_mbs && !flag_med && !flag_spy && !name_angle_file.length() ){
+	// Check if it should be MIDAS, MBS or MED format
+	if( !flag_midas && !flag_mbs && !flag_med && !flag_spy && !name_angle_file.length() ){
 
 		std::string extension = input_names.at(0).substr( input_names.at(0).find_last_of(".")+1,
 														 input_names.at(0).length()-input_names.at(0).find_last_of(".")-1 );
@@ -774,6 +774,8 @@ int main( int argc, char *argv[] ){
 			std::cout << "Forcing the data block size to 32 kB" << std::endl;
 			
 		}
+		
+		else flag_midas = true;
 		
 	}
 	
