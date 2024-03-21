@@ -70,7 +70,17 @@ void MiniballMedConverter::ProcessBlock( unsigned long nblock ){
 // Treat a Mesytec ADC data item
 void MiniballMedConverter::ProcessMesytecAdcData() {
 
-	// TODO: Check it really is a Mesytec ADC according to user settings?
+	// Check it really is a Mesytec ADC according to user settings?
+	if( !set->CheckVmeModuleIsAdc( mbs_sevt->GetModuleID() ) ){
+		
+		std::cerr << __PRETTY_FUNCTION__;
+		std::cerr << ": Error - got data from VME module id ";
+		std::cerr << mbs_sevt->GetModuleID();
+		std::cerr << ", which looks like an ADC but it isn't";
+		std::cerr << " defined as such in settings file" << std::endl;
+		return;
+	
+	}
 
 	// Need to know total number of ADCs for Marabou numbering
 	unsigned short total_adcs = set->GetNumberOfMesytecAdcModules();
@@ -238,6 +248,17 @@ void MiniballMedConverter::ProcessCaenAdcData() {
 // Decode the pattern unit data and add it to the packets
 void MiniballMedConverter::ProcessPatternUnitData() {
 
+	// Test data comes from scaler unit?
+	if( !set->CheckVmeModuleIsPattern( mbs_sevt->GetModuleID() ) ){
+		
+		std::cerr << __PRETTY_FUNCTION__;
+		std::cerr << ": Error - got data from VME module id ";
+		std::cerr << mbs_sevt->GetModuleID();
+		std::cerr << ", which looks like a pattern unit but it isn't";
+		std::cerr << " defined as such in settings file" << std::endl;
+		return;
+	
+	}
 	// Loop over data and reconstruct header and data
 	for( unsigned int i = 0; i < mbs_sevt->GetNumberOfData(); i++ ) {
 		
@@ -283,13 +304,23 @@ void MiniballMedConverter::ProcessPatternUnitData() {
 // Decode the scaler unit data and add it to the packets
 void MiniballMedConverter::ProcessScalerData() {
 	
-	// TODO: Test data comes from scaler unit?
+	// Test data comes from scaler unit?
+	if( !set->CheckVmeModuleIsScaler( mbs_sevt->GetModuleID() ) ){
+		
+		std::cerr << __PRETTY_FUNCTION__;
+		std::cerr << ": Error - got data from VME module id ";
+		std::cerr << mbs_sevt->GetModuleID();
+		std::cerr << ", which looks like a scaler module but it isn't";
+		std::cerr << " defined as such in settings file" << std::endl;
+		return;
 	
+	}
+		
 	// Check we have an even number of data
 	if( mbs_sevt->GetNumberOfData() % 2 != 0 ){
 		
 		std::cerr << __PRETTY_FUNCTION__;
-		std::cerr << ": Errorr - expecting even number of words in MbsSubEvent but there are ";
+		std::cerr << ": Error - expecting even number of words in MbsSubEvent but there are ";
 		std::cerr << mbs_sevt->GetNumberOfData() << std::endl;
 		return;
 		
@@ -315,6 +346,18 @@ void MiniballMedConverter::ProcessScalerData() {
 // Treat a DGF scaler data item
 void MiniballMedConverter::ProcessDgfScaler() {
 
+	// Test data comes from DGFscaler unit?
+	if( !set->CheckVmeModuleIsDgfScaler( mbs_sevt->GetModuleID() ) ){
+		
+		std::cerr << __PRETTY_FUNCTION__;
+		std::cerr << ": Error - got data from VME module id ";
+		std::cerr << mbs_sevt->GetModuleID();
+		std::cerr << ", which looks like a DGF scaler module but it isn't";
+		std::cerr << " defined as such in settings file" << std::endl;
+		return;
+	
+	}
+	
 	// Loop over all the available data
 	unsigned int i = 0;
 	while( i < mbs_sevt->GetNumberOfData() ){
@@ -430,6 +473,18 @@ void MiniballMedConverter::ProcessDgfTimeStamp() {
 //-----------------------------------------------------------------------------
 // Treat a DGF data item
 void MiniballMedConverter::ProcessDgfData() {
+
+	// Test data comes from scaler unit?
+	if( !set->CheckVmeModuleIsDgf( mbs_sevt->GetModuleID() ) ){
+		
+		std::cerr << __PRETTY_FUNCTION__;
+		std::cerr << ": Error - got data from VME module id ";
+		std::cerr << mbs_sevt->GetModuleID();
+		std::cerr << ", which looks like a DGF module but it isn't";
+		std::cerr << " defined as such in settings file" << std::endl;
+		return;
+	
+	}
 
 	// Loop over all the available data
 	unsigned int i = 0;
@@ -589,26 +644,60 @@ void MiniballMedConverter::ProcessDgfData() {
 						
 						// Clear the old stuff
 						dgf_data->ClearData();
+						info_data->ClearData();
 						data_packet->ClearData();
 						
-						// Set values for data item
-						dgf_data->SetEventID( my_event_id );
-						dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
-						dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
-						dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
-						dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
-						dgf_data->SetHitPattern( HitPattern );
-						dgf_data->SetQint( Qint );
-						dgf_data->SetModule( mod );
-						dgf_data->SetChannel( ch );
-						dgf_data->SetEnergy( energy );
-						dgf_data->SetThreshold( thresh );
-						dgf_data->SetUserValues( UserValues );
-						dgf_data->SetUserValues( trace );
+						// Check if it's a timestamper!
+						if( set->IsTimestampModule( mod ) ) {
+							
+							// Check if it matches EBIS, T1 or SC
+							char mycode = -1;
+							if( mod == set->GetEBISDgf() && ch == set->GetEBISChannel() )
+								mycode = set->GetEBISCode();
+							else if( mod == set->GetT1Dgf() && ch == set->GetT1Channel() )
+								mycode = set->GetT1Code();
+							else if( mod == set->GetSCDgf() && ch == set->GetSCChannel() )
+								mycode = set->GetSCCode();
 
-						// Fill the tree
-						data_packet->SetData( dgf_data );
-						sorted_tree->Fill();
+							// Useful only if it matched
+							if( mycode >= 0 ) {
+							
+								// Set values for data item
+								info_data->SetEventID( my_event_id );
+								info_data->SetTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+								info_data->SetCode( mycode );
+								info_data->SetBoard( mod );
+
+								// Fill the tree
+								data_packet->SetData( info_data );
+								sorted_tree->Fill();
+									
+							}
+
+						}
+						
+						else {
+						
+							// Set values for data item
+							dgf_data->SetEventID( my_event_id );
+							dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetHitPattern( HitPattern );
+							dgf_data->SetQint( Qint );
+							dgf_data->SetModule( mod );
+							dgf_data->SetChannel( ch );
+							dgf_data->SetEnergy( energy );
+							dgf_data->SetThreshold( thresh );
+							dgf_data->SetUserValues( UserValues );
+							dgf_data->SetUserValues( trace );
+
+							// Fill the tree
+							data_packet->SetData( dgf_data );
+							sorted_tree->Fill();
+							
+						}
 
 						
 					} // channel mask, we have data in this channel

@@ -52,8 +52,15 @@ public:
 	inline double GetDgfTimestampDelay(){ return dgf_ts_delay; };
 	inline double GetDgfTimestampUnits(){ return dgf_ts_units; };
 	inline bool IsTimestampModule( unsigned int m ){
-		if( m >= n_dgf_mod - n_dgf_ts_mod ) return true;
+		if( m >= n_dgf_ts_mod - n_dgf_ts_mod ) return true;
 		else return false;
+	};
+	
+	// Total ADC modules
+	inline unsigned int GetNumberOfAdcModules(){ return n_caen_mod + n_madc_mod; };
+	inline unsigned int GetMaximumNumberOfAdcChannels(){
+		if( n_caen_ch > n_madc_ch ) return n_caen_ch;
+		else return n_madc_ch;
 	};
 
 	// Old DAQ settings - CAEN ADCs
@@ -103,6 +110,28 @@ public:
 			return -1;
 		}
 	};
+	
+	// Check VME module numbers
+	inline bool CheckVmeModuleIsDgf( unsigned int id ){
+		if( id >= dgf_vme_first && id <= dgf_vme_last ) return true;
+		else return false;
+	};
+	inline bool CheckVmeModuleIsAdc( unsigned int id ){
+		if( id >= adc_vme_first && id <= adc_vme_last ) return true;
+		else return false;
+	};
+	inline bool CheckVmeModuleIsScaler( unsigned int id ){
+		if( id >= scaler_vme_first && id <= scaler_vme_last ) return true;
+		else return false;
+	};
+	inline bool CheckVmeModuleIsPattern( unsigned int id ){
+		if( id >= pattern_vme_first && id <= pattern_vme_last ) return true;
+		else return false;
+	};
+	inline bool CheckVmeModuleIsDgfScaler( unsigned int id ){
+		if( id >= dgfscaler_vme_first && id <= dgfscaler_vme_last ) return true;
+		else return false;
+	};
 
 
 	// Info settings
@@ -114,24 +143,28 @@ public:
 	
 	inline unsigned int GetEBISSfp(){ return ebis_sfp; };
 	inline unsigned int GetEBISBoard(){ return ebis_board; };
+	inline unsigned int GetEBISDgf(){ return ebis_dgf; };
 	inline unsigned int GetEBISChannel(){ return ebis_ch; };
 	inline unsigned int GetEBISCode(){ return ebis_code; };
 
 	inline unsigned int GetT1Sfp(){ return t1_sfp; };
 	inline unsigned int GetT1Board(){ return t1_board; };
+	inline unsigned int GetT1Dgf(){ return t1_dgf; };
 	inline unsigned int GetT1Channel(){ return t1_ch; };
 	inline unsigned int GetT1Code(){ return t1_code; };
 
 	inline unsigned int GetSCSfp(){ return sc_sfp; };
 	inline unsigned int GetSCBoard(){ return sc_board; };
+	inline unsigned int GetSCDgf(){ return sc_dgf; };
 	inline unsigned int GetSCChannel(){ return sc_ch; };
 	inline unsigned int GetSCCode(){ return sc_code; };
 	
 	inline unsigned int GetRILISSfp(){ return laser_sfp; };
 	inline unsigned int GetRILISBoard(){ return laser_board; };
 	inline unsigned int GetRILISChannel(){ return laser_ch; };
+	inline unsigned int GetRILISPattern(){ return laser_pattern; };
 	inline unsigned int GetRILISCode(){ return laser_code; };
-	
+
 
 	// Event builder
 	inline double GetEventWindow(){ return event_window; };
@@ -157,14 +190,26 @@ public:
 	inline unsigned int GetNumberOfMiniballClusters(){ return n_mb_cluster; };
 	inline unsigned int GetNumberOfMiniballCrystals(){ return n_mb_crystal; };
 	inline unsigned int GetNumberOfMiniballSegments(){ return n_mb_segment; };
+	bool IsMiniball( unsigned int dgf, unsigned int ch );
 	bool IsMiniball( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetMiniballID( unsigned int dgf, unsigned int ch,
+					  std::vector<std::vector<std::vector<int>>> vector );
 	int GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
 					  std::vector<std::vector<std::vector<int>>> vector );
+	inline int GetMiniballCluster( unsigned int dgf, unsigned int ch ){
+		return GetMiniballID( dgf, ch, mb_cluster );
+	};
 	inline int GetMiniballCluster( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetMiniballID( sfp, board, ch, mb_cluster );
 	};
+	inline int GetMiniballCrystal( unsigned int dgf, unsigned int ch ){
+		return GetMiniballID( dgf, ch, mb_crystal );
+	};
 	inline int GetMiniballCrystal( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetMiniballID( sfp, board, ch, mb_crystal );
+	};
+	inline int GetMiniballSegment( unsigned int dgf, unsigned int ch ){
+		return GetMiniballID( dgf, ch, mb_segment );
 	};
 	inline int GetMiniballSegment( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetMiniballID( sfp, board, ch, mb_segment );
@@ -179,17 +224,32 @@ public:
 	inline unsigned int GetNumberOfCDSides(){ return n_cd_side; };
 	inline unsigned int GetNumberOfCDPStrips(){ return n_cd_pstrip; };
 	inline unsigned int GetNumberOfCDNStrips(){ return n_cd_nstrip; };
+	bool IsCD( unsigned int adc, unsigned int ch );
 	bool IsCD( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetCDID( unsigned int adc, unsigned int ch,
+				std::vector<std::vector<std::vector<int>>> vector );
 	int GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
 				std::vector<std::vector<std::vector<int>>> vector );
+	inline int GetCDDetector( unsigned int adc, unsigned int ch ){
+		return GetCDID( adc, ch, cd_det );
+	};
 	inline int GetCDDetector( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetCDID( sfp, board, ch, cd_det );
+	};
+	inline int GetCDSector( unsigned int adc, unsigned int ch ){
+		return GetCDID( adc, ch, cd_sector );
 	};
 	inline int GetCDSector( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetCDID( sfp, board, ch, cd_sector );
 	};
+	inline int GetCDSide( unsigned int adc, unsigned int ch ){
+		return GetCDID( adc, ch, cd_side );
+	};
 	inline int GetCDSide( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetCDID( sfp, board, ch, cd_side );
+	};
+	inline int GetCDStrip( unsigned int adc, unsigned int ch ){
+		return GetCDID( adc, ch, cd_strip );
 	};
 	inline int GetCDStrip( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetCDID( sfp, board, ch, cd_strip );
@@ -198,15 +258,20 @@ public:
 	
 	
 	// Pad detector
+	bool IsPad( unsigned int adc, unsigned int ch );
 	bool IsPad( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetPadDetector( unsigned int adc, unsigned int ch );
 	int GetPadDetector( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetPadSector( unsigned int adc, unsigned int ch );
 	int GetPadSector( unsigned int sfp, unsigned int board, unsigned int ch );
 	inline double GetPadHitWindow(){ return pad_hit_window; };
 	
 	
 	// Beam dump detector
 	inline unsigned int GetNumberOfBeamDumpDetectors(){ return n_bd_det; };
+	bool IsBeamDump( unsigned int dgf, unsigned int ch );
 	bool IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetBeamDumpDetector( unsigned int dgf, unsigned int ch );
 	int GetBeamDumpDetector( unsigned int sfp, unsigned int board, unsigned int ch );
 
 	
@@ -218,7 +283,9 @@ public:
 	
 	// IonChamber
 	inline unsigned int GetNumberOfIonChamberLayers(){ return n_ic_layer; };
+	bool IsIonChamber( unsigned int adc, unsigned int ch );
 	bool IsIonChamber( unsigned int sfp, unsigned int board, unsigned int ch );
+	int GetIonChamberLayer( unsigned int adc, unsigned int ch );
 	int GetIonChamberLayer( unsigned int sfp, unsigned int board, unsigned int ch );
 	inline double GetIonChamberHitWindow(){ return ic_hit_window; };
 	
@@ -229,7 +296,7 @@ public:
 	int GetPulser( unsigned int sfp, unsigned int board, unsigned int ch );
 	
 	
-	ClassDef( MiniballSettings, 2 )
+	ClassDef( MiniballSettings, 3 )
 
 private:
 
@@ -245,6 +312,7 @@ private:
 	unsigned int n_dgf_ts_mod;			///< Number of DGF timestamp modules (subset of n_dgf_mod)
 	unsigned int n_dgf_ch;				///< Number of DGF channels
 	unsigned int dgf_mod_offset;		///< module number offset for the DGFs
+	unsigned int dgf_ts_mod_offset;		///< module number offset for the timestamper DGFs
 	unsigned int n_caen_mod;			///< Number of CAEN ADC modules
 	unsigned int n_caen_ch;				///< Number of CAENADC channels
 	unsigned int caen_mod_offset;		///< module number offset for the CAEN ADCs
@@ -256,15 +324,23 @@ private:
 	unsigned int n_scaler_unit;			///< Number of scaler unit modules
 	unsigned int scaler_unit_offset;	///< module number offset for the scaler units
 
+	// Marabou has weird serial numbers for sub events
+	unsigned int dgf_vme_first, dgf_vme_last;				///< Marabou IDs for DGFs
+	unsigned int adc_vme_first, adc_vme_last;				///< Marabou IDs for ADCs
+	unsigned int scaler_vme_first, scaler_vme_last;			///< Marabou IDs for scaler modules
+	unsigned int pattern_vme_first, pattern_vme_last;		///< Marabou IDs for pattern unit modules
+	unsigned int dgfscaler_vme_first, dgfscaler_vme_last;	///< Marabou IDs for DGF scalers
+	
 	// Miniball array settings
 	unsigned int n_mb_cluster;		///< Miniball usuall has 8 triple cluster detectors
 	unsigned int n_mb_crystal;		///< Number of crystals in a triple cluster is 3
 	unsigned int n_mb_segment;		///< Number of sgements in a crystal is 7, including core = 0
 	
 	// Miniball array electronics mapping
-	std::vector<std::vector<std::vector<unsigned int>>> mb_sfp;		///< A list of SFP numbers for each CD detector element and sector
-	std::vector<std::vector<std::vector<unsigned int>>> mb_board;	///< A list of board numbers for each CD detector element and sector
-	std::vector<std::vector<std::vector<unsigned int>>> mb_ch;		///< A list of channel numbers for each CD detector element and sector
+	std::vector<std::vector<std::vector<unsigned int>>> mb_sfp;		///< A list of SFP numbers for each MB cluster, crystal and segment
+	std::vector<std::vector<std::vector<unsigned int>>> mb_board;	///< A list of board numbers for each  MB cluster, crystal and segment
+	std::vector<std::vector<std::vector<unsigned int>>> mb_dgf;		///< A list of DGF module numbers for each MB cluster, crystal and segment
+	std::vector<std::vector<std::vector<unsigned int>>> mb_ch;		///< A list of channel numbers for each MB cluster, crystal and segment
 	std::vector<std::vector<std::vector<int>>> mb_cluster;			///< A channel map for the Miniball cluster IDs (-1 if not Miniball)
 	std::vector<std::vector<std::vector<int>>> mb_crystal;			///< A channel map for the Miniball crystal IDs (-1 if not Miniball)
 	std::vector<std::vector<std::vector<int>>> mb_segment;			///< A channel map for the Miniball segment IDs (-1 if not Miniball)
@@ -279,6 +355,7 @@ private:
 	// CD electronics mapping
 	std::vector<std::vector<std::vector<std::vector<unsigned int>>>> cd_sfp;	///< A list of SFP numbers for each CD detector, sector, side and strip
 	std::vector<std::vector<std::vector<std::vector<unsigned int>>>> cd_board;	///< A list of board numbers for each CD detector, sector, side and strip
+	std::vector<std::vector<std::vector<std::vector<unsigned int>>>> cd_adc;	///< A list of ADC module numbers for each CD detector, sector, side and strip
 	std::vector<std::vector<std::vector<std::vector<unsigned int>>>> cd_ch;		///< A list of channel numbers for each CD detector, sector, side and strip
 	std::vector<std::vector<std::vector<int>>> cd_det;							///< A channel map for the CD detectors (-1 if not a CD, 0 forward CD, 1 backward CD)
 	std::vector<std::vector<std::vector<int>>> cd_sector;						///< A channel map for the CD sectors (-1 if not a CD, 0-3 for quadrants)
@@ -288,6 +365,7 @@ private:
 	// PAD electronics mapping
 	std::vector<std::vector<unsigned int>> pad_sfp;		///< A list of SFP numbers for each PAD detector
 	std::vector<std::vector<unsigned int>> pad_board;	///< A list of board numbers for each PAD detector
+	std::vector<std::vector<unsigned int>> pad_adc;	///< A list of ADC module numbers for each PAD detector
 	std::vector<std::vector<unsigned int>> pad_ch;		///< A list of channel numbers for each PAD detector
 	std::vector<std::vector<std::vector<int>>> pad_det;		///< A channel map for the PAD detectors (-1 if not a PAD, 0 forward CD-PAD, 1 backward CD-PAD)
 	std::vector<std::vector<std::vector<int>>> pad_sector;	///< A channel map for the PAD sectors (-1 if not a PAD, 0-3 for quadrants)
@@ -299,6 +377,7 @@ private:
 	// Beam dump electronics mapping
 	std::vector<unsigned int> bd_sfp;						///< A list of SFP numbers for each beam dump detector
 	std::vector<unsigned int> bd_board;						///< A list of board numbers for each beam dump detector
+	std::vector<unsigned int> bd_dgf;						///< A list of DGF module numbers for each beam dump detector
 	std::vector<unsigned int> bd_ch;						///< A list of channel numbers for each beam dump detector
 	std::vector<std::vector<std::vector<int>>> bd_det;		///< A channel map for the beam dump detectors (-1 if not a beam dump, otherwise detector number)
 
@@ -308,6 +387,7 @@ private:
 	// SPEDE electronics mapping
 	std::vector<unsigned int> spede_sfp;					///< A list of SFP numbers for each SPEDE segment
 	std::vector<unsigned int> spede_board;					///< A list of board numbers for each SPEDE segment
+	std::vector<unsigned int> spede_dgf;					///< A list of DGF module numbers for each SPEDE segment
 	std::vector<unsigned int> spede_ch;						///< A list of channel numbers for each SPEDE segment
 	std::vector<std::vector<std::vector<int>>> spede_seg;	///< A channel map for the SPEDE segments (-1 if not a SPEDE, otherwise segment number)
 
@@ -317,12 +397,13 @@ private:
 	// SPEDE electronics mapping
 	std::vector<unsigned int> ic_sfp;						///< A list of SFP numbers for each IonChamber segment
 	std::vector<unsigned int> ic_board;						///< A list of board numbers for each IonChamber segment
+	std::vector<unsigned int> ic_adc;						///< A list of ADC module numbers for each IonChamber segment
 	std::vector<unsigned int> ic_ch;						///< A list of channel numbers for each IonChamber segment
 	std::vector<std::vector<std::vector<int>>> ic_layer;	///< A channel map for the IonChamber segments (-1 if not a IonChamber, otherwise layer number, i.e dE (gas) = 0, E (Si) = 1)
 
 
 	// Pulsers
-	unsigned int n_pulsers;							///< Number of pulser inputs for synchronisation tests
+	unsigned int n_pulsers;									///< Number of pulser inputs for synchronisation tests
 	std::vector<unsigned int> pulser_sfp;					///< A list of SFP numbers for each pulser
 	std::vector<unsigned int> pulser_board;					///< A list of board numbers for each pulser
 	std::vector<unsigned int> pulser_ch;					///< A list of channel numbers for each pulser
@@ -353,6 +434,7 @@ private:
 	unsigned int laser_sfp;				///< Location of the RILIS laser signal in the FEBEX system (sfp)
 	unsigned int laser_board;			///< Location of the RILIS laser signal in the FEBEX system (board)
 	unsigned int laser_ch;				///< Location of the RILIS laser signal in the FEBEX system (channel)
+	unsigned int laser_pattern;			///< Location of the RILIS laser signal in the pattern unit (channel)
 	unsigned int laser_code;			///< Info code when we have a RILIS Laser ON coincidence with EBIS in InfoData packets
 
 	// Event builder

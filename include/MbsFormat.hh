@@ -206,7 +206,7 @@ private:
 	unsigned char proctype;			///< processor type
 	unsigned char crateid;			///< crate number
 	unsigned short modid; 			///< module ID
-	MBSBufferElem stype;		///< type class identifier
+	MBSBufferElem stype;			///< type class identifier
 
 public:
 	

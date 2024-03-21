@@ -23,6 +23,8 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 	build_window = set->GetEventWindow();
 
 	n_sfp.resize( set->GetNumberOfFebexSfps() );
+	n_dgf.resize( set->GetNumberOfDgfModules() );
+	n_adc.resize( set->GetNumberOfAdcModules() );
 
 	febex_time_start.resize( set->GetNumberOfFebexSfps() );
 	febex_time_stop.resize( set->GetNumberOfFebexSfps() );
@@ -74,6 +76,8 @@ void MiniballEventBuilder::StartFile(){
 	t1_prev			= 0;
 	sc_prev			= 0;
 
+	n_dgf_data		= 0;
+	n_adc_data		= 0;
 	n_febex_data	= 0;
 	n_info_data		= 0;
 
@@ -127,7 +131,13 @@ void MiniballEventBuilder::StartFile(){
 		}
 	
 	}
-		
+	
+	for( unsigned int i = 0; i < set->GetNumberOfAdcModules(); ++i )
+		n_adc[i] = 0;
+	
+	for( unsigned int i = 0; i < set->GetNumberOfDgfModules(); ++i )
+		n_dgf[i] = 0;
+			
 }
 
 void MiniballEventBuilder::SetInputFile( std::string input_file_name ) {
@@ -1528,6 +1538,11 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 		}
 		
+		// Get the laser status from the MBS Info tree
+		if( mbs_info->GetPatternValue( set->GetRILISPattern() ) < 256 )
+			mylaser = true;
+		else mylaser = false;
+
 		// record time of this event
 		time_prev = mytime;
 		
@@ -1545,6 +1560,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			myboard = febex_data->GetBoard();
 			mych = febex_data->GetChannel();
 			mypileup = febex_data->IsPileUp();
+			myclipped = febex_data->IsClipped();
 
 			// check for repeated timestamps in same channel
 			if( mytime == febex_time_ch[mysfp][myboard][mych] ){
@@ -1721,6 +1737,178 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			febex_time_stop.at( mysfp ).at( myboard ) = mytime;
 
 		}
+		
+		// ------------------------------------------ //
+		// Find DGF data
+		// ------------------------------------------ //
+		else if( in_data->IsDgf() ) {
+			
+			// Get the data
+			dgf_data = in_data->GetDgfData();
+			mydgf = dgf_data->GetModule();
+			mych = dgf_data->GetChannel();
+			
+			// Update calibration if necessary
+			if( overwrite_cal ) {
+				
+				unsigned int adc_tmp_value = febex_data->GetQint();
+				myenergy = cal->DgfEnergy( mydgf, mych, adc_tmp_value );
+				
+				if( adc_tmp_value > cal->DgfThreshold( mydgf, mych ) )
+					mythres = true;
+				else mythres = false;
+				
+			}
+			
+			else {
+				
+				myenergy = dgf_data->GetEnergy();
+				mythres = dgf_data->IsOverThreshold();
+				
+			}
+			
+			// We should ignore negative energies
+			if( myenergy < 0.0 ) mythres = false;
+			
+			// Increment event counters
+			n_dgf_data++;
+			n_dgf[mydgf]++;
+			
+			// Is it a gamma ray from Miniball?
+			if( set->IsMiniball( mydgf, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_miniball++;
+				hit_ctr++;
+				event_open = true;
+				
+				mb_en_list.push_back( myenergy );
+				mb_ts_list.push_back( mytime );
+				mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
+				mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
+				mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
+				mb_pu_list.push_back( mypileup );
+				
+			}
+			
+			// Is it a gamma ray from the beam dump?
+			else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_bd++;
+				hit_ctr++;
+				event_open = true;
+				
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					bd_en_list.push_back( myenergy );
+					bd_ts_list.push_back( mytime );
+					bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
+					
+				}
+				
+			}
+			
+		}
+		
+		
+		// ------------------------------------------ //
+		// Find ADC data
+		// ------------------------------------------ //
+		if( in_data->IsAdc() ) {
+			
+			// Get the data
+			adc_data = in_data->GetAdcData();
+			myadc = adc_data->GetModule();
+			mych = adc_data->GetChannel();
+			myclipped = adc_data->IsClipped();
+			
+			// Update calibration if necessary
+			if( overwrite_cal ) {
+				
+				unsigned int adc_tmp_value = adc_data->GetQint();
+				myenergy = cal->AdcEnergy( myadc, mych, adc_tmp_value );
+				
+				if( adc_tmp_value > cal->AdcThreshold( myadc, mych ) )
+					mythres = true;
+				else mythres = false;
+				
+			}
+			
+			else {
+				
+				myenergy = adc_data->GetEnergy();
+				mythres = adc_data->IsOverThreshold();
+				
+			}
+			
+			// We should ignore negative energies
+			if( myenergy < 0.0 ) mythres = false;
+			
+			// Increment event counters
+			n_adc_data++;
+			n_adc[myadc]++;
+			
+			// Is it a particle from the CD?
+			if( set->IsCD( myadc, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_cd++;
+				hit_ctr++;
+				event_open = true;
+				
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					cd_en_list.push_back( myenergy );
+					cd_ts_list.push_back( mytime );
+					cd_det_list.push_back( set->GetCDDetector( myadc, mych ) );
+					cd_sec_list.push_back( set->GetCDSector( myadc, mych ) );
+					cd_side_list.push_back( set->GetCDSide( myadc, mych ) );
+					cd_strip_list.push_back( set->GetCDStrip( myadc, mych ) );
+					
+				}
+				
+			}
+			
+			// Is it a particle from the Pad?
+			else if( set->IsPad( myadc, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_pad++;
+				hit_ctr++;
+				event_open = true;
+				
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					pad_en_list.push_back( myenergy );
+					pad_ts_list.push_back( mytime );
+					pad_det_list.push_back( set->GetPadDetector( myadc, mych ) );
+					pad_sec_list.push_back( set->GetPadSector( myadc, mych ) );
+					
+				}
+				
+			}
+			
+			// Is it an IonChamber event
+			else if( set->IsIonChamber( myadc, mych ) && mythres ) {
+				
+				// Increment counts and open the event
+				n_ic++;
+				hit_ctr++;
+				event_open = true;
+				
+				if( !mypileup || !set->GetPileupRejection() ) {
+					
+					ic_en_list.push_back( myenergy );
+					ic_ts_list.push_back( mytime );
+					ic_id_list.push_back( set->GetIonChamberLayer( myadc, mych ) );
+					
+				}
+				
+			}
+			
+		}
+		
 		
 		
 		// ------------------------------------------ //
@@ -2019,6 +2207,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				write_evts->SetSC( sc_time );
 				if( TMath::Abs( (double)ebis_time - (double)laser_time ) < 1e3
 					&& laser_time > 0 ) write_evts->SetLaserStatus( true );
+				else if( mylaser )
+					write_evts->SetLaserStatus( true );
 				else
 					write_evts->SetLaserStatus( false );
 

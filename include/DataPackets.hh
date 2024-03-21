@@ -214,7 +214,7 @@ public:
 	inline void SetThreshold( bool t ){ thres = t; };
 
 	// Getters
-	inline long long					GetTime(){ return EventTime + LongFastTriggerTime; };
+	inline long long					GetTime(){ return GetLongFastTriggerTime(); };
 	inline long long					GetEventTime(){ return EventTime; };
 	inline long long					GetLongFastTriggerTime(){ return LongFastTriggerTime; };
 	inline unsigned short				GetFastTriggerTime(){ return FastTriggerTime; };
@@ -489,6 +489,16 @@ public:
 		unsigned int tmp = 0;
 		for( unsigned int i = 0; i < patterns.size(); i++ ){
 			if( patterns[i].GetModule() == mod && patterns[i].GetID() == id ) {
+				tmp = patterns[i].GetValue();
+				break;
+			}
+		}
+		return tmp;
+	};
+	inline unsigned int GetPatternValue( unsigned char id ){
+		unsigned int tmp = 0;
+		for( unsigned int i = 0; i < patterns.size(); i++ ){
+			if( patterns[i].GetID() == id ) {
 				tmp = patterns[i].GetValue();
 				break;
 			}

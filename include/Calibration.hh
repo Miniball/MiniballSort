@@ -223,8 +223,6 @@ private:
 	std::vector<std::vector<double>> fAdcGain;
 	std::vector<std::vector<double>> fAdcGainQuadr;
 	std::vector<std::vector<unsigned int>> fAdcThreshold;
-	unsigned char total_adcs;
-	unsigned char max_adc_chs;
 
 	// DGF calibration
 	std::vector<std::vector<long>> fDgfTime;
