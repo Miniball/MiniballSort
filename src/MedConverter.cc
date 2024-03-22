@@ -447,7 +447,7 @@ void MiniballMedConverter::ProcessDgfScaler() {
 			fastPeak |= ( (unsigned long long)mbs_sevt->GetData(index+4) ) << 16;
 
 			s.SetLiveTime( j, liveTime );
-			s.SetFastPeak( j, gsltTime );
+			s.SetFastPeak( j, fastPeak );
 
 		}
 		
