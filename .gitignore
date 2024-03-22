@@ -39,6 +39,7 @@
 *~
 *.DS_Store
 *.xcworkspace/*
+*.xcodeproj/*
 
 # Directories
 bin/*
