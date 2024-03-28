@@ -155,7 +155,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			if( test & MESYTEC_MADC_EXTENDED_TIMESTAMP ) {
 
 				Timestamp = ((long long)mbs_sevt->GetData(i++)) << MESYTEC_MADC_EXTENDED_TIMESTAMP_SHIFT;
-				Timestamp &= MESYTEC_MADC_EXTENDED_TIMESTAMP_MASK;
+				//Timestamp &= MESYTEC_MADC_EXTENDED_TIMESTAMP_MASK;
 				continue;
 
 			}
@@ -620,9 +620,9 @@ void MiniballMedConverter::ProcessDgfData() {
 						// Sort out long fast trigger time and wrap around
 						unsigned long long LongFastTriggerTime = FastTriggerTime;
 						if( FastTriggerTime > EventTimeLow )
-							LongFastTriggerTime += ((EventTimeHigh << 16) & 0xffff0000) + (RunTime & 0xffff00000000);
+							LongFastTriggerTime += 65536ll*EventTimeHigh + 65536ll*65536ll*RunTimeA;
 						else
-							LongFastTriggerTime += (((EventTimeHigh+1) << 16) & 0xffff0000) + (RunTime & 0xffff00000000);
+							LongFastTriggerTime += 65536ll*(EventTimeHigh+1) + 65536ll*65536ll*RunTimeA;
 							
 						// Get calibrated energy and check threshold
 						float energy = cal->DgfEnergy( mod, ch, Qshort );
