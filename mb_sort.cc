@@ -448,8 +448,11 @@ void do_convert() {
 				conv_med.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) {
-					conv_med.SortTree();
+				if( !flag_source ){
+					conv_med.BuildMbsIndex();
+					if( myset->GetMbsEventMode() )
+						conv_med.NoSortTree();
+					else conv_med.SortTree();
 				}
 				conv_med.CloseOutput();
 

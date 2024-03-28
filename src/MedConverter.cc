@@ -507,7 +507,8 @@ void MiniballMedConverter::ProcessDgfData() {
 		
 		// Parameters for holding the time
 		unsigned short RunTimeA, RunTimeB, RunTimeC;
-		long long BufferTime, RunTime;
+		unsigned int BufferTime;
+		unsigned long long RunTime;
 
 		// Check if known buffer format
 		if( ( format != STD_LM_BUFFORMAT )   &&
@@ -531,9 +532,9 @@ void MiniballMedConverter::ProcessDgfData() {
 			RunTimeC = mbs_sevt->GetData(i++);      // low
 			
 			// set 'buffertime' and 'runtime'
-			RunTime     = ( (long long)RunTimeA ) << 32;
-			BufferTime  = ( (long long)RunTimeB ) << 16;
-			BufferTime |= ( (long long)RunTimeC );
+			RunTime     = ( (unsigned long long)RunTimeA << 32) & 0xffff000000000000;
+			BufferTime  = ( (unsigned int)RunTimeB << 16) & 0xffff0000;
+			BufferTime |= ( (unsigned int)RunTimeC ) & 0x0000ffff;
 			RunTime    |= BufferTime;
 
 			// Update timestamp using a DGF module
@@ -608,11 +609,11 @@ void MiniballMedConverter::ProcessDgfData() {
 						unsigned short Qint = mbs_sevt->GetData(i++);
 
 						// Sort out long fast trigger time and wrap around
-						long long LongFastTriggerTime;
+						unsigned long long LongFastTriggerTime = FastTriggerTime;
 						if( FastTriggerTime > EventTimeLow )
-							LongFastTriggerTime = 65536ll*EventTimeHigh + 65536ll*65536ll*RunTime;
+							LongFastTriggerTime += ((EventTimeHigh << 16) & 0xffff0000) + (RunTime & 0xffff00000000);
 						else
-							LongFastTriggerTime = 65536ll*(EventTimeHigh+1) + 65536ll*65536ll*RunTime;
+							LongFastTriggerTime += (((EventTimeHigh+1) << 16) & 0xffff0000) + (RunTime & 0xffff00000000);
 							
 						// Get calibrated energy and check threshold
 						float energy = cal->DgfEnergy( mod, ch, Qint );
