@@ -1822,9 +1822,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			myadc = adc_data->GetModule();
 			mych = adc_data->GetChannel();
 			myclipped = adc_data->IsClipped();
-			
-			std::cout << "ADC ch = " << (int)adc_data->GetChannel() << std::endl;
-			
+
 			// Update calibration if necessary
 			if( overwrite_cal ) {
 				
