@@ -97,10 +97,10 @@
 #define MBS_L_STR				256 							/*!< string length */
 #define MBS_L_NAME				64								/*!< lenght of a name string */
 
-#define MBS_ODD_NOF_PARAMS		1	///< indicates an odd number of paramså
+#define MBS_ODD_NOF_PARAMS		1	///< indicates an odd number of params
 
 #define BYTE_ORDER_1_TO_1   0    ///< 1:1, nothing to do
-#define BYTE_ORDER_BSW      1    ///< byte swapå
+#define BYTE_ORDER_BSW      1    ///< byte swap
 #define BYTE_ORDER_LSW      2    ///< long word swap
 #define BYTE_ORDER_REV      3    ///< reverse order
 
@@ -139,7 +139,7 @@
 #define DGF_SCALER_INDEX_NEVENTS 9
 #define DGF_SCALER_INDEX_CH_OFFSET 62
 #define DGF_SCALER_INDEX_CH_SIZE 24
-#define DGF_SCALER_MIN_SIZE 158
+#define DGF_SCALER_MIN_SIZE 144
 
 #define BRAGG_CHAMBER_HEADER        (0x1 << 15)
 #define BRAGG_CHAMBER_MODULE_NUMBER  0xFF

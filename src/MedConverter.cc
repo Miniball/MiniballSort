@@ -11,6 +11,14 @@ void MiniballMedConverter::ProcessEvent( unsigned long nblock ){
 		mbs_sevt = ev->GetSubEvent(i);
 		if( !mbs_sevt ) continue;
 		
+		//std::cout << "Event ID: " << std::dec << ev->GetEventID();
+		//std::cout << ", Sub-event: " << mbs_sevt->GetSubEventID();
+		//std::cout << std::endl << "Sub-event type: 0x" << std::hex;
+		//std::cout << mbs_sevt->GetSubEventType() << ", ";
+		//std::cout << mbs_sevt->GetSubEventDescription();
+		//std::cout << std::dec << std::endl;
+
+		
 		// Normal DGF data
 		if( set->CheckVmeModuleIsDgf( mbs_sevt->GetModuleID() ) )
 			ProcessDgfData();
@@ -209,7 +217,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			
 			// Fill the tree
 			data_packet->SetData( adc_data );
-			sorted_tree->Fill();
+			output_tree->Fill();
 			
 		}
 		
@@ -253,7 +261,6 @@ void MiniballMedConverter::ProcessPatternUnitData() {
 		
 		// Get the header
 		unsigned short header = mbs_sevt->GetData(i++);
-		std::cout << "header = 0x" << std::hex << header << std::dec << std::endl;
 		if( ( header & SIS3600_D_HDR ) == 0 ) {
 			
 			std::cout << __PRETTY_FUNCTION__ << ": read event nr. ";
@@ -295,7 +302,7 @@ void MiniballMedConverter::ProcessPatternUnitData() {
 void MiniballMedConverter::ProcessScalerData() {
 	
 	// Test data comes from scaler unit?
-	if( mbs_sevt->GetSubEventType() != MBS_STYPE_DATA_SHORT ){
+	if( mbs_sevt->GetSubEventType() != MBS_STYPE_CAMAC_WO_ID_1 ){
 
 		std::cerr << __PRETTY_FUNCTION__;
 		std::cerr << ": Error - got data from VME module id ";
@@ -379,14 +386,15 @@ void MiniballMedConverter::ProcessDgfScaler() {
 			std::cerr << "Word count negative: " << wc << std::endl;
 			return;
 		}
-		if( (int)mbs_sevt->GetNumberOfData() - (int)i < DGF_SCALER_MIN_SIZE ){
+		if( (int)mbs_sevt->GetNumberOfData() - (int)(i-2) < DGF_SCALER_MIN_SIZE ){
 			std::cerr << "Not enough data left in sub event for new DGF scaler: ";
-			std::cerr << mbs_sevt->GetNumberOfData() - i << " < " << DGF_SCALER_MIN_SIZE << std::endl;
+			std::cerr << mbs_sevt->GetNumberOfData() - (i-2) << " < minsize(";
+			std::cerr << DGF_SCALER_MIN_SIZE << ")" << std::endl;
 			return;
 		}
-		if( (int)mbs_sevt->GetNumberOfData() - (int)i < wc ){
+		if( (int)mbs_sevt->GetNumberOfData() - (int)(i-2) < wc ){
 			std::cerr << "Not enough data left in sub event for new DGF scaler: ";
-			std::cerr << mbs_sevt->GetNumberOfData() - i << " < wc(" << wc << ")" << std::endl;
+			std::cerr << mbs_sevt->GetNumberOfData() - (i-2) << " < wc(" << wc << ")" << std::endl;
 			return;
 		}
 
@@ -473,9 +481,9 @@ void MiniballMedConverter::ProcessDgfData() {
 	int wc = mbs_sevt->GetNumberOfData();
 	while( i < wc ){
 		
-		std::cout << std::dec << "Readout nr.: " << ev->GetEventID()-2586617;
-		std::cout << ", wc = " << wc << ", length = " << mbs_sevt->GetDataLength();
-		std::cout << std::hex << ", DGF data(0) = 0x" << mbs_sevt->GetData(0) << std::endl;
+		//std::cout << std::dec << "Readout nr.: " << ev->GetEventID()-2586617;
+		//std::cout << ", wc = " << wc << ", length = " << mbs_sevt->GetDataLength();
+		//std::cout << std::hex << ", DGF data(0) = 0x" << mbs_sevt->GetData(0) << std::endl;
 
 		// Header of the sub event
 		unsigned short start = i;
@@ -658,7 +666,7 @@ void MiniballMedConverter::ProcessDgfData() {
 
 								// Fill the tree
 								data_packet->SetData( info_data );
-								sorted_tree->Fill();
+								output_tree->Fill();
 									
 							}
 
@@ -683,7 +691,7 @@ void MiniballMedConverter::ProcessDgfData() {
 
 							// Fill the tree
 							data_packet->SetData( dgf_data );
-							sorted_tree->Fill();
+							output_tree->Fill();
 							
 						}
 

@@ -302,7 +302,7 @@ const MBSEvent* MBS::GetNextMedEvent() {
 	evt.Clear();
 	
 	// Update buffer count and used bytes (bodge)
-	current_buffer = (int)pos / (int)len;
+	current_buffer = (float)GetNBuffers() * (float)pos / (float)len;
 	used = pos;
 
 	// Check length
@@ -411,9 +411,10 @@ const MBSEvent* MBS::GetNextMedEvent() {
 		if( current_stype->GetDataSize() == sizeof(unsigned short) ){
 		
 			// Sub-event data
-			UChar_t *vartmp = (UChar_t *)(ptr + pos);
-			std::vector<short> tmp_val = GetByteSwapShort( (char*)&vartmp, wc, byteorder );
-			for( UInt_t i = 0; i < tmp_val.size(); i++ ){
+			char *vartmp = (char *)(ptr + pos);
+			short *shorttmp = (short *)(ptr + pos);
+			auto tmp_val = GetByteSwapShort( vartmp, wc, byteorder );
+			for( int i = 0; i < (int)tmp_val.size(); i++ ){
 				mbs_subevt.AddData( tmp_val[i] );
 			}
 		
@@ -423,9 +424,9 @@ const MBSEvent* MBS::GetNextMedEvent() {
 		else if( current_stype->GetDataSize() == sizeof(unsigned int) ){
 		
 			// Sub-event data
-			UChar_t *vartmp = (UChar_t *)(ptr + pos);
-			std::vector<int> tmp_val = GetByteSwapInt( (char*)&vartmp, wc, byteorder );
-			for( UInt_t i = 0; i < tmp_val.size(); i++ ){
+			char *vartmp = (char *)(ptr + pos);
+			auto tmp_val = GetByteSwapInt( vartmp, wc, byteorder );
+			for( int i = 0; i < (int)tmp_val.size(); i++ ){
 				mbs_subevt.AddData32( tmp_val[i] );
 			}
 		
@@ -436,9 +437,9 @@ const MBSEvent* MBS::GetNextMedEvent() {
 		
 			// Sub-event data
 			wc *= 2;
-			UChar_t *vartmp = (UChar_t *)(ptr + pos);
-			std::vector<short> tmp_val = GetByteSwapShort( (char*)&vartmp, wc, byteorder );
-			for( UInt_t i = 0; i < tmp_val.size(); i++ ){
+			char *vartmp = (char *)(ptr + pos);
+			auto tmp_val = GetByteSwapShort( vartmp, wc, byteorder );
+			for( int i = 0; i < (int)tmp_val.size(); i++ ){
 				mbs_subevt.AddData( tmp_val[i] );
 			}
 		
@@ -449,9 +450,9 @@ const MBSEvent* MBS::GetNextMedEvent() {
 		
 			// Sub-event data
 			wc /= 2;
-			UChar_t *vartmp = (UChar_t *)(ptr + pos);
-			std::vector<int> tmp_val = GetByteSwapInt( (char*)&vartmp, wc, byteorder );
-			for( UInt_t i = 0; i < tmp_val.size(); i++ ){
+			char *vartmp = (char *)(ptr + pos);
+			auto tmp_val = GetByteSwapInt( vartmp, wc, byteorder );
+			for( int i = 0; i < (int)tmp_val.size(); i++ ){
 				mbs_subevt.AddData32( tmp_val[i] );
 			}
 		
@@ -595,8 +596,8 @@ std::vector<short> MBS::GetByteSwapShort( char *in, int count, int bo ){
 		case BYTE_ORDER_LSW:
 		case BYTE_ORDER_1_TO_1:
 			for( int i = 0; i < count; i++ ) {
-				b[0] = *in++;
-				b[1] = *in++;
+				b[0] = in[i*2+0];
+				b[1] = in[i*2+1];
 				s.push_back( (((short)b[1] << 8) & 0xff00) |
 							((short)b[0] & 0x00ff) );
 			}
@@ -605,8 +606,8 @@ std::vector<short> MBS::GetByteSwapShort( char *in, int count, int bo ){
 		case BYTE_ORDER_REV:
 		case BYTE_ORDER_BSW:
 			for( int i = 0; i < count; i++ ) {
-				b[1] = *in++;
-				b[0] = *in++;
+				b[1] = in[i*2+0];
+				b[0] = in[i*2+1];
 				s.push_back( (((short)b[1] << 8) & 0xff00) |
 							((short)b[0] & 0x00ff) );
 			}
@@ -628,10 +629,10 @@ std::vector<int> MBS::GetByteSwapInt( char *in, int count, int bo ){
 			
 		case BYTE_ORDER_1_TO_1:
 			for( int i = 0; i < count; i++ ) {
-				b[0] = *in++;
-				b[1] = *in++;
-				b[2] = *in++;
-				b[3] = *in++;
+				b[0] = in[i*4+0];
+				b[1] = in[i*4+1];
+				b[2] = in[i*4+2];
+				b[3] = in[i*4+3];
 				s.push_back( (((int)b[3] << 24) & 0xff000000) |
 							(((int)b[2] << 16) & 0x00ff0000) |
 							(((int)b[1] << 8) & 0x0000ff00) |
@@ -641,10 +642,10 @@ std::vector<int> MBS::GetByteSwapInt( char *in, int count, int bo ){
 			
 		case BYTE_ORDER_BSW:
 			for( int i = 0; i < count; i++ ) {
-				b[1] = *in++;
-				b[0] = *in++;
-				b[3] = *in++;
-				b[2] = *in++;
+				b[1] = in[i*4+0];
+				b[0] = in[i*4+1];
+				b[3] = in[i*4+2];
+				b[2] = in[i*4+3];
 				s.push_back( (((int)b[3] << 24) & 0xff000000) |
 							(((int)b[2] << 16) & 0x00ff0000) |
 							(((int)b[1] << 8) & 0x0000ff00) |
@@ -654,10 +655,10 @@ std::vector<int> MBS::GetByteSwapInt( char *in, int count, int bo ){
 			
 		case BYTE_ORDER_LSW:
 			for( int i = 0; i < count; i++ ) {
-				b[2] = *in++;
-				b[3] = *in++;
-				b[0] = *in++;
-				b[1] = *in++;
+				b[2] = in[i*4+0];
+				b[3] = in[i*4+1];
+				b[0] = in[i*4+2];
+				b[1] = in[i*4+3];
 				s.push_back( (((int)b[3] << 24) & 0xff000000) |
 							(((int)b[2] << 16) & 0x00ff0000) |
 							(((int)b[1] << 8) & 0x0000ff00) |
@@ -668,10 +669,10 @@ std::vector<int> MBS::GetByteSwapInt( char *in, int count, int bo ){
 			
 		case BYTE_ORDER_REV:
 			for( int i = 0; i < count; i++ ) {
-				b[3] = *in++;
-				b[2] = *in++;
-				b[1] = *in++;
-				b[0] = *in++;
+				b[3] = in[i*4+0];
+				b[2] = in[i*4+1];
+				b[1] = in[i*4+2];
+				b[0] = in[i*4+3];
 				s.push_back( (((int)b[3] << 24) & 0xff000000) |
 							(((int)b[2] << 16) & 0x00ff0000) |
 							(((int)b[1] << 8) & 0x0000ff00) |

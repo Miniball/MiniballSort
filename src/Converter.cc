@@ -119,9 +119,13 @@ void MiniballConverter::MakeTree() {
 	
 	output_tree->SetParallelUnzip();
 
+	dgf_data = std::make_shared<DgfData>();
+	adc_data = std::make_shared<AdcData>();
 	febex_data = std::make_shared<FebexData>();
 	info_data = std::make_shared<InfoData>();
 	
+	dgf_data->ClearData();
+	adc_data->ClearData();
 	febex_data->ClearData();
 	info_data->ClearData();
 	
