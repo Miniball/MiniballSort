@@ -1751,7 +1751,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			// Update calibration if necessary
 			if( overwrite_cal ) {
 				
-				unsigned int adc_tmp_value = dgf_data->GetQint();
+				unsigned int adc_tmp_value = dgf_data->GetQshort();
 				myenergy = cal->DgfEnergy( mydgf, mych, adc_tmp_value );
 				
 				if( adc_tmp_value > cal->DgfThreshold( mydgf, mych ) )
@@ -1826,7 +1826,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			// Update calibration if necessary
 			if( overwrite_cal ) {
 				
-				unsigned int adc_tmp_value = adc_data->GetQint();
+				unsigned int adc_tmp_value = adc_data->GetQshort();
 				myenergy = cal->AdcEnergy( myadc, mych, adc_tmp_value );
 				
 				if( adc_tmp_value > cal->AdcThreshold( myadc, mych ) )

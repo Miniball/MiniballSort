@@ -193,7 +193,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 		// Merge the full time stamp and add the DGF delay
 		Timestamp |= ( trailer & MESYTEC_MADC_TIMESTAMP );
 		Timestamp += set->GetDgfTimestampDelay();
-		//Timestamp *= set->GetMesytecAdcTimestampUnits();
+		Timestamp *= set->GetMesytecAdcTimestampUnits();
 		
 		// Now we have the data, fill the tree
 		for( unsigned item = 0; item < qshort_vec.size(); item++ ){
@@ -542,8 +542,8 @@ void MiniballMedConverter::ProcessDgfData() {
 
 			// Update timestamp using a DGF module
 			if( my_good_tm_stp == 0 )
-				//my_good_tm_stp = RunTime * set->GetDgfTimestampUnits();
-				my_good_tm_stp = RunTime;
+				my_good_tm_stp = RunTime * set->GetDgfTimestampUnits();
+				//my_good_tm_stp = RunTime;
 
 		}
 
@@ -674,8 +674,8 @@ void MiniballMedConverter::ProcessDgfData() {
 							
 								// Set values for data item
 								info_data->SetEventID( my_event_id );
-								//info_data->SetTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
-								info_data->SetTime( LongFastTriggerTime );
+								info_data->SetTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+								//info_data->SetTime( LongFastTriggerTime );
 								info_data->SetCode( mycode );
 								info_data->SetBoard( mod );
 
@@ -691,14 +691,14 @@ void MiniballMedConverter::ProcessDgfData() {
 						
 							// Set values for data item
 							dgf_data->SetEventID( my_event_id );
-							//dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
-							//dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
-							//dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
-							//dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
-							dgf_data->SetRunTime( RunTime );
-							dgf_data->SetEventTime( EventTime );
-							dgf_data->SetFastTriggerTime( FastTriggerTime );
-							dgf_data->SetLongFastTriggerTime( LongFastTriggerTime );
+							dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+							//dgf_data->SetRunTime( RunTime );
+							//dgf_data->SetEventTime( EventTime );
+							//dgf_data->SetFastTriggerTime( FastTriggerTime );
+							//dgf_data->SetLongFastTriggerTime( LongFastTriggerTime );
 							dgf_data->SetHitPattern( HitPattern );
 							dgf_data->SetQshort( Qshort );
 							dgf_data->SetModule( mod );

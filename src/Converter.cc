@@ -373,8 +373,14 @@ void MiniballConverter::MakeHists() {
 
 		for( unsigned int j = 0; j < set->GetNumberOfDgfChannels(); ++j ) {
 			
+			// New directory
+			dirname  = maindirname + "dgf_" + std::to_string(i);
+			if( !output_file->GetDirectory( dirname.data() ) )
+				output_file->mkdir( dirname.data() );
+			output_file->cd( dirname.data() );
+
 			// Uncalibrated energy 16-bit value
-			hname = "dgf" + std::to_string(i);
+			hname = "dgf_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			hname += "_qshort";
 			
@@ -396,7 +402,7 @@ void MiniballConverter::MakeHists() {
 			}
 			
 			// Calibrated energy
-			hname = "dgf" + std::to_string(i);
+			hname = "dgf_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			hname += "_cal";
 
@@ -432,10 +438,16 @@ void MiniballConverter::MakeHists() {
 		hadc_qshort[i].resize( set->GetMaximumNumberOfAdcChannels() );
 		hadc_cal[i].resize( set->GetMaximumNumberOfAdcChannels() );
 
+		// New directory
+		dirname  = maindirname + "adc_" + std::to_string(i);
+		if( !output_file->GetDirectory( dirname.data() ) )
+			output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
+		
 		for( unsigned int j = 0; j < set->GetMaximumNumberOfAdcChannels(); ++j ) {
 			
 			// Uncalibrated energy 16-bit value
-			hname = "adc" + std::to_string(i);
+			hname = "adc_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			hname += "_qshort";
 			
@@ -457,7 +469,7 @@ void MiniballConverter::MakeHists() {
 			}
 			
 			// Calibrated energy
-			hname = "adc" + std::to_string(i);
+			hname = "adc_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			hname += "_cal";
 			

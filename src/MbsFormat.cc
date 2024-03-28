@@ -412,7 +412,6 @@ const MBSEvent* MBS::GetNextMedEvent() {
 		
 			// Sub-event data
 			char *vartmp = (char *)(ptr + pos);
-			short *shorttmp = (short *)(ptr + pos);
 			auto tmp_val = GetByteSwapShort( vartmp, wc, byteorder );
 			for( int i = 0; i < (int)tmp_val.size(); i++ ){
 				mbs_subevt.AddData( tmp_val[i] );
