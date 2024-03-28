@@ -622,7 +622,7 @@ void MiniballMedConverter::ProcessDgfData() {
 						if( FastTriggerTime > EventTimeLow )
 							LongFastTriggerTime += 65536ll*EventTimeHigh + 65536ll*65536ll*RunTimeA;
 						else
-							LongFastTriggerTime += 65536ll*(EventTimeHigh+1) + 65536ll*65536ll*RunTimeA;
+							LongFastTriggerTime += 65536ll*EventTimeHigh + 65536ll + 65536ll*65536ll*RunTimeA;
 							
 						// Get calibrated energy and check threshold
 						float energy = cal->DgfEnergy( mod, ch, Qshort );
