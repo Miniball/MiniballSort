@@ -180,9 +180,9 @@ protected:
 	std::vector<std::vector<TProfile*>> hfebex_resume;
 	TProfile *hfebex_ext;
 
-	std::vector<std::vector<TH1F*>> hdgf_qint;
+	std::vector<std::vector<TH1F*>> hdgf_qshort;
 	std::vector<std::vector<TH1F*>> hdgf_cal;
-	std::vector<std::vector<TH1F*>> hadc_qint;
+	std::vector<std::vector<TH1F*>> hadc_qshort;
 	std::vector<std::vector<TH1F*>> hadc_cal;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_qint;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_qshort;

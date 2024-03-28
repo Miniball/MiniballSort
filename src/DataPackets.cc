@@ -37,7 +37,7 @@ void MiniballDataPackets::SetData( std::shared_ptr<DgfData> data ){
 	fill_data.SetRunTime( data->GetRunTime() );
 	fill_data.SetEventTime( data->GetEventTime() );
 	fill_data.SetEventID( data->GetEventID() );
-	fill_data.SetQint( data->GetQint() );
+	fill_data.SetQshort( data->GetQshort() );
 	fill_data.SetModule( data->GetModule() );
 	fill_data.SetChannel( data->GetChannel() );
 	fill_data.SetEnergy( data->GetEnergy() );
@@ -61,7 +61,7 @@ void MiniballDataPackets::SetData( std::shared_ptr<AdcData> data ){
 	
 	fill_data.SetTime( data->GetTime() );
 	fill_data.SetEventID( data->GetEventID() );
-	fill_data.SetQint( data->GetQint() );
+	fill_data.SetQshort( data->GetQshort() );
 	fill_data.SetModule( data->GetModule() );
 	fill_data.SetChannel( data->GetChannel() );
 	fill_data.SetEnergy( data->GetEnergy() );
@@ -219,7 +219,7 @@ void AdcData::ClearData(){
 	
 	energy = -99;
 	eventid = 0;
-	Qint = 0;
+	Qshort = 0;
 	time = 0;
 	mod = 255;
 	ch = 255;
@@ -230,7 +230,7 @@ void DgfData::ClearData(){
 	
 	energy = -99;
 	eventid = 0;
-	Qint = 0;
+	Qshort = 0;
 	EventTime = 0;
 	FastTriggerTime = 0;
 	LongFastTriggerTime = 0;

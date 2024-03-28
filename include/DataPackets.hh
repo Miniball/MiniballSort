@@ -155,7 +155,7 @@ public:
 	// Setters
 	inline void	SetEventID( unsigned long long int id ) { eventid = id; };
 	inline void SetTime( long long t ){ time = t; };
-	inline void SetQint( unsigned short q ){ Qint = q; };
+	inline void SetQshort( unsigned short q ){ Qshort = q; };
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetModule( unsigned char m ){ mod = m; };
 	inline void SetChannel( unsigned char c ){ ch = c; };
@@ -167,7 +167,7 @@ public:
 	inline unsigned char			GetModule(){ return mod; };
 	inline unsigned char			GetChannel(){ return ch; };
 	inline unsigned long long int	GetEventID() { return eventid; };
-	inline unsigned int				GetQint() { return Qint; };
+	inline unsigned int				GetQshort() { return Qshort; };
 	inline float					GetEnergy() { return energy; };
 	inline bool						IsOverThreshold() { return thres; };
 	inline bool						IsClipped() { return clipped; };
@@ -177,7 +177,7 @@ protected:
 	unsigned long long int		eventid;
 	long long 					time;
 	float						energy;
-	unsigned short				Qint;
+	unsigned short				Qshort;
 	unsigned char				mod; 		///< module number of ADC
 	unsigned char				ch; 		///< channel number of ADC
 	bool						thres;		///< is the energy over threshold?
@@ -201,7 +201,7 @@ public:
 	inline void	SetEventID( unsigned long long int id ) { eventid = id; };
 	inline void SetHitPattern( unsigned short hp ) { HitPattern = hp; };
 	inline void SetEventTime( long long time ){ EventTime = time; };
-	inline void SetQint( unsigned short q ){ Qint = q; };
+	inline void SetQshort( unsigned short q ){ Qshort = q; };
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetRunTime( unsigned short time ){ RunTime = time; };
 	inline void SetFastTriggerTime( unsigned short time ){ FastTriggerTime = time; };
@@ -222,7 +222,7 @@ public:
 	inline unsigned char				GetModule(){ return mod; };
 	inline unsigned char				GetChannel(){ return ch; };
 	inline unsigned long long int		GetEventID() { return eventid; };
-	inline unsigned int					GetQint() { return Qint; };
+	inline unsigned int					GetQshort() { return Qshort; };
 	inline float						GetEnergy() { return energy; };
 	inline unsigned short				GetHitPattern(){ return HitPattern; };
 	inline std::vector<unsigned short>	GetUserValues(){ return UserValues; };
@@ -257,7 +257,7 @@ protected:
 	long long 					EventTime;
 	unsigned short				RunTime;
 	float						energy;
-	unsigned short				Qint;
+	unsigned short				Qshort;
 	unsigned short 				HitPattern;
 	unsigned short				FastTriggerTime;
 	long long					LongFastTriggerTime;

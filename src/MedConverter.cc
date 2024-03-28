@@ -125,7 +125,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 		// Loop over number of channels for which data follows (maybe also extended timestamp)
 		// Might not be all channel, so use wc, but wc includes the end of event
 		std::vector<unsigned short> ch_vec;
-		std::vector<unsigned short> qint_vec;
+		std::vector<unsigned short> qshort_vec;
 		long long Timestamp = 0;
 		bool clipped = false;
 		for( unsigned short ch = 0; ch < wc - 1; ch++ ) {
@@ -166,8 +166,8 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			ch_vec.push_back( chanNo );
 
 			// But the energy is in the next word, lowest 12 bits
-			unsigned short Qint = (mbs_sevt->GetData(i++) & MESYTEC_MADC_VALUE);
-			qint_vec.push_back( Qint );
+			unsigned short Qshort = (mbs_sevt->GetData(i++) & MESYTEC_MADC_VALUE);
+			qshort_vec.push_back( Qshort );
 
 			// Check the out of range bit
 			if( mbs_sevt->GetData(i) & MESYTEC_MADC_OUT_OF_RANGE )
@@ -196,7 +196,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 		//Timestamp *= set->GetMesytecAdcTimestampUnits();
 		
 		// Now we have the data, fill the tree
-		for( unsigned item = 0; item < qint_vec.size(); item++ ){
+		for( unsigned item = 0; item < qshort_vec.size(); item++ ){
 			
 			// Clear the old stuff
 			adc_data->ClearData();
@@ -206,12 +206,12 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			adc_data->SetEventID( my_event_id );
 			
 			// Calculate energy and threshold
-			float energy = cal->AdcEnergy( mod, ch_vec[item], qint_vec[item] );
+			float energy = cal->AdcEnergy( mod, ch_vec[item], qshort_vec[item] );
 			bool thresh = cal->AdcThreshold( mod, ch_vec[item] );
 			
 			// Set values for data item
 			adc_data->SetTime( Timestamp ); // only works for MADC, CAEN needs reconstruction
-			adc_data->SetQint( qint_vec[item] );
+			adc_data->SetQshort( qshort_vec[item] );
 			adc_data->SetModule( mod );
 			adc_data->SetChannel( (char)ch_vec[item] );
 			adc_data->SetEnergy( energy );
@@ -615,7 +615,7 @@ void MiniballMedConverter::ProcessDgfData() {
 						
 						// Next 2 words: fast trigger time & energy for ALL diff. RUNTASKs
 						unsigned short FastTriggerTime = mbs_sevt->GetData(i++);
-						unsigned short Qint = mbs_sevt->GetData(i++);
+						unsigned short Qshort = mbs_sevt->GetData(i++);
 
 						// Sort out long fast trigger time and wrap around
 						unsigned long long LongFastTriggerTime = FastTriggerTime;
@@ -625,7 +625,7 @@ void MiniballMedConverter::ProcessDgfData() {
 							LongFastTriggerTime += (((EventTimeHigh+1) << 16) & 0xffff0000) + (RunTime & 0xffff00000000);
 							
 						// Get calibrated energy and check threshold
-						float energy = cal->DgfEnergy( mod, ch, Qint );
+						float energy = cal->DgfEnergy( mod, ch, Qshort );
 						bool thresh = cal->DgfThreshold( mod, ch );
 						
 						// For RUNTASK!=259, now 6 user PSA values (& possible trace) follow
@@ -654,8 +654,8 @@ void MiniballMedConverter::ProcessDgfData() {
 						data_packet->ClearData();
 						
 						//std::cout << "DGF module " << mod << ", time = ";
-						//std::cout << LongFastTriggerTime << ", Qint = ";
-						//std::cout << Qint << std::endl;
+						//std::cout << LongFastTriggerTime << ", Qshort = ";
+						//std::cout << Qshort << std::endl;
 						
 						// Check if it's a timestamper!
 						if( set->IsTimestampModule( mod ) ) {
@@ -700,7 +700,7 @@ void MiniballMedConverter::ProcessDgfData() {
 							dgf_data->SetFastTriggerTime( FastTriggerTime );
 							dgf_data->SetLongFastTriggerTime( LongFastTriggerTime );
 							dgf_data->SetHitPattern( HitPattern );
-							dgf_data->SetQint( Qint );
+							dgf_data->SetQshort( Qshort );
 							dgf_data->SetModule( mod );
 							dgf_data->SetChannel( ch );
 							dgf_data->SetEnergy( energy );
