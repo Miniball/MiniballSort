@@ -103,7 +103,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 		}
 		
 		// If format is fine, we have the word count in here
-		int wc = header & MESYTEC_MADC_WORD_COUNT;
+		int wc = (header & MESYTEC_MADC_WORD_COUNT);
 		
 		// Is module number ok? If not, get next item
 		if( mod < 0 ) {
@@ -155,27 +155,30 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			if( test & MESYTEC_MADC_EXTENDED_TIMESTAMP ) {
 
 				Timestamp = ((long long)mbs_sevt->GetData(i++)) << MESYTEC_MADC_EXTENDED_TIMESTAMP_SHIFT;
+				Timestamp &= MESYTEC_MADC_EXTENDED_TIMESTAMP_MASK;
 				continue;
 
 			}
-			
+
 			// If we don't have the timestamp here, test has the channel number
 			// Get actual Channel number (bits[21...16] of data word)
-			ch_vec.push_back( test & MESYTEC_MADC_CHANNEL_NUMBER );
+			unsigned short chanNo = (test & MESYTEC_MADC_CHANNEL_NUMBER);
+			ch_vec.push_back( chanNo );
 
-			// But the energy is in the next word
-			qint_vec.push_back( mbs_sevt->GetData(i++) & MESYTEC_MADC_VALUE );
+			// But the energy is in the next word, lowest 12 bits
+			unsigned short Qint = (mbs_sevt->GetData(i++) & MESYTEC_MADC_VALUE);
+			qint_vec.push_back( Qint );
 
 			// Check the out of range bit
-			if( qint_vec.back() & MESYTEC_MADC_OUT_OF_RANGE )
+			if( mbs_sevt->GetData(i) & MESYTEC_MADC_OUT_OF_RANGE )
 				clipped = true;
 			else clipped = false;
 			
 		} // loop over wc - 1
 		
 		// Trailer of the sub event (module number in first word)
-		unsigned int trailer = ( (unsigned int)mbs_sevt->GetData(i++) ) << 16;
-		trailer |= (unsigned int)mbs_sevt->GetData(i++);
+		unsigned int trailer = ((unsigned int)mbs_sevt->GetData(i++) << 16) & 0xffff0000;
+		trailer |= ((unsigned int)mbs_sevt->GetData(i++)) & 0x0000ffff;
 
 		// Check type of word (highest two bits should be set)
 		if ( ( trailer & MESYTEC_MADC_END_OF_EVENT ) != MESYTEC_MADC_END_OF_EVENT ) {
@@ -190,7 +193,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 		// Merge the full time stamp and add the DGF delay
 		Timestamp |= ( trailer & MESYTEC_MADC_TIMESTAMP );
 		Timestamp += set->GetDgfTimestampDelay();
-		Timestamp *= set->GetMesytecAdcTimestampUnits();
+		//Timestamp *= set->GetMesytecAdcTimestampUnits();
 		
 		// Now we have the data, fill the tree
 		for( unsigned item = 0; item < qint_vec.size(); item++ ){
@@ -203,18 +206,18 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			adc_data->SetEventID( my_event_id );
 			
 			// Calculate energy and threshold
-			float energy = cal->AdcEnergy( mod, ch_vec[i], qint_vec[i] );
-			bool thresh = cal->AdcThreshold( mod, ch_vec[i] );
+			float energy = cal->AdcEnergy( mod, ch_vec[item], qint_vec[item] );
+			bool thresh = cal->AdcThreshold( mod, ch_vec[item] );
 			
 			// Set values for data item
 			adc_data->SetTime( Timestamp ); // only works for MADC, CAEN needs reconstruction
-			adc_data->SetQint( qint_vec[i] );
+			adc_data->SetQint( qint_vec[item] );
 			adc_data->SetModule( mod );
-			adc_data->SetChannel( ch_vec[i] );
+			adc_data->SetChannel( (char)ch_vec[item] );
 			adc_data->SetEnergy( energy );
 			adc_data->SetThreshold( thresh );
 			adc_data->SetClipped( clipped );
-			
+
 			// Fill the tree
 			data_packet->SetData( adc_data );
 			output_tree->Fill();
@@ -535,11 +538,12 @@ void MiniballMedConverter::ProcessDgfData() {
 			RunTime     = ( (unsigned long long)RunTimeA << 32) & 0xffff000000000000;
 			BufferTime  = ( (unsigned int)RunTimeB << 16) & 0xffff0000;
 			BufferTime |= ( (unsigned int)RunTimeC ) & 0x0000ffff;
-			RunTime    |= BufferTime;
+			RunTime    |= ( BufferTime & 0xffffffff);
 
 			// Update timestamp using a DGF module
 			if( my_good_tm_stp == 0 )
-				my_good_tm_stp = RunTime * set->GetDgfTimestampUnits();
+				//my_good_tm_stp = RunTime * set->GetDgfTimestampUnits();
+				my_good_tm_stp = RunTime;
 
 		}
 
@@ -563,13 +567,13 @@ void MiniballMedConverter::ProcessDgfData() {
 			unsigned short EventTimeLow  = mbs_sevt->GetData(i++);
 
 			// Set 'eventtime'
-			long long EventTime = ( (long long)EventTimeHigh ) << 16;
-			EventTime |= (long long)EventTimeLow;
+			long long EventTime = (( (long long)EventTimeHigh ) << 16) & 0xffff0000;
+			EventTime |= (long long)EventTimeLow & 0x0000ffff;
 
 			// Check for overflow and build full event time
 			if( EventTime <= BufferTime )
-				EventTime |= ( (long long)RunTimeA ) << 32;
-			else EventTime |= ( (long long)(RunTimeA+1) ) << 32;
+				 EventTime |= (( (long long)RunTimeA ) << 32) & 0xffff00000000;
+			else EventTime |= (( (long long)(RunTimeA+1) ) << 32) & 0xffff00000000;
 
 			
 			// check hitpattern: at least one channel bit has to be set
@@ -596,7 +600,12 @@ void MiniballMedConverter::ProcessDgfData() {
 				for( unsigned int ch = 0; ch < set->GetNumberOfDgfChannels(); ch++ ) {
 					
 					// Channel mask to make sure it's got data
-					if( ( HitPattern & ( 1 << ch ) ) != 0 ) {
+					unsigned int ChannelMask = 1 << ch;
+					if( ( HitPattern & ChannelMask ) != 0 ) {
+						
+						//std::cout << std::hex << HitPattern << " & ";
+						//std::cout << ChannelMask << " = " << ( HitPattern & ChannelMask );
+						//std::cout << std::dec << std::endl;
 						
 						// Now different data following for RUNTASK=259 resp. others
 						// RUNTASK!=259: now #of words for this channel
@@ -644,6 +653,10 @@ void MiniballMedConverter::ProcessDgfData() {
 						info_data->ClearData();
 						data_packet->ClearData();
 						
+						//std::cout << "DGF module " << mod << ", time = ";
+						//std::cout << LongFastTriggerTime << ", Qint = ";
+						//std::cout << Qint << std::endl;
+						
 						// Check if it's a timestamper!
 						if( set->IsTimestampModule( mod ) ) {
 							
@@ -661,7 +674,8 @@ void MiniballMedConverter::ProcessDgfData() {
 							
 								// Set values for data item
 								info_data->SetEventID( my_event_id );
-								info_data->SetTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+								//info_data->SetTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+								info_data->SetTime( LongFastTriggerTime );
 								info_data->SetCode( mycode );
 								info_data->SetBoard( mod );
 
@@ -677,10 +691,14 @@ void MiniballMedConverter::ProcessDgfData() {
 						
 							// Set values for data item
 							dgf_data->SetEventID( my_event_id );
-							dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
-							dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
-							dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
-							dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+							//dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
+							//dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
+							//dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
+							//dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
+							dgf_data->SetRunTime( RunTime );
+							dgf_data->SetEventTime( EventTime );
+							dgf_data->SetFastTriggerTime( FastTriggerTime );
+							dgf_data->SetLongFastTriggerTime( LongFastTriggerTime );
 							dgf_data->SetHitPattern( HitPattern );
 							dgf_data->SetQint( Qint );
 							dgf_data->SetModule( mod );
@@ -706,6 +724,7 @@ void MiniballMedConverter::ProcessDgfData() {
 		} // i < mod: data for this module
 
 		// MBS data: always 32bit words -> if len odd -> fill word has to be skipped
+		//std::cout << std::dec << "length = " << length << ", wc = " << wc << ", i = " << i << std::endl;
 		if( length & 1 ) i++;
 		
 	} // data in this sub event

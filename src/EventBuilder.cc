@@ -1751,7 +1751,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			// Update calibration if necessary
 			if( overwrite_cal ) {
 				
-				unsigned int adc_tmp_value = febex_data->GetQint();
+				unsigned int adc_tmp_value = dgf_data->GetQint();
 				myenergy = cal->DgfEnergy( mydgf, mych, adc_tmp_value );
 				
 				if( adc_tmp_value > cal->DgfThreshold( mydgf, mych ) )
@@ -1784,15 +1784,15 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				
 				mb_en_list.push_back( myenergy );
 				mb_ts_list.push_back( mytime );
-				mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
-				mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
-				mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
+				mb_clu_list.push_back( set->GetMiniballCluster( mydgf, mych ) );
+				mb_cry_list.push_back( set->GetMiniballCrystal( mydgf, mych ) );
+				mb_seg_list.push_back( set->GetMiniballSegment( mydgf, mych ) );
 				mb_pu_list.push_back( mypileup );
 				
 			}
 			
 			// Is it a gamma ray from the beam dump?
-			else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
+			else if( set->IsBeamDump( mydgf, mych ) && mythres ) {
 				
 				// Increment counts and open the event
 				n_bd++;
@@ -1803,7 +1803,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					
 					bd_en_list.push_back( myenergy );
 					bd_ts_list.push_back( mytime );
-					bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
+					bd_det_list.push_back( set->GetBeamDumpDetector( mydgf, mych ) );
 					
 				}
 				
@@ -1822,6 +1822,8 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			myadc = adc_data->GetModule();
 			mych = adc_data->GetChannel();
 			myclipped = adc_data->IsClipped();
+			
+			std::cout << "ADC ch = " << (int)adc_data->GetChannel() << std::endl;
 			
 			// Update calibration if necessary
 			if( overwrite_cal ) {
@@ -2279,6 +2281,14 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	//		ss_log << "         dead time = " << (double)febex_dead_time[i][j]/1e9 << " s" << std::endl;
 			ss_log << "          run time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
 		}
+	}
+	ss_log << "  DGF data packets = " << n_dgf_data << std::endl;
+	for( unsigned int i = 0; i < set->GetNumberOfDgfModules(); ++i ) {
+		ss_log << "   Module " << i << " events = " << n_dgf[i] << std::endl;
+	}
+	ss_log << "  ADC data packets = " << n_adc_data << std::endl;
+	for( unsigned int i = 0; i < set->GetNumberOfAdcModules(); ++i ) {
+		ss_log << "   Module " << i << " events = " << n_adc[i] << std::endl;
 	}
 	ss_log << "  Info data packets = " << n_info_data << std::endl;
 	for( unsigned int i = 0; i < set->GetNumberOfPulsers(); ++i )

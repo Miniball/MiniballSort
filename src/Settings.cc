@@ -943,6 +943,7 @@ bool MiniballSettings::IsMiniball( unsigned int sfp, unsigned int board, unsigne
 		
 		if( mb_cluster[sfp][board][ch] >= 0 ) return true;
 		else return false;
+		
 	}
 	
 	else {
@@ -1042,7 +1043,7 @@ int MiniballSettings::GetCDID( unsigned int adc, unsigned int ch,
 	
 	else {
 		
-		std::cerr << "Bad CD event: sfp = " << adc;
+		std::cerr << "Bad CD event: adc = " << adc;
 		std::cerr << ", channel = " << ch << std::endl;
 		return 0;
 		

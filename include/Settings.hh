@@ -52,7 +52,8 @@ public:
 	inline double GetDgfTimestampDelay(){ return dgf_ts_delay; };
 	inline double GetDgfTimestampUnits(){ return dgf_ts_units; };
 	inline bool IsTimestampModule( unsigned int m ){
-		if( m >= n_dgf_ts_mod - n_dgf_ts_mod ) return true;
+		if( m >= dgf_ts_mod_offset && m < dgf_ts_mod_offset + n_dgf_ts_mod )
+			return true;
 		else return false;
 	};
 	
