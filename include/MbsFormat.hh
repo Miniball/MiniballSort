@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <ctime>
 #include <cstdio>
 #include <sys/mman.h>
@@ -121,11 +122,11 @@ typedef struct s_evhe {
 // GSI VME event header
 typedef struct s_veshe {
 	UInt_t l_dlen;			///< data length + 2 in words
-	UShort_t i_subtype;		///< subtype
 	UShort_t i_type;		///< type
+	UShort_t i_subtype;		///< subtype
+	UShort_t i_procid; 		///< processor ID
 	UChar_t h_control;		///< processor type
 	UChar_t h_subcrate;		///< crate number
-	UShort_t i_procid; 		///< processor ID
 } s_veshe;
 
 //-----------------------------------------------------------------------------
@@ -137,6 +138,7 @@ private:
 	unsigned int type;		//!< element type
 	std::string descr;		//!< description
 	int hsize;				//!< header size (bytes)
+	int dsize;				//!< data size (bytes)
 	int hit;				//!< # of hits
 	
 public:
@@ -150,47 +152,42 @@ public:
 	};
 	
 	// Setting onstructor
-	MBSBufferElem( unsigned int _type, std::string _descr, int _hsize, int _hit ){
+	MBSBufferElem( unsigned int _type, std::string _descr, int _hsize, int _dsize ){
 		type = _type;
 		descr = _descr;
 		hsize = _hsize;
-		hit = _hit;
+		dsize = _dsize;
+		hit = 0;
 	};
 	
 	// Destructor
 	~MBSBufferElem(){};
 	
 	// Setter functions
-	void SetType( unsigned int _type, std::string _descr, int _hsize, int _hit ){
+	void SetType( unsigned int _type, std::string _descr, int _hsize, int _dsize ){
 		type = _type;
 		descr = _descr;
 		hsize = _hsize;
-		hit = _hit;
-	};
-	void SetType( unsigned int _type, std::string _descr, int _hsize ){
-		type = _type;
-		descr = _descr;
-		hsize = _hsize;
+		dsize = _dsize;
 		hit = 0;
 	};
 	void SetType( unsigned int _type, std::string _descr ){
 		type = _type;
 		descr = _descr;
 		hsize = sizeof(s_veshe);
+		dsize = sizeof(unsigned short);
 		hit = 0;
 	};
 	
 	// Getter functions
+	std::string GetDescription() const { return descr; };
 	unsigned int GetType() const { return type; };
 	int GetHeaderSize() const { return hsize; };
+	int GetDataSize() const { return dsize; };
 
 	// Other functions
 	void IncrementHit(){ hit++; };
 	void ResetHits(){ hit = 0; };
-
-	int Unpack();		//!< function to unpack element
-	int Show();			//!< function to to show element
-	int Convert();		//!< function to convert element data
 
 };
 
@@ -200,7 +197,7 @@ class MBSSubEvent {
 	
 private:
 
-	std::vector<unsigned char> data;
+	std::vector<unsigned short> data;
 	unsigned int data_len;			///< length of the sub event
 	unsigned long seventid;			///< subevent counter
 	unsigned char proctype;			///< processor type
@@ -209,32 +206,34 @@ private:
 	MBSBufferElem stype;			///< type class identifier
 
 public:
-	
+
 	// Tracking data - 16-bit words
-	void AddData( UChar_t datum ){
-		data.push_back(datum);
+	void AddData( short datum ){
+		data.push_back( datum );
 	};
-	unsigned char GetData16( unsigned int i ) const {
+	short GetData( unsigned int i ) const {
 		if( i < data.size() ) return data.at(i);
 		return 0;
 	};
-	unsigned int	GetNumberOfData16() const { return data.size(); };
-
-	// Return 32-bit words
-	unsigned short	GetData32( unsigned int i ) const {
+	unsigned int	GetNumberOfData() const { return data.size(); };
+	
+	// Tracking data - 32-bit words
+	void AddData32( int datum ){
+		data.push_back( ( datum >> 16 ) & 0x0000ffff );
+		data.push_back( datum & 0x0000ffff );
+	};
+	int GetData32( unsigned int i ) const {
 		if( i < data.size()/2 )
-			return ( (short)data.at(2*i) | ( (short)data.at(2*i+1) << 16 ) );
+			return data.at(i*2+1) | (( data.at(i*2) << 16 ) & 0xffff0000);
 		return 0;
 	};
 	unsigned int	GetNumberOfData32() const { return data.size()/2; };
-
-	// Default return value is 32-bits
-	unsigned short	GetData( unsigned int i ) const { return GetData32(i); };
-	unsigned int	GetNumberOfData() const { return GetNumberOfData32(); };
-
+	
 	// Getters
 	MBSBufferElem	GetSubEventElement() const { return stype; };
 	unsigned int	GetSubEventType() const { return stype.GetType(); };
+	std::string		GetSubEventDescription() const { return stype.GetDescription(); };
+	unsigned int	GetSubEventDataSize() const { return stype.GetDataSize(); };
 	unsigned long	GetSubEventID() const { return seventid; };
 	unsigned int	GetDataLength() const { return data_len; };
 	unsigned char	GetProcessorType() const { return proctype; };
@@ -248,6 +247,17 @@ public:
 	void SetProcessorType( unsigned char ptype ){ proctype = ptype; };
 	void SetCrateID( unsigned char id ){ crateid = id; };
 	void SetModuleID( unsigned short id ){ modid = id; };
+	
+	// Show function
+	inline void Show() const {
+		std::cout << "SubEventID: " << GetSubEventID();
+		std::cout << ", type = " << std::hex << GetSubEventType();
+		std::cout << ", length = " << std::dec << data_len;
+		std::cout << std::endl;
+		for( unsigned int i = 0; i < GetNumberOfData(); i++ )
+			std::cout << i << ": " << std::hex << GetData(i) << std::endl;
+		std::cout << std::dec << std::endl;
+	}
 
 };
 
@@ -332,7 +342,7 @@ public:
 //-----------------------------------------------------------------------------
 // MBS class
 class MBS {
-
+	
 private:
 	
 	std::string filename;
@@ -352,10 +362,12 @@ private:
 	s_evhe *sh; // sub event header
 	s_veshe *vsh; // vme sub event header
 	UInt_t used; // Bytes used in buffer including header
-	unsigned int evtsiz; // in bytes
+	int evtsiz; // in bytes
 	long long start_ts = 0;
 	long long buf_ts;
 	bool running = false;
+	bool eof = false;
+	unsigned int trigger_id;
 
 	// For med files
 	MBSBufferElem *current_btype = nullptr;
@@ -363,20 +375,29 @@ private:
 	MBSBufferElem *current_stype = nullptr;
 	MBSBufferElem *current_trigger = nullptr;
 	MBSBufferElem *sevent_type_raw = nullptr;
-
+	
 	// Buffer elements
 	std::vector<MBSBufferElem> buffer_types;
 	std::vector<MBSBufferElem> event_types;
 	std::vector<MBSBufferElem> sevent_types;
 	std::vector<MBSBufferElem> triggers;
-
+	
 	const UChar_t *ptr;
 	size_t len;
+	Int_t elen;
+	Int_t slen;
+	Int_t vlen;
+	UInt_t etype;
+	UInt_t stype;
 	Int_t current;
 	UInt_t bufsize;
-	
-public:
+	UChar_t byteorder;
+	UChar_t control;
+	UChar_t crateid;
+	UShort_t procid;
 
+public:
+	
 	// Default constructor
 	MBS();
 	
@@ -389,7 +410,7 @@ public:
 	int OpenEventServer( std::string _server, unsigned short _port );
 	void CloseFile();
 	void CloseEventServer();
-
+	
 	void SetBufferSize( unsigned int size ){ bufsize = size; };
 	
 	// Get number of buffers
@@ -418,6 +439,29 @@ public:
 	// Get the next event from stream
 	const MBSEvent* GetNextEventFromStream();
 	
+	// Event types getter
+	int GetEventType(){ return current_etype->GetType(); };
+	
+	// Check if it's running
+	bool IsRunning(){ return running; };
+	bool IsEof(){ return eof; };
+
+    // Byte order conversions
+	void ConvertEventHeader();
+	void ConvertSubEventHeader();
+	void CheckSubEventType();
+	void ConvertVmeHeader();
+	std::vector<short> GetByteSwapShort( char *in, int count, int bo ); // many values
+	short GetByteSwapShort( char *in, int bo ){
+		return GetByteSwapShort( in, 1, bo )[0];
+		return GetByteSwapShort( in, 1, bo )[0];
+	}; // just one value
+	std::vector<int> GetByteSwapInt( char *in, int count, int bo ); // many values
+	int GetByteSwapInt( char *in, int bo ){
+		return GetByteSwapInt( in, 1, bo )[0];
+	}; // just one value
+	std::string GetByteSwapString( char *in, int count, int bo );
+
 	// Show the file header
 	void ShowFileHeader() {
 		if(!fp) return;

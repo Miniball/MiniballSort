@@ -963,8 +963,9 @@ int main( int argc, char *argv[] ){
 	myreact = std::make_shared<MiniballReaction>( name_react_file, myset );
 	
 	// Force data block size for MBS and MED data
-	if( flag_mbs || flag_med ) myset->SetBlockSize( 0x8000 );
-	
+	if( flag_mbs ) myset->SetBlockSize( 0x8000 );
+	else if( flag_med ) myset->SetBlockSize( 0x4000 );
+
 	//-------------------//
 	// Online monitoring //
 	//-------------------//

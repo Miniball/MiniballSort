@@ -1,7 +1,7 @@
 #include "MedConverter.hh"
 
 // Function to process header words and then the data
-void MiniballMedConverter::ProcessBlock( unsigned long nblock ){
+void MiniballMedConverter::ProcessEvent( unsigned long nblock ){
 		
 	// Get number of subevents in the data and loop over them
 	ndata = ev->GetNumberOfSubEvents();
@@ -10,49 +10,49 @@ void MiniballMedConverter::ProcessBlock( unsigned long nblock ){
 		// Pointer to this subevent
 		mbs_sevt = ev->GetSubEvent(i);
 		if( !mbs_sevt ) continue;
-
-		// Check what module it is coming from and direct the sorting
 		
 		// Normal DGF data
-		if( mbs_sevt->GetSubEventType() == MBS_STYPE_CAMAC_DGF_1 ||
-		    mbs_sevt->GetSubEventType() == MBS_STYPE_CAMAC_DGF_2 )
+		if( set->CheckVmeModuleIsDgf( mbs_sevt->GetModuleID() ) )
 			ProcessDgfData();
-		
-		// Timestamper DGFs
-		else if( mbs_sevt->GetSubEventType() == MBS_STYPE_CAMAC_DGF_3 )
-			ProcessDgfTimeStamp();
 
 		// DGF Scalers
-		else if( mbs_sevt->GetSubEventType() == MBS_STYPE_CAMAC_WO_ID_1 )
+		else if( set->CheckVmeModuleIsDgfScaler( mbs_sevt->GetModuleID() ) )
 			ProcessDgfScaler();
 
-		// Mesytec ADCs
-		else if( mbs_sevt->GetSubEventType() == MBS_STYPE_DATA_SHORT ||
-				 mbs_sevt->GetSubEventType() == MBS_STYPE_DATA_SHORT ||
-				 mbs_sevt->GetSubEventType() == MBS_STYPE_DATA_SHORT )
-			ProcessMesytecAdcData();
+		// General ADCs
+		else if( set->CheckVmeModuleIsAdc( mbs_sevt->GetModuleID() ) ) {
+			
+			// Mesytec ADCs
+			if( mbs_sevt->GetSubEventType() == MBS_STYPE_VME_MADC_1 ||
+				mbs_sevt->GetSubEventType() == MBS_STYPE_VME_MADC_2 ||
+				mbs_sevt->GetSubEventType() == MBS_STYPE_VME_MADC_3 )
+				ProcessMesytecAdcData();
 
-		// CAEN ADCs
-		else if( mbs_sevt->GetSubEventType() == MBS_STYPE_VME_CAEN_V556_1 ||
-				 mbs_sevt->GetSubEventType() == MBS_STYPE_VME_CAEN_V556_2 ||
-				 mbs_sevt->GetSubEventType() == MBS_STYPE_VME_CAEN_V556_3 )
-			ProcessCaenAdcData();
+			// Assume it is otherwise a CAEN ADC
+			else ProcessCaenAdcData();
+
+		}
 		
 		// Pattern unit
-		else if( mbs_sevt->GetSubEventType() == MBS_STYPE_VME_SIS_1 ||
-				 mbs_sevt->GetSubEventType() == MBS_STYPE_VME_SIS_2 ||
-				 mbs_sevt->GetSubEventType() == MBS_STYPE_VME_SIS_3 )
+		else if( set->CheckVmeModuleIsPattern( mbs_sevt->GetModuleID() ) )
 			ProcessPatternUnitData();
 		
 		// Scaler data
-		else if( mbs_sevt->GetSubEventType() == MBS_STYPE_DATA_SHORT )
+		else if( set->CheckVmeModuleIsScaler( mbs_sevt->GetModuleID() ) )
 			ProcessScalerData();
+		
+		// Timestamp data from MBS
+		else if( mbs_sevt->GetSubEventType() == MBS_STYPE_TIME_STAMP )
+			continue;
 		
 		// Otherwise print an error for now (expand more types later)
 		else {
 			
-			std::cerr << "Unrecognised sub-event type: " << std::hex;
-			std::cerr <<  mbs_sevt->GetSubEventType() << std::dec << std::endl;
+			std::cerr << "Unrecognised VME module ID (" << std::dec;
+			std::cerr << mbs_sevt->GetModuleID() << "), with sub-event type 0x";
+			std::cerr << std::hex << mbs_sevt->GetSubEventType() << " (";
+			std::cerr << mbs_sevt->GetSubEventDescription() << ")";
+			std::cerr << std::dec << std::endl;
 			continue;
 			
 		}
@@ -70,23 +70,6 @@ void MiniballMedConverter::ProcessBlock( unsigned long nblock ){
 // Treat a Mesytec ADC data item
 void MiniballMedConverter::ProcessMesytecAdcData() {
 
-	// Check it really is a Mesytec ADC according to user settings?
-	if( !set->CheckVmeModuleIsAdc( mbs_sevt->GetModuleID() ) ){
-		
-		std::cerr << __PRETTY_FUNCTION__;
-		std::cerr << ": Error - got data from VME module id ";
-		std::cerr << mbs_sevt->GetModuleID();
-		std::cerr << ", which looks like an ADC but it isn't";
-		std::cerr << " defined as such in settings file" << std::endl;
-		return;
-	
-	}
-
-	// Need to know total number of ADCs for Marabou numbering
-	unsigned short total_adcs = set->GetNumberOfMesytecAdcModules();
-	total_adcs += set->GetNumberOfCaenAdcModules();
-
-	
 	// Loop over all the available data
 	unsigned int i = 0;
 	while( i < mbs_sevt->GetNumberOfData() ){
@@ -96,7 +79,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 		unsigned short mod = header & MESYTEC_MADC_MODULE_ID;
 		
 		// Convert to logical module from Marabou numbering
-		if( mod >= total_adcs )
+		if( mod >= set->GetNumberOfAdcModules() )
 			mod = set->GetMesytecAdcModuleNumber( mod );
 		else mod--; // Mesytec modules count from 1 in Marabou!!
 		
@@ -222,6 +205,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			adc_data->SetChannel( ch_vec[i] );
 			adc_data->SetEnergy( energy );
 			adc_data->SetThreshold( thresh );
+			adc_data->SetClipped( clipped );
 			
 			// Fill the tree
 			data_packet->SetData( adc_data );
@@ -249,41 +233,47 @@ void MiniballMedConverter::ProcessCaenAdcData() {
 void MiniballMedConverter::ProcessPatternUnitData() {
 
 	// Test data comes from scaler unit?
-	if( !set->CheckVmeModuleIsPattern( mbs_sevt->GetModuleID() ) ){
-		
+	if( mbs_sevt->GetSubEventType() != MBS_STYPE_VME_SIS_3 ){
+
 		std::cerr << __PRETTY_FUNCTION__;
 		std::cerr << ": Error - got data from VME module id ";
 		std::cerr << mbs_sevt->GetModuleID();
-		std::cerr << ", which looks like a pattern unit but it isn't";
-		std::cerr << " defined as such in settings file" << std::endl;
+		std::cerr << ", which is defined as a pattern unit but has the";
+		std::cerr << " wrong data format: " << std::hex;
+		std::cerr << mbs_sevt->GetSubEventType() << std::dec << std::endl;
 		return;
 	
 	}
+	
+	//mbs_sevt->Show();
+	
 	// Loop over data and reconstruct header and data
-	for( unsigned int i = 0; i < mbs_sevt->GetNumberOfData(); i++ ) {
+	unsigned int i = 0;
+	while( i < mbs_sevt->GetNumberOfData() ) {
 		
 		// Get the header
-		unsigned int header = (unsigned int)mbs_sevt->GetData(i++);
+		unsigned short header = mbs_sevt->GetData(i++);
+		std::cout << "header = 0x" << std::hex << header << std::dec << std::endl;
 		if( ( header & SIS3600_D_HDR ) == 0 ) {
 			
 			std::cout << __PRETTY_FUNCTION__ << ": read event nr. ";
 			std::cout << my_event_id << ", sub event nr. ";
 			std::cout << (int)mbs_sevt->GetSubEventID();
-			std::cout << ": wrong Header word of type 0x (";
-			std::cout << header << ") -> skip subevent" << std::endl;
+			std::cout << ": wrong Header word of type 0x" << std::hex;
+			std::cout << header << " -> skip subevent" << std::dec << std::endl;
 			return;
 			
 		}
 		
 		// Get the module number
-		int mod = set->GetPatternUnitNumber( header & SIS3600_MSERIAL );
+		short mod = set->GetPatternUnitNumber( header & SIS3600_MSERIAL );
 		if( mod < 0 ) return;
 		
 		// Next item is the word count
-		int wc = (int)mbs_sevt->GetData(i++);
+		unsigned short wc = mbs_sevt->GetData(i++);
 		
 		// Loop over data and reconstruct integers
-		for( int j = 0; j < wc; j++ ) {
+		for( unsigned short j = 0; j < wc-2; j++ ) {
 			
 			unsigned int data;
 			data  = ( (unsigned int)mbs_sevt->GetData(i++) ) << 16;
@@ -305,15 +295,16 @@ void MiniballMedConverter::ProcessPatternUnitData() {
 void MiniballMedConverter::ProcessScalerData() {
 	
 	// Test data comes from scaler unit?
-	if( !set->CheckVmeModuleIsScaler( mbs_sevt->GetModuleID() ) ){
-		
+	if( mbs_sevt->GetSubEventType() != MBS_STYPE_DATA_SHORT ){
+
 		std::cerr << __PRETTY_FUNCTION__;
 		std::cerr << ": Error - got data from VME module id ";
 		std::cerr << mbs_sevt->GetModuleID();
-		std::cerr << ", which looks like a scaler module but it isn't";
-		std::cerr << " defined as such in settings file" << std::endl;
+		std::cerr << ", which is defined as a scaler unit but has the";
+		std::cerr << " wrong data format: " << std::hex;
+		std::cerr << mbs_sevt->GetSubEventType() << std::dec << std::endl;
 		return;
-	
+
 	}
 		
 	// Check we have an even number of data
@@ -462,20 +453,11 @@ void MiniballMedConverter::ProcessDgfScaler() {
 
 
 //-----------------------------------------------------------------------------
-// Treat a DGF timestamp data item
-void MiniballMedConverter::ProcessDgfTimeStamp() {
-
-	// Do nothing with it for now, because I'm lazy
-	return;
-	
-}
-
-//-----------------------------------------------------------------------------
 // Treat a DGF data item
 void MiniballMedConverter::ProcessDgfData() {
 
 	// Test data comes from scaler unit?
-	if( !set->CheckVmeModuleIsDgf( mbs_sevt->GetModuleID() ) ){
+	if( mbs_sevt->GetSubEventType() != MBS_STYPE_CAMAC_DGF_3 ){
 		
 		std::cerr << __PRETTY_FUNCTION__;
 		std::cerr << ": Error - got data from VME module id ";
@@ -487,20 +469,26 @@ void MiniballMedConverter::ProcessDgfData() {
 	}
 
 	// Loop over all the available data
-	unsigned int i = 0;
-	while( i < mbs_sevt->GetNumberOfData() ){
+	int i = 0;
+	int wc = mbs_sevt->GetNumberOfData();
+	while( i < wc ){
+		
+		std::cout << std::dec << "Readout nr.: " << ev->GetEventID()-2586617;
+		std::cout << ", wc = " << wc << ", length = " << mbs_sevt->GetDataLength();
+		std::cout << std::hex << ", DGF data(0) = 0x" << mbs_sevt->GetData(0) << std::endl;
 
 		// Header of the sub event
-		unsigned short start = mbs_sevt->GetData(i++);
+		unsigned short start = i;
 		unsigned short length = mbs_sevt->GetData(i++);
 		unsigned short end = start + length;
 		unsigned short mod = mbs_sevt->GetData(i++);
 		
 		// Check length
-		if( end > mbs_sevt->GetNumberOfData() ){
+		if( end > mbs_sevt->GetDataLength() ){
 			
 			std::cout << __PRETTY_FUNCTION__ << ": XIA wrong buffer length: ";
-			std::cout << length << ", Start: " << start;
+			std::cout << std::dec << length << " vs. " << mbs_sevt->GetDataLength() * sizeof(unsigned short);
+			std::cout << ", Start: " << start;
 			std::cout << ", End: " << end << std::endl;
 			return; // skip total subevent
 
@@ -708,6 +696,9 @@ void MiniballMedConverter::ProcessDgfData() {
 			
 		} // i < mod: data for this module
 
+		// MBS data: always 32bit words -> if len odd -> fill word has to be skipped
+		if( length & 1 ) i++;
+		
 	} // data in this sub event
 	
 	return;
@@ -795,10 +786,14 @@ int MiniballMedConverter::ConvertFile( std::string input_file_name,
 
 		}
 		
-		// Get the next event - returns nullptr at the end of the file
+		// Get the next event - returns nullptr at the end of the file and sets eof to true
 		ev = mbs.GetNextMedEvent();
+		if( mbs.IsEof() ) break;
 		if( !ev ) continue;
 		my_event_id = ev->GetEventID();
+		
+		// Don't bother if we're not running
+		if( !mbs.IsRunning() ) continue;
 		
 		if( my_event_id == 0 )
 			std::cout << "Bad event ID in data" << std::endl;
@@ -810,7 +805,7 @@ int MiniballMedConverter::ConvertFile( std::string input_file_name,
 
 		// Process current block
 		mbsinfo_packet->ClearData();
-		ProcessBlock( mbsevt );
+		ProcessEvent( mbsevt );
 
 		// Write the MBS event info
 		mbsinfo_packet->SetTime( my_good_tm_stp );

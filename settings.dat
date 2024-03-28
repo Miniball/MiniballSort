@@ -35,8 +35,8 @@
 #------------#
 #NumberOfCaenAdcModules: 0		# total number of CAEN ADCs in the system (old Marabou DAQ)
 #NumberOfMesytecAdcModules: 0	# total number of Mesytec ADCs in the system (old Marabou DAQ)
-#NumberOfCaenChannels: 32		# maximum number of channels per CAEN ADC
-#NumberOfMesytecChannels: 32	# maximum number of channels per Mesytec ADC
+#NumberOfCaenAdcChannels: 32	# maximum number of channels per CAEN ADC
+#NumberOfMesytecAdcChannels: 32	# maximum number of channels per Mesytec ADC
 #CaenAdcModuleOffset: 60		# module numbering offset from Marabou
 #MesytecAdcModuleOffset: 55		# module numbering offset from Marabou
 #CaenTimestampUnits: 25.		# 40 MHz sampling frequency (DGF clock source)

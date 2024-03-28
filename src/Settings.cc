@@ -153,13 +153,13 @@ void MiniballSettings::ReadSettings() {
 
 	// CAEN ADC initialisation
 	n_caen_mod		= config->GetValue( "NumberOfCaenAdcModules", 0 );
-	n_caen_ch		= config->GetValue( "NumberOfCaenAdcChannels", 4 );
+	n_caen_ch		= config->GetValue( "NumberOfCaenAdcChannels", 32 );
 	caen_mod_offset	= config->GetValue( "CaenAdcModuleOffset", 60 );
 	caen_ts_units	= config->GetValue( "CaenAdcTimestampUnits", 25. );
 
 	// Mesytec ADC initialisation
 	n_madc_mod		= config->GetValue( "NumberOfMesytecAdcModules", 0 );
-	n_madc_ch		= config->GetValue( "NumberOfMesytecAdcChannels", 4 );
+	n_madc_ch		= config->GetValue( "NumberOfMesytecAdcChannels", 32 );
 	madc_mod_offset	= config->GetValue( "MesytecAdcModuleOffset", 55 );
 	madc_ts_units	= config->GetValue( "MesytecAdcTimestampUnits", 25. );
 
@@ -518,7 +518,7 @@ void MiniballSettings::ReadSettings() {
 					s = 1;			// sfp number - all in SFP 1
 					b = j*2 + k;	// boards go 0-7
 					c = l;
-					g = i;			// adc number is same as segment by default
+					g = j;			// adc number is same as segment by default
 					cd_sfp[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Sfp", i, j, l, side_str.data() ), s );
 					cd_board[i][j][k][l]	= config->GetValue( Form( "CD_%d_%d_%d.%s.Board", i, j, l, side_str.data() ), b );
 					cd_adc[i][j][k][l]		= config->GetValue( Form( "CD_%d_%d_%d.%s.Adc", i, j, l, side_str.data() ), g );
@@ -592,7 +592,7 @@ void MiniballSettings::ReadSettings() {
 						
 						std::cerr << "Dodgy CD settings: sfp = " << cd_sfp[i][j][k][l];
 						if( n_febex_board > 0 ) std::cerr << ", board = " << cd_board[i][j][k][l];
-						if( GetNumberOfAdcModules() > 0 ) std::cerr << ", board = " << cd_adc[i][j][k][l];
+						if( GetNumberOfAdcModules() > 0 ) std::cerr << ", adc = " << cd_adc[i][j][k][l];
 						std::cerr << ", channel = " << cd_ch[i][j][k][l] << std::endl;
 						
 					}

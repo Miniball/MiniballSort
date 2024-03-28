@@ -35,11 +35,10 @@ public:
 					unsigned long start_block = 0,
 					long end_block = -1 );
 
-	void ProcessBlock( unsigned long nblock );
+	void ProcessEvent( unsigned long nblock );
 	void ProcessMesytecAdcData();
 	void ProcessCaenAdcData();
 	void ProcessDgfData();
-	void ProcessDgfTimeStamp();
 	void ProcessDgfScaler();
 	void ProcessPatternUnitData();
 	void ProcessScalerData();

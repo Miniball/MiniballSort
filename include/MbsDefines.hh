@@ -97,7 +97,13 @@
 #define MBS_L_STR				256 							/*!< string length */
 #define MBS_L_NAME				64								/*!< lenght of a name string */
 
-#define MBS_ODD_NOF_PARAMS		1								/*!< indicates an odd number of params */
+#define MBS_ODD_NOF_PARAMS		1	///< indicates an odd number of paramså
+
+#define BYTE_ORDER_1_TO_1   0    ///< 1:1, nothing to do
+#define BYTE_ORDER_BSW      1    ///< byte swapå
+#define BYTE_ORDER_LSW      2    ///< long word swap
+#define BYTE_ORDER_REV      3    ///< reverse order
+
 
 // Module data defines
 #define CAEN7X5_NBOFCHAN  32
