@@ -82,6 +82,7 @@ DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/EventBuilder.hh \
 				$(INC_DIR)/MedConverter.hh \
 				$(INC_DIR)/MbsConverter.hh \
+				$(INC_DIR)/MbsDefines.hh \
 				$(INC_DIR)/MbsFormat.hh \
 				$(INC_DIR)/MidasConverter.hh \
 				$(INC_DIR)/MiniballAngleFitter.hh \
