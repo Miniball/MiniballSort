@@ -84,8 +84,8 @@ public:
 		return PromptCoincidence( g, p->GetTime() );
 	};
 	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, unsigned long long ptime ){
-		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
-			(double)g->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
+		if( (double)ptime - (double)g->GetTime() > react->GetParticleGammaPromptTime(0) &&
+			(double)ptime - (double)g->GetTime() < react->GetParticleGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
@@ -93,8 +93,8 @@ public:
 		return RandomCoincidence( g, p->GetTime() );
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<GammaRayEvt> g, unsigned long long ptime ){
-		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
-			(double)g->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
+		if( (double)ptime - (double)g->GetTime() > react->GetParticleGammaRandomTime(0) &&
+			(double)ptime - (double)g->GetTime() < react->GetParticleGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -105,8 +105,8 @@ public:
 		return PromptCoincidence( s, p->GetTime() );
 	};
 	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
-		if( (double)s->GetTime() - (double)ptime > react->GetParticleElectronPromptTime(0) &&
-			(double)s->GetTime() - (double)ptime < react->GetParticleElectronPromptTime(1) )
+		if( (double)ptime - (double)s->GetTime() > react->GetParticleElectronPromptTime(0) &&
+			(double)ptime - (double)s->GetTime() < react->GetParticleElectronPromptTime(1) )
 			return true;
 		else return false;
 	};
@@ -114,8 +114,8 @@ public:
 		return RandomCoincidence( s, p->GetTime() );
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
-		if( (double)s->GetTime() - (double)ptime > react->GetParticleElectronRandomTime(0) &&
-			(double)s->GetTime() - (double)ptime < react->GetParticleElectronRandomTime(1) )
+		if( (double)ptime - (double)s->GetTime() > react->GetParticleElectronRandomTime(0) &&
+			(double)ptime - (double)s->GetTime() < react->GetParticleElectronRandomTime(1) )
 			return true;
 		else return false;
 	};
