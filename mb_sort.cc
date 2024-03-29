@@ -772,7 +772,7 @@ int main( int argc, char *argv[] ){
 		
 		else if( extension == "med" ) {
 			
-			flag_mbs = true;
+			flag_med = true;
 			std::cout << "Assuming we have MED data because of the .med extension" << std::endl;
 			std::cout << "Forcing the data block size to 32 kB" << std::endl;
 			
