@@ -137,7 +137,7 @@ protected:
 	unsigned int nsamples;
 
 	// Flag depending on the data type
-	bool mbs_data;
+	bool mbs_data, midas_data, med_data;
 	
 	// Flag to signify this buffer or the one before is full
 	bool buffer_full = false;
@@ -149,6 +149,8 @@ protected:
 	// Data types
 	std::unique_ptr<MBSInfoPackets> mbsinfo_packet = nullptr;
 	std::unique_ptr<MiniballDataPackets> data_packet = nullptr;
+	std::shared_ptr<DgfData> dgf_data;
+	std::shared_ptr<AdcData> adc_data;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 	
@@ -160,6 +162,9 @@ protected:
 	TTree *mbsinfo_tree;
 
 	// Counters
+	std::vector<unsigned long int> ctr_dgf_hit;						// hits on each DGF module
+	std::vector<unsigned long int> ctr_madc_hit;					// hits on each Mesytec ADC module
+	std::vector<unsigned long int> ctr_caen_hit;					// hits on each CAEN ADC module
 	std::vector<std::vector<unsigned long int>> ctr_febex_hit;		// hits on each Febex module
 	std::vector<std::vector<unsigned long int>> ctr_febex_pause;   	// pause acq for module
 	std::vector<std::vector<unsigned long int>> ctr_febex_resume;  	// resume acq for module
@@ -175,6 +180,10 @@ protected:
 	std::vector<std::vector<TProfile*>> hfebex_resume;
 	TProfile *hfebex_ext;
 
+	std::vector<std::vector<TH1F*>> hdgf_qshort;
+	std::vector<std::vector<TH1F*>> hdgf_cal;
+	std::vector<std::vector<TH1F*>> hadc_qshort;
+	std::vector<std::vector<TH1F*>> hadc_cal;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_qint;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_qshort;
 	std::vector<std::vector<std::vector<TH1F*>>> hfebex_cal;

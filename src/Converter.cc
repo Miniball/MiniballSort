@@ -119,9 +119,13 @@ void MiniballConverter::MakeTree() {
 	
 	output_tree->SetParallelUnzip();
 
+	dgf_data = std::make_shared<DgfData>();
+	adc_data = std::make_shared<AdcData>();
 	febex_data = std::make_shared<FebexData>();
 	info_data = std::make_shared<InfoData>();
 	
+	dgf_data->ClearData();
+	adc_data->ClearData();
 	febex_data->ClearData();
 	info_data->ClearData();
 	
@@ -180,7 +184,7 @@ void MiniballConverter::MakeHists() {
 			// Loop over channels of each FEBEX board
 			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
 				
-				// Uncalibrated energy - 32-bit value
+				// Uncalibrated energy - 16-bit value
 				hname = "febex_" + std::to_string(i);
 				hname += "_" + std::to_string(j);
 				hname += "_" + std::to_string(k);
@@ -204,7 +208,7 @@ void MiniballConverter::MakeHists() {
 					
 				}
 				
-				// Uncalibrated energy 16-bit value
+				// Uncalibrated energy 32-bit value
 				hname = "febex_" + std::to_string(i);
 				hname += "_" + std::to_string(j);
 				hname += "_" + std::to_string(k);
@@ -355,7 +359,147 @@ void MiniballConverter::MakeHists() {
 		
 	} // i - SFP
 	
+	// Resize vectors for DGFs and ADCs
+	hdgf_qshort.resize( set->GetNumberOfDgfModules() );
+	hdgf_cal.resize( set->GetNumberOfDgfModules() );
+	hadc_qshort.resize( set->GetNumberOfAdcModules() );
+	hadc_cal.resize( set->GetNumberOfAdcModules() );
+	
+	// Loop over DGF modules
+	for( unsigned int i = 0; i < set->GetNumberOfDgfModules(); ++i ) {
+		
+		hdgf_qshort[i].resize( set->GetNumberOfDgfChannels() );
+		hdgf_cal[i].resize( set->GetNumberOfDgfChannels() );
 
+		for( unsigned int j = 0; j < set->GetNumberOfDgfChannels(); ++j ) {
+			
+			// New directory
+			dirname  = maindirname + "dgf_" + std::to_string(i);
+			if( !output_file->GetDirectory( dirname.data() ) )
+				output_file->mkdir( dirname.data() );
+			output_file->cd( dirname.data() );
+
+			// Uncalibrated energy 16-bit value
+			hname = "dgf_" + std::to_string(i);
+			hname += "_" + std::to_string(j);
+			hname += "_qshort";
+			
+			htitle = "Raw DGF spectra for module " + std::to_string(i);
+			htitle += ", channel " + std::to_string(j);
+			
+			htitle += ";Charge value;Counts";
+			
+			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
+				hdgf_qshort[i][j] = (TH1F*)output_file->Get( hname.data() );
+			
+			else {
+				
+				hdgf_qshort[i][j] = new TH1F( hname.data(), htitle.data(),
+												16384, 0, 65536 );
+				
+				hdgf_qshort[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+				
+			}
+			
+			// Calibrated energy
+			hname = "dgf_" + std::to_string(i);
+			hname += "_" + std::to_string(j);
+			hname += "_cal";
+
+			htitle = "Calibrated DGF spectra for module " + std::to_string(i);
+			htitle += ", channel " + std::to_string(j);
+			
+			htitle += ";Energy (keV);Counts per 0.5 keV";
+			
+			// Assume gamma-ray spectrum
+			unsigned int ebins = 8000;
+			float emin = -0.25;
+			float emax = 4000.0 + emin; // 4 MeV range
+
+			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
+				hdgf_cal[i][j] = (TH1F*)output_file->Get( hname.data() );
+			
+			else {
+				
+				hdgf_cal[i][j] = new TH1F( hname.data(), htitle.data(),
+											   ebins, emin, emax );
+				
+				hdgf_cal[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+				
+			}
+
+		} // j - channels
+		
+	} // i - DGF
+	
+	// Loop over ADC modules
+	for( unsigned int i = 0; i < set->GetNumberOfAdcModules(); ++i ) {
+		
+		hadc_qshort[i].resize( set->GetMaximumNumberOfAdcChannels() );
+		hadc_cal[i].resize( set->GetMaximumNumberOfAdcChannels() );
+
+		// New directory
+		dirname  = maindirname + "adc_" + std::to_string(i);
+		if( !output_file->GetDirectory( dirname.data() ) )
+			output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
+		
+		for( unsigned int j = 0; j < set->GetMaximumNumberOfAdcChannels(); ++j ) {
+			
+			// Uncalibrated energy 16-bit value
+			hname = "adc_" + std::to_string(i);
+			hname += "_" + std::to_string(j);
+			hname += "_qshort";
+			
+			htitle = "Raw ADC spectra for module " + std::to_string(i);
+			htitle += ", channel " + std::to_string(j);
+			
+			htitle += ";Charge value;Counts";
+			
+			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
+				hadc_qshort[i][j] = (TH1F*)output_file->Get( hname.data() );
+			
+			else {
+				
+				hadc_qshort[i][j] = new TH1F( hname.data(), htitle.data(),
+											 8192, 0, 8192 );
+				
+				hadc_qshort[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+				
+			}
+			
+			// Calibrated energy
+			hname = "adc_" + std::to_string(i);
+			hname += "_" + std::to_string(j);
+			hname += "_cal";
+			
+			htitle = "Calibrated ADC spectra for module " + std::to_string(i);
+			htitle += ", channel " + std::to_string(j);
+			
+			htitle += ";Energy (keV);Counts per 0.5 keV";
+			
+			// Assume particle spectrum
+			unsigned int ebins = 12000;
+			float emin = -0.25;
+			float emax = 6000.0 + emin; // 1.2 GeV range
+			
+			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
+				hadc_cal[i][j] = (TH1F*)output_file->Get( hname.data() );
+			
+			else {
+				
+				hadc_cal[i][j] = new TH1F( hname.data(), htitle.data(),
+											   ebins, emin, emax );
+				
+				hadc_cal[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+				
+			}
+			
+
+		} // j - channels
+		
+	} // i - ADC
+	
 	// External trigger vs timestamp
 	output_file->cd( maindirname.data() );
 	hname = "hfebex_ext_ts";

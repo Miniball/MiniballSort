@@ -17,6 +17,48 @@
 #NumberOfFebexBoards: 16		# maximum number of boards per SFP
 #NumberOfFebexChannels: 16		# number of channels per FEBEX board = 16
 
+#------------#
+# DGF things #
+#------------#
+#NumberOfDgfModules: 0			# total number of DGFs in the system (53 in old Marabou DAQ)
+#NumberOfDgfTimestampModules: 5	# total number of DGFs used in timestamp mode (4 CD + 1 EBIS)
+#NumberOfDgfChannels: 4			# maximum number of channels per DGF
+#DgfModuleOffset: 1				# module numbering offset for DGFs from Marabou
+#DgfTimestampModuleOffset: 49	# module numbering offset for timestamp DGFs from Marabou
+#DgfTimestampDelay: 65527		# this is to fix the bug in the firmware (leave it as default)
+#DgfTimestampUnits: 25.			# 40 MHz sampling frequency  (DGF clock source)
+#Dgf.VME.First:	1				# first DGF in VME module/id numbering
+#Dgf.VME.Last:	10				# last DGF in VME module/id numbering
+
+#------------#
+# ADC things #
+#------------#
+#NumberOfCaenAdcModules: 0		# total number of CAEN ADCs in the system (old Marabou DAQ)
+#NumberOfMesytecAdcModules: 0	# total number of Mesytec ADCs in the system (old Marabou DAQ)
+#NumberOfCaenAdcChannels: 32	# maximum number of channels per CAEN ADC
+#NumberOfMesytecAdcChannels: 32	# maximum number of channels per Mesytec ADC
+#CaenAdcModuleOffset: 60		# module numbering offset from Marabou
+#MesytecAdcModuleOffset: 55		# module numbering offset from Marabou
+#CaenTimestampUnits: 25.		# 40 MHz sampling frequency (DGF clock source)
+#MesytecTimestampUnits: 25.		# 40 MHz sampling frequency (DGF clock source)
+#Adc.VME.First:	11				# first DGF in VME module/id numbering
+#Adc.VME.Last:	19				# last DGF in VME module/id numbering
+
+
+#---------------------------#
+# Scalers and pattern units #
+#---------------------------#
+#NumberOfScalerUnits: 1			# scaler units from the old Marabou DAQ
+#NumberOfPatternUnits: 1		# pattern units from the old Marabou DAQ
+#ScalerUnitOffset: 0			# module numbering offset from Marabou
+#PatternUnitOffset: 67			# module numbering offset from Marabou
+#Scaler.VME.First: 20			# first Scaler in VME module/id numbering
+#Scaler.VME.Last: 20			# last Scaler in VME module/id numbering
+#Pattern.VME.First: 21			# first Pattern unit in VME module/id numbering
+#Pattern.VME.Last: 21			# last Pattern unit in VME module/id numbering
+#DgfScaler.VME.First: 22		# first DGF Scaler in VME module/id numbering
+#DgfScaler.VME.Last: 24			# last DGF Scaler in VME module/id numbering
+
 
 #-------------------#
 # Sync pulsers, etc #
@@ -29,21 +71,26 @@
 #Pulser_1.Board: 10
 #Pulser_1.Channel: 15
 
+
 #------------------------#
 # ISOLDE Timestamps, etc #
 #------------------------#
 #EBIS.Sfp: 1					# Location of the EBIS signal in the DAQ
-#EBIS.Board: 8
-#EBIS.Channel: 19
+#EBIS.Board: 10
+#EBIS.Dgf: 53					# if you have the old DGFs
+#EBIS.Channel: 0				# usually 0 in Febex and 0 in old DGFs
 #T1.Sfp: 1						# Location of the T1 signal in the DAQ
-#T1.Board: 8
-#T1.Channel: 11
+#T1.Board: 10
+#T1.Dgf: 53						# if you have the old DGFs
+#T1.Channel: 2					# usually 2 in Febex and 1 in old DGFs
 #SC.Sfp: 1						# Location of the SC signal in the DAQ
-#SC.Board: 8
-#SC.Channel: 13
+#SC.Board: 10
+#SC.Channel: 4
+#SC.Dgf: 53						# if you have the old DGFs
+#SC.Channel: 4					# usually 4 in Febex and 2 in old DGFs
 #RILIS.Sfp: 1					# Location of the RILIS Laser signal in the DAQ
-#RILIS.Board: 8
-#RILIS.Channel: 15
+#RILIS.Board: 10
+#RILIS.Channel: 6
 
 
 #-------------#
@@ -359,15 +406,19 @@
 #--------------------#
 #Pad_0_0.Sfp: 0				# Forward Pad = 0, Sector 0
 #Pad_0_0.Board: 13			#
+#Pad_0_0.Adc: 0				#
 #Pad_0_0.Channel: 1			#
 #Pad_0_1.Sfp: 0				# Forward Pad = 0, Sector 1
 #Pad_0_1.Board: 13			#
+#Pad_0_1.Adc: 1				#
 #Pad_0_1.Channel: 3			#
 #Pad_0_2.Sfp: 0				# Forward Pad = 0, Sector 2
 #Pad_0_2.Board: 13			#
+#Pad_0_2.Adc: 2				#
 #Pad_0_2.Channel: 5			#
 #Pad_0_3.Sfp: 0				# Forward Pad = 0, Sector 3
 #Pad_0_3.Board: 13			#
+#Pad_0_3.Adc: 3				#
 #Pad_0_3.Channel: 7			#
 
 
@@ -377,7 +428,8 @@
 #NumberOfBeamDumpDetectors: 1	# HPGe detectors at the beam dump position
 
 #BeamDump_0.Sfp: 1				# Extra board on second SFP
-#BeamDump_0.Board: 6			# for beam dump detectors
+#BeamDump_0.Board: 10			# for beam dump detectors in FEBEX
+#BeamDump_0.Dgf: 54				# for beam dump detectors in DGF
 #BeamDump_0.Channel: 0			# and ionisation chamber, maybe?
 
 

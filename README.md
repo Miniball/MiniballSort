@@ -2,7 +2,10 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7867978.svg)](https://doi.org/10.5281/zenodo.7867978)
 
-Sort code for Miniball data using the new FEBEX/MIDAS DAQ from the 2022 campaign onwards. Also now updated to take data from the MBS DAQ.
+Sort code for Miniball data using the new FEBEX/MIDAS DAQ from the 2022 campaign onwards.
+
+This sort code has been updated to take data from the MBS/FEBEX DAQ (.lmd files - 2022) and the MBS/DGF DAQ (.med files - 2001-2018).
+Not all features of the old DAQ have yet been implemented, but if you have an old data set that you would like to sort, make a request with the "issues" feature and we will try to implement your requirement.
 
 There is a [Wiki](https://github.com/Miniball/MiniballSort/wiki) page for this code, giving some more detailed instructions of how to analyse data.
 

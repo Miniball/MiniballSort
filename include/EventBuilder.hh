@@ -104,6 +104,8 @@ private:
 	TTree *mbsinfo_tree;
 	MiniballDataPackets *in_data;
 	MBSInfoPackets *mbs_info;
+	std::shared_ptr<DgfData> dgf_data;
+	std::shared_ptr<AdcData> adc_data;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 
@@ -161,6 +163,8 @@ private:
 	// Data variables - generic
 	unsigned char		mysfp;			///< sfp number
 	unsigned char		myboard;		///< febex board number
+	unsigned char		mydgf;			///< DGF module number
+	unsigned char		myadc;			///< ADC module number
 	unsigned char		mych;			///< channel number
 	unsigned long long	mytime;			///< absolute timestamp
 	long				myhittime;		///< hit time with respect to event time
@@ -170,6 +174,8 @@ private:
 	float 				myenergy;		///< calibrated energy
 	bool				mythres;		///< above threshold?
 	bool				mypileup;		///< pileup flag?
+	bool				myclipped;		///< clipped flag?
+	bool				mylaser;		///< laser pattern bit
 
 
 	// Miniball specific variables
@@ -213,9 +219,9 @@ private:
 
 	// Counters
 	unsigned long				hit_ctr, gamma_ctr, gamma_ab_ctr, cd_ctr, bd_ctr, spede_ctr, ic_ctr;
-	unsigned long				n_entries, n_mbs_entries, n_febex_data, n_info_data;
+	unsigned long				n_entries, n_mbs_entries, n_febex_data, n_info_data, n_dgf_data, n_adc_data;
 	unsigned long				n_ebis, n_t1, n_sc, n_rilis;
-	std::vector<unsigned long>	n_sfp, n_pulser;
+	std::vector<unsigned long>	n_sfp, n_dgf, n_adc, n_pulser;
 	std::vector<std::vector<unsigned long>>	n_board;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
 	unsigned long				n_miniball, n_cd, n_pad, n_spede, n_bd, n_ic;
