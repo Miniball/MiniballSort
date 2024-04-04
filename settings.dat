@@ -20,7 +20,7 @@
 #------------#
 # DGF things #
 #------------#
-#NumberOfDgfModules: 0			# total number of DGFs in the system (53 in old Marabou DAQ)
+#NumberOfDgfModules: 0			# total number of DGFs in the system (54 in old Marabou DAQ)
 #NumberOfDgfTimestampModules: 5	# total number of DGFs used in timestamp mode (4 CD + 1 EBIS)
 #NumberOfDgfChannels: 4			# maximum number of channels per DGF
 #DgfModuleOffset: 1				# module numbering offset for DGFs from Marabou
@@ -77,16 +77,16 @@
 #------------------------#
 #EBIS.Sfp: 1					# Location of the EBIS signal in the DAQ
 #EBIS.Board: 10
-#EBIS.Dgf: 53					# if you have the old DGFs
+#EBIS.Dgf: 52					# if you have the old DGFs
 #EBIS.Channel: 0				# usually 0 in Febex and 0 in old DGFs
 #T1.Sfp: 1						# Location of the T1 signal in the DAQ
 #T1.Board: 10
-#T1.Dgf: 53						# if you have the old DGFs
+#T1.Dgf: 52						# if you have the old DGFs
 #T1.Channel: 2					# usually 2 in Febex and 1 in old DGFs
 #SC.Sfp: 1						# Location of the SC signal in the DAQ
 #SC.Board: 10
 #SC.Channel: 4
-#SC.Dgf: 53						# if you have the old DGFs
+#SC.Dgf: 52						# if you have the old DGFs
 #SC.Channel: 4					# usually 4 in Febex and 2 in old DGFs
 #RILIS.Sfp: 1					# Location of the RILIS Laser signal in the DAQ
 #RILIS.Board: 10
