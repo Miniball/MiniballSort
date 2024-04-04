@@ -1850,7 +1850,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			n_adc[myadc]++;
 			
 			// Is it a particle from the CD?
-			if( set->IsCD( myadc, mych ) && mythres ) {
+			if( set->IsCD( myadc, mych ) && mythres && !myclipped ) {
 				
 				// Increment counts and open the event
 				n_cd++;
@@ -1871,7 +1871,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it a particle from the Pad?
-			else if( set->IsPad( myadc, mych ) && mythres ) {
+			else if( set->IsPad( myadc, mych ) && mythres && !myclipped ) {
 				
 				// Increment counts and open the event
 				n_pad++;
@@ -1890,7 +1890,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it an IonChamber event
-			else if( set->IsIonChamber( myadc, mych ) && mythres ) {
+			else if( set->IsIonChamber( myadc, mych ) && mythres && !myclipped ) {
 				
 				// Increment counts and open the event
 				n_ic++;
