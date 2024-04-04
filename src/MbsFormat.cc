@@ -471,7 +471,7 @@ const MBSEvent* MBS::GetNextMedEvent() {
 		// Check if we finished the file
 		if( pos >= len ) {
 			std::cerr << "Reached the end of the file already" << std::endl;
-			break;
+			return(nullptr);
 		}
 			
 		// Increment the subevent counter
