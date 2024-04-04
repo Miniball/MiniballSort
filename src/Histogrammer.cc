@@ -650,12 +650,14 @@ void MiniballHistogrammer::MakeHists() {
 
 		for ( unsigned int i = 0; i < nsegs; i++ ) {
 			
-			hname = "gE_vs_phi_dc_ejectile";
+			hname = "gE_vs_phi_dc_ejectile_seg";
+			hname += std::to_string(i);
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Phi angle of segment " + std::to_string(i) + "[deg];Gamma-ray Energy [keV];Counts";
 			gE_vs_phi_dc_ejectile[i] = new TH2F( hname.data(), htitle.data(), nsegs, -0.5, nsegs-0.5, GBIN, GMIN, GMAX );
 			
-			hname = "gE_vs_phi_dc_recoil";
+			hname = "gE_vs_phi_dc_recoil_seg";
+			hname += std::to_string(i);
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Phi angle of segment " + std::to_string(i) + "[deg];Gamma-ray Energy [keV];Counts";
 			gE_vs_phi_dc_recoil[i] = new TH2F( hname.data(), htitle.data(), nsegs, -0.5, nsegs-0.5, GBIN, GMIN, GMAX );
@@ -1247,14 +1249,19 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 			double gphi_deg = (double)i;
 			double gphi = gphi_deg * TMath::DegToRad();
 			double gtheta = react->GetGammaTheta(g);
-
+			
+			unsigned short segID = g->GetCluster();
+			segID *= set->GetNumberOfMiniballCrystals() * set->GetNumberOfMiniballSegments();
+			segID += set->GetNumberOfMiniballSegments() * g->GetCrystal();
+			segID += g->GetSegment();
+	
 			// Ejectile DC
 			double dc_gen = react->DopplerCorrection( g->GetEnergy(), gtheta, gphi, true );
-			gE_vs_phi_dc_ejectile[i]->Fill( gphi_deg, dc_gen, weight );
+			gE_vs_phi_dc_ejectile[segID]->Fill( gphi_deg, dc_gen, weight );
 
 			// Recoil DC
 			dc_gen = react->DopplerCorrection( g->GetEnergy(), gtheta, gphi, false );
-			gE_vs_phi_dc_recoil[i]->Fill( gphi_deg, dc_gen, weight );
+			gE_vs_phi_dc_recoil[segID]->Fill( gphi_deg, dc_gen, weight );
 
 		}
 		
