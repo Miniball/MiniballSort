@@ -211,8 +211,8 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			
 			// Corrected time for ADCs
 			long long time_corr = Timestamp;
-			time_corr += cal->AdcTime( mod, 0 ); // all channels together for now
-
+			time_corr += cal->AdcTime( mod, ch_vec[item] );
+			
 			// Set values for data item
 			adc_data->SetTime( time_corr ); // only works for MADC, CAEN needs reconstruction
 			adc_data->SetQshort( qshort_vec[item] );
@@ -226,6 +226,10 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			data_packet->SetData( adc_data );
 			output_tree->Fill();
 			
+			// Fill histograms
+			hadc_qshort[mod][ch_vec[item]]->Fill( qshort_vec[item] );
+			hadc_cal[mod][ch_vec[item]]->Fill( energy );
+
 		}
 		
 	}
@@ -714,6 +718,10 @@ void MiniballMedConverter::ProcessDgfData() {
 							data_packet->SetData( dgf_data );
 							output_tree->Fill();
 							
+							// Fill histograms
+							hdgf_qshort[mod][ch]->Fill( Qshort );
+							hdgf_cal[mod][ch]->Fill( energy );
+
 						}
 
 						
