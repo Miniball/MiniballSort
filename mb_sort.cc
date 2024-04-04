@@ -830,14 +830,14 @@ int main( int argc, char *argv[] ){
 		else if( flag_spy ) datadir_name = "dataspy";
 		else if( flag_angle_fit ) datadir_name = "positions";
 		else datadir_name = "mb_sort_outputs";
-		
-		// Create the directory if it doesn't exist (not Windows compliant)
-		std::string cmd = "mkdir -p " + datadir_name;
-		gSystem->Exec( cmd.data() );
-		
-		std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
-		
+				
 	}
+	
+	// Create the directory if it doesn't exist (not Windows compliant)
+	std::string cmd = "mkdir -p " + datadir_name;
+	gSystem->Exec( cmd.data() );	
+	std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
+
 	
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
