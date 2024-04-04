@@ -654,13 +654,13 @@ void MiniballHistogrammer::MakeHists() {
 			hname += std::to_string(i);
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Phi angle of segment " + std::to_string(i) + " [deg];Gamma-ray Energy [keV];Counts";
-			gE_vs_phi_dc_ejectile[i] = new TH2F( hname.data(), htitle.data(), nsegs, -0.5, nsegs-0.5, GBIN, GMIN, GMAX );
+			gE_vs_phi_dc_ejectile[i] = new TH2F( hname.data(), htitle.data(), 360, -0.5, 359.5, GBIN, GMIN, GMAX );
 			
 			hname = "gE_vs_phi_dc_recoil_seg";
 			hname += std::to_string(i);
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Phi angle of segment " + std::to_string(i) + " [deg];Gamma-ray Energy [keV];Counts";
-			gE_vs_phi_dc_recoil[i] = new TH2F( hname.data(), htitle.data(), nsegs, -0.5, nsegs-0.5, GBIN, GMIN, GMAX );
+			gE_vs_phi_dc_recoil[i] = new TH2F( hname.data(), htitle.data(), 360, -0.5, 359.5, GBIN, GMIN, GMAX );
 			
 		}
 		
