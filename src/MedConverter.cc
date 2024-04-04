@@ -656,6 +656,10 @@ void MiniballMedConverter::ProcessDgfData() {
 						// Now let's add the data
 						//------------
 						
+						// Fill histograms
+						hdgf_qshort[mod][ch]->Fill( Qshort );
+						hdgf_cal[mod][ch]->Fill( energy );
+
 						// Clear the old stuff
 						dgf_data->ClearData();
 						info_data->ClearData();
@@ -717,10 +721,6 @@ void MiniballMedConverter::ProcessDgfData() {
 							// Fill the tree
 							data_packet->SetData( dgf_data );
 							output_tree->Fill();
-							
-							// Fill histograms
-							hdgf_qshort[mod][ch]->Fill( Qshort );
-							hdgf_cal[mod][ch]->Fill( energy );
 
 						}
 
