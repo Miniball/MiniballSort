@@ -479,9 +479,9 @@ void MiniballConverter::MakeHists() {
 			htitle += ";Energy (keV);Counts per 0.5 keV";
 			
 			// Assume particle spectrum
-			unsigned int ebins = 12000;
-			float emin = -0.25;
-			float emax = 6000.0 + emin; // 1.2 GeV range
+			unsigned int ebins = 6000;
+			float emin = -1e3;
+			float emax = 1.2e6 + emin; // 1.2 GeV range
 			
 			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
 				hadc_cal[i][j] = (TH1F*)output_file->Get( hname.data() );
