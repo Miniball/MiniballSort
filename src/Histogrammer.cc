@@ -164,73 +164,86 @@ void MiniballHistogrammer::MakeHists() {
 	output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
 	
-	hname = "gE_gE";
-	htitle = "Gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
-	gE_gE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+	// If gamma-gamma histograms are turned on
+	if( react->HistGammaGamma() ) {
+		
+		hname = "gE_gE";
+		htitle = "Gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
+		gE_gE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		
+		hname = "gE_gE_ebis_on";
+		htitle = "Gamma-ray coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
+		gE_gE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		
+		hname = "aE_aE";
+		htitle = "Gamma-ray addback coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
+		aE_aE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		
+		hname = "aE_aE_ebis_on";
+		htitle = "Gamma-ray addback coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
+		aE_aE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		
+	} // gamma-gamma on
 	
-	hname = "gE_gE_ebis_on";
-	htitle = "Gamma-ray coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
-	gE_gE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+	// If electron histograms are turned on
+	if( react->HistElectron() ) {
+		
+		hname = "eE_eE";
+		htitle = "Electron coincidence matrix;Energy [keV];Energy [keV];Counts per keV";
+		eE_eE = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
+		
+		hname = "eE_eE_ebis_on";
+		htitle = "Electron coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per keV";
+		eE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
+		
+		// If electron-gamma histograms are turned on
+		if( react->HistElectronGamma() ) {
+			
+			hname = "gE_eE";
+			htitle = "Gamma-ray and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
+			gE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			
+			hname = "gE_eE_ebis_on";
+			htitle = "Gamma-ray and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
+			gE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			
+			hname = "aE_eE";
+			htitle = "Gamma-ray addback and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
+			aE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			
+			hname = "aE_eE_ebis_on";
+			htitle = "Gamma-ray addback and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
+			aE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			
+		} // electron-gamma on
+		
+		// Electron singles histograms
+		dirname = "ElectronSingles";
+		output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
+		
+		hname = "eE_singles";
+		htitle = "Electron energy singles;Energy [keV];Counts keV";
+		eE_singles = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_singles_ebis";
+		htitle = "Electron energy singles EBIS on-off;Energy [keV];Counts keV";
+		eE_singles_ebis = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_singles_ebis_on";
+		htitle = "Electron energy singles EBIS on;Energy [keV];Counts keV";
+		eE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_singles_ebis_off";
+		htitle = "Electron energy singles EBIS off;Energy [keV];Counts keV";
+		eE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "electron_xy_map";
+		htitle = "Electron X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
+		electron_xy_map = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
+		
+	} // electrons on
 	
-	hname = "aE_aE";
-	htitle = "Gamma-ray addback coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
-	aE_aE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-	
-	hname = "aE_aE_ebis_on";
-	htitle = "Gamma-ray addback coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
-	aE_aE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-	
-	hname = "eE_eE";
-	htitle = "Electron coincidence matrix;Energy [keV];Energy [keV];Counts per keV";
-	eE_eE = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
-	
-	hname = "eE_eE_ebis_on";
-	htitle = "Electron coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per keV";
-	eE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
-
-	hname = "gE_eE";
-	htitle = "Gamma-ray and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
-	gE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-	
-	hname = "gE_eE_ebis_on";
-	htitle = "Gamma-ray and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
-	gE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-	
-	hname = "aE_eE";
-	htitle = "Gamma-ray addback and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
-	aE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-	
-	hname = "aE_eE_ebis_on";
-	htitle = "Gamma-ray addback and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
-	aE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-
-
-	// Electron singles histograms
-	dirname = "ElectronSingles";
-	output_file->mkdir( dirname.data() );
-	output_file->cd( dirname.data() );
-	
-	hname = "eE_singles";
-	htitle = "Electron energy singles;Energy [keV];Counts keV";
-	eE_singles = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-	
-	hname = "eE_singles_ebis";
-	htitle = "Electron energy singles EBIS on-off;Energy [keV];Counts keV";
-	eE_singles_ebis = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-	
-	hname = "eE_singles_ebis_on";
-	htitle = "Electron energy singles EBIS on;Energy [keV];Counts keV";
-	eE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-	
-	hname = "eE_singles_ebis_off";
-	htitle = "Electron energy singles EBIS off;Energy [keV];Counts keV";
-	eE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "electron_xy_map";
-	htitle = "Electron X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
-	electron_xy_map = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
-
-
 	// CD singles histograms
 	dirname = "ParticleSpectra";
 	output_file->mkdir( dirname.data() );
@@ -621,274 +634,312 @@ void MiniballHistogrammer::MakeHists() {
 	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 	aaE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
 
-	//  Electron-particle coincidences
-	dirname = "ElectronParticleCoincidences";
-	output_file->mkdir( dirname.data() );
-	output_file->cd( dirname.data() );
+	// Segment phi determination
+	if( react->HistSegmentPhi() ) {
 	
-	hname = "eE_prompt";
-	htitle = "Electron energy in prompt coincide with any particle;Energy [keV];Counts per keV";
-	eE_prompt = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		dirname = "SegmentPhiDetermination";
+		output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
 
-	hname = "eE_prompt_1p";
-	htitle = "Electron energy in prompt coincide with just 1 particle;Energy [keV];Counts per keV";
-	eE_prompt_1p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_prompt_2p";
-	htitle = "Electron energy in prompt coincide with 2 particles;Energy [keV];Counts per keV";
-	eE_prompt_2p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_random";
-	htitle = "Electron energy in random coincide with any particle;Energy [keV];Counts per keV";
-	eE_random = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_random_1p";
-	htitle = "Electron energy in random coincide with just 1 particle;Energy [keV];Counts per keV";
-	eE_random_1p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_random_2p";
-	htitle = "Electron energy in random coincide with 2 particles;Energy [keV];Counts per keV";
-	eE_random_2p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_ejectile_dc_none";
-	htitle = "Electron energy, gated on the ejectile with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_ejectile_dc_ejectile";
-	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_ejectile_dc_recoil";
-	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_recoil_dc_none";
-	htitle = "Electron energy, gated on the recoil with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_recoil_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_recoil_dc_ejectile";
-	htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_recoil_dc_recoil";
-	htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_2p_dc_none";
-	htitle = "Electron energy, in coincidence with ejectile and recoil with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_2p_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_2p_dc_ejectile";
-	htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_2p_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_2p_dc_recoil";
-	htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Energy [keV];Counts per keV";
-	eE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_ejectile_dc_none";
-	htitle = "Electron energy, gated on the ejectile with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_ejectile_dc_ejectile";
-	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_ejectile_dc_recoil";
-	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_recoil_dc_none";
-	htitle = "Electron energy, gated on the recoil with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_recoil_dc_ejectile";
-	htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_recoil_dc_recoil";
-	htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_2p_dc_none";
-	htitle = "Electron energy, in coincidence with ejectile and recoil with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_2p_dc_ejectile";
-	htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-	hname = "eE_vs_theta_2p_dc_recoil";
-	htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
-	eE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-
-  
-	hname = "eE_costheta_ejectile";
-	htitle = "Electron energy versus cos(#theta) of angle between ejectile and electron;";
-	htitle += "Energy [keV];cos(#theta_pe)";
-	eE_costheta_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
-
-	hname = "eE_costheta_recoil";
-	htitle = "Electron energy versus cos(#theta) of angle between recoil and electron;";
-	htitle += "Energy [keV];cos(#theta_pe)";
-	eE_costheta_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
-
-	hname = "eE_vs_ejectile_dc_none_segment";
-	htitle = "Electron energy, gated on the ejectile with random subtraction;";
-	htitle += "Energy [keV];Ring;Counts per keV per segment";
-	eE_vs_ejectile_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-
-	hname = "eE_vs_ejectile_dc_ejectile_segment";
-	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	eE_vs_ejectile_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-
-	hname = "eE_vs_ejectile_dc_recoil_segment";
-	htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	eE_vs_ejectile_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-
-	hname = "eE_vs_recoil_dc_none_segment";
-	htitle = "Electron energy, gated on the recoil with random subtraction;";
-	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	eE_vs_recoil_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-
-	hname = "eE_vs_recoil_dc_ejectile_segment";
-	htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	eE_vs_recoil_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-
-	hname = "eE_vs_recoil_dc_recoil_segment";
-	htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Energy [keV];Ring;Counts per keV per ring";
-	eE_vs_recoil_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-  
-	hname = "egE_ejectile_dc_none";
-	htitle = "Electron-gamma matrix without addback, gated on the ejectile with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	egE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "egE_ejectile_dc_ejectile";
-	htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	egE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "egE_ejectile_dc_recoil";
-	htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	egE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "egE_recoil_dc_none";
-	htitle = "Electron-gamma matrix without addback, gated on the recoil with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	egE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "egE_recoil_dc_ejectile";
-	htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	egE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "egE_recoil_dc_recoil";
-	htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	egE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "eaE_ejectile_dc_none";
-	htitle = "Electron-gamma matrix with addback, gated on the ejectile with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	eaE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "eaE_ejectile_dc_ejectile";
-	htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	eaE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "eaE_ejectile_dc_recoil";
-	htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	eaE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "eaE_recoil_dc_none";
-	htitle = "Electron-gamma matrix with addback, gated on the recoil with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	eaE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "eaE_recoil_dc_ejectile";
-	htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	eaE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-	hname = "eaE_recoil_dc_recoil";
-	htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
-	htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
-	eaE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-
-
-	// Beam dump histograms
-	dirname = "BeamDump";
-	output_file->mkdir( dirname.data() );
-	output_file->cd( dirname.data() );
-	
-	hname = "bdE_singles";
-	htitle = "Beam-dump gamma-ray energy singles;Energy [keV];Counts per 0.5 keV";
-	bdE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
-	hname = "bd_bd_td";
-	htitle = "Beam-dump - Beam-dump time difference;#Deltat [ns];Counts per 10 ns";
-	bd_bd_td = new TH1F( hname.data(), htitle.data(),
-						TBIN, TMIN, TMAX );
-	
-	hname = "bdE_bdE";
-	htitle = "Beam-dump gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
-	bdE_bdE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-	
-	bdE_singles_det.resize( set->GetNumberOfBeamDumpDetectors() );
-	for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i ){
+		unsigned int nsegs = set->GetNumberOfMiniballClusters();
+		nsegs *= set->GetNumberOfMiniballCrystals();
+		nsegs *= set->GetNumberOfMiniballSegments();
 		
-		hname = "bdE_singles_det" + std::to_string(i);
-		htitle  = "Beam-dump gamma-ray energy singles in detector ";
-		htitle += std::to_string(i);
-		htitle += ";Energy [keV];Counts per 0.5 keV";
-		bdE_singles_det[i] = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		gE_vs_phi_dc_ejectile.resize( nsegs );
+		gE_vs_phi_dc_recoil.resize( nsegs );
+
+		for ( unsigned int i = 0; i < nsegs; i++ ) {
+			
+			hname = "gE_vs_phi_dc_ejectile";
+			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the ejectile with random subtraction;";
+			htitle += "Phi angle of segment " + std::to_string(i) + "[deg];Gamma-ray Energy [keV];Counts";
+			gE_vs_phi_dc_ejectile[i] = new TH2F( hname.data(), htitle.data(), nsegs, -0.5, nsegs-0.5, GBIN, GMIN, GMAX );
+			
+			hname = "gE_vs_phi_dc_recoil";
+			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the recoil with random subtraction;";
+			htitle += "Phi angle of segment " + std::to_string(i) + "[deg];Gamma-ray Energy [keV];Counts";
+			gE_vs_phi_dc_recoil[i] = new TH2F( hname.data(), htitle.data(), nsegs, -0.5, nsegs-0.5, GBIN, GMIN, GMAX );
+			
+		}
 		
 	}
 	
+	//  Electron-particle coincidences
+	if( react->HistElectron() ) {
+		
+		dirname = "ElectronParticleCoincidences";
+		output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
+		
+		hname = "eE_prompt";
+		htitle = "Electron energy in prompt coincide with any particle;Energy [keV];Counts per keV";
+		eE_prompt = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_prompt_1p";
+		htitle = "Electron energy in prompt coincide with just 1 particle;Energy [keV];Counts per keV";
+		eE_prompt_1p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_prompt_2p";
+		htitle = "Electron energy in prompt coincide with 2 particles;Energy [keV];Counts per keV";
+		eE_prompt_2p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_random";
+		htitle = "Electron energy in random coincide with any particle;Energy [keV];Counts per keV";
+		eE_random = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_random_1p";
+		htitle = "Electron energy in random coincide with just 1 particle;Energy [keV];Counts per keV";
+		eE_random_1p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_random_2p";
+		htitle = "Electron energy in random coincide with 2 particles;Energy [keV];Counts per keV";
+		eE_random_2p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_ejectile_dc_none";
+		htitle = "Electron energy, gated on the ejectile with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_ejectile_dc_ejectile";
+		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_ejectile_dc_recoil";
+		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_recoil_dc_none";
+		htitle = "Electron energy, gated on the recoil with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_recoil_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_recoil_dc_ejectile";
+		htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_recoil_dc_recoil";
+		htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_2p_dc_none";
+		htitle = "Electron energy, in coincidence with ejectile and recoil with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_2p_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_2p_dc_ejectile";
+		htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_2p_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_2p_dc_recoil";
+		htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Energy [keV];Counts per keV";
+		eE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_ejectile_dc_none";
+		htitle = "Electron energy, gated on the ejectile with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_ejectile_dc_ejectile";
+		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_ejectile_dc_recoil";
+		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_recoil_dc_none";
+		htitle = "Electron energy, gated on the recoil with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_recoil_dc_ejectile";
+		htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_recoil_dc_recoil";
+		htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_2p_dc_none";
+		htitle = "Electron energy, in coincidence with ejectile and recoil with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_2p_dc_ejectile";
+		htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_vs_theta_2p_dc_recoil";
+		htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
+		eE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
+		
+		hname = "eE_costheta_ejectile";
+		htitle = "Electron energy versus cos(#theta) of angle between ejectile and electron;";
+		htitle += "Energy [keV];cos(#theta_pe)";
+		eE_costheta_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
+		
+		hname = "eE_costheta_recoil";
+		htitle = "Electron energy versus cos(#theta) of angle between recoil and electron;";
+		htitle += "Energy [keV];cos(#theta_pe)";
+		eE_costheta_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
+		
+		hname = "eE_vs_ejectile_dc_none_segment";
+		htitle = "Electron energy, gated on the ejectile with random subtraction;";
+		htitle += "Energy [keV];Ring;Counts per keV per segment";
+		eE_vs_ejectile_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
+		
+		hname = "eE_vs_ejectile_dc_ejectile_segment";
+		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Energy [keV];Ring;Counts per keV per ring";
+		eE_vs_ejectile_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
+		
+		hname = "eE_vs_ejectile_dc_recoil_segment";
+		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Energy [keV];Ring;Counts per keV per ring";
+		eE_vs_ejectile_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
+		
+		hname = "eE_vs_recoil_dc_none_segment";
+		htitle = "Electron energy, gated on the recoil with random subtraction;";
+		htitle += "Energy [keV];Ring;Counts per keV per ring";
+		eE_vs_recoil_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
+		
+		hname = "eE_vs_recoil_dc_ejectile_segment";
+		htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Energy [keV];Ring;Counts per keV per ring";
+		eE_vs_recoil_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
+		
+		hname = "eE_vs_recoil_dc_recoil_segment";
+		htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Energy [keV];Ring;Counts per keV per ring";
+		eE_vs_recoil_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
+		
+		hname = "egE_ejectile_dc_none";
+		htitle = "Electron-gamma matrix without addback, gated on the ejectile with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		egE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "egE_ejectile_dc_ejectile";
+		htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		egE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "egE_ejectile_dc_recoil";
+		htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		egE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "egE_recoil_dc_none";
+		htitle = "Electron-gamma matrix without addback, gated on the recoil with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		egE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "egE_recoil_dc_ejectile";
+		htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		egE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "egE_recoil_dc_recoil";
+		htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		egE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "eaE_ejectile_dc_none";
+		htitle = "Electron-gamma matrix with addback, gated on the ejectile with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		eaE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "eaE_ejectile_dc_ejectile";
+		htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		eaE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "eaE_ejectile_dc_recoil";
+		htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		eaE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "eaE_recoil_dc_none";
+		htitle = "Electron-gamma matrix with addback, gated on the recoil with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		eaE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "eaE_recoil_dc_ejectile";
+		htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		eaE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+		hname = "eaE_recoil_dc_recoil";
+		htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
+		eaE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
+		
+	} // electrons on
+
+	// Beam dump histograms
+	if( react->HistBeamDump() ) {
+		
+		dirname = "BeamDump";
+		output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
+		
+		hname = "bdE_singles";
+		htitle = "Beam-dump gamma-ray energy singles;Energy [keV];Counts per 0.5 keV";
+		bdE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		
+		hname = "bd_bd_td";
+		htitle = "Beam-dump - Beam-dump time difference;#Deltat [ns];Counts per 10 ns";
+		bd_bd_td = new TH1F( hname.data(), htitle.data(),
+							TBIN, TMIN, TMAX );
+		
+		hname = "bdE_bdE";
+		htitle = "Beam-dump gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
+		bdE_bdE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		
+		bdE_singles_det.resize( set->GetNumberOfBeamDumpDetectors() );
+		for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i ){
+			
+			hname = "bdE_singles_det" + std::to_string(i);
+			htitle  = "Beam-dump gamma-ray energy singles in detector ";
+			htitle += std::to_string(i);
+			htitle += ";Energy [keV];Counts per 0.5 keV";
+			bdE_singles_det[i] = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+			
+		}
+		
+	} // beam dump on
 	
 	// Ionisation chamber histograms
-	dirname = "IonChamber";
-	output_file->mkdir( dirname.data() );
-	output_file->cd( dirname.data() );
-	
-	hname = "ic_dE";
-	htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Counts";
-	ic_dE = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
-	
-	hname = "ic_E";
-	htitle = "Ionisation chamber;Energy loss in rest of the layers (Si) (Gas) (arb. units);Counts";
-	ic_E = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
-	
-	hname = "ic_dE_E";
-	htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Energy loss in rest of the layers (Si) (arb. units);Counts";
-	ic_dE_E = new TH2F( hname.data(), htitle.data(), 4096, 0, 10000, 4096, 0, 10000 );
-	
+	if( react->HistIonChamber() ) {
+		
+		dirname = "IonChamber";
+		output_file->mkdir( dirname.data() );
+		output_file->cd( dirname.data() );
+		
+		hname = "ic_dE";
+		htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Counts";
+		ic_dE = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
+		
+		hname = "ic_E";
+		htitle = "Ionisation chamber;Energy loss in rest of the layers (Si) (Gas) (arb. units);Counts";
+		ic_E = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
+		
+		hname = "ic_dE_E";
+		htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Energy loss in rest of the layers (Si) (arb. units);Counts";
+		ic_dE_E = new TH2F( hname.data(), htitle.data(), 4096, 0, 10000, 4096, 0, 10000 );
+		
+	} // ion-chamber on
 	
 	return;
 	
@@ -920,21 +971,6 @@ void MiniballHistogrammer::ResetHists() {
 	gamma_xz_map_left->Reset("ICESM");
 	gamma_xz_map_right->Reset("ICESM");
 	gamma_theta_phi_map->Reset("ICESM");
-	gE_gE->Reset("ICESM");
-	gE_gE_ebis_on->Reset("ICESM");
-	aE_aE->Reset("ICESM");
-	aE_aE_ebis_on->Reset("ICESM");
-	eE_eE->Reset("ICESM");
-	eE_eE_ebis_on->Reset("ICESM");
-	gE_eE->Reset("ICESM");
-	gE_eE_ebis_on->Reset("ICESM");
-	aE_eE->Reset("ICESM");
-	aE_eE_ebis_on->Reset("ICESM");
-	eE_singles->Reset("ICESM");
-	eE_singles_ebis->Reset("ICESM");
-	eE_singles_ebis_on->Reset("ICESM");
-	eE_singles_ebis_off->Reset("ICESM");
-	electron_xy_map->Reset("ICESM");
 	pE_theta->Reset("ICESM");
 	pE_theta_coinc->Reset("ICESM");
 	pE_theta_ejectile->Reset("ICESM");
@@ -970,12 +1006,6 @@ void MiniballHistogrammer::ResetHists() {
 	gE_vs_theta_2p_dc_none->Reset("ICESM");
 	gE_vs_theta_2p_dc_ejectile->Reset("ICESM");
 	gE_vs_theta_2p_dc_recoil->Reset("ICESM");
-	ggE_ejectile_dc_none->Reset("ICESM");
-	ggE_ejectile_dc_ejectile->Reset("ICESM");
-	ggE_ejectile_dc_recoil->Reset("ICESM");
-	ggE_recoil_dc_none->Reset("ICESM");
-	ggE_recoil_dc_ejectile->Reset("ICESM");
-	ggE_recoil_dc_recoil->Reset("ICESM");
 	aE_prompt->Reset("ICESM");
 	aE_prompt_1p->Reset("ICESM");
 	aE_prompt_2p->Reset("ICESM");
@@ -1002,65 +1032,128 @@ void MiniballHistogrammer::ResetHists() {
 	aE_vs_theta_2p_dc_none->Reset("ICESM");
 	aE_vs_theta_2p_dc_ejectile->Reset("ICESM");
 	aE_vs_theta_2p_dc_recoil->Reset("ICESM");
-	aaE_ejectile_dc_none->Reset("ICESM");
-	aaE_ejectile_dc_ejectile->Reset("ICESM");
-	aaE_ejectile_dc_recoil->Reset("ICESM");
-	aaE_recoil_dc_none->Reset("ICESM");
-	aaE_recoil_dc_ejectile->Reset("ICESM");
-	aaE_recoil_dc_recoil->Reset("ICESM");
-	eE_prompt->Reset("ICESM");
-	eE_prompt_1p->Reset("ICESM");
-	eE_prompt_2p->Reset("ICESM");
-	eE_random->Reset("ICESM");
-	eE_random_1p->Reset("ICESM");
-	eE_random_2p->Reset("ICESM");
-	eE_ejectile_dc_none->Reset("ICESM");
-	eE_ejectile_dc_ejectile->Reset("ICESM");
-	eE_ejectile_dc_recoil->Reset("ICESM");
-	eE_recoil_dc_none->Reset("ICESM");
-	eE_recoil_dc_ejectile->Reset("ICESM");
-	eE_recoil_dc_recoil->Reset("ICESM");
-	eE_2p_dc_none->Reset("ICESM");
-	eE_2p_dc_ejectile->Reset("ICESM");
-	eE_2p_dc_recoil->Reset("ICESM");
-	eE_vs_theta_ejectile_dc_none->Reset("ICESM");
-	eE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
-	eE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
-	eE_vs_theta_recoil_dc_none->Reset("ICESM");
-	eE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
-	eE_vs_theta_recoil_dc_recoil->Reset("ICESM");
-	eE_vs_theta_2p_dc_none->Reset("ICESM");
-	eE_vs_theta_2p_dc_ejectile->Reset("ICESM");
-	eE_vs_theta_2p_dc_recoil->Reset("ICESM");
-	eE_costheta_ejectile->Reset("ICESM");
-	eE_costheta_recoil->Reset("ICESM");
-	eE_vs_ejectile_dc_none_segment->Reset("ICESM");
-	eE_vs_ejectile_dc_ejectile_segment->Reset("ICESM");
-	eE_vs_ejectile_dc_recoil_segment->Reset("ICESM");
-	eE_vs_recoil_dc_none_segment->Reset("ICESM");
-	eE_vs_recoil_dc_ejectile_segment->Reset("ICESM");
-	eE_vs_recoil_dc_recoil_segment->Reset("ICESM");
-	egE_ejectile_dc_none->Reset("ICESM");
-	egE_ejectile_dc_ejectile->Reset("ICESM");
-	egE_ejectile_dc_recoil->Reset("ICESM");
-	egE_recoil_dc_none->Reset("ICESM");
-	egE_recoil_dc_ejectile->Reset("ICESM");
-	egE_recoil_dc_recoil->Reset("ICESM");
-	eaE_ejectile_dc_none->Reset("ICESM");
-	eaE_ejectile_dc_ejectile->Reset("ICESM");
-	eaE_ejectile_dc_recoil->Reset("ICESM");
-	eaE_recoil_dc_none->Reset("ICESM");
-	eaE_recoil_dc_ejectile->Reset("ICESM");
-	eaE_recoil_dc_recoil->Reset("ICESM");
-	ic_dE->Reset("ICESM");
-	ic_E->Reset("ICESM");
-	ic_dE_E->Reset("ICESM");
-	bdE_singles->Reset("ICESM");
-	bd_bd_td->Reset("ICESM");
-	bdE_bdE->Reset("ICESM");
+	
+	// Gamma-gamma hists
+	if( react->HistGammaGamma() ) {
+		
+		gE_gE->Reset("ICESM");
+		gE_gE_ebis_on->Reset("ICESM");
+		aE_aE->Reset("ICESM");
+		aE_aE_ebis_on->Reset("ICESM");
+		ggE_ejectile_dc_none->Reset("ICESM");
+		ggE_ejectile_dc_ejectile->Reset("ICESM");
+		ggE_ejectile_dc_recoil->Reset("ICESM");
+		ggE_recoil_dc_none->Reset("ICESM");
+		ggE_recoil_dc_ejectile->Reset("ICESM");
+		ggE_recoil_dc_recoil->Reset("ICESM");
+		aaE_ejectile_dc_none->Reset("ICESM");
+		aaE_ejectile_dc_ejectile->Reset("ICESM");
+		aaE_ejectile_dc_recoil->Reset("ICESM");
+		aaE_recoil_dc_none->Reset("ICESM");
+		aaE_recoil_dc_ejectile->Reset("ICESM");
+		aaE_recoil_dc_recoil->Reset("ICESM");
 
-	for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i )
-		bdE_singles_det[i]->Reset("ICESM");
+	} // gamma-gamma
+	
+	// Segment phi determination
+	if( react->HistSegmentPhi() ) {
+		
+		for( unsigned int i = 0; i < gE_vs_phi_dc_ejectile.size(); i++ )
+			gE_vs_phi_dc_ejectile[i]->Reset("ICESM");
+		
+		for( unsigned int i = 0; i < gE_vs_phi_dc_recoil.size(); i++ )
+			gE_vs_phi_dc_recoil[i]->Reset("ICESM");
+		
+	} // segment phi
+
+	//  Electron-particle singles and coincidences
+	if( react->HistElectron() ) {
+		
+		eE_singles->Reset("ICESM");
+		eE_singles_ebis->Reset("ICESM");
+		eE_singles_ebis_on->Reset("ICESM");
+		eE_singles_ebis_off->Reset("ICESM");
+		electron_xy_map->Reset("ICESM");
+
+		eE_prompt->Reset("ICESM");
+		eE_prompt_1p->Reset("ICESM");
+		eE_prompt_2p->Reset("ICESM");
+		eE_random->Reset("ICESM");
+		eE_random_1p->Reset("ICESM");
+		eE_random_2p->Reset("ICESM");
+		eE_ejectile_dc_none->Reset("ICESM");
+		eE_ejectile_dc_ejectile->Reset("ICESM");
+		eE_ejectile_dc_recoil->Reset("ICESM");
+		eE_recoil_dc_none->Reset("ICESM");
+		eE_recoil_dc_ejectile->Reset("ICESM");
+		eE_recoil_dc_recoil->Reset("ICESM");
+		eE_2p_dc_none->Reset("ICESM");
+		eE_2p_dc_ejectile->Reset("ICESM");
+		eE_2p_dc_recoil->Reset("ICESM");
+		eE_vs_theta_ejectile_dc_none->Reset("ICESM");
+		eE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
+		eE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
+		eE_vs_theta_recoil_dc_none->Reset("ICESM");
+		eE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
+		eE_vs_theta_recoil_dc_recoil->Reset("ICESM");
+		eE_vs_theta_2p_dc_none->Reset("ICESM");
+		eE_vs_theta_2p_dc_ejectile->Reset("ICESM");
+		eE_vs_theta_2p_dc_recoil->Reset("ICESM");
+		eE_costheta_ejectile->Reset("ICESM");
+		eE_costheta_recoil->Reset("ICESM");
+		eE_vs_ejectile_dc_none_segment->Reset("ICESM");
+		eE_vs_ejectile_dc_ejectile_segment->Reset("ICESM");
+		eE_vs_ejectile_dc_recoil_segment->Reset("ICESM");
+		eE_vs_recoil_dc_none_segment->Reset("ICESM");
+		eE_vs_recoil_dc_ejectile_segment->Reset("ICESM");
+		eE_vs_recoil_dc_recoil_segment->Reset("ICESM");
+
+		eE_eE->Reset("ICESM");
+		eE_eE_ebis_on->Reset("ICESM");
+	
+		if( react->HistElectron() ) {
+			
+			gE_eE->Reset("ICESM");
+			gE_eE_ebis_on->Reset("ICESM");
+			aE_eE->Reset("ICESM");
+			aE_eE_ebis_on->Reset("ICESM");
+			egE_ejectile_dc_none->Reset("ICESM");
+			egE_ejectile_dc_ejectile->Reset("ICESM");
+			egE_ejectile_dc_recoil->Reset("ICESM");
+			egE_recoil_dc_none->Reset("ICESM");
+			egE_recoil_dc_ejectile->Reset("ICESM");
+			egE_recoil_dc_recoil->Reset("ICESM");
+			eaE_ejectile_dc_none->Reset("ICESM");
+			eaE_ejectile_dc_ejectile->Reset("ICESM");
+			eaE_ejectile_dc_recoil->Reset("ICESM");
+			eaE_recoil_dc_none->Reset("ICESM");
+			eaE_recoil_dc_ejectile->Reset("ICESM");
+			eaE_recoil_dc_recoil->Reset("ICESM");
+			
+		}
+		
+	} // electron hists
+
+	// Ionisation chamber
+	if( react->HistIonChamber() ) {
+		
+		ic_dE->Reset("ICESM");
+		ic_E->Reset("ICESM");
+		ic_dE_E->Reset("ICESM");
+	
+	} // ion chamber
+	
+	// Beam dump
+	if( react->HistBeamDump() ) {
+		
+		bdE_singles->Reset("ICESM");
+		bd_bd_td->Reset("ICESM");
+		bdE_bdE->Reset("ICESM");
+		
+		for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i )
+			bdE_singles_det[i]->Reset("ICESM");
+		
+	} // beam dump
 	
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ){
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ){
@@ -1070,7 +1163,6 @@ void MiniballHistogrammer::ResetHists() {
 		}
 	}
 	
-
 	
 	return;
 	
@@ -1144,6 +1236,27 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		gE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		gE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
+		
+	}
+	
+	// Segment-phi determination
+	if( react->HistSegmentPhi() ) {
+		
+		for( unsigned int i = 0; i < 360; i ++ ) {
+			
+			double gphi_deg = (double)i;
+			double gphi = gphi_deg * TMath::DegToRad();
+			double gtheta = react->GetGammaTheta(g);
+
+			// Ejectile DC
+			double dc_gen = react->DopplerCorrection( g->GetEnergy(), gtheta, gphi, true );
+			gE_vs_phi_dc_ejectile[i]->Fill( gphi_deg, dc_gen, weight );
+
+			// Recoil DC
+			dc_gen = react->DopplerCorrection( g->GetEnergy(), gtheta, gphi, false );
+			gE_vs_phi_dc_recoil[i]->Fill( gphi_deg, dc_gen, weight );
+
+		}
 		
 	}
 	
@@ -1724,27 +1837,31 @@ unsigned long MiniballHistogrammer::FillHists() {
 				gamma_gamma_td->Fill( (double)gamma_evt->GetTime() - (double)gamma_evt2->GetTime() );
 				gamma_gamma_td->Fill( (double)gamma_evt2->GetTime() - (double)gamma_evt->GetTime() );
 				
-				// Check for prompt gamma-gamma coincidences
-				if( PromptCoincidence( gamma_evt, gamma_evt2 ) ) {
+				// Particle-gamma-gamma coincidence spectra
+				if( react->HistGammaGamma() ) {
 					
-					// Fill and symmetrise
-					gE_gE->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
-					gE_gE->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
-					
-					// Apply EBIS condition
-					if( OnBeam( gamma_evt ) && OnBeam( gamma_evt2 ) ) {
+					// Check for prompt gamma-gamma coincidences
+					if( PromptCoincidence( gamma_evt, gamma_evt2 ) ) {
 						
 						// Fill and symmetrise
-						gE_gE_ebis_on->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
-						gE_gE_ebis_on->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+						gE_gE->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
+						gE_gE->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
 						
-					} // On Beam
+						// Apply EBIS condition
+						if( OnBeam( gamma_evt ) && OnBeam( gamma_evt2 ) ) {
+							
+							// Fill and symmetrise
+							gE_gE_ebis_on->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
+							gE_gE_ebis_on->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+							
+						} // On Beam
+						
+						FillParticleGammaGammaHists( gamma_evt, gamma_evt2 );
+						FillParticleGammaGammaHists( gamma_evt2, gamma_evt );
+						
+					} // if prompt
 					
-					// Particle-gamma-gamma coincidence spectra
-					FillParticleGammaGammaHists( gamma_evt, gamma_evt2 );
-					FillParticleGammaGammaHists( gamma_evt2, gamma_evt );
-
-				} // if prompt
+				} // gamma-gamma user option on
 				
 			} // k: second gamma-ray
 			
@@ -1785,35 +1902,40 @@ unsigned long MiniballHistogrammer::FillHists() {
 			// Particle-gamma coincidence spectra
 			FillParticleGammaHists( gamma_ab_evt );
 			
-			// Loop over other gamma events
-			for( unsigned int k = j+1; k < read_evts->GetGammaRayAddbackMultiplicity(); ++k ){
+			// If gamma-gamma histograms are turned on
+			if( react->HistGammaGamma() ) {
 				
-				// Get gamma-ray event
-				gamma_ab_evt2 = read_evts->GetGammaRayAddbackEvt(k);
-				
-				// Check for prompt gamma-gamma coincidences
-				if( PromptCoincidence( gamma_ab_evt, gamma_ab_evt2 ) ) {
+				// Loop over other gamma events
+				for( unsigned int k = j+1; k < read_evts->GetGammaRayAddbackMultiplicity(); ++k ){
 					
-					// Fill and symmetrise
-					aE_aE->Fill( gamma_ab_evt->GetEnergy(), gamma_ab_evt2->GetEnergy() );
-					aE_aE->Fill( gamma_ab_evt2->GetEnergy(), gamma_ab_evt->GetEnergy() );
+					// Get gamma-ray event
+					gamma_ab_evt2 = read_evts->GetGammaRayAddbackEvt(k);
 					
-					// Apply EBIS condition
-					if( OnBeam( gamma_ab_evt ) && OnBeam( gamma_ab_evt2 ) ) {
+					// Check for prompt gamma-gamma coincidences
+					if( PromptCoincidence( gamma_ab_evt, gamma_ab_evt2 ) ) {
 						
 						// Fill and symmetrise
-						aE_aE_ebis_on->Fill( gamma_ab_evt->GetEnergy(), gamma_ab_evt2->GetEnergy() );
-						aE_aE_ebis_on->Fill( gamma_ab_evt2->GetEnergy(), gamma_ab_evt->GetEnergy() );
+						aE_aE->Fill( gamma_ab_evt->GetEnergy(), gamma_ab_evt2->GetEnergy() );
+						aE_aE->Fill( gamma_ab_evt2->GetEnergy(), gamma_ab_evt->GetEnergy() );
 						
-					} // On Beam
+						// Apply EBIS condition
+						if( OnBeam( gamma_ab_evt ) && OnBeam( gamma_ab_evt2 ) ) {
+							
+							// Fill and symmetrise
+							aE_aE_ebis_on->Fill( gamma_ab_evt->GetEnergy(), gamma_ab_evt2->GetEnergy() );
+							aE_aE_ebis_on->Fill( gamma_ab_evt2->GetEnergy(), gamma_ab_evt->GetEnergy() );
+							
+						} // On Beam
+						
+						// Particle-gamma-gamma coincidence spectra
+						FillParticleGammaGammaHists( gamma_ab_evt, gamma_ab_evt2 );
+						FillParticleGammaGammaHists( gamma_ab_evt2, gamma_ab_evt );
+						
+					} // if prompt
 					
-					// Particle-gamma-gamma coincidence spectra
-					FillParticleGammaGammaHists( gamma_ab_evt, gamma_ab_evt2 );
-					FillParticleGammaGammaHists( gamma_ab_evt2, gamma_ab_evt );
-
-				} // if prompt
+				} // k: second gamma-ray
 				
-			} // k: second gamma-ray
+			} // gamma-gamma user option on
 			
 		} // j: gamma ray
 		
@@ -1821,179 +1943,207 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// ---------------------------------- //
 		// Loop over electron events in SPEDE //
 		// ---------------------------------- //
-		for( unsigned int j = 0; j < read_evts->GetSpedeMultiplicity(); ++j ){
-						
-			// Get SPEDE event
-			spede_evt = read_evts->GetSpedeEvt(j);
-
-			// Singles
-			eE_singles->Fill( spede_evt->GetEnergy() );
+		// If the electron histograms are turned on
+		if( react->HistElectron() ) {
 			
-			// Check for events in the EBIS on-beam window
-			if( OnBeam( spede_evt ) ){
+			// Get the first SPEDE event
+			for( unsigned int j = 0; j < read_evts->GetSpedeMultiplicity(); ++j ){
 				
-				eE_singles_ebis->Fill( spede_evt->GetEnergy() );
-				eE_singles_ebis_on->Fill( spede_evt->GetEnergy() );
+				// Get SPEDE event
+				spede_evt = read_evts->GetSpedeEvt(j);
 				
-			} // ebis on
-			
-			else if( OffBeam( spede_evt ) ){
+				// Singles
+				eE_singles->Fill( spede_evt->GetEnergy() );
 				
-				eE_singles_ebis->Fill( spede_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
-				eE_singles_ebis_off->Fill( spede_evt->GetEnergy() );
-				
-			} // ebis off
-			
-			// Particle-electron coincidence spectra
-			FillParticleElectronHists( spede_evt );
-			
-			// SPEDE hitmap
-			TVector3 evec = react->GetSpedeVector( spede_evt->GetSegment(), true );
-			electron_xy_map->Fill( evec.Y(), evec.X() );
-			
-			// Loop over other SPEDE events
-			for( unsigned int k = j+1; k < read_evts->GetSpedeMultiplicity(); ++k ){
-				
-				// Get second SPEDE event
-				spede_evt2 = read_evts->GetSpedeEvt(k);
-				
-				// Time differences - symmetrise
-				electron_electron_td->Fill( (double)spede_evt->GetTime() - (double)spede_evt2->GetTime() );
-				electron_electron_td->Fill( (double)spede_evt2->GetTime() - (double)spede_evt->GetTime() );
-				
-				// Check for prompt gamma-gamma coincidences
-				if( PromptCoincidence( spede_evt, spede_evt2 ) ) {
+				// Check for events in the EBIS on-beam window
+				if( OnBeam( spede_evt ) ){
 					
-					// Fill and symmetrise
-					eE_eE->Fill( spede_evt->GetEnergy(), spede_evt2->GetEnergy() );
-					eE_eE->Fill( spede_evt2->GetEnergy(), spede_evt->GetEnergy() );
+					eE_singles_ebis->Fill( spede_evt->GetEnergy() );
+					eE_singles_ebis_on->Fill( spede_evt->GetEnergy() );
 					
-					// Apply EBIS condition
-					if( OnBeam( spede_evt ) && OnBeam( spede_evt2 ) ) {
+				} // ebis on
+				
+				else if( OffBeam( spede_evt ) ){
+					
+					eE_singles_ebis->Fill( spede_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
+					eE_singles_ebis_off->Fill( spede_evt->GetEnergy() );
+					
+				} // ebis off
+				
+				// Particle-electron coincidence spectra
+				FillParticleElectronHists( spede_evt );
+				
+				// SPEDE hitmap
+				TVector3 evec = react->GetSpedeVector( spede_evt->GetSegment(), true );
+				electron_xy_map->Fill( evec.Y(), evec.X() );
+				
+				// Loop over other SPEDE events
+				for( unsigned int k = j+1; k < read_evts->GetSpedeMultiplicity(); ++k ){
+					
+					// Get second SPEDE event
+					spede_evt2 = read_evts->GetSpedeEvt(k);
+					
+					// Time differences - symmetrise
+					electron_electron_td->Fill( (double)spede_evt->GetTime() - (double)spede_evt2->GetTime() );
+					electron_electron_td->Fill( (double)spede_evt2->GetTime() - (double)spede_evt->GetTime() );
+					
+					// Check for prompt gamma-gamma coincidences
+					if( PromptCoincidence( spede_evt, spede_evt2 ) ) {
 						
 						// Fill and symmetrise
-						eE_eE_ebis_on->Fill( spede_evt->GetEnergy(), spede_evt2->GetEnergy() );
-						eE_eE_ebis_on->Fill( spede_evt2->GetEnergy(), spede_evt->GetEnergy() );
+						eE_eE->Fill( spede_evt->GetEnergy(), spede_evt2->GetEnergy() );
+						eE_eE->Fill( spede_evt2->GetEnergy(), spede_evt->GetEnergy() );
 						
-					} // On Beam
-					
-				} // if prompt
-				
-			} // k: second electron
-
-			// Loop over gamma events
-			for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
-				
-				// Get gamma-ray event
-				gamma_evt = read_evts->GetGammaRayEvt(k);
-				
-				// Time differences
-				gamma_electron_td->Fill( (double)spede_evt->GetTime() - (double)gamma_evt->GetTime() );
-				gamma_electron_td->Fill( (double)gamma_evt->GetTime() - (double)spede_evt->GetTime() );
-
-				// Check for prompt gamma-electron coincidences
-				if( PromptCoincidence( gamma_evt, spede_evt ) ) {
-					
-					// Fill
-					gE_eE->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
-					
-					// Apply EBIS condition
-					if( OnBeam( gamma_evt ) && OnBeam( spede_evt ) ) {
+						// Apply EBIS condition
+						if( OnBeam( spede_evt ) && OnBeam( spede_evt2 ) ) {
+							
+							// Fill and symmetrise
+							eE_eE_ebis_on->Fill( spede_evt->GetEnergy(), spede_evt2->GetEnergy() );
+							eE_eE_ebis_on->Fill( spede_evt2->GetEnergy(), spede_evt->GetEnergy() );
+							
+						} // On Beam
 						
-						// Fill
-						gE_eE_ebis_on->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
+					} // if prompt
+					
+				} // k: second electron
+				
+				// Loop over gamma events
+				for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
+					
+					// Get gamma-ray event
+					gamma_evt = read_evts->GetGammaRayEvt(k);
+					
+					// Time differences
+					gamma_electron_td->Fill( (double)spede_evt->GetTime() - (double)gamma_evt->GetTime() );
+					gamma_electron_td->Fill( (double)gamma_evt->GetTime() - (double)spede_evt->GetTime() );
+					
+					// If electron-gamma histograms are turned on
+					if( react->HistElectronGamma() ) {
 						
-					} // On Beam
-					
-					// Particle-electron-gamma coincidence spectra
-					FillParticleElectronGammaHists( spede_evt, gamma_evt );
-
-				} // if prompt
-				
-			} // k: gamma without addback
-
-			// Loop over gamma addback events
-			for( unsigned int k = 0; k < read_evts->GetGammaRayAddbackMultiplicity(); ++k ){
-				
-				// Get gamma-ray event
-				gamma_ab_evt = read_evts->GetGammaRayAddbackEvt(k);
-				
-				// Check for prompt gamma-electron coincidences
-				if( PromptCoincidence( gamma_ab_evt, spede_evt ) ) {
-					
-					// Fill
-					aE_eE->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
-					
-					// Apply EBIS condition
-					if( OnBeam( gamma_ab_evt ) && OnBeam( spede_evt ) ) {
+						// Check for prompt gamma-electron coincidences
+						if( PromptCoincidence( gamma_evt, spede_evt ) ) {
+							
+							// Fill
+							gE_eE->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
+							
+							// Apply EBIS condition
+							if( OnBeam( gamma_evt ) && OnBeam( spede_evt ) ) {
+								
+								// Fill
+								gE_eE_ebis_on->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
+								
+							} // On Beam
+							
+							// Particle-electron-gamma coincidence spectra
+							FillParticleElectronGammaHists( spede_evt, gamma_evt );
+							
+						} // if prompt
 						
-						// Fill
-						aE_eE_ebis_on->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
-						
-					} // On Beam
+					} // electron-gamma user option
 					
-					// Particle-electron-gamma coincidence spectra
-					FillParticleElectronGammaHists( spede_evt, gamma_ab_evt );
-
-				} // if prompt
+				} // k: gamma without addback
 				
-			} // k: gamma with addback
-
-		} // j: SPEDE electrons
+				// If electron-gamma histograms are turned on
+				if( react->HistElectronGamma() ) {
+					
+					// Loop over gamma addback events
+					for( unsigned int k = 0; k < read_evts->GetGammaRayAddbackMultiplicity(); ++k ){
+						
+						// Get gamma-ray event
+						gamma_ab_evt = read_evts->GetGammaRayAddbackEvt(k);
+						
+						// Check for prompt gamma-electron coincidences
+						if( PromptCoincidence( gamma_ab_evt, spede_evt ) ) {
+							
+							// Fill
+							aE_eE->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
+							
+							// Apply EBIS condition
+							if( OnBeam( gamma_ab_evt ) && OnBeam( spede_evt ) ) {
+								
+								// Fill
+								aE_eE_ebis_on->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
+								
+							} // On Beam
+							
+							// Particle-electron-gamma coincidence spectra
+							FillParticleElectronGammaHists( spede_evt, gamma_ab_evt );
+							
+						} // if prompt
+						
+					} // k: gamma with addback
+					
+				} // electron-gamma user option
+				
+			} // j: SPEDE electrons
+			
+		} // if electron hists turned on
 		
 		
 		// -------------------------- //
 		// Loop over beam dump events //
 		// -------------------------- //
-		for( unsigned int j = 0; j < read_evts->GetBeamDumpMultiplicity(); ++j ){
+		// If beam-dump histograms are turned on
+		if( react->HistBeamDump() ) {
 			
-			// Get beam dump event
-			bd_evt = read_evts->GetBeamDumpEvt(j);
-			
-			// Singles spectra
-			bdE_singles->Fill( bd_evt->GetEnergy() );
-			bdE_singles_det[bd_evt->GetDetector()]->Fill( bd_evt->GetEnergy() );
-			
-			// Check for coincidences in case we have multiple beam dump detectors
-			for( unsigned int k = j+1; k < read_evts->GetBeamDumpMultiplicity(); ++k ){
+			// Do loop over first beam-dump event
+			for( unsigned int j = 0; j < read_evts->GetBeamDumpMultiplicity(); ++j ){
 				
-				// Get second beam dump event
-				bd_evt2 = read_evts->GetBeamDumpEvt(k);
+				// Get beam-dump event
+				bd_evt = read_evts->GetBeamDumpEvt(j);
 				
-				// Fill time differences symmetrically
-				bd_bd_td->Fill( (double)bd_evt->GetTime() - (double)bd_evt2->GetTime() );
-				bd_bd_td->Fill( (double)bd_evt2->GetTime() - (double)bd_evt->GetTime() );
+				// Singles spectra
+				bdE_singles->Fill( bd_evt->GetEnergy() );
+				bdE_singles_det[bd_evt->GetDetector()]->Fill( bd_evt->GetEnergy() );
 				
-				// Check for prompt coincidence
-				if( PromptCoincidence( bd_evt, bd_evt2 ) ) {
+				// Check for coincidences in case we have multiple beam dump detectors
+				for( unsigned int k = j+1; k < read_evts->GetBeamDumpMultiplicity(); ++k ){
 					
-					// Fill energies symmetrically
-					bdE_bdE->Fill( bd_evt->GetEnergy(), bd_evt2->GetEnergy() );
-					bdE_bdE->Fill( bd_evt2->GetEnergy(), bd_evt->GetEnergy() );
+					// Get second beam dump event
+					bd_evt2 = read_evts->GetBeamDumpEvt(k);
 					
-				} // if prompt
+					// Fill time differences symmetrically
+					bd_bd_td->Fill( (double)bd_evt->GetTime() - (double)bd_evt2->GetTime() );
+					bd_bd_td->Fill( (double)bd_evt2->GetTime() - (double)bd_evt->GetTime() );
+					
+					// Check for prompt coincidence
+					if( PromptCoincidence( bd_evt, bd_evt2 ) ) {
+						
+						// Fill energies symmetrically
+						bdE_bdE->Fill( bd_evt->GetEnergy(), bd_evt2->GetEnergy() );
+						bdE_bdE->Fill( bd_evt2->GetEnergy(), bd_evt->GetEnergy() );
+						
+					} // if prompt
+					
+				} // k: second beam dump
 				
-			} // k: second beam dump
+			} // j: beam dump
 			
-		} // j: beam dump
+		} // beam-dump user histograms on
 		
 		
 		// ---------------------------- //
 		// Loop over ion chamber events //
 		// ---------------------------- //
-		for( unsigned int j = 0; j < read_evts->GetIonChamberMultiplicity(); ++j ){
-
-			// Get ion chamber event
-			ic_evt = read_evts->GetIonChamberEvt(j);
+		// If ionisation chamber histograms are turned on
+		if( react->HistIonChamber() ) {
 			
-			// Single spectra
-			ic_dE->Fill( ic_evt->GetEnergyLoss() );
-			ic_E->Fill( ic_evt->GetEnergyRest() );
+			// Loop over ion chamber events
+			for( unsigned int j = 0; j < read_evts->GetIonChamberMultiplicity(); ++j ){
+				
+				// Get ion chamber event
+				ic_evt = read_evts->GetIonChamberEvt(j);
+				
+				// Single spectra
+				ic_dE->Fill( ic_evt->GetEnergyLoss() );
+				ic_E->Fill( ic_evt->GetEnergyRest() );
+				
+				// 2D plot
+				ic_dE_E->Fill( ic_evt->GetEnergyRest(), ic_evt->GetEnergyLoss() );
+				
+			} // j: ion chamber
 			
-			// 2D plot
-			ic_dE_E->Fill( ic_evt->GetEnergyRest(), ic_evt->GetEnergyLoss() );
-
-		} // j: ion chamber
+		} // if ion chamber hists are on
 		
 		// Progress bar
 		bool update_progress = false;

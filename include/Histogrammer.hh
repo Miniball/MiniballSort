@@ -365,6 +365,10 @@ private:
 	TH2F *aaE_ejectile_dc_none, *aaE_ejectile_dc_ejectile, *aaE_ejectile_dc_recoil;
 	TH2F *aaE_recoil_dc_none,   *aaE_recoil_dc_ejectile,   *aaE_recoil_dc_recoil;
 
+	// Segment phi determination
+	std::vector<TH2F*> gE_vs_phi_dc_ejectile;
+	std::vector<TH2F*> gE_vs_phi_dc_recoil;
+	
 	// Electron energy versus cos(theta)
 	TH2F *eE_costheta_ejectile, *eE_costheta_recoil;
   
