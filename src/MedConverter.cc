@@ -209,8 +209,12 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			float energy = cal->AdcEnergy( mod, ch_vec[item], qshort_vec[item] );
 			bool thresh = cal->AdcThreshold( mod, ch_vec[item] );
 			
+			// Corrected time for ADCs
+			long long time_corr = Timestamp;
+			time_corr += cal->AdcTime( mod, ch_vec[item] );
+			
 			// Set values for data item
-			adc_data->SetTime( Timestamp ); // only works for MADC, CAEN needs reconstruction
+			adc_data->SetTime( time_corr ); // only works for MADC, CAEN needs reconstruction
 			adc_data->SetQshort( qshort_vec[item] );
 			adc_data->SetModule( mod );
 			adc_data->SetChannel( (char)ch_vec[item] );
@@ -222,6 +226,10 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			data_packet->SetData( adc_data );
 			output_tree->Fill();
 			
+			// Fill histograms
+			hadc_qshort[mod][ch_vec[item]]->Fill( qshort_vec[item] );
+			hadc_cal[mod][ch_vec[item]]->Fill( energy );
+
 		}
 		
 	}
@@ -648,7 +656,11 @@ void MiniballMedConverter::ProcessDgfData() {
 						// Now let's add the data
 						//------------
 						
-						// Clear the old stuff
+						// Fill histograms
+						hdgf_qshort[mod][ch]->Fill( Qshort );
+						hdgf_cal[mod][ch]->Fill( energy );
+
+            // Clear the old stuff
 						dgf_data->ClearData();
 						info_data->ClearData();
 						data_packet->ClearData();
@@ -656,6 +668,9 @@ void MiniballMedConverter::ProcessDgfData() {
 						//std::cout << "DGF module " << mod << ", time = ";
 						//std::cout << LongFastTriggerTime << ", Qshort = ";
 						//std::cout << Qshort << std::endl;
+						
+						long long time_corr = LongFastTriggerTime * set->GetDgfTimestampUnits();
+						time_corr += cal->DgfTime( mod, ch );
 						
 						// Check if it's a timestamper!
 						if( set->IsTimestampModule( mod ) ) {
@@ -674,8 +689,7 @@ void MiniballMedConverter::ProcessDgfData() {
 							
 								// Set values for data item
 								info_data->SetEventID( my_event_id );
-								info_data->SetTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
-								//info_data->SetTime( LongFastTriggerTime );
+								info_data->SetTime( time_corr );
 								info_data->SetCode( mycode );
 								info_data->SetBoard( mod );
 
@@ -694,11 +708,7 @@ void MiniballMedConverter::ProcessDgfData() {
 							dgf_data->SetRunTime( RunTime * set->GetDgfTimestampUnits() );
 							dgf_data->SetEventTime( EventTime * set->GetDgfTimestampUnits() );
 							dgf_data->SetFastTriggerTime( FastTriggerTime * set->GetDgfTimestampUnits() );
-							dgf_data->SetLongFastTriggerTime( LongFastTriggerTime * set->GetDgfTimestampUnits() );
-							//dgf_data->SetRunTime( RunTime );
-							//dgf_data->SetEventTime( EventTime );
-							//dgf_data->SetFastTriggerTime( FastTriggerTime );
-							//dgf_data->SetLongFastTriggerTime( LongFastTriggerTime );
+							dgf_data->SetLongFastTriggerTime( time_corr );
 							dgf_data->SetHitPattern( HitPattern );
 							dgf_data->SetQshort( Qshort );
 							dgf_data->SetModule( mod );
@@ -711,9 +721,8 @@ void MiniballMedConverter::ProcessDgfData() {
 							// Fill the tree
 							data_packet->SetData( dgf_data );
 							output_tree->Fill();
-							
-						}
 
+            }
 						
 					} // channel mask, we have data in this channel
 					
@@ -763,27 +772,17 @@ int MiniballMedConverter::ConvertFile( std::string input_file_name,
 
 	// Calculate the number of blocks in the file.
 	unsigned long BLOCKS_NUM = FILE_SIZE / set->GetBlockSize();
-	
-	// a sanity check for file size...
-	if( FILE_SIZE % set->GetBlockSize() != 0 ){
 		
-		std::cout << " *WARNING* " << __PRETTY_FUNCTION__;
-		std::cout << "\tMissing data blocks?" << std::endl;
-
-	}
-	
-	sslogs << "\t File size = " << FILE_SIZE << std::endl;
-	sslogs << "\tBlock size = " << set->GetBlockSize() << std::endl;
-	sslogs << "\t  N blocks = " << BLOCKS_NUM << std::endl;
-
+	std::cout << "Opening file: " << input_file_name << std::endl;
+	sslogs << "File size = " << (double)FILE_SIZE/1024./1024.;
+	sslogs << " MB" << std::endl;
 	std::cout << sslogs.str() << std::endl;
 	sslogs.str( std::string() ); // clean up
-
+	
 	// Close the file
 	input_file.close();
 
 	// Create an MED data instance and set block/buffer size etc
-	std::cout << "Opening file: " << input_file_name << std::endl;
 	MBS mbs;
 	mbs.SetBufferSize( set->GetBlockSize() );
 	mbs.OpenMedFile( input_file_name );

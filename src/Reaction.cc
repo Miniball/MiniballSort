@@ -258,6 +258,15 @@ void MiniballReaction::ReadReaction() {
 	EBIS_Off = config->GetValue( "EBIS.Off", 2.52e7 );	// this allows a off window 20 times bigger than on
 	EBIS_ratio = config->GetValue( "EBIS.FillRatio", GetEBISTimeRatio() );	// this is the measured ratio of EBIS On/off. Default is just the time window ratio
 	
+	// Histogram options
+	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
+	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", true );	// turn on histograms for gamma-gamma
+	hist_gamma_gamma = config->GetValue( "Histograms.GammaGamma", true );	// turn on histograms for gamma-gamma
+	hist_electron = config->GetValue( "Histograms.Electron", true );	// turn on histograms for electrons
+	hist_electron_gamma = config->GetValue( "Histograms.ElectronGamma", true );	// turn on histograms for electron-gamma
+	hist_beam_dump = config->GetValue( "Histograms.BeamDump", true );	// turn on histograms for beam dump
+	hist_ion_chamb = config->GetValue( "Histograms.IonChamber", false );	// turn on histograms for ionisation chamber
+
 	// Particle-Gamma time windows
 	pg_prompt[0] = config->GetValue( "ParticleGamma_PromptTime.Min", -300 );	// lower limit for particle-gamma prompt time difference
 	pg_prompt[1] = config->GetValue( "ParticleGamma_PromptTime.Max", 300 );		// upper limit for particle-gamma prompt time difference
@@ -607,18 +616,73 @@ double MiniballReaction::DopplerShift( double gen, double pbeta, double costheta
 	
 }
 
-double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, double pbeta, double ptheta, double pphi ) {
-
+double MiniballReaction::DopplerCorrection( double gen, double gtheta, double gphi, double pbeta, double ptheta, double pphi ) {
+	
 	/// Returns Doppler corrected gamma-ray energy assuming particle at (β,θ,φ).
-	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
-
+	TVector3 gvec = TVector3( 0., 0., 1.0 );
+	gvec.SetTheta( gtheta );
+	gvec.SetPhi( gphi);
+	
 	// Apply the X and Y offsets directly to the TVector3 input
 	// We move Miniball opposite to the target, which replicates the same
 	// geometrical shift that is observed with respect to the beam
 	// z-offset is already applied to the vector when the geometry is setup
 	gvec.SetX( gvec.X() - x_offset );
 	gvec.SetY( gvec.Y() - y_offset );
+	
+	// Setup the particle vector, no shifts becuase theta,phi explicitly given
+	TVector3 pvec( 0., 0., 1.0 );
+	pvec.SetTheta( ptheta );
+	pvec.SetPhi( pphi );
+	
+	double gamma = 1.0 / TMath::Sqrt( 1.0 - TMath::Power( pbeta, 2.0 ) );
+	double corr = 1.0 - pbeta * TMath::Cos( gvec.Angle( pvec ) );
+	corr *= gamma;
+	
+	return corr * gen;
+	
+}
 
+double MiniballReaction::DopplerCorrection( double gen, double gtheta, double gphi, bool ejectile ) {
+	
+	/// Returns Doppler corrected gamma-ray energy assuming particle at (β,θ,φ).
+	TVector3 gvec = TVector3( 0., 0., 1.0 );
+	gvec.SetTheta( gtheta );
+	gvec.SetPhi( gphi);
+	
+	// Apply the X and Y offsets directly to the TVector3 input
+	// We move Miniball opposite to the target, which replicates the same
+	// geometrical shift that is observed with respect to the beam
+	// z-offset is already applied to the vector when the geometry is setup
+	gvec.SetX( gvec.X() - x_offset );
+	gvec.SetY( gvec.Y() - y_offset );
+	
+	/// Returns Doppler corrected gamma-ray energy for given particle and gamma combination.
+	/// @param ejectile true for ejectile Doppler correction or false for recoil
+	MiniballParticle p;
+	if( ejectile ) p = Ejectile;
+	else p = Recoil;
+	
+	double costheta = TMath::Cos( gvec.Angle( p.GetVector() ) );
+	double corr = 1.0 - p.GetBeta() * costheta;
+	corr *= p.GetGamma();
+
+	return corr * gen;
+	
+}
+
+double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, double pbeta, double ptheta, double pphi ) {
+	
+	/// Returns Doppler corrected gamma-ray energy assuming particle at (β,θ,φ).
+	TVector3 gvec = mb_geo[g->GetCluster()].GetSegVector( g->GetCrystal(), g->GetSegment() );
+	
+	// Apply the X and Y offsets directly to the TVector3 input
+	// We move Miniball opposite to the target, which replicates the same
+	// geometrical shift that is observed with respect to the beam
+	// z-offset is already applied to the vector when the geometry is setup
+	gvec.SetX( gvec.X() - x_offset );
+	gvec.SetY( gvec.Y() - y_offset );
+	
 	// Setup the particle vector, no shifts becuase theta,phi explicitly given
 	TVector3 pvec( 0., 0., 1.0 );
 	pvec.SetTheta( ptheta );

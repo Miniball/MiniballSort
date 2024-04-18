@@ -77,7 +77,15 @@ public:
 	inline double GetExpError( unsigned int clu, unsigned int cry, unsigned int seg ){
 		return err[clu][cry][seg];
 	};
-
+	
+	// Getters for the phi angles
+	inline double GetExpPhi( unsigned int clu, unsigned int cry, unsigned int seg ){
+		return phic[clu][cry][seg];
+	};
+	inline double GetExpPhiError( unsigned int clu, unsigned int cry, unsigned int seg ){
+		return phie[clu][cry][seg];
+	};
+	
 	// operator for the fit function
 	double operator() ( const double *p );
 
