@@ -773,27 +773,17 @@ int MiniballMedConverter::ConvertFile( std::string input_file_name,
 
 	// Calculate the number of blocks in the file.
 	unsigned long BLOCKS_NUM = FILE_SIZE / set->GetBlockSize();
-	
-	// a sanity check for file size...
-	if( FILE_SIZE % set->GetBlockSize() != 0 ){
 		
-		std::cout << " *WARNING* " << __PRETTY_FUNCTION__;
-		std::cout << "\tMissing data blocks?" << std::endl;
-
-	}
-	
-	sslogs << "\t File size = " << FILE_SIZE << std::endl;
-	sslogs << "\tBlock size = " << set->GetBlockSize() << std::endl;
-	sslogs << "\t  N blocks = " << BLOCKS_NUM << std::endl;
-
+	std::cout << "Opening file: " << input_file_name << std::endl;
+	sslogs << "File size = " << (double)FILE_SIZE/1024./1024.;
+	sslogs << " MB" << std::endl;
 	std::cout << sslogs.str() << std::endl;
 	sslogs.str( std::string() ); // clean up
-
+	
 	// Close the file
 	input_file.close();
 
 	// Create an MED data instance and set block/buffer size etc
-	std::cout << "Opening file: " << input_file_name << std::endl;
 	MBS mbs;
 	mbs.SetBufferSize( set->GetBlockSize() );
 	mbs.OpenMedFile( input_file_name );
