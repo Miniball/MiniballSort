@@ -522,7 +522,7 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 	std::cout << "Opening file: " << input_file_name << std::endl;
 	MBS mbs;
 	mbs.SetBufferSize( set->GetBlockSize() );
-	mbs.OpenFile( input_file_name );
+	mbs.OpenLmdFile( input_file_name );
 
 	// Loop over all the MBS Events.
 	unsigned long mbsevt = 0, nblock = 0;
@@ -551,7 +551,7 @@ int MiniballMbsConverter::ConvertFile( std::string input_file_name,
 		}
 		
 		// Get the next event - returns nullptr at the end of the file
-		ev = mbs.GetNextEvent();
+		ev = mbs.GetNextLmdEvent();
 		if( !ev ) break;
 		my_event_id = ev->GetEventID();
 		

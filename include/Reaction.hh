@@ -353,6 +353,8 @@ public:
 	
 	// Doppler correction
 	double DopplerShift( double gen, double pbeta, double costheta );
+	double DopplerCorrection( double gen, double gth, double gph, double pbeta, double ptheta, double pphi );
+	double DopplerCorrection( double gen, double gth, double gph, bool ejectile );
 	double DopplerCorrection( std::shared_ptr<GammaRayEvt> g, double pbeta, double ptheta, double pphi );
 	double DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile );
 	double DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile );
@@ -499,7 +501,17 @@ public:
 	inline bool IsRecoilDetected(){ return recoil_detected; };
 	inline bool IsTransferDetected(){ return transfer_detected; };
 
-	ClassDef( MiniballReaction, 2 )
+	
+	// Histogram options
+	inline bool HistSegmentPhi(){ return hist_segment_phi; };
+	inline bool HistByCrystal(){ return hist_by_crystal; };
+	inline bool HistGammaGamma(){ return hist_gamma_gamma; };
+	inline bool HistElectron(){ return hist_electron; };
+	inline bool HistElectronGamma(){ return hist_electron_gamma; };
+	inline bool HistBeamDump(){ return hist_beam_dump; };
+	inline bool HistIonChamber(){ return hist_ion_chamb; };
+
+	ClassDef( MiniballReaction, 3 )
 
 private:
 
@@ -571,6 +583,15 @@ private:
 	// Laser status mode: 0 = OFF, 1 = ON, 2 = OFF or ON
 	unsigned char laser_mode;
 	
+	// Histogram options
+	bool hist_segment_phi;
+	bool hist_by_crystal;
+	bool hist_gamma_gamma;
+	bool hist_electron;
+	bool hist_electron_gamma;
+	bool hist_beam_dump;
+	bool hist_ion_chamb;
+
 	// Random numbers
 	TRandom rand;
 

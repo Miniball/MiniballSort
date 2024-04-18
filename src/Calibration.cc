@@ -317,6 +317,62 @@ void MiniballCalibration::ReadCalibration() {
 		
 	} // i: sfp
 
+	// ADC initialisation
+	fAdcOffset.resize( set->GetNumberOfAdcModules() );
+	fAdcGain.resize( set->GetNumberOfAdcModules() );
+	fAdcGainQuadr.resize( set->GetNumberOfAdcModules() );
+	fAdcThreshold.resize( set->GetNumberOfAdcModules() );
+	fAdcTime.resize( set->GetNumberOfAdcModules() );
+
+	// ADC parameter read
+	for( unsigned char i = 0; i < set->GetNumberOfAdcModules(); i++ ){
+
+		fAdcOffset[i].resize( set->GetMaximumNumberOfAdcChannels() );
+		fAdcGain[i].resize( set->GetMaximumNumberOfAdcChannels() );
+		fAdcGainQuadr[i].resize( set->GetMaximumNumberOfAdcChannels() );
+		fAdcThreshold[i].resize( set->GetMaximumNumberOfAdcChannels() );
+		fAdcTime[i].resize( set->GetMaximumNumberOfAdcChannels() );
+	
+		for( unsigned char j = 0; j < set->GetMaximumNumberOfAdcChannels(); j++ ){
+
+			fAdcOffset[i][j] = config->GetValue( Form( "adc_%d_%d.Offset", i, j ), (double)0.0 );
+			fAdcGain[i][j] = config->GetValue( Form( "adc_%d_%d.Gain", i, j ), (double)1.0 );
+			fAdcGainQuadr[i][j] = config->GetValue( Form( "adc_%d_%d.GainQuadr", i, j ), (double)0.0 );
+			fAdcThreshold[i][j] = (unsigned int)config->GetValue( Form( "adc_%d_%d.Threshold", i, j ), (double)0 );
+			fAdcTime[i][j] = (long)config->GetValue( Form( "adc_%d_%d.Time", i, j ), (double)0 );
+			
+		}
+
+	}
+
+	// DGF initialisation
+	fDgfOffset.resize( set->GetNumberOfDgfModules() );
+	fDgfGain.resize( set->GetNumberOfDgfModules() );
+	fDgfGainQuadr.resize( set->GetNumberOfDgfModules() );
+	fDgfThreshold.resize( set->GetNumberOfDgfModules() );
+	fDgfTime.resize( set->GetNumberOfDgfModules() );
+
+	// DGF parameter read
+	for( unsigned char i = 0; i < set->GetNumberOfDgfModules(); i++ ){
+
+		fDgfOffset[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfGain[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfGainQuadr[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfThreshold[i].resize( set->GetNumberOfDgfChannels() );
+		fDgfTime[i].resize( set->GetNumberOfDgfChannels() );
+	
+		for( unsigned char j = 0; j < set->GetNumberOfDgfChannels(); j++ ){
+
+			fDgfOffset[i][j] = config->GetValue( Form( "dgf_%d_%d.Offset", i, j ), (double)0.0 );
+			fDgfGain[i][j] = config->GetValue( Form( "dgf_%d_%d.Gain", i, j ), (double)1.0 );
+			fDgfGainQuadr[i][j] = config->GetValue( Form( "dgf_%d_%d.GainQuadr", i, j ), (double)0.0 );
+			fDgfThreshold[i][j] = (unsigned int)config->GetValue( Form( "dgf_%d_%d.Threshold", i, j ), (double)0 );
+			fDgfTime[i][j] = (long)config->GetValue( Form( "dgf_%d_%d.Time", i, j ), (double)0 );
+			
+		}
+
+	}
+
 }
 
 float MiniballCalibration::FebexEnergy( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int raw ) {
@@ -337,6 +393,58 @@ float MiniballCalibration::FebexEnergy( unsigned char sfp, unsigned char board, 
 		if( TMath::Abs( fFebexGainQuadr[sfp][board][ch] ) < 1e-6 &&
 		    TMath::Abs( fFebexGain[sfp][board][ch] - 1.0 ) < 1e-6 &&
 		    TMath::Abs( fFebexOffset[sfp][board][ch] ) < 1e-6 )
+			
+			return raw;
+		
+		else return energy;
+		
+	}
+	
+	return -1;
+	
+}
+
+float MiniballCalibration::DgfEnergy( unsigned char mod, unsigned char ch, unsigned int raw ) {
+	
+	float energy, raw_rand;
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		raw_rand = raw + 0.5 - fRand->Uniform();
+
+		energy  = fDgfGain[mod][ch] * raw_rand;
+		energy += fDgfOffset[mod][ch];
+
+		// Check if we have defaults
+		if( TMath::Abs( fDgfGain[mod][ch] - 1.0 ) < 1e-6 &&
+		    TMath::Abs( fDgfOffset[mod][ch] ) < 1e-6 )
+			
+			return raw;
+		
+		else return energy;
+		
+	}
+	
+	return -1;
+	
+}
+
+float MiniballCalibration::AdcEnergy( unsigned char mod, unsigned char ch, unsigned int raw ) {
+	
+	float energy, raw_rand;
+	
+	if( mod < set->GetNumberOfAdcModules() &&
+	     ch < set->GetMaximumNumberOfAdcChannels() ) {
+
+		raw_rand = raw + 0.5 - fRand->Uniform();
+
+		energy  = fAdcGain[mod][ch] * raw_rand;
+		energy += fAdcOffset[mod][ch];
+
+		// Check if we have defaults
+		if( TMath::Abs( fAdcGain[mod][ch] - 1.0 ) < 1e-6 &&
+		    TMath::Abs( fAdcOffset[mod][ch] ) < 1e-6 )
 			
 			return raw;
 		
@@ -454,8 +562,8 @@ long MiniballCalibration::FebexTime( unsigned char sfp, unsigned char board, uns
 std::string MiniballCalibration::FebexType( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexType[sfp][board][ch];
 		
@@ -465,11 +573,142 @@ std::string MiniballCalibration::FebexType( unsigned char sfp, unsigned char boa
 	
 }
 
+double MiniballCalibration::DgfOffset( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfOffset[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+double MiniballCalibration::DgfGain( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfGain[mod][ch];
+		
+	}
+	
+	return 1.0;
+	
+}
+
+double MiniballCalibration::DgfGainQuadr( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfGainQuadr[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+unsigned int MiniballCalibration::DgfThreshold( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfThreshold[mod][ch];
+		
+	}
+	
+	return -1;
+	
+}
+
+long MiniballCalibration::DgfTime( unsigned char mod, unsigned char ch ){
+	
+	if( mod < set->GetNumberOfDgfModules() &&
+	     ch < set->GetNumberOfDgfChannels() ) {
+
+		return fDgfTime[mod][ch];
+		
+	}
+	
+	return 0;
+	
+}
+double MiniballCalibration::AdcOffset( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfAdcModules() &&
+	     ch < set->GetMaximumNumberOfAdcChannels() ) {
+
+		return fAdcOffset[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+double MiniballCalibration::AdcGain( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfAdcModules() &&
+	     ch < set->GetMaximumNumberOfAdcChannels() ) {
+
+		return fAdcGain[mod][ch];
+		
+	}
+	
+	return 1.0;
+	
+}
+
+double MiniballCalibration::AdcGainQuadr( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfAdcModules() &&
+	     ch < set->GetMaximumNumberOfAdcChannels() ) {
+
+		return fAdcGainQuadr[mod][ch];
+		
+	}
+	
+	return 0.0;
+	
+}
+
+unsigned int MiniballCalibration::AdcThreshold( unsigned char mod, unsigned char ch ) {
+	
+	if( mod < set->GetNumberOfAdcModules() &&
+	     ch < set->GetMaximumNumberOfAdcChannels() ) {
+
+		return fAdcThreshold[mod][ch];
+		
+	}
+	
+	return -1;
+	
+}
+
+long MiniballCalibration::AdcTime( unsigned char mod, unsigned char ch ){
+	
+	if( mod < set->GetNumberOfAdcModules() &&
+	     ch < set->GetMaximumNumberOfAdcChannels() ) {
+
+		return fAdcTime[mod][ch];
+		
+	}
+	
+	return 0;
+	
+}
+
+
+// MWD
 void MiniballCalibration::SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int decay ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexMWD_Decay[sfp][board][ch] = decay;
 		return;
@@ -483,8 +722,8 @@ void MiniballCalibration::SetMWDDecay( unsigned char sfp, unsigned char board, u
 void MiniballCalibration::SetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int rise ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+		board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexMWD_Rise[sfp][board][ch] = rise;
 		return;
@@ -498,8 +737,8 @@ void MiniballCalibration::SetMWDRise( unsigned char sfp, unsigned char board, un
 void MiniballCalibration::SetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexMWD_Top[sfp][board][ch] = top;
 		return;
@@ -513,8 +752,8 @@ void MiniballCalibration::SetMWDFlatTop( unsigned char sfp, unsigned char board,
 void MiniballCalibration::SetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int baseline_length ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexMWD_Baseline[sfp][board][ch] = baseline_length;
 		return;
@@ -528,8 +767,8 @@ void MiniballCalibration::SetMWDBaseline( unsigned char sfp, unsigned char board
 void MiniballCalibration::SetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int window ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexMWD_Window[sfp][board][ch] = window;
 		return;
@@ -543,8 +782,8 @@ void MiniballCalibration::SetMWDWindow( unsigned char sfp, unsigned char board, 
 void MiniballCalibration::SetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch, float fraction ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexCFD_Fraction[sfp][board][ch] = fraction;
 		return;
@@ -558,8 +797,8 @@ void MiniballCalibration::SetCFDFraction( unsigned char sfp, unsigned char board
 void MiniballCalibration::SetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int delay ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexCFD_Delay[sfp][board][ch] = delay;
 		return;
@@ -573,8 +812,8 @@ void MiniballCalibration::SetCFDDelay( unsigned char sfp, unsigned char board, u
 void MiniballCalibration::SetCFDHoldOff( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int hold ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+		board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexCFD_HoldOff[sfp][board][ch] = hold;
 		return;
@@ -588,8 +827,8 @@ void MiniballCalibration::SetCFDHoldOff( unsigned char sfp, unsigned char board,
 void MiniballCalibration::SetCFDShapingTime( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int shaping ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexCFD_Shaping[sfp][board][ch] = shaping;
 		return;
@@ -603,8 +842,8 @@ void MiniballCalibration::SetCFDShapingTime( unsigned char sfp, unsigned char bo
 void MiniballCalibration::SetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int integration ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexCFD_Integration[sfp][board][ch] = integration;
 		return;
@@ -618,8 +857,8 @@ void MiniballCalibration::SetCFDIntegrationTime( unsigned char sfp, unsigned cha
 void MiniballCalibration::SetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch, int threshold ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		fFebexCFD_Threshold[sfp][board][ch] = threshold;
 		return;
@@ -633,8 +872,8 @@ void MiniballCalibration::SetCFDThreshold( unsigned char sfp, unsigned char boar
 unsigned int MiniballCalibration::GetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexMWD_Decay[sfp][board][ch];
 		
@@ -647,8 +886,8 @@ unsigned int MiniballCalibration::GetMWDDecay( unsigned char sfp, unsigned char 
 unsigned int MiniballCalibration::GetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexMWD_Rise[sfp][board][ch];
 		
@@ -661,8 +900,8 @@ unsigned int MiniballCalibration::GetMWDRise( unsigned char sfp, unsigned char b
 unsigned int MiniballCalibration::GetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexMWD_Top[sfp][board][ch];
 		
@@ -675,8 +914,8 @@ unsigned int MiniballCalibration::GetMWDFlatTop( unsigned char sfp, unsigned cha
 unsigned int MiniballCalibration::GetMWDBaseline( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexMWD_Baseline[sfp][board][ch];
 		
@@ -689,8 +928,8 @@ unsigned int MiniballCalibration::GetMWDBaseline( unsigned char sfp, unsigned ch
 unsigned int MiniballCalibration::GetMWDWindow( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexMWD_Window[sfp][board][ch];
 		
@@ -703,8 +942,8 @@ unsigned int MiniballCalibration::GetMWDWindow( unsigned char sfp, unsigned char
 float MiniballCalibration::GetCFDFraction( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexCFD_Fraction[sfp][board][ch];
 		
@@ -717,8 +956,8 @@ float MiniballCalibration::GetCFDFraction( unsigned char sfp, unsigned char boar
 unsigned int MiniballCalibration::GetCFDDelay( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+		   ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexCFD_Delay[sfp][board][ch];
 		
@@ -731,8 +970,8 @@ unsigned int MiniballCalibration::GetCFDDelay( unsigned char sfp, unsigned char 
 unsigned int MiniballCalibration::GetCFDHoldOff( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexCFD_HoldOff[sfp][board][ch];
 		
@@ -745,8 +984,8 @@ unsigned int MiniballCalibration::GetCFDHoldOff( unsigned char sfp, unsigned cha
 unsigned int MiniballCalibration::GetCFDShapingTime( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexCFD_Shaping[sfp][board][ch];
 		
@@ -759,8 +998,8 @@ unsigned int MiniballCalibration::GetCFDShapingTime( unsigned char sfp, unsigned
 unsigned int MiniballCalibration::GetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexCFD_Integration[sfp][board][ch];
 		
@@ -773,8 +1012,8 @@ unsigned int MiniballCalibration::GetCFDIntegrationTime( unsigned char sfp, unsi
 int MiniballCalibration::GetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch ){
 	
 	if(   sfp < set->GetNumberOfFebexSfps() &&
-	   board < set->GetNumberOfFebexBoards() &&
-	   ch < set->GetNumberOfFebexChannels() ) {
+	    board < set->GetNumberOfFebexBoards() &&
+	       ch < set->GetNumberOfFebexChannels() ) {
 		
 		return fFebexCFD_Threshold[sfp][board][ch];
 		

@@ -151,16 +151,34 @@ public:
 	const std::string InputFile(){
 		return fInputFile;
 	}
-	float FebexEnergy( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int raw );
-	double FebexOffset( unsigned char sfp, unsigned char board, unsigned char ch );
-	double FebexGain( unsigned char sfp, unsigned char board, unsigned char ch );
-	double FebexGainQuadr( unsigned char sfp, unsigned char board, unsigned char ch );
-	unsigned int FebexThreshold( unsigned char sfp, unsigned char board, unsigned char ch );
-	std::string FebexType( unsigned char sfp, unsigned char board, unsigned char ch );
-	long FebexTime( unsigned char sfp, unsigned char board, unsigned char ch );
-	FebexMWD DoMWD( unsigned char sfp, unsigned char board, unsigned char ch, std::vector<unsigned short> trace );
 	
-	// Set functions
+	// ADC calibrations
+	float			AdcEnergy( unsigned char mod, unsigned char ch, unsigned int raw );
+	double			AdcOffset( unsigned char mod, unsigned char ch );
+	double			AdcGain( unsigned char mod, unsigned char ch );
+	double			AdcGainQuadr( unsigned char mod, unsigned char ch );
+	unsigned int	AdcThreshold( unsigned char mod, unsigned char ch );
+	long			AdcTime( unsigned char mod, unsigned char ch );
+	
+	// DGF calibrations
+	float			DgfEnergy( unsigned char mod, unsigned char ch, unsigned int raw );
+	double			DgfOffset( unsigned char mod, unsigned char ch );
+	double			DgfGain( unsigned char mod, unsigned char ch );
+	double			DgfGainQuadr( unsigned char mod, unsigned char ch );
+	unsigned int	DgfThreshold( unsigned char mod, unsigned char ch );
+	long			DgfTime( unsigned char mod, unsigned char ch );
+	
+	// Febex calibrations
+	float			FebexEnergy( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int raw );
+	double			FebexOffset( unsigned char sfp, unsigned char board, unsigned char ch );
+	double			FebexGain( unsigned char sfp, unsigned char board, unsigned char ch );
+	double			FebexGainQuadr( unsigned char sfp, unsigned char board, unsigned char ch );
+	unsigned int	FebexThreshold( unsigned char sfp, unsigned char board, unsigned char ch );
+	std::string		FebexType( unsigned char sfp, unsigned char board, unsigned char ch );
+	long			FebexTime( unsigned char sfp, unsigned char board, unsigned char ch );
+	FebexMWD		DoMWD( unsigned char sfp, unsigned char board, unsigned char ch, std::vector<unsigned short> trace );
+	
+	// Set functions for MWD
 	void SetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int decay );
 	void SetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int rise );
 	void SetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int top );
@@ -173,7 +191,7 @@ public:
 	void SetCFDIntegrationTime( unsigned char sfp, unsigned char board, unsigned char ch, unsigned int integration );
 	void SetCFDThreshold( unsigned char sfp, unsigned char board, unsigned char ch, int threshold );
 	
-	// Get functions
+	// Get functions for MWD
 	unsigned int GetMWDDecay( unsigned char sfp, unsigned char board, unsigned char ch );
 	unsigned int GetMWDRise( unsigned char sfp, unsigned char board, unsigned char ch );
 	unsigned int GetMWDFlatTop( unsigned char sfp, unsigned char board, unsigned char ch );
@@ -198,7 +216,22 @@ private:
 	bool default_qint;
 	
 	std::shared_ptr<MiniballSettings> set;
+	
+	// Mesytec or CAEN ADC calibration
+	std::vector<std::vector<long>> fAdcTime;
+	std::vector<std::vector<double>> fAdcOffset;
+	std::vector<std::vector<double>> fAdcGain;
+	std::vector<std::vector<double>> fAdcGainQuadr;
+	std::vector<std::vector<unsigned int>> fAdcThreshold;
 
+	// DGF calibration
+	std::vector<std::vector<long>> fDgfTime;
+	std::vector<std::vector<double>> fDgfOffset;
+	std::vector<std::vector<double>> fDgfGain;
+	std::vector<std::vector<double>> fDgfGainQuadr;
+	std::vector<std::vector<unsigned int>> fDgfThreshold;
+
+	// Febex
 	std::vector< std::vector<std::vector<std::string>> > fFebexType; // Qint or Qshort
 	std::vector< std::vector<std::vector<long>> > fFebexTime;
 	std::vector< std::vector<std::vector<double>> > fFebexOffset;
@@ -206,6 +239,7 @@ private:
 	std::vector< std::vector<std::vector<double>> > fFebexGainQuadr;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexThreshold;
 
+	// MWD + CFD
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Decay;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Rise;
 	std::vector< std::vector<std::vector<unsigned int>> > fFebexMWD_Top;
@@ -218,6 +252,7 @@ private:
 	std::vector< std::vector<std::vector<int>> > fFebexCFD_Threshold; // polarity of CFD selected by a negative threshold
 	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
 
+	// MWD defaults
 	unsigned int default_MWD_Decay;
 	unsigned int default_MWD_Rise;
 	unsigned int default_MWD_Top;

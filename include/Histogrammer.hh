@@ -84,8 +84,8 @@ public:
 		return PromptCoincidence( g, p->GetTime() );
 	};
 	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, unsigned long long ptime ){
-		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaPromptTime(0) &&
-			(double)g->GetTime() - (double)ptime < react->GetParticleGammaPromptTime(1) )
+		if( (double)ptime - (double)g->GetTime() > react->GetParticleGammaPromptTime(0) &&
+			(double)ptime - (double)g->GetTime() < react->GetParticleGammaPromptTime(1) )
 			return true;
 		else return false;
 	};
@@ -93,8 +93,8 @@ public:
 		return RandomCoincidence( g, p->GetTime() );
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<GammaRayEvt> g, unsigned long long ptime ){
-		if( (double)g->GetTime() - (double)ptime > react->GetParticleGammaRandomTime(0) &&
-			(double)g->GetTime() - (double)ptime < react->GetParticleGammaRandomTime(1) )
+		if( (double)ptime - (double)g->GetTime() > react->GetParticleGammaRandomTime(0) &&
+			(double)ptime - (double)g->GetTime() < react->GetParticleGammaRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -105,8 +105,8 @@ public:
 		return PromptCoincidence( s, p->GetTime() );
 	};
 	inline bool	PromptCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
-		if( (double)s->GetTime() - (double)ptime > react->GetParticleElectronPromptTime(0) &&
-			(double)s->GetTime() - (double)ptime < react->GetParticleElectronPromptTime(1) )
+		if( (double)ptime - (double)s->GetTime() > react->GetParticleElectronPromptTime(0) &&
+			(double)ptime - (double)s->GetTime() < react->GetParticleElectronPromptTime(1) )
 			return true;
 		else return false;
 	};
@@ -114,8 +114,8 @@ public:
 		return RandomCoincidence( s, p->GetTime() );
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<SpedeEvt> s, unsigned long long ptime ){
-		if( (double)s->GetTime() - (double)ptime > react->GetParticleElectronRandomTime(0) &&
-			(double)s->GetTime() - (double)ptime < react->GetParticleElectronRandomTime(1) )
+		if( (double)ptime - (double)s->GetTime() > react->GetParticleElectronRandomTime(0) &&
+			(double)ptime - (double)s->GetTime() < react->GetParticleElectronRandomTime(1) )
 			return true;
 		else return false;
 	};
@@ -352,6 +352,9 @@ private:
 	TH2F *gE_vs_theta_ejectile_dc_none, *gE_vs_theta_ejectile_dc_ejectile, *gE_vs_theta_ejectile_dc_recoil;
 	TH2F *gE_vs_theta_recoil_dc_none,   *gE_vs_theta_recoil_dc_ejectile,   *gE_vs_theta_recoil_dc_recoil;
 	TH2F *gE_vs_theta_2p_dc_none,       *gE_vs_theta_2p_dc_ejectile,       *gE_vs_theta_2p_dc_recoil;
+	TH2F *gE_vs_crystal_ejectile_dc_none, *gE_vs_crystal_ejectile_dc_ejectile, *gE_vs_crystal_ejectile_dc_recoil;
+	TH2F *gE_vs_crystal_recoil_dc_none,   *gE_vs_crystal_recoil_dc_ejectile,   *gE_vs_crystal_recoil_dc_recoil;
+	TH2F *gE_vs_crystal_2p_dc_none,       *gE_vs_crystal_2p_dc_ejectile,       *gE_vs_crystal_2p_dc_recoil;
 	TH2F *ggE_ejectile_dc_none, *ggE_ejectile_dc_ejectile, *ggE_ejectile_dc_recoil;
 	TH2F *ggE_recoil_dc_none,   *ggE_recoil_dc_ejectile,   *ggE_recoil_dc_recoil;
 
@@ -362,9 +365,16 @@ private:
 	TH2F *aE_vs_theta_ejectile_dc_none, *aE_vs_theta_ejectile_dc_ejectile, *aE_vs_theta_ejectile_dc_recoil;
 	TH2F *aE_vs_theta_recoil_dc_none,   *aE_vs_theta_recoil_dc_ejectile,   *aE_vs_theta_recoil_dc_recoil;
 	TH2F *aE_vs_theta_2p_dc_none,       *aE_vs_theta_2p_dc_ejectile,       *aE_vs_theta_2p_dc_recoil;
+	TH2F *aE_vs_crystal_ejectile_dc_none, *aE_vs_crystal_ejectile_dc_ejectile, *aE_vs_crystal_ejectile_dc_recoil;
+	TH2F *aE_vs_crystal_recoil_dc_none,   *aE_vs_crystal_recoil_dc_ejectile,   *aE_vs_crystal_recoil_dc_recoil;
+	TH2F *aE_vs_crystal_2p_dc_none,       *aE_vs_crystal_2p_dc_ejectile,       *aE_vs_crystal_2p_dc_recoil;
 	TH2F *aaE_ejectile_dc_none, *aaE_ejectile_dc_ejectile, *aaE_ejectile_dc_recoil;
 	TH2F *aaE_recoil_dc_none,   *aaE_recoil_dc_ejectile,   *aaE_recoil_dc_recoil;
 
+	// Segment phi determination
+	std::vector<TH2F*> gE_vs_phi_dc_ejectile;
+	std::vector<TH2F*> gE_vs_phi_dc_recoil;
+	
 	// Electron energy versus cos(theta)
 	TH2F *eE_costheta_ejectile, *eE_costheta_recoil;
   

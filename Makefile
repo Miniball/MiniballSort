@@ -61,6 +61,7 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 				$(SRC_DIR)/DataSpy.o \
 				$(SRC_DIR)/Settings.o \
 				$(SRC_DIR)/EventBuilder.o \
+				$(SRC_DIR)/MedConverter.o \
 				$(SRC_DIR)/MbsConverter.o \
 				$(SRC_DIR)/MbsFormat.o \
 				$(SRC_DIR)/MidasConverter.o \
@@ -79,7 +80,9 @@ DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
 				$(INC_DIR)/DataSpy.hh \
 				$(INC_DIR)/Settings.hh \
 				$(INC_DIR)/EventBuilder.hh \
+				$(INC_DIR)/MedConverter.hh \
 				$(INC_DIR)/MbsConverter.hh \
+				$(INC_DIR)/MbsDefines.hh \
 				$(INC_DIR)/MbsFormat.hh \
 				$(INC_DIR)/MidasConverter.hh \
 				$(INC_DIR)/MiniballAngleFitter.hh \
@@ -102,7 +105,7 @@ $(BIN_DIR)/mb_sort: mb_sort.o $(OBJECTS) mb_sortDict.o
 	mkdir -p $(BIN_DIR)
 	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS)
 
-mb_sort.o: mb_sort.cc
+mb_sort.o: mb_sort.cc mb_sort.hh
 	$(CC) $(CFLAGS) $(INCLUDES) $^
 
 $(UTIL_DIR)/%: $(UTIL_DIR)/%.o $(OBJECTS) $(UTIL_DIR)/%Dict.o

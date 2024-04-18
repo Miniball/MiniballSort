@@ -598,8 +598,12 @@ void MiniballAngleFitter::DoFit() {
 	TGraphErrors *corrgraph = new TGraphErrors();
 	corrgraph->SetName("corrgraph");
 	corrgraph->SetTitle("Doppler-corrected energies; Channel index; Energy [keV]");
-
 	
+	TGraphErrors *phigraph = new TGraphErrors();
+	phigraph->SetName("phigraph");
+	phigraph->SetTitle("Phi residuals; Channel index; Energy [keV]");
+	
+
 	// Loop over clusters
 	for( unsigned int clu = 0; clu < myset->GetNumberOfMiniballClusters(); ++clu ) {
 
@@ -612,12 +616,15 @@ void MiniballAngleFitter::DoFit() {
 				// Check if it's present
 				if( !ff.IsPresent( clu, cry, seg ) ) continue;
 				
-				// Get Doppler shifted energy
+				// Get Doppler shifted energy, theta and phi
 				double theta = myreact->GetGammaTheta( clu, cry, seg );
+				double phi = myreact->GetGammaPhi( clu, cry, seg );
+				phi *= TMath::RadToDeg();
+				if( phi < 0.0 ) phi += 360.0;
 				double edop = myreact->DopplerShift( ff.GetReferenceEnergy(),
 													beta, TMath::Cos(theta) );
 				double corr = ff.GetReferenceEnergy() / edop;
-				
+
 				// channel index
 				double indx = seg;
 				indx += cry * myset->GetNumberOfMiniballSegments();
@@ -633,6 +640,11 @@ void MiniballAngleFitter::DoFit() {
 				
 				resgraph->AddPoint( indx, edop - ff.GetExpEnergy( clu, cry, seg ) );
 				resgraph->SetPointError( resgraph->GetN()-1, 0, ff.GetExpError( clu, cry, seg ) );
+
+				// Get experimental phi
+				if( !ff.HasPhiConstraint( clu, cry, seg ) ) continue;
+				phigraph->AddPoint( indx, phi - ff.GetExpPhi( clu, cry, seg ) );
+				phigraph->SetPointError( phigraph->GetN()-1, 0, ff.GetExpPhiError( clu, cry, seg ) );
 
 			} // seg
 			
@@ -686,6 +698,16 @@ void MiniballAngleFitter::DoFit() {
 	// Save third plot as a PDF
 	c1->Print("position_cal.pdf");
 	
+	// Draw the phi residuals
+	phigraph->SetMarkerStyle(kFullCircle);
+	phigraph->SetMarkerSize(0.5);
+	phigraph->Draw("AP");
+	func->SetParameter( 0, 0.0 );
+	func->Draw("same");
+
+	// Save fourth plot as a PDF
+	c1->Print("position_cal.pdf");
+
 	// A multi-graph showing all the positions in theta-phi, xy, xz, etc
 	auto tp_mg = std::make_unique<TMultiGraph>();
 	auto xy_f_mg = std::make_unique<TMultiGraph>();

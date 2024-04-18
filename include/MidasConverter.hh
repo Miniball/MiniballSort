@@ -14,6 +14,8 @@ public:
 	MiniballMidasConverter( std::shared_ptr<MiniballSettings> myset )
 		: MiniballConverter( myset ) {
 			mbs_data = false;
+			midas_data = true;
+			med_data = false;
 		};
 	~MiniballMidasConverter() {};
 

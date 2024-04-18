@@ -6,6 +6,11 @@
 # include "Converter.hh"
 #endif
 
+// MBS Defines header
+#ifndef __MBSDEFINES_HH
+# include "MbsDefines.hh"
+#endif
+
 // MBS Data Format header
 #ifndef __MBSFORMAT_HH
 # include "MbsFormat.hh"
@@ -22,6 +27,8 @@ public:
 			n_double_hits = 0;
 			n_single_hits = 0;
 			mbs_data = true;
+			midas_data = false;
+			med_data = false;
 	};
 	~MiniballMbsConverter() {};
 	

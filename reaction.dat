@@ -78,35 +78,35 @@
 EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 
 # Particle and Gamma coincidence time windows
-#ParticleGamma_Prompt.Min: -300		# lower limit of particle-gamma prompt window
-#ParticleGamma_Prompt.Max: 300		# upper limit of particle-gamma prompt window
-#ParticleGamma_Random.Min: 600		# lower limit of particle-gamma random window
-#ParticleGamma_Random.Max: 1200		# upper limit of particle-gamma random window
+#ParticleGamma_PromptTime.Min: -300		# lower limit of particle-gamma prompt window
+#ParticleGamma_PromptTime.Max: 300		# upper limit of particle-gamma prompt window
+#ParticleGamma_RandomTime.Min: 600		# lower limit of particle-gamma random window
+#ParticleGamma_RandomTime.Max: 1200		# upper limit of particle-gamma random window
 #ParticleGamma_FillRatio: 1.0		# ratio of prompt and random events for subtraction (default: time window ratio)
-#GammaGamma_Prompt.Min: -250		# lower limit of gamma-gamma prompt window
-#GammaGamma_Prompt.Max: 250			# upper limit of gamma-gamma prompt window
-#GammaGamma_Random.Min: 500			# lower limit of gamma-gamma random window
-#GammaGamma_Random.Max: 1000		# upper limit of gamma-gamma random window
+#GammaGamma_PromptTime.Min: -250		# lower limit of gamma-gamma prompt window
+#GammaGamma_PromptTime.Max: 250			# upper limit of gamma-gamma prompt window
+#GammaGamma_RandomTime.Min: 500			# lower limit of gamma-gamma random window
+#GammaGamma_RandomTime.Max: 1000		# upper limit of gamma-gamma random window
 #GammaGamma_FillRatio: 1.0			# ratio of prompt and random events for subtraction (default: time window ratio)
-#ParticleParticle_Prompt.Min: -200	# lower limit of particle-particle prompt window
-#ParticleParticle_Prompt.Max: 200	# upper limit of particle-particle prompt window
-#ParticleParticle_Random.Min: 400	# lower limit of particle-particle random window
-#ParticleParticle_Random.Max: 800	# upper limit of particle-particle random window
+#ParticleParticle_PromptTime.Min: -200	# lower limit of particle-particle prompt window
+#ParticleParticle_PromptTime.Max: 200	# upper limit of particle-particle prompt window
+#ParticleParticle_RandomTime.Min: 400	# lower limit of particle-particle random window
+#ParticleParticle_RandomTime.Max: 800	# upper limit of particle-particle random window
 #ParticleParticle_FillRatio: 1.0	# ratio of prompt and random events for subtraction (default: time window ratio)
-#ParticleElectron_Prompt.Min: -200	# lower limit of particle-electron prompt window
-#ParticleElectron_Prompt.Max: 200	# upper limit of particle-electron prompt window
-#ParticleElectron_Random.Min: 400	# lower limit of particle-electron random window
-#ParticleElectron_Random.Max: 800	# upper limit of particle-electron random window
+#ParticleElectron_PromptTime.Min: -200	# lower limit of particle-electron prompt window
+#ParticleElectron_PromptTime.Max: 200	# upper limit of particle-electron prompt window
+#ParticleElectron_RandomTime.Min: 400	# lower limit of particle-electron random window
+#ParticleElectron_RandomTime.Max: 800	# upper limit of particle-electron random window
 #ParticleElectron_FillRatio: 1.0	# ratio of prompt and random events for subtraction (default: time window ratio)
-#GammaElectron_Prompt.Min: -200		# lower limit of gamma-electron prompt window
-#GammaElectron_Prompt.Max: 200		# upper limit of gamma-electron prompt window
-#GammaElectron_Random.Min: 400		# lower limit of gamma-electron random window
-#GammaElectron_Random.Max: 800		# upper limit of gamma-electron random window
+#GammaElectron_PromptTime.Min: -200		# lower limit of gamma-electron prompt window
+#GammaElectron_PromptTime.Max: 200		# upper limit of gamma-electron prompt window
+#GammaElectron_RandomTime.Min: 400		# lower limit of gamma-electron random window
+#GammaElectron_RandomTime.Max: 800		# upper limit of gamma-electron random window
 #GammaElectron_FillRatio: 1.0		# ratio of prompt and random events for subtraction (default: time window ratio)
-#ElectronElectron_Prompt.Min: -200	# lower limit of electron-electron prompt window
-#ElectronElectron_Prompt.Max: 200	# upper limit of electron-electron prompt window
-#ElectronElectron_Random.Min: 400	# lower limit of electron-electron random window
-#ElectronElectron_Random.Max: 800	# upper limit of electron-electron random window
+#ElectronElectron_PromptTime.Min: -200	# lower limit of electron-electron prompt window
+#ElectronElectron_PromptTime.Max: 200	# upper limit of electron-electron prompt window
+#ElectronElectron_RandomTime.Min: 400	# lower limit of electron-electron random window
+#ElectronElectron_RandomTime.Max: 800	# upper limit of electron-electron random window
 #ElectronElectron_FillRatio: 1.0	# ratio of prompt and random events for subtraction (default: time window ratio)
 
 
@@ -119,3 +119,13 @@ EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 #TransferCut.Name: CUTG		# name of the TCutG object inside the ROOT file
 #TransferCut.X: E			# variable along the x axis of the plot that is cut (default E, options: dE, E, theta)
 #TransferCut.Y: dE			# variable along the y axis of the plot that is cut (default dE, options: dE, E, theta)
+
+
+## Histogram options
+#Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)
+#Histograms.ByCrystal: false		# turn on/off the individual crystal by crystal Doppler corrected spectra (default false = off)
+#Histograms.GammaGamma: true		# turn on/off the gamma-gamma histograms (default true = on)
+#Histograms.Electron: true			# turn on/off the electron histograms (default true = on)
+#Histograms.ElectronGamma: true		# turn on/off the electron-gamma histograms (default true = on)
+#Histograms.BeamDump: true			# turn on/off the beam-dump histograms (default true = on)
+#Histograms.IonChamber: false		# turn on/off the ionisation chamber histograms (default true = on)
