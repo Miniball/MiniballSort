@@ -259,12 +259,13 @@ void MiniballReaction::ReadReaction() {
 	EBIS_ratio = config->GetValue( "EBIS.FillRatio", GetEBISTimeRatio() );	// this is the measured ratio of EBIS On/off. Default is just the time window ratio
 	
 	// Histogram options
-	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// trun on histograms for segment phi
-	hist_gamma_gamma = config->GetValue( "Histograms.GammaGamma", true );	// trun on histograms for gamma-gamma
-	hist_electron = config->GetValue( "Histograms.Electron", true );	// trun on histograms for electrons
-	hist_electron_gamma = config->GetValue( "Histograms.ElectronGamma", true );	// trun on histograms for electron-gamma
-	hist_beam_dump = config->GetValue( "Histograms.BeamDump", true );	// trun on histograms for beam dump
-	hist_ion_chamb = config->GetValue( "Histograms.IonChamber", false );	// trun on histograms for ionisation chamber
+	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
+	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", true );	// turn on histograms for gamma-gamma
+	hist_gamma_gamma = config->GetValue( "Histograms.GammaGamma", true );	// turn on histograms for gamma-gamma
+	hist_electron = config->GetValue( "Histograms.Electron", true );	// turn on histograms for electrons
+	hist_electron_gamma = config->GetValue( "Histograms.ElectronGamma", true );	// turn on histograms for electron-gamma
+	hist_beam_dump = config->GetValue( "Histograms.BeamDump", true );	// turn on histograms for beam dump
+	hist_ion_chamb = config->GetValue( "Histograms.IonChamber", false );	// turn on histograms for ionisation chamber
 
 	// Particle-Gamma time windows
 	pg_prompt[0] = config->GetValue( "ParticleGamma_PromptTime.Min", -300 );	// lower limit for particle-gamma prompt time difference

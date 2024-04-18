@@ -404,47 +404,97 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy, gated on the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_recoil_dc_none";
 	htitle = "Gamma-ray energy, gated on the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_recoil_dc_recoil";
 	htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_2p_dc_none";
 	htitle = "Gamma-ray energy, in coincidence with ejectile and recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_2p_dc_ejectile";
 	htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "gE_vs_theta_2p_dc_recoil";
 	htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
+	// Per crystal Doppler-corrected spectra
+	if( react->HistByCrystal() ) {
+		
+		hname = "gE_vs_crystal_ejectile_dc_none";
+		htitle = "Gamma-ray energy, gated on the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_ejectile_dc_ejectile";
+		htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_ejectile_dc_recoil";
+		htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_recoil_dc_none";
+		htitle = "Gamma-ray energy, gated on the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_recoil_dc_ejectile";
+		htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_recoil_dc_recoil";
+		htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_2p_dc_none";
+		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_2p_dc_ejectile";
+		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "gE_vs_crystal_2p_dc_recoil";
+		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		gE_vs_crystal_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+	} // by crystal
+	
 	hname = "ggE_ejectile_dc_none";
 	htitle = "Gamma-gamma matrix, gated on the ejectile with random subtraction;";
 	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
@@ -563,47 +613,97 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy with addback, gated on the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_recoil_dc_none";
 	htitle = "Gamma-ray energy with addback, gated on the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_recoil_dc_recoil";
 	htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_2p_dc_none";
 	htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_2p_dc_ejectile";
 	htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
 	hname = "aE_vs_theta_2p_dc_recoil";
 	htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-
+	
+	// Per crystal Doppler-corrected spectra
+	if( react->HistByCrystal() ) {
+		
+		hname = "aE_vs_crystal_ejectile_dc_none";
+		htitle = "Gamma-ray energy with addback, gated on the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_ejectile_dc_ejectile";
+		htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_ejectile_dc_recoil";
+		htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_recoil_dc_none";
+		htitle = "Gamma-ray energy with addback, gated on the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_recoil_dc_ejectile";
+		htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_recoil_dc_recoil";
+		htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_2p_dc_none";
+		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_2p_dc_ejectile";
+		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+		hname = "aE_vs_crystal_2p_dc_recoil";
+		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
+		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
+		aE_vs_crystal_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
+		
+	} // by crystal
+	
 	hname = "aaE_ejectile_dc_none";
 	htitle = "Gamma-gamma matrix with addback, gated on the ejectile with random subtraction;";
 	htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
@@ -653,13 +753,13 @@ void MiniballHistogrammer::MakeHists() {
 			hname = "gE_vs_phi_dc_ejectile_seg";
 			hname += std::to_string(i);
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the ejectile with random subtraction;";
-			htitle += "Phi angle of segment " + std::to_string(i) + " [deg];Gamma-ray Energy [keV];Counts";
+			htitle += "Phi angle of segment " + std::to_string(i) + ";Gamma-ray Energy [keV];Counts";
 			gE_vs_phi_dc_ejectile[i] = new TH2F( hname.data(), htitle.data(), 360, -0.5, 359.5, GBIN, GMIN, GMAX );
 			
 			hname = "gE_vs_phi_dc_recoil_seg";
 			hname += std::to_string(i);
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the recoil with random subtraction;";
-			htitle += "Phi angle of segment " + std::to_string(i) + " [deg];Gamma-ray Energy [keV];Counts";
+			htitle += "Phi angle of segment " + std::to_string(i) + ";Gamma-ray Energy [keV];Counts";
 			gE_vs_phi_dc_recoil[i] = new TH2F( hname.data(), htitle.data(), 360, -0.5, 359.5, GBIN, GMIN, GMAX );
 			
 		}
@@ -1035,6 +1135,30 @@ void MiniballHistogrammer::ResetHists() {
 	aE_vs_theta_2p_dc_ejectile->Reset("ICESM");
 	aE_vs_theta_2p_dc_recoil->Reset("ICESM");
 	
+	// Per crystal Doppler-corrected spectra
+	if( react->HistByCrystal() ) {
+		
+		gE_vs_crystal_ejectile_dc_none->Reset("ICESM");
+		gE_vs_crystal_ejectile_dc_ejectile->Reset("ICESM");
+		gE_vs_crystal_ejectile_dc_recoil->Reset("ICESM");
+		gE_vs_crystal_recoil_dc_none->Reset("ICESM");
+		gE_vs_crystal_recoil_dc_ejectile->Reset("ICESM");
+		gE_vs_crystal_recoil_dc_recoil->Reset("ICESM");
+		gE_vs_crystal_2p_dc_none->Reset("ICESM");
+		gE_vs_crystal_2p_dc_ejectile->Reset("ICESM");
+		gE_vs_crystal_2p_dc_recoil->Reset("ICESM");
+		aE_vs_crystal_ejectile_dc_none->Reset("ICESM");
+		aE_vs_crystal_ejectile_dc_ejectile->Reset("ICESM");
+		aE_vs_crystal_ejectile_dc_recoil->Reset("ICESM");
+		aE_vs_crystal_recoil_dc_none->Reset("ICESM");
+		aE_vs_crystal_recoil_dc_ejectile->Reset("ICESM");
+		aE_vs_crystal_recoil_dc_recoil->Reset("ICESM");
+		aE_vs_crystal_2p_dc_none->Reset("ICESM");
+		aE_vs_crystal_2p_dc_ejectile->Reset("ICESM");
+		aE_vs_crystal_2p_dc_recoil->Reset("ICESM");
+
+	}
+	
 	// Gamma-gamma hists
 	if( react->HistGammaGamma() ) {
 		
@@ -1207,6 +1331,16 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		gE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
+		// Per crystal Doppler-corrected spectra
+		if( react->HistByCrystal() ) {
+		
+			int cry = g->GetCrystal() + set->GetNumberOfMiniballCrystals() * g->GetCluster();
+			gE_vs_crystal_ejectile_dc_none->Fill( cry, g->GetEnergy(), weight );
+			gE_vs_crystal_ejectile_dc_ejectile->Fill( cry, react->DopplerCorrection( g, true ), weight );
+			gE_vs_crystal_ejectile_dc_recoil->Fill( cry, react->DopplerCorrection( g, false ), weight );
+
+		}
+		
 	}
 
 	// Recoil-gated spectra
@@ -1221,6 +1355,16 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		gE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		gE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
+
+		// Per crystal Doppler-corrected spectra
+		if( react->HistByCrystal() ) {
+			
+			int cry = g->GetCrystal() + set->GetNumberOfMiniballCrystals() * g->GetCluster();
+			gE_vs_crystal_recoil_dc_none->Fill( cry, g->GetEnergy(), weight );
+			gE_vs_crystal_recoil_dc_ejectile->Fill( cry, react->DopplerCorrection( g, true ), weight );
+			gE_vs_crystal_recoil_dc_recoil->Fill( cry, react->DopplerCorrection( g, false ), weight );
+			
+		}
 
 	}
 	
@@ -1239,6 +1383,16 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		gE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 		
+		// Per crystal Doppler-corrected spectra
+		if( react->HistByCrystal() ) {
+			
+			int cry = g->GetCrystal() + set->GetNumberOfMiniballCrystals() * g->GetCluster();
+			gE_vs_crystal_2p_dc_none->Fill( cry, g->GetEnergy(), weight );
+			gE_vs_crystal_2p_dc_ejectile->Fill( cry, react->DopplerCorrection( g, true ), weight );
+			gE_vs_crystal_2p_dc_recoil->Fill( cry, react->DopplerCorrection( g, false ), weight );
+			
+		}
+
 	}
 	
 	// Segment-phi determination
@@ -1309,6 +1463,16 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		aE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
+		// Per crystal Doppler-corrected spectra
+		if( react->HistByCrystal() ) {
+			
+			int cry = g->GetCrystal() + set->GetNumberOfMiniballCrystals() * g->GetCluster();
+			aE_vs_crystal_ejectile_dc_none->Fill( cry, g->GetEnergy(), weight );
+			aE_vs_crystal_ejectile_dc_ejectile->Fill( cry, react->DopplerCorrection( g, true ), weight );
+			aE_vs_crystal_ejectile_dc_recoil->Fill( cry, react->DopplerCorrection( g, false ), weight );
+			
+		}
+
 	}
 
 	// Recoil-gated spectra
@@ -1323,6 +1487,16 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		aE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		aE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
+
+		// Per crystal Doppler-corrected spectra
+		if( react->HistByCrystal() ) {
+			
+			int cry = g->GetCrystal() + set->GetNumberOfMiniballCrystals() * g->GetCluster();
+			aE_vs_crystal_recoil_dc_none->Fill( cry, g->GetEnergy(), weight );
+			aE_vs_crystal_recoil_dc_ejectile->Fill( cry, react->DopplerCorrection( g, true ), weight );
+			aE_vs_crystal_recoil_dc_recoil->Fill( cry, react->DopplerCorrection( g, false ), weight );
+			
+		}
 
 	}
 	
@@ -1341,6 +1515,16 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		aE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 		
+		// Per crystal Doppler-corrected spectra
+		if( react->HistByCrystal() ) {
+			
+			int cry = g->GetCrystal() + set->GetNumberOfMiniballCrystals() * g->GetCluster();
+			aE_vs_crystal_2p_dc_none->Fill( cry, g->GetEnergy(), weight );
+			aE_vs_crystal_2p_dc_ejectile->Fill( cry, react->DopplerCorrection( g, true ), weight );
+			aE_vs_crystal_2p_dc_recoil->Fill( cry, react->DopplerCorrection( g, false ), weight );
+			
+		}
+
 	}
 	
 	return;

@@ -123,6 +123,7 @@ EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 
 ## Histogram options
 #Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)
+#Histograms.ByCrystal: false		# turn on/off the individual crystal by crystal Doppler corrected spectra (default false = off)
 #Histograms.GammaGamma: true		# turn on/off the gamma-gamma histograms (default true = on)
 #Histograms.Electron: true			# turn on/off the electron histograms (default true = on)
 #Histograms.ElectronGamma: true		# turn on/off the electron-gamma histograms (default true = on)
