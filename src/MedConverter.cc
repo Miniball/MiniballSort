@@ -660,7 +660,7 @@ void MiniballMedConverter::ProcessDgfData() {
 						hdgf_qshort[mod][ch]->Fill( Qshort );
 						hdgf_cal[mod][ch]->Fill( energy );
 
-						// Clear the old stuff
+            // Clear the old stuff
 						dgf_data->ClearData();
 						info_data->ClearData();
 						data_packet->ClearData();
@@ -722,8 +722,7 @@ void MiniballMedConverter::ProcessDgfData() {
 							data_packet->SetData( dgf_data );
 							output_tree->Fill();
 
-						}
-
+            }
 						
 					} // channel mask, we have data in this channel
 					
