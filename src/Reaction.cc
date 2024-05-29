@@ -960,19 +960,11 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 	double dx = dist/(double)Nmeshpoints;
 	double E = Ei;
 	
-	// Create a spline for the provided TGraph
-	// Use akima spline to make energy loss graph smoother
-	std::unique_ptr<TSpline3> spline = std::make_unique<TSpline3>( "spline", g.get(), "akima" );
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
-
-		double eloss = spline->Eval(E) * dx;
-		if( eloss > E && eloss > 0 ) eloss = E; // incase we are "stopped"
-
-		E -= eloss;
-		if( E < 100. && eloss > 0 ) break; // when we fall below 100 keV we assume maximum energy loss
-
+		
+		E -= g->Eval(E) * dx;
+		
 	}
-	
 	return Ei - E;
 
 }
