@@ -385,8 +385,6 @@ void MiniballMbsConverter::FinishFebexData(){
 		flag_febex_info = true;
 		unsigned int pulserID = set->GetPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 		my_info_code = set->GetPulserCode() + pulserID;
-		hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
-		ctr_febex_ext++;
 		
 	}
 	

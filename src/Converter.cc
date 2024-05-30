@@ -12,6 +12,7 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	ctr_febex_hit.resize( set->GetNumberOfFebexSfps() );
 	ctr_febex_pause.resize( set->GetNumberOfFebexSfps() );
 	ctr_febex_resume.resize( set->GetNumberOfFebexSfps() );
+	ctr_febex_sync.resize( set->GetNumberOfFebexSfps() );
 
 	first_data.resize( set->GetNumberOfFebexSfps(), true );
 
@@ -25,6 +26,7 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 		ctr_febex_hit[i].resize( set->GetNumberOfFebexBoards() );
 		ctr_febex_pause[i].resize( set->GetNumberOfFebexBoards() );
 		ctr_febex_resume[i].resize( set->GetNumberOfFebexBoards() );
+		ctr_febex_sync[i].resize( set->GetNumberOfFebexBoards() );
 
 		tm_stp_febex[i].resize( set->GetNumberOfFebexBoards(), 0 );
 		tm_stp_febex_ch[i].resize( set->GetNumberOfFebexBoards() );
@@ -65,13 +67,16 @@ void MiniballConverter::StartFile(){
 			ctr_febex_hit[i][j] = 0;	// hits on each module
 			ctr_febex_pause[i][j] = 0;
 			ctr_febex_resume[i][j] = 0;
-			
+			ctr_febex_sync[i][j] = 0;
+
+			tm_stp_febex[i][j] = 0;			
+			for( unsigned int k = 0; k < set->GetNumberOfFebexBoards(); ++k )
+				tm_stp_febex_ch[i][j][k] = 0;
+
 		}
 
 	}
 
-	ctr_febex_ext = 0;	// pulser trigger
-	
 	jump_ctr = 0;	// timestamp jumps (jumps more than 300s in same board)
 	warp_ctr = 0;	// timestamp warps (goes back in time, wrong board ID)
 	mash_ctr = 0;	// timestamp mashes (mangled bits, with 16-bit shift)
@@ -154,6 +159,7 @@ void MiniballConverter::MakeHists() {
 	hfebex_hit.resize( set->GetNumberOfFebexSfps() );
 	hfebex_pause.resize( set->GetNumberOfFebexSfps() );
 	hfebex_resume.resize( set->GetNumberOfFebexSfps() );
+	hfebex_sync.resize( set->GetNumberOfFebexSfps() );
 
 	// Loop over FEBEX SFPs
 	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
@@ -165,6 +171,7 @@ void MiniballConverter::MakeHists() {
 		hfebex_hit[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_pause[i].resize( set->GetNumberOfFebexBoards() );
 		hfebex_resume[i].resize( set->GetNumberOfFebexBoards() );
+		hfebex_sync[i].resize( set->GetNumberOfFebexBoards() );
 
 		// Loop over each FEBEX board
 		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
@@ -354,6 +361,23 @@ void MiniballConverter::MakeHists() {
 				hfebex_resume[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
 				
 			}
+			
+			// External sync trigger vs timestamp
+			output_file->cd( maindirname.data() );
+			hname = "hfebex_sync_" + std::to_string(i);
+			hname += "_" + std::to_string(j);
+			htitle = "Profile of external sync trigger ts versus hit_id";
+			
+			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
+				hfebex_sync[i][j] = (TProfile*)output_file->Get( hname.data() );
+			
+			else {
+				
+				hfebex_sync[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
+				hfebex_sync[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
+				
+			}
+
 				
 		} // j - board
 		
@@ -500,20 +524,6 @@ void MiniballConverter::MakeHists() {
 		
 	} // i - ADC
 	
-	// External trigger vs timestamp
-	output_file->cd( maindirname.data() );
-	hname = "hfebex_ext_ts";
-	htitle = "Profile of external trigger ts versus hit_id";
-
-	if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-		hfebex_ext = (TProfile*)output_file->Get( hname.data() );
-	
-	else {
-		
-		hfebex_ext = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
-		hfebex_ext->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-		
-	}
 	
 	// Hit time plot
 	hhit_time = new TH1F( "hhit_time", "Hit time distribution", 3200, -16000, 16000 );
@@ -543,12 +553,12 @@ void MiniballConverter::ResetHists() {
 			hfebex_hit[i][j]->Reset( "ICEMS" );
 			hfebex_pause[i][j]->Reset( "ICEMS" );
 			hfebex_resume[i][j]->Reset( "ICEMS" );
+			hfebex_sync[i][j]->Reset( "ICEMS" );
 
 		} // j - board
 		
 	} // i - SFP
 	
-	hfebex_ext->Reset( "ICEMS" );
 	hhit_time->Reset( "ICEMS" );
 	
 	return;
