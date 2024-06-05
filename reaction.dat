@@ -130,3 +130,12 @@ EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 #Histograms.ElectronGamma: true		# turn on/off the electron-gamma histograms (default true = on)
 #Histograms.BeamDump: true			# turn on/off the beam-dump histograms (default true = on)
 #Histograms.IonChamber: false		# turn on/off the ionisation chamber histograms (default true = on)
+#Histograms.Gamma.Bins: 6000		# number of bins in the gamma-ray energy spectra (keV)
+#Histograms.Gamma.Min: -0.5			# lower energy limit of gamma-ray spectra (keV)
+#Histograms.Gamma.Max: 5999.5		# upper energy limit of gamma-ray spectra (keV)
+#Histograms.Electron.Bins: 2000		# number of bins in electron spectra
+#Histograms.Electron.Min: -0.5		# lower energy limit of electron spectra (keV)
+#Histograms.Electron.Max: 1999.5	# upper energy limit of electron spectra (keV)
+#Histograms.Particle.Bins: 2000		# number of bins in particle spectra
+#Histograms.Particle.Min: 0			# lower energy limit of particle spectra (keV)
+#Histograms.Particle.Max: 2.0e6		# upper energy limit of particle spectra (keV) - default depends on reaction...

@@ -268,6 +268,34 @@ void MiniballReaction::ReadReaction() {
 	hist_beam_dump = config->GetValue( "Histograms.BeamDump", true );	// turn on histograms for beam dump
 	hist_ion_chamb = config->GetValue( "Histograms.IonChamber", false );	// turn on histograms for ionisation chamber
 
+	// Histogram ranges - gammas and electrons
+	gamma_bins = config->GetValue( "Histograms.Gamma.Bins", 6000 );				// number of bins in gamma-ray spectra
+	gamma_range[0] = config->GetValue( "Histograms.Gamma.Min", -0.5 );			// lower energy limit of gamma-ray spectra (keV)
+	gamma_range[1] = config->GetValue( "Histograms.Gamma.Max", 5999.5 );		// upper energy limit of gamma-ray spectra (keV)
+	electron_bins = config->GetValue( "Histograms.Electron.Bins", 2000 );		// number of bins in electron spectra
+	electron_range[0] = config->GetValue( "Histograms.Electron.Min", -0.5 );	// lower energy limit of electron spectra (keV)
+	electron_range[1] = config->GetValue( "Histograms.Electron.Max", 1999.5 );	// upper energy limit of electron spectra (keV)
+
+	// Histogram ranges - particles
+	double pmax_default = 2.0e6;
+	if( Beam.GetIsotope() != Ejectile.GetIsotope() ) {
+		if( Recoil.GetA() <= 12 ) pmax_default = 200e3;
+		else if( Beam.GetEnergy() < 100e3 ) pmax_default = 200e3;
+		else if( Beam.GetEnergy() < 200e3 ) pmax_default = 400e3;
+		else if( Beam.GetEnergy() < 400e3 ) pmax_default = 800e3;
+		else if( Beam.GetEnergy() < 800e3 ) pmax_default = 1600e3;
+	}
+	else {
+		if( Beam.GetEnergy() < 100e3 ) pmax_default = 200e3;
+		else if( Beam.GetEnergy() < 200e3 ) pmax_default = 400e3;
+		else if( Beam.GetEnergy() < 400e3 ) pmax_default = 800e3;
+		else if( Beam.GetEnergy() < 800e3 ) pmax_default = 1600e3;
+		else if( Beam.GetEnergy() > 2000e3 ) pmax_default = 4000e3;
+	}
+	particle_bins = config->GetValue( "Histograms.Particle.Bins", 2000 );		// number of bins in particle spectra
+	particle_range[0] = config->GetValue( "Histograms.Particle.Min", 0.0 );		// lower energy limit of particle spectra (keV)
+	particle_range[1] = config->GetValue( "Histograms.Particle.Max", pmax_default );	// upper energy limit of particle spectra (keV)
+
 	// Particle-Gamma time windows
 	pg_prompt[0] = config->GetValue( "ParticleGamma_PromptTime.Min", -300 );	// lower limit for particle-gamma prompt time difference
 	pg_prompt[1] = config->GetValue( "ParticleGamma_PromptTime.Max", 300 );		// upper limit for particle-gamma prompt time difference

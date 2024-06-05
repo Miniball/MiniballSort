@@ -511,6 +511,17 @@ public:
 	inline bool HistElectronGamma(){ return hist_electron_gamma; };
 	inline bool HistBeamDump(){ return hist_beam_dump; };
 	inline bool HistIonChamber(){ return hist_ion_chamb; };
+	
+	// Histogram ranges
+	inline unsigned int HistGammaBins(){ return gamma_bins; }
+	inline double HistGammaMin(){ return gamma_range[0]; }
+	inline double HistGammaMax(){ return gamma_range[1]; }
+	inline unsigned int HistElectronBins(){ return electron_bins; }
+	inline double HistElectronMin(){ return electron_range[0]; }
+	inline double HistElectronMax(){ return electron_range[1]; }
+	inline unsigned int HistParticleBins(){ return particle_bins; }
+	inline double HistParticleMin(){ return particle_range[0]; }
+	inline double HistParticleMax(){ return particle_range[1]; }
 
 	ClassDef( MiniballReaction, 3 )
 
@@ -593,6 +604,10 @@ private:
 	bool hist_electron_gamma;
 	bool hist_beam_dump;
 	bool hist_ion_chamb;
+	
+	// Histogram ranges
+	unsigned int gamma_bins, electron_bins, particle_bins;
+	double gamma_range[2], electron_range[2], particle_range[2];
 
 	// Random numbers
 	TRandom rand;

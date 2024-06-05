@@ -13,28 +13,16 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 	TMAX = (float)window_ticks * 10.0 + 5.0;
 	TMIN = TMAX * -1.0;
 	TBIN = window_ticks * 2 + 1;
-	
-	// Check if we're doing transfer reactions and change particle energy range
-	if( react->GetBeam()->GetIsotope() != react->GetEjectile()->GetIsotope() ) {
-		
-		if( react->GetRecoil()->GetA() <= 12 ) PMAX = 200e3;
-		else if( react->GetBeam()->GetEnergy() < 100e3 ) PMAX = 200e3;
-		else if( react->GetBeam()->GetEnergy() < 200e3 ) PMAX = 400e3;
-		else if( react->GetBeam()->GetEnergy() < 400e3 ) PMAX = 800e3;
-		else if( react->GetBeam()->GetEnergy() < 800e3 ) PMAX = 1600e3;
 
-	}
-	
-	// Check if we're doing low-energy or light Coulex
-	else {
-
-		if( react->GetBeam()->GetEnergy() < 100e3 ) PMAX = 200e3;
-		else if( react->GetBeam()->GetEnergy() < 200e3 ) PMAX = 400e3;
-		else if( react->GetBeam()->GetEnergy() < 400e3 ) PMAX = 800e3;
-		else if( react->GetBeam()->GetEnergy() < 800e3 ) PMAX = 1600e3;
-		else if( react->GetBeam()->GetEnergy() > 2000e3 ) PMAX = 4000e3;
-
-	}
+	GBIN = react->HistGammaBins();
+	GMIN = react->HistGammaMin();
+	GMAX = react->HistGammaMax();
+	EBIN = react->HistElectronBins();
+	EMIN = react->HistElectronMin();
+	EMAX = react->HistElectronMax();
+	PBIN = react->HistParticleBins();
+	PMIN = react->HistParticleMin();
+	PMAX = react->HistParticleMax();
 	
 }
 
