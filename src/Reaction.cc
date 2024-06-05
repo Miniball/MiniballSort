@@ -261,6 +261,7 @@ void MiniballReaction::ReadReaction() {
 	// Histogram options
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
 	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", false );	// turn on histograms for gamma-gamma
+	hist_by_sector = config->GetValue( "Histograms.BySector", false );	// turn on sector-by-sector histograms for particles
 	hist_gamma_gamma = config->GetValue( "Histograms.GammaGamma", true );	// turn on histograms for gamma-gamma
 	hist_electron = config->GetValue( "Histograms.Electron", false );	// turn on histograms for electrons
 	hist_electron_gamma = config->GetValue( "Histograms.ElectronGamma", false );	// turn on histograms for electron-gamma
