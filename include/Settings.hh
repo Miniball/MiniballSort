@@ -136,8 +136,10 @@ public:
 
 
 	// Info settings
-	inline unsigned int GetSyncCode(){ return sync_code; };
-	inline unsigned int GetTimestampCode(){ return thsb_code; };
+	inline unsigned int GetMsbSyncCode(){ return sync_msb_code; };
+	inline unsigned int GetHsbSyncCode(){ return sync_hsb_code; };
+	inline unsigned int GetMsbTimestampCode(){ return tm_msb_code; };
+	inline unsigned int GetHsbTimestampCode(){ return tm_hsb_code; };
 	inline unsigned int GetPauseCode(){ return pause_code;};
 	inline unsigned int GetResumeCode(){ return resume_code;};
 	inline unsigned int GetPulserCode(){ return pulser_code; };
@@ -412,8 +414,10 @@ private:
 	
 	
 	// Info code settings
-	unsigned int sync_code;				///< Medium significant bits of the timestamp are here
-	unsigned int thsb_code;				///< Highest significant bits of the timestamp are here
+	unsigned int sync_msb_code;			///< Sync pulse code from Exploder (msb)
+	unsigned int sync_hsb_code;			///< Sync pulse code from Exploder (hsb)
+	unsigned int tm_msb_code;			///< Medium significant bits of the timestamp are here
+	unsigned int tm_hsb_code;			///< Highest significant bits of the timestamp are here
 	unsigned int pause_code;        	///< Info code when acquisition has paused due to a full buffer
 	unsigned int resume_code;       	///< Info code when acquisition has resumed after a pause.
 	unsigned int pulser_code;			///< Info code when we have a pulser event in InfoData packets

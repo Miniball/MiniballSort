@@ -484,8 +484,8 @@ void MiniballMidasConverter::FinishFebexData(){
 		long long int board_check	= febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()];
 		long long int channel_check	= febex_data->GetTime() - tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()];
 		
-		// Check how we compare to the first timestamp from this buffer (30 seconds)
-		if( !first_data[febex_data->GetSfp()] && ( sfp_check > 30e9 || sfp_check < -30e9 ) ){
+		// Check how we compare to the first timestamp from this buffer (1000 seconds)
+		if( !first_data[febex_data->GetSfp()] && ( sfp_check > 1000e9 || sfp_check < -1000e9 ) ){
 			
 			std::cerr << "Timestamp mash in SFP = " << std::dec << (int)febex_data->GetSfp();
 			std::cerr << ", board = " << (int)febex_data->GetBoard();
@@ -501,7 +501,7 @@ void MiniballMidasConverter::FinishFebexData(){
 		
 		// Skip large forwards time jumps in same board, maybe?
 		else if( tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] != 0 &&
-		   board_check > 300e9 ) {
+		   board_check > 240e9 ) {
 			
 			std::cerr << "Timestamp jump in SFP = " << std::dec << (int)febex_data->GetSfp();
 			std::cerr << ", board = " << (int)febex_data->GetBoard();
@@ -509,6 +509,10 @@ void MiniballMidasConverter::FinishFebexData(){
 			std::cerr << ":\n\t" << std::hex << febex_data->GetTime()/10;
 			std::cerr << " >> " << tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()]/10;
 			std::cerr << std::dec << std::endl;
+			
+			// Update board time in case of slow counting channels
+			// but don't update the channel time in case it's anomalous
+			tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] = febex_data->GetTime();
 			
 			jump_ctr++;
 			data_ctr++;
@@ -576,8 +580,6 @@ void MiniballMidasConverter::FinishFebexData(){
 				flag_febex_info = true;
 				unsigned int pulserID = set->GetPulser( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 				my_info_code = set->GetPulserCode() + pulserID;
-				hfebex_ext->Fill( ctr_febex_ext, febex_data->GetTime(), 1 );
-				ctr_febex_ext++;
 				
 			}
 			
@@ -760,7 +762,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 
 
 	// HSB of FEBEX extended timestamp
-	if( my_info_code == set->GetTimestampCode() ) {
+	if( my_info_code == set->GetHsbTimestampCode() ) {
 		
 		// Check that the timestamp isn't weird
 		int tmp_tm_stp = my_info_field & 0x0000FFFF;
@@ -772,6 +774,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 			
 		}
 
+		// Huh? What is this?
 		if( ( my_info_field & 0x0000FFFF ) > 0 )
 			my_flagbit = true;
 		else my_flagbit = false;
@@ -779,15 +782,24 @@ void MiniballMidasConverter::ProcessInfoData(){
 	}
 	
 	// MSB of FEBEX extended timestamp
-	if( my_info_code == set->GetSyncCode() ) {
+	if( my_info_code == set->GetMsbTimestampCode() ) {
 		
 		//if(my_tm_stp_hsb>0)
 		//	std::cout << my_tm_stp_hsb << " " << my_tm_stp_msb << std::endl;
 		
 		// Check that the timestamp isn't weird
 		int tmp_tm_stp = my_info_field & 0x000FFFFF;
-		if( ( tmp_tm_stp & 0x000FFFF0 ) != 0x000A5A50 &&
-		   ( my_tm_stp_msb & 0x0000FF00 ) != 0x0000A500 ) {
+		if( ( tmp_tm_stp & 0x00000FF0 ) == 0x00000A50 &&
+		    ( my_tm_stp_msb & 0x0000FFF ) != 0x0000A4F &&
+		    ( my_tm_stp_msb & 0x0000FF0 ) != 0x0000A50 &&
+		    my_tm_stp > 0 ) {
+			
+			std::cout << "Corrupt MSB timestamp? 0x" << std::hex;
+			std::cout << my_tm_stp_msb << std::dec << std::endl;
+			
+		}
+		
+		else {
 		
 			// In FEBEX this would be the extended timestamp
 			my_tm_stp_msb = tmp_tm_stp;
@@ -810,28 +822,48 @@ void MiniballMidasConverter::ProcessInfoData(){
 
 	// Resume
 	if( my_info_code == set->GetResumeCode() ) {
-
+		
 		my_tm_stp_msb = my_info_field & 0x000FFFFF;
 		my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
-
+		
 		hfebex_resume[my_sfp_id][my_board_id]->Fill( ctr_febex_resume[my_sfp_id][my_board_id], my_tm_stp, 1 );
 		ctr_febex_resume[my_sfp_id][my_board_id]++;
 		
-    }
+	}
+	
+	// Sync pulse in FEBEX (HSB)
+	if( my_info_code == set->GetHsbSyncCode() ) {
+		
+		sync_tm_stp_hsb = my_info_field & 0x000000FF;
 
+	}
+	
+	// Sync pulse in FEBEX (MSB)
+	if( my_info_code == set->GetMsbSyncCode() ) {
+		
+		sync_tm_stp_msb = my_info_field & 0x000FFFFF;
+		my_tm_stp = ( sync_tm_stp_hsb << 48 ) | ( sync_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
+		sync_tm_stp = my_tm_stp;
+		
+		hfebex_sync[my_sfp_id][my_board_id]->Fill( ctr_febex_sync[my_sfp_id][my_board_id], sync_tm_stp, 1 );
+		ctr_febex_sync[my_sfp_id][my_board_id]++;
+		
+	}
+	
 	// Create an info event and fill the tree for external triggers and pause/resume
-	if( my_info_code != set->GetSyncCode() &&
-	    my_info_code != set->GetTimestampCode() ) {
+	if( my_info_code != set->GetMsbTimestampCode() &&
+	    my_info_code != set->GetHsbTimestampCode() &&
+	    my_info_code != set->GetHsbSyncCode()) {
 
 		info_data->SetSfp( my_sfp_id );
 		info_data->SetBoard( my_board_id );
-		info_data->SetTime( my_tm_stp*10 ); // timestamp in 10 ns ticks
+		info_data->SetTime( my_tm_stp*10 );
 		info_data->SetCode( my_info_code );
 		data_packet->SetData( info_data );
 		
 		// Fill only if we are not doing a source run
 		// Or comment out if we want to skip them because we're not debugging
-		//if( !flag_source ) output_tree->Fill();
+		if( !flag_source ) output_tree->Fill();
 		info_data->Clear();
 
 	}

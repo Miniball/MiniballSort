@@ -39,7 +39,7 @@
 #TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD or SPEDE distance)
 
 # Doppler mode, calculating the velocity for Doppler correction
-#DopplerMode: 0	# 0 = use angles and two-body kinematics at the centre of the target
+#DopplerMode: 1	# 0 = use angles and two-body kinematics at the centre of the target
 				# 1 = like 0, but corrected for energy loss though the back of the target (default)
 				# 2 = use energy of particle in the CD detector
 				# 3 = like 2, but corrected for energy loss in dead-layer and back of the target
@@ -47,7 +47,9 @@
 # Plot laser ON/OFF data? (0 = OFF, 1 = ON, 2 = OFF or ON)
 #LaserMode: 2
 
-# Miniball Detector geometry
+# Miniball Detector geometry (Type declared to define the parameterisation)
+#MiniballGeometry.Type:	1			# 0 = old online definition
+									# 1 = new accurate geometry from Hannah Kleis (default)
 #MiniballCluster_0.Theta:	0.0		# Theta of cluster 0 in Miniball frame of reference
 #MiniballCluster_0.Phi:		0.0		# Phi of cluster 0 in Miniball frame of reference
 #MiniballCluster_0.Alpha:	0.0		# Alpha of cluster 0 in Miniball frame of reference
@@ -124,8 +126,18 @@ EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 ## Histogram options
 #Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)
 #Histograms.ByCrystal: false		# turn on/off the individual crystal by crystal Doppler corrected spectra (default false = off)
+#Histograms.BySector: false			# turn on/off the sector-by-sector plots for particle histograms (default false = off)
 #Histograms.GammaGamma: true		# turn on/off the gamma-gamma histograms (default true = on)
 #Histograms.Electron: true			# turn on/off the electron histograms (default true = on)
 #Histograms.ElectronGamma: true		# turn on/off the electron-gamma histograms (default true = on)
 #Histograms.BeamDump: true			# turn on/off the beam-dump histograms (default true = on)
 #Histograms.IonChamber: false		# turn on/off the ionisation chamber histograms (default true = on)
+#Histograms.Gamma.Bins: 6000		# number of bins in the gamma-ray energy spectra (keV)
+#Histograms.Gamma.Min: -0.5			# lower energy limit of gamma-ray spectra (keV)
+#Histograms.Gamma.Max: 5999.5		# upper energy limit of gamma-ray spectra (keV)
+#Histograms.Electron.Bins: 2000		# number of bins in electron spectra
+#Histograms.Electron.Min: -0.5		# lower energy limit of electron spectra (keV)
+#Histograms.Electron.Max: 1999.5	# upper energy limit of electron spectra (keV)
+#Histograms.Particle.Bins: 2000		# number of bins in particle spectra
+#Histograms.Particle.Min: 0			# lower energy limit of particle spectra (keV)
+#Histograms.Particle.Max: 2.0e6		# upper energy limit of particle spectra (keV) - default depends on reaction...

@@ -323,7 +323,10 @@ private:
 
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_ejectile, *pE_theta_recoil;
-	std::vector<std::vector<TH2F*>> pE_dE, pE_dE_coinc, pE_dE_cut;
+	std::vector<TH2F*> pE_dE, pE_dE_coinc, pE_dE_cut;
+	std::vector<TH2F*> pE_theta_sec, pE_theta_coinc_sec;
+	std::vector<TH2F*> pE_theta_ejectile_sec, pE_theta_recoil_sec;
+	std::vector<std::vector<TH2F*>> pE_dE_sec, pE_dE_coinc_sec, pE_dE_cut_sec;
 	TProfile *pBeta_theta_ejectile, *pBeta_theta_recoil;
 	TH1F *particle_particle_td;
 	TH2F *particle_xy_map_forward, *particle_xy_map_backward, *particle_theta_phi_map;

@@ -217,8 +217,10 @@ void MiniballSettings::ReadSettings() {
 	// Info code initialisation
 	pause_code		= 2;
 	resume_code		= 3;
-	sync_code		= 7;
-	thsb_code		= 8;
+	sync_msb_code	= 14;
+	sync_hsb_code	= 15;
+	tm_msb_code		= 7;
+	tm_hsb_code		= 8;
 	pulser_code		= 30;	// code for first channel, others are pulser_code+id
 	ebis_sfp		= config->GetValue( "EBIS.Sfp", 1 );
 	ebis_board		= config->GetValue( "EBIS.Board", 10 );

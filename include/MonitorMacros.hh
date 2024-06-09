@@ -1,4 +1,7 @@
-#include "mb_sort.hh"
+#ifndef __MBSORT_HH
+# include "mb_sort.hh"
+#endif
+
 #include <iostream>
 
 int ResetConv(){

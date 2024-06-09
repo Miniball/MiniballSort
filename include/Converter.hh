@@ -106,11 +106,14 @@ protected:
 	// Interpretated variables
 	unsigned long long my_good_tm_stp = 0;
 	unsigned long long my_tm_stp = 0;
+	unsigned long long sync_tm_stp = 0;
 	long long ebis_tm_stp = 0;
 	unsigned long long my_event_id;
 	unsigned long my_tm_stp_lsb = 0;
 	unsigned long my_tm_stp_msb = 0;
 	unsigned long my_tm_stp_hsb = 0;
+	unsigned long sync_tm_stp_msb = 0;
+	unsigned long sync_tm_stp_hsb = 0;
 	unsigned int my_info_field;
 	unsigned int ebis_period = 0;
 	unsigned int ebis_first = 0;
@@ -168,7 +171,7 @@ protected:
 	std::vector<std::vector<unsigned long int>> ctr_febex_hit;		// hits on each Febex module
 	std::vector<std::vector<unsigned long int>> ctr_febex_pause;   	// pause acq for module
 	std::vector<std::vector<unsigned long int>> ctr_febex_resume;  	// resume acq for module
-	unsigned long int ctr_febex_ext;								// pulser timestamps
+	std::vector<std::vector<unsigned long int>> ctr_febex_sync;  	// sync code from Exploder for each module
 	unsigned long int jump_ctr, warp_ctr, mash_ctr;					// count timestamp jumps and warps
 	unsigned long int data_ctr;										// total number of data counted
 	unsigned long int reject_ctr;									// total number of reject buffers
@@ -178,7 +181,7 @@ protected:
 	std::vector<std::vector<TProfile*>> hfebex_hit;
 	std::vector<std::vector<TProfile*>> hfebex_pause;
 	std::vector<std::vector<TProfile*>> hfebex_resume;
-	TProfile *hfebex_ext;
+	std::vector<std::vector<TProfile*>> hfebex_sync;
 
 	std::vector<std::vector<TH1F*>> hdgf_qshort;
 	std::vector<std::vector<TH1F*>> hdgf_cal;

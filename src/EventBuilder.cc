@@ -30,9 +30,11 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 	febex_time_stop.resize( set->GetNumberOfFebexSfps() );
 	febex_dead_time.resize( set->GetNumberOfFebexSfps() );
 	febex_time_ch.resize( set->GetNumberOfFebexSfps() );
+	sync_time.resize( set->GetNumberOfFebexSfps() );
 	pause_time.resize( set->GetNumberOfFebexSfps() );
 	resume_time.resize( set->GetNumberOfFebexSfps() );
 	n_board.resize( set->GetNumberOfFebexSfps() );
+	n_sync.resize( set->GetNumberOfFebexSfps() );
 	n_pause.resize( set->GetNumberOfFebexSfps() );
 	n_resume.resize( set->GetNumberOfFebexSfps() );
 	flag_pause.resize( set->GetNumberOfFebexSfps() );
@@ -48,9 +50,11 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 		febex_time_stop[i].resize( set->GetNumberOfFebexBoards() );
 		febex_dead_time[i].resize( set->GetNumberOfFebexBoards() );
 		febex_time_ch[i].resize( set->GetNumberOfFebexBoards() );
+		sync_time[i].resize( set->GetNumberOfFebexBoards() );
 		pause_time[i].resize( set->GetNumberOfFebexBoards() );
 		resume_time[i].resize( set->GetNumberOfFebexBoards() );
 		n_board[i].resize( set->GetNumberOfFebexBoards() );
+		n_sync[i].resize( set->GetNumberOfFebexBoards() );
 		n_pause[i].resize( set->GetNumberOfFebexBoards() );
 		n_resume[i].resize( set->GetNumberOfFebexBoards() );
 		flag_pause[i].resize( set->GetNumberOfFebexBoards() );
@@ -120,9 +124,11 @@ void MiniballEventBuilder::StartFile(){
 			febex_time_start[i][j] = 0;
 			febex_time_stop[i][j] = 0;
 			febex_dead_time[i][j] = 0;
+			sync_time[i][j] = 0;
 			pause_time[i][j] = 0;
 			resume_time[i][j] = 0;
 			n_board[i][j] = 0;
+			n_sync[i][j] = 0;
 			n_pause[i][j] = 0;
 			n_resume[i][j] = 0;
 			flag_pause[i][j] = false;
@@ -1920,7 +1926,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			n_info_data++;
 			
 			info_data = in_data->GetInfoData();
-			
+
 			// Update EBIS time
 			if( info_data->GetCode() == set->GetEBISCode() &&
 				TMath::Abs( (double)ebis_time - (double)info_data->GetTime() ) > 1e3 ) {
@@ -1988,7 +1994,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 				n_rilis++;
 				
-			} // SuperCycle code
+			} // Laser code
 			
 			// Update pulser time
 			if( info_data->GetCode() >= set->GetPulserCode() &&
@@ -2023,6 +2029,28 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				n_pulser[pulserID]++;
 
 			} // pulser code
+			
+			// Update sync time
+			if( info_data->GetCode() == set->GetMsbSyncCode() ){
+				
+				// Check the SFP and module number
+				if( info_data->GetSfp() < set->GetNumberOfFebexSfps() &&
+				    info_data->GetBoard() < set->GetNumberOfFebexBoards() ) {
+					
+					// Get the time of the sync pulse
+					sync_time[info_data->GetSfp()][info_data->GetBoard()] = info_data->GetTime();
+					n_sync[info_data->GetSfp()][info_data->GetBoard()]++;
+					
+				}
+				
+				else {
+					
+					std::cerr << "Bad sync event in SFP " << (int)info_data->GetSfp();
+					std::cerr << ", board " << (int)info_data->GetBoard() << std::endl;
+					
+				}
+				
+			} // Sync pulse code
 
 			// Check the pause events for each module
 			if( info_data->GetCode() == set->GetPauseCode() ) {
@@ -2277,6 +2305,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	//		ss_log << "             pause = " << n_pause[i][j] << std::endl;
 	//		ss_log << "            resume = " << n_resume[i][j] << std::endl;
 	//		ss_log << "         dead time = " << (double)febex_dead_time[i][j]/1e9 << " s" << std::endl;
+			ss_log << "       sync pulses = " << n_sync[i][j] << std::endl;
 			ss_log << "          run time = " << (double)(febex_time_stop[i][j]-febex_time_start[i][j])/1e9 << " s" << std::endl;
 		}
 	}

@@ -8,12 +8,6 @@
 #include <TVector3.h>
 #include <TMath.h>
 
-#define ROOTTHREEOVER2 0.8660254
-#define DIST_CORE_CORNER 34.0 // first iteration was 34.0 - new 34.5
-#define NOMINAL_CLUSTER_DIST 400.0 // first iteration was 400.0 - new 430.0
-#define INTERACTION_DEPTH 15.0 // first iteration was 0.0
-#define INTER_CRYSTAL_GAP 2.5 // first iteration was 0.0
-
 /// Functions to convert Miniball angles read from the frame
 
 /// --------------------------------------------------------------------
@@ -64,11 +58,16 @@ public:
 	/// \param user_z distance from target to origin in beam direction [mm]
 	inline void SetCluZ( double user_z ) { z = user_z; };
 	
+	/// Set the geometry defintion type
+	/// \param user_type
+	inline void SetGeometryType( unsigned char user_type ) { type = user_type; };
+	
 	/// Getters for the various setters
 	inline double GetCluTheta(){ return theta; };
 	inline double GetCluPhi(){ return phi; };
 	inline double GetCluAlpha(){ return alpha; };
 	inline double GetCluR(){ return r; };
+	inline unsigned char GetGeometryType(){ return type; };
 
 	/// Get the theta angle of the crystal with respect to the beam
 	/// \param cry number of the MB Ge crystal counting from 0 to 2
@@ -146,11 +145,12 @@ private:
 	const unsigned char nseg = 7; // 6 segments plus core
 	
 	// Current values of theta, phi, alpha and r
-	double theta;	///< theta angle in radians
-	double phi;		///< phi angle in radians
-	double alpha;	///< alpha angle in radians
-	double r; 		///< distance from target to detector in mm
-	double z; 		///< distance from target to origin (beam direction is positive) in mm
+	unsigned char type;	///< geometry defintion type
+	double theta;		///< theta angle in radians
+	double phi;			///< phi angle in radians
+	double alpha;		///< alpha angle in radians
+	double r; 			///< distance from target to detector in mm
+	double z; 			///< distance from target to origin (beam direction is positive) in mm
 	
 	// Geometry
 	std::vector<std::vector<TVector3>> seg_offset;	///< vector for segment centre (0 = core)

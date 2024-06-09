@@ -156,6 +156,7 @@ private:
 	double pulser_T, ebis_T, t1_T, sc_T;
 	std::vector<unsigned long long>  pulser_time, pulser_prev;
 	std::vector<std::vector<unsigned long long>> pause_time, resume_time;
+	std::vector<std::vector<unsigned long long>> sync_time;
 	std::vector<std::vector<unsigned long long>> febex_dead_time;
 	std::vector<std::vector<unsigned long long>> febex_time_start, febex_time_stop;
 	std::vector<std::vector<std::vector<unsigned long long>>> febex_time_ch;
@@ -222,7 +223,7 @@ private:
 	unsigned long				n_entries, n_mbs_entries, n_febex_data, n_info_data, n_dgf_data, n_adc_data;
 	unsigned long				n_ebis, n_t1, n_sc, n_rilis;
 	std::vector<unsigned long>	n_sfp, n_dgf, n_adc, n_pulser;
-	std::vector<std::vector<unsigned long>>	n_board;
+	std::vector<std::vector<unsigned long>>	n_board, n_sync;
 	std::vector<std::vector<unsigned long>>	n_pause, n_resume;
 	unsigned long				n_miniball, n_cd, n_pad, n_spede, n_bd, n_ic;
 	unsigned long				repeat_ctr;

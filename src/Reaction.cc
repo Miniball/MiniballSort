@@ -260,12 +260,41 @@ void MiniballReaction::ReadReaction() {
 	
 	// Histogram options
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
-	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", true );	// turn on histograms for gamma-gamma
+	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", false );	// turn on histograms for gamma-gamma
+	hist_by_sector = config->GetValue( "Histograms.BySector", false );	// turn on sector-by-sector histograms for particles
 	hist_gamma_gamma = config->GetValue( "Histograms.GammaGamma", true );	// turn on histograms for gamma-gamma
-	hist_electron = config->GetValue( "Histograms.Electron", true );	// turn on histograms for electrons
-	hist_electron_gamma = config->GetValue( "Histograms.ElectronGamma", true );	// turn on histograms for electron-gamma
+	hist_electron = config->GetValue( "Histograms.Electron", false );	// turn on histograms for electrons
+	hist_electron_gamma = config->GetValue( "Histograms.ElectronGamma", false );	// turn on histograms for electron-gamma
 	hist_beam_dump = config->GetValue( "Histograms.BeamDump", true );	// turn on histograms for beam dump
 	hist_ion_chamb = config->GetValue( "Histograms.IonChamber", false );	// turn on histograms for ionisation chamber
+
+	// Histogram ranges - gammas and electrons
+	gamma_bins = config->GetValue( "Histograms.Gamma.Bins", 6000 );				// number of bins in gamma-ray spectra
+	gamma_range[0] = config->GetValue( "Histograms.Gamma.Min", -0.5 );			// lower energy limit of gamma-ray spectra (keV)
+	gamma_range[1] = config->GetValue( "Histograms.Gamma.Max", 5999.5 );		// upper energy limit of gamma-ray spectra (keV)
+	electron_bins = config->GetValue( "Histograms.Electron.Bins", 2000 );		// number of bins in electron spectra
+	electron_range[0] = config->GetValue( "Histograms.Electron.Min", -0.5 );	// lower energy limit of electron spectra (keV)
+	electron_range[1] = config->GetValue( "Histograms.Electron.Max", 1999.5 );	// upper energy limit of electron spectra (keV)
+
+	// Histogram ranges - particles
+	double pmax_default = 2.0e6;
+	if( Beam.GetIsotope() != Ejectile.GetIsotope() ) {
+		if( Recoil.GetA() <= 12 ) pmax_default = 200e3;
+		else if( Beam.GetEnergy() < 100e3 ) pmax_default = 200e3;
+		else if( Beam.GetEnergy() < 200e3 ) pmax_default = 400e3;
+		else if( Beam.GetEnergy() < 400e3 ) pmax_default = 800e3;
+		else if( Beam.GetEnergy() < 800e3 ) pmax_default = 1600e3;
+	}
+	else {
+		if( Beam.GetEnergy() < 100e3 ) pmax_default = 200e3;
+		else if( Beam.GetEnergy() < 200e3 ) pmax_default = 400e3;
+		else if( Beam.GetEnergy() < 400e3 ) pmax_default = 800e3;
+		else if( Beam.GetEnergy() < 800e3 ) pmax_default = 1600e3;
+		else if( Beam.GetEnergy() > 2000e3 ) pmax_default = 4000e3;
+	}
+	particle_bins = config->GetValue( "Histograms.Particle.Bins", 2000 );		// number of bins in particle spectra
+	particle_range[0] = config->GetValue( "Histograms.Particle.Min", 0.0 );		// lower energy limit of particle spectra (keV)
+	particle_range[1] = config->GetValue( "Histograms.Particle.Max", pmax_default );	// upper energy limit of particle spectra (keV)
 
 	// Particle-Gamma time windows
 	pg_prompt[0] = config->GetValue( "ParticleGamma_PromptTime.Min", -300 );	// lower limit for particle-gamma prompt time difference
@@ -323,6 +352,7 @@ void MiniballReaction::ReadReaction() {
 	z_offset = config->GetValue( "TargetOffset.Z", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, lateral
 
 	// Read in Miniball geometry
+	mb_type = config->GetValue( "MiniballGeometry.Type", 1 ); // default = 1
 	mb_geo.resize( set->GetNumberOfMiniballClusters() );
 	mb_theta.resize( set->GetNumberOfMiniballClusters() );
 	mb_phi.resize( set->GetNumberOfMiniballClusters() );
@@ -335,6 +365,7 @@ void MiniballReaction::ReadReaction() {
 		mb_alpha[i] = config->GetValue( Form( "MiniballCluster_%d.Alpha", i ), 0. );
 		mb_r[i]	 	= config->GetValue( Form( "MiniballCluster_%d.R", i ), 0. );
 
+		mb_geo[i].SetGeometryType( mb_type );
 		mb_geo[i].SetupCluster( mb_theta[i], mb_phi[i], mb_alpha[i], mb_r[i], z_offset );
 	
 	}
@@ -960,19 +991,11 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 	double dx = dist/(double)Nmeshpoints;
 	double E = Ei;
 	
-	// Create a spline for the provided TGraph
-	// Use akima spline to make energy loss graph smoother
-	std::unique_ptr<TSpline3> spline = std::make_unique<TSpline3>( "spline", g.get(), "akima" );
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
-
-		double eloss = spline->Eval(E) * dx;
-		if( eloss > E && eloss > 0 ) eloss = E; // incase we are "stopped"
-
-		E -= eloss;
-		if( E < 100. && eloss > 0 ) break; // when we fall below 100 keV we assume maximum energy loss
-
+		
+		E -= g->Eval(E) * dx;
+		
 	}
-	
 	return Ei - E;
 
 }
