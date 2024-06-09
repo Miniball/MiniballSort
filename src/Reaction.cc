@@ -352,6 +352,7 @@ void MiniballReaction::ReadReaction() {
 	z_offset = config->GetValue( "TargetOffset.Z", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, lateral
 
 	// Read in Miniball geometry
+	mb_type = config->GetValue( "MiniballGeometry.Type", 1 ); // default = 1
 	mb_geo.resize( set->GetNumberOfMiniballClusters() );
 	mb_theta.resize( set->GetNumberOfMiniballClusters() );
 	mb_phi.resize( set->GetNumberOfMiniballClusters() );
@@ -364,6 +365,7 @@ void MiniballReaction::ReadReaction() {
 		mb_alpha[i] = config->GetValue( Form( "MiniballCluster_%d.Alpha", i ), 0. );
 		mb_r[i]	 	= config->GetValue( Form( "MiniballCluster_%d.R", i ), 0. );
 
+		mb_geo[i].SetGeometryType( mb_type );
 		mb_geo[i].SetupCluster( mb_theta[i], mb_phi[i], mb_alpha[i], mb_r[i], z_offset );
 	
 	}

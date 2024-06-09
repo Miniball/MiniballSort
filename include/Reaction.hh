@@ -580,6 +580,7 @@ private:
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;
 	std::vector<double> mb_theta, mb_phi, mb_alpha, mb_r;
+	unsigned char mb_type;
 
 	// SPEDE things
 	double spede_dist;	///< distance from target to SPEDE detector
