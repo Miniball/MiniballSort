@@ -795,7 +795,7 @@ void MiniballMidasConverter::ProcessInfoData(){
 		    my_tm_stp > 0 ) {
 			
 			std::cout << "Corrupt MSB timestamp? 0x" << std::hex;
-			std::cout << my_tm_stp_msb << std::dec << std::endl;
+			std::cout << tmp_tm_stp << std::dec << std::endl;
 			
 		}
 		
