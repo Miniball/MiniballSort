@@ -13,7 +13,7 @@ void MiniballMidasConverter::SetBlockHeader( char *input_header ){
 }
 
 // Function to process header words
-void MiniballMidasConverter::ProcessBlockHeader( unsigned long nblock ){
+void MiniballMidasConverter::ProcessBlockHeader( long nblock ){
 		
 	// For each new header, reset the swap mode
 	swap = 0;
@@ -73,7 +73,7 @@ void MiniballMidasConverter::SetBlockData( char *input_data ){
 
 
 // Function to process data words
-void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
+void MiniballMidasConverter::ProcessBlockData( long nblock ){
 	
 	// Get the data in 64-bit words and check endieness and swap if needed
 	// Data format here: http://npg.dl.ac.uk/documents/edoc504/edoc504.html
@@ -182,16 +182,16 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 		// ADC data - we always assume it comes from FEBEX
 		if( my_type == 0x3 ){
 			
-			ProcessFebexData();
+			ProcessFebexData(nblock);
 			if( flag_febex_data0 || !flag_febex_data1 || flag_febex_data2 || flag_febex_data3 )
-				FinishFebexData();
+				FinishFebexData(nblock);
 
 		}
 		
 		// Information data
 		else if( my_type == 0x2 ){
 			
-			ProcessInfoData();
+			ProcessInfoData(nblock);
 
 		}
 		
@@ -199,7 +199,7 @@ void MiniballMidasConverter::ProcessBlockData( unsigned long nblock ){
 		else if( my_type == 0x1 ){
 			
 			i = ProcessTraceData(i);
-			FinishFebexData();
+			FinishFebexData(nblock);
 
 		}
 		
@@ -331,7 +331,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 
 }
 
-void MiniballMidasConverter::ProcessFebexData(){
+void MiniballMidasConverter::ProcessFebexData( long nblock ){
 
 	// Channel ID, etc
 	if( !GetFebexChanID() ) return;
@@ -386,7 +386,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 			 flag_febex_data2 && flag_febex_data3 ){
 		
 		// Finish up the previous event
-		FinishFebexData();
+		FinishFebexData(nblock);
 
 		// Then set the info correctly for this event
 		febex_data->SetTime( my_tm_stp );
@@ -410,7 +410,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 		flag_febex_data3 = true;
 	
 		// Finish up the previous event
-		FinishFebexData();
+		FinishFebexData(nblock);
 	
 		// Then set the info correctly for this event
 		febex_data->SetTime( my_tm_stp );
@@ -460,7 +460,7 @@ void MiniballMidasConverter::ProcessFebexData(){
 
 }
 
-void MiniballMidasConverter::FinishFebexData(){
+void MiniballMidasConverter::FinishFebexData( long nblock ){
 	
 	// Timestamp with offset
 	unsigned long long int time_corr;
@@ -485,7 +485,7 @@ void MiniballMidasConverter::FinishFebexData(){
 		long long int channel_check	= febex_data->GetTime() - tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()];
 		
 		// Check how we compare to the first timestamp from this buffer (1000 seconds)
-		if( !first_data[febex_data->GetSfp()] && ( sfp_check > 1000e9 || sfp_check < -1000e9 ) ){
+		if( !first_data[febex_data->GetSfp()] && ( sfp_check > 1000e9 || sfp_check < -1000e9 ) && nblock > 1 ){
 			
 			std::cerr << "Timestamp mash in SFP = " << std::dec << (int)febex_data->GetSfp();
 			std::cerr << ", board = " << (int)febex_data->GetBoard();
@@ -732,7 +732,7 @@ void MiniballMidasConverter::FinishFebexData(){
 
 }
 
-void MiniballMidasConverter::ProcessInfoData(){
+void MiniballMidasConverter::ProcessInfoData( long nblock ){
 
 	// Module number from MIDAS
 	my_sfp_id	= (word_0 >> 28) & 0x0003; // bits 28:29
