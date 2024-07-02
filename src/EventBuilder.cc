@@ -422,7 +422,7 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";Strip ID;Energy (keV);Counts per strip, per 500 keV";
 			cd_nen_id[i][j] = new TH2F( hname.data(), htitle.data(),
-									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDNStrips() - 0.5,
+									   set->GetNumberOfCDNStrips(), -0.5, set->GetNumberOfCDNStrips() - 0.5,
 									   4000, 0, 2000e3 );
 			
 			hname  = "cd_pn_1v1_" + std::to_string(i) + "_" + std::to_string(j);
@@ -1729,6 +1729,39 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					}
 					
 				}
+				
+				// Pulser item
+				else if( set->IsPulser( mysfp, myboard, mych ) && mythres ) {
+					
+					unsigned int pulserID = set->GetPulser( mysfp, myboard, mych );
+					pulser_time[pulserID] = mytime;
+					pulser_T = (double)pulser_time[pulserID] - (double)pulser_prev[pulserID];
+					pulser_f = 1e9 / pulser_T;
+					if( pulserID == 0 && pulser_prev[pulserID] != 0 ) {
+						pulser_period->Fill( pulser_T );
+						pulser_freq->Fill( pulser_time[pulserID], pulser_f );
+					}
+					
+					if( pulserID == 0 ) {
+						
+						for( unsigned int i = 1; i < set->GetNumberOfPulsers(); i++ ) {
+							
+							// If diff is greater than 5 ms, we have the wrong pair
+							double tmp_tdiff = (double)pulser_time[i] - (double)pulser_time[0];
+							if( tmp_tdiff > 1e4 ) tmp_tdiff = (double)pulser_prev[i] - (double)pulser_time[0];
+							else if( tmp_tdiff < -1e4 ) tmp_tdiff = (double)pulser_time[i] - (double)pulser_prev[0];
+							
+							pulser_tdiff->Fill( i, tmp_tdiff );
+							
+						}
+						
+					}
+					
+					pulser_prev[pulserID] = pulser_time[pulserID];
+					n_pulser[pulserID]++;
+						
+				} // pulser code
+
 
 			} // process febex data
 			
