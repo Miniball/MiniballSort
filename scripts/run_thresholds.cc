@@ -31,7 +31,6 @@ int run_thresholds( string filename) {
 	TFile *infile = new TFile( filename.data() );
 	
 	std::string hname;
-	TH2F* h2;
 	TH1F* h1;
 	
 	std::ofstream outfile( "thresholds_2024.dat" );
@@ -56,14 +55,13 @@ int run_thresholds( string filename) {
 				
 				// Get histogram from file
 				hname  = "sfp_" + std::to_string(sfp);
+				hname += "/board_" + std::to_string(board);
 				hname += "/febex_" + std::to_string(sfp) + "_";
 				hname += std::to_string(board) + "_";
-				hname += std::to_string(i)
-				h2 = (TH2F*)infile->Get( hname.data() );
+				hname += std::to_string(i) + "_qint";
 				
-				h1 = (TH1F*)h2->ProjectionY( "tmp", i+1, i+1 );
-				h1->Rebin(4);
-				thres = strip_threshold( h1 );
+				h1 = (TH1F*)infile->Get( hname.data() );
+				thres = channel_threshold( h1 );
 				
 				outfile << "febex_" << sfp << "_" << board << "_" << i;
 				outfile << ".Threshold:\t" << thres << endl;
