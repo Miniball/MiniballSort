@@ -183,7 +183,7 @@ void MiniballAngleFunction::FitSegmentEnergies( TFile *infile ){
 	} // clu
 	
 	// Close the pdf file for peak fits
-	c1->Print("peak_fits.pdf)");
+	c1->Print("peak_fits.pdf]");
 
 	// Clean up
 	delete h1;
@@ -673,7 +673,7 @@ void MiniballAngleFitter::DoFit() {
 	
 	// Save first plot as a PDF
 	gErrorIgnoreLevel = kWarning;
-	c1->Print("position_cal.pdf(");
+	c1->Print("position_cal.pdf[");
 	
 	// Draw the residuals
 	resgraph->SetMarkerStyle(kFullCircle);
