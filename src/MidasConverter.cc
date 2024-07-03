@@ -790,12 +790,15 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 		// Check that the timestamp isn't weird
 		int tmp_tm_stp = my_info_field & 0x000FFFFF;
 		if( ( tmp_tm_stp & 0x00000FF0 ) == 0x00000A50 &&
-		    ( my_tm_stp_msb & 0x0000FFF ) != 0x0000A4F &&
+		    ( my_tm_stp_msb & 0x0000FF0 ) != 0x0000A40 &&
 		    ( my_tm_stp_msb & 0x0000FF0 ) != 0x0000A50 &&
-		    my_tm_stp > 0 ) {
+		    ( my_tm_stp_msb & 0x0000FF0 ) != 0x0000A60 &&
+		   my_tm_stp_msb > 0 ) {
 			
+			long tmp_full = ( (long)tmp_tm_stp << 48 ) | ( my_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
 			std::cout << "Corrupt MSB timestamp? 0x" << std::hex;
-			std::cout << tmp_tm_stp << std::dec << std::endl;
+			std::cout << tmp_tm_stp << std::endl << "\t";
+			std::cout << tmp_full << std::dec << std::endl;
 			
 		}
 		
