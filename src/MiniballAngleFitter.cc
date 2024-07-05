@@ -183,7 +183,7 @@ void MiniballAngleFunction::FitSegmentEnergies( TFile *infile ){
 	} // clu
 	
 	// Close the pdf file for peak fits
-	c1->Print("peak_fits.pdf]");
+	c1->Print("peak_fits.pdf)");
 
 	// Clean up
 	delete h1;
@@ -481,14 +481,20 @@ void MiniballAngleFitter::Initialise() {
 		// these may cause issue if we need to cross over the 0/360 boundary
 		LL[indx+0]	= pars[indx+0] - 60.0;
 		LL[indx+1]	= pars[indx+1] - 60.0;
-		LL[indx+2]	= pars[indx+2] - 60.0;
-		LL[indx+3]	= pars[indx+3] - 60.0;
+		LL[indx+2]	= 0.0;
+		LL[indx+3]	= 50.0;
 		
 		// Upper limits
 		UL[indx+0]	= pars[indx+0] + 60.0;
 		UL[indx+1]	= pars[indx+1] + 60.0;
-		UL[indx+2]	= pars[indx+2] + 60.0;
-		UL[indx+3]	= pars[indx+3] + 60.0;
+		UL[indx+2]	= 360.0;
+		UL[indx+3]	= 180.0;
+		
+		// Couple of consistency checks
+		if( LL[indx+0] < 0.0 ) LL[indx+0] = 0.0;
+		if( LL[indx+1] < 0.0 ) LL[indx+1] = 0.0;
+		if( UL[indx+0] > 360.0 ) UL[indx+0] = 360.0;
+		if( UL[indx+1] > 360.0 ) UL[indx+1] = 360.0;
 
 	}
 	
@@ -534,10 +540,11 @@ void MiniballAngleFitter::DoFit() {
 	
 	// Some fit controls
 	min->SetErrorDef(1.);
-	min->SetMaxFunctionCalls(1e5);
-	min->SetMaxIterations(1e6);
-	//min->SetPrecision(1e-9);
-	//min->SetTolerance(1e-3);
+	min->SetMaxFunctionCalls(1e7);
+	min->SetMaxIterations(1e8);
+	min->SetPrecision(1e-12);
+	min->SetTolerance(1e-9);
+	min->SetStrategy(2); // 0: low, 1: medium, 2: high
 	min->SetFunction(f_init);
 
 	// Set limits in fit
@@ -561,6 +568,9 @@ void MiniballAngleFitter::DoFit() {
 			min->FixVariable( indx+3 );
 
 		}
+		
+		// Uncomment below to fix phi
+		//min->FixVariable( indx+1 );
 		
 	} // clu
 
@@ -673,7 +683,7 @@ void MiniballAngleFitter::DoFit() {
 	
 	// Save first plot as a PDF
 	gErrorIgnoreLevel = kWarning;
-	c1->Print("position_cal.pdf[");
+	c1->Print("position_cal.pdf(","pdf");
 	
 	// Draw the residuals
 	resgraph->SetMarkerStyle(kFullCircle);
@@ -685,7 +695,7 @@ void MiniballAngleFitter::DoFit() {
 	func->Draw("same");
 	
 	// Save second plot as a PDF
-	c1->Print("position_cal.pdf");
+	c1->Print("position_cal.pdf","pdf");
 	
 	// Draw the corrected energies compared to reference
 	corrgraph->SetMarkerStyle(kFullCircle);
@@ -696,7 +706,7 @@ void MiniballAngleFitter::DoFit() {
 	func->Draw("same");
 	
 	// Save third plot as a PDF
-	c1->Print("position_cal.pdf");
+	c1->Print("position_cal.pdf","pdf");
 	
 	// Draw the phi residuals
 	phigraph->SetMarkerStyle(kFullCircle);
@@ -706,7 +716,7 @@ void MiniballAngleFitter::DoFit() {
 	func->Draw("same");
 
 	// Save fourth plot as a PDF
-	c1->Print("position_cal.pdf");
+	c1->Print("position_cal.pdf","pdf");
 
 	// A multi-graph showing all the positions in theta-phi, xy, xz, etc
 	auto tp_mg = std::make_unique<TMultiGraph>();
@@ -819,7 +829,7 @@ void MiniballAngleFitter::DoFit() {
 	tp_mg->Draw("AP");
 	leg2->Draw();
 	//tp_mg->Write();
-	c1->Print("position_cal.pdf");
+	c1->Print("position_cal.pdf","pdf");
 	
 	// Draw the multigraph for xy-forward
 	xy_f_mg->GetYaxis()->SetTitle("x [mm]");
@@ -827,7 +837,7 @@ void MiniballAngleFitter::DoFit() {
 	xy_f_mg->Draw("AP");
 	leg2->Draw();
 	//xy_f_mg->Write();
-	c1->Print("position_cal.pdf");
+	c1->Print("position_cal.pdf","pdf");
 
 	// Draw the multigraph for xy-backwards
 	xy_b_mg->GetYaxis()->SetTitle("x [mm]");
@@ -835,7 +845,7 @@ void MiniballAngleFitter::DoFit() {
 	xy_b_mg->Draw("AP");
 	leg2->Draw();
 	//xy_b_mg->Write();
-	c1->Print("position_cal.pdf");
+	c1->Print("position_cal.pdf","pdf");
 
 	// Draw the multigraph for xz-right
 	xz_r_mg->GetYaxis()->SetTitle("x [mm]");
@@ -843,7 +853,7 @@ void MiniballAngleFitter::DoFit() {
 	xz_r_mg->Draw("AP");
 	leg2->Draw();
 	//xz_r_mg->Write();
-	c1->Print("position_cal.pdf");
+	c1->Print("position_cal.pdf","pdf");
 	
 	// Draw the multigraph for xz-left
 	xz_l_mg->GetYaxis()->SetTitle("x [mm]");
@@ -851,7 +861,7 @@ void MiniballAngleFitter::DoFit() {
 	xz_l_mg->Draw("AP");
 	leg2->Draw();
 	//xz_l_mg->Write();
-	c1->Print("position_cal.pdf)");
+	c1->Print("position_cal.pdf)","pdf");
 	gErrorIgnoreLevel = kInfo;
 
 	// Print final results to terminal
