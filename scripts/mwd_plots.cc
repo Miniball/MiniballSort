@@ -141,7 +141,7 @@ void mwd_plots( std::string filename = "test/R4_13.root", unsigned int sfp = 0,
 						h->GetMean() + 10.* h->GetStdDev() );
 			h->Draw("hist");
 			
-			// Update the canvas and wait 5 ms
+			// Update the canvas and wait 700 ms
 			c1->Update();
 			c2->Update();
 			gSystem->ProcessEvents();

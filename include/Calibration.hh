@@ -34,11 +34,11 @@ public:
 	
 	// Set functions
 	inline void SetTrace( std::vector<unsigned short> t ){ trace = t; };
-	inline void SetRiseTime( unsigned int t ){ rise_time = t; }; // M
+	inline void SetRiseTime( unsigned int t ){ rise_time = t; }; // L
 	inline void SetDecayTime( float t ){ decay_time = t; }; // torr
 	inline void SetFlatTop( unsigned int t ){ flat_top = t; }; // not in James' code
 	inline void SetBaseline( unsigned int t ){ baseline_length = t; }; // BLFL (baseline filter length?)
-	inline void SetWindow( unsigned int t ){ window = t; }; // L
+	inline void SetWindow( unsigned int t ){ window = t; }; // M
 	inline void SetDelayTime( unsigned int t ){ cfd_delay = t; };
 	inline void SetHoldOff( unsigned int t ){ cfd_hold = t; };
 	inline void SetShapingTime( unsigned int t ){ cfd_shaping_time = t; };

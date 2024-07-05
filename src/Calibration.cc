@@ -137,7 +137,7 @@ void FebexMWD::DoMWD() {
 				if( threshold > 0 && cfd[i-1] < 0 ) continue;
 			
 				// Found a zero-crossing
-				if( cfd[i] * cfd[i-1] > 0 ) xing = true;
+				if( cfd[i] * cfd[i-1] < 0 ) xing = true;
 				
 			}
 			
@@ -216,10 +216,10 @@ void MiniballCalibration::ReadCalibration() {
 	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
 	default_MWD_Decay		= 5000;
-	default_MWD_Rise		= 880; // M
-	default_MWD_Top			= 760; // mwd_cfd_trig_delay
-	default_MWD_Baseline	= 60;
-	default_MWD_Window		= 780; // L
+	default_MWD_Rise		= 780; // L
+	default_MWD_Top			= 870; // mwd_cfd_trig_delay
+	default_MWD_Baseline	= 60;  // delay MWD in James' firmware
+	default_MWD_Window		= 880; // M
 	default_CFD_Delay		= 30;
 	default_CFD_HoldOff		= 100; // prevent double triggering?
 	default_CFD_Shaping		= 15;
