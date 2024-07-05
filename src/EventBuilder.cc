@@ -356,14 +356,14 @@ void MiniballEventBuilder::MakeEventHists(){
 				hname += std::to_string(j);
 				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
 				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += ";segment ID;Energy (keV)";
+				htitle += " (multiplicity = 1 only);segment ID;Energy (keV)";
 				mb_en_core_seg[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
 				
 				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
 				hname += std::to_string(j) + "_ebis_on";
 				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
 				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += " gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
+				htitle += " (multiplicity = 1 only) gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
 				mb_en_core_seg_ebis_on[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
 			
 		} // j
@@ -430,28 +430,28 @@ void MiniballEventBuilder::MakeEventHists(){
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
-			cd_pn_1v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
+			cd_pn_1v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
 			
 			hname  = "cd_pn_1v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 1v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
-			cd_pn_1v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
+			cd_pn_1v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
 			
 			hname  = "cd_pn_2v1_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v1";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
-			cd_pn_2v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
+			cd_pn_2v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
 			
 			hname  = "cd_pn_2v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
-			cd_pn_2v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 2000e3, 400, 0, 2000e3 );
+			cd_pn_2v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
 			
 			hname  = "cd_pn_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side time difference ";
@@ -630,12 +630,6 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( TMath::Abs( (double)mb_ts_list.at(i) - (double)mb_ts_list.at(j) )
 			   > set->GetMiniballCrystalHitWindow() ) continue;
 			
-			// Fill the segment spectra with core energies
-			mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
-			if( mb_ts_list.at(j) - ebis_time < 1.5e6 )
-				mb_en_core_seg_ebis_on[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( mb_seg_list.at(j), mb_en_list.at(i) );
-
-			
 			// Increment the segment multiplicity and sum energy
 			seg_mul++;
 			SegSumEnergy += mb_en_list.at(j);
@@ -649,6 +643,12 @@ void MiniballEventBuilder::GammaRayFinder() {
 			}
 			
 		} // j: matching segments
+		
+		// Fill the segment spectra with core energies
+		mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( MaxSegId, mb_en_list.at(i) );
+		if( mb_ts_list.at(i) - ebis_time < 1.5e6 )
+			mb_en_core_seg_ebis_on[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( MaxSegId, mb_en_list.at(i) );
+
 		
 		//if( MaxSegId == 0 && mb_en_list.at(i) > 150.0 )
 		//	std::cout << std::endl << mb_en_list.at(i) << "\t" << MaxSegEnergy << std::endl;
