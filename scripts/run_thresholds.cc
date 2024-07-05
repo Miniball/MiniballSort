@@ -12,7 +12,7 @@ int channel_threshold( TH1F *h ) {
 	double curval;
 	
 	int binlimit = 20;
-	double peakfraction = 0.005;
+	double peakfraction = 0.001;
 	
 	for( int i = maxbin+1; i < maxbin + binlimit; ++i ){
 		
