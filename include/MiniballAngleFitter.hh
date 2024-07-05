@@ -105,7 +105,7 @@ private:
 	std::shared_ptr<MiniballReaction> myreact;
 	
 	double user_z = 0;
-	double eref = 440.2;
+	double eref = 439.986; // Lund = 439.986; NNDC = 440.2
 
 };
 
