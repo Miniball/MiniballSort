@@ -334,6 +334,8 @@ private:
 	// Particle-gamma coincidences with and without addback
 	TH1F *gamma_particle_td;
 	TH2F *gamma_particle_E_vs_td;
+	std::vector<TH1F*> gamma_particle_td_sec;
+	std::vector<TH2F*> gamma_particle_E_vs_td_sec;
 	TH1F *gE_prompt, *gE_prompt_1p, *gE_prompt_2p;
 	TH1F *gE_random, *gE_random_1p, *gE_random_2p;
 	TH1F *aE_prompt, *aE_prompt_1p, *aE_prompt_2p;
