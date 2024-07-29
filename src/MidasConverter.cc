@@ -277,7 +277,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	for( UInt_t j = 0; j < nsamples/4; j++ ){
 		
 		// get next word
-		ULong64_t sample_packet = GetWord(pos++);
+		ULong64_t sample_packet = GetWord(++pos);
 		
 		UInt_t block_test = ( sample_packet >> 32 ) & 0x00000000FFFFFFFF;
 		
