@@ -277,6 +277,14 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Particle energy singles, gated on recoil;Angle [deg];Energy [keV];Counts";
 	pE_theta_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
+	hname = "pE_theta_2p_ejectile";
+	htitle = "Particle energy singles, gated on ejectile with 2-particle condition;Angle [deg];Energy [keV];Counts";
+	pE_theta_2p_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	
+	hname = "pE_theta_2p_recoil";
+	htitle = "Particle energy singles, gated on recoil with 2-particle condition;Angle [deg];Energy [keV];Counts";
+	pE_theta_2p_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	
 	// Sector-by-sector particle plots
 	if( react->HistBySector() ) {
 		
@@ -1151,6 +1159,8 @@ void MiniballHistogrammer::ResetHists() {
 	pE_theta_coinc->Reset("ICESM");
 	pE_theta_ejectile->Reset("ICESM");
 	pE_theta_recoil->Reset("ICESM");
+	pE_theta_2p_ejectile->Reset("ICESM");
+	pE_theta_2p_recoil->Reset("ICESM");
 	pBeta_theta_ejectile->Reset("ICESM");
 	pBeta_theta_recoil->Reset("ICESM");
 	particle_xy_map_forward->Reset("ICESM");
@@ -2034,6 +2044,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
@@ -2059,6 +2071,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
