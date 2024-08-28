@@ -102,7 +102,7 @@ void MiniballGeometry::SetupCluster() {
 	// Offsets - We start now with the crystal in beam direction (X)
 	double myalpha, myphi, mytheta;
 	
-	if( phi > TMath::Pi() ) {
+	if( phi > TMath::Pi() || phi < 0 ) {
 		myalpha = alpha;
 		myphi = TMath::PiOver2() + phi;
 		mytheta = theta;

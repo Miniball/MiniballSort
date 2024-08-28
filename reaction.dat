@@ -25,9 +25,9 @@
 #TargetA: 120		#
 #TargetZ: 50		#
 #TargetEx: 0.		# excitation energy in keV before the reaction (isomeric state)
-#EjectileA: 185		# Ejectile is the beam in Coulex, or the heavy ion in transfer
+#EjectileA: 185		# Ejectile is the beam in Coulex, or the heavy ion (beam-like) in transfer
 #EjectileZ: 80		#
-#RecoilA: 120		# Recoil is the target for Coulex, or the light ion in transfer
+#RecoilA: 120		# Recoil is the target for Coulex, or the light ion (target-like) in transfer
 #RecoilZ: 80		# this does not always match the language of the users who are used to normal kinematics
 #EjectileEx: 500.	# excitation energy in keV after the reaction
 #RecoilEx: 0.		# excitation energy in keV after the reaction

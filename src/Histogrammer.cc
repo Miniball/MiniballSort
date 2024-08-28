@@ -47,7 +47,31 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gamma_particle_E_vs_td";
 	htitle = "Gamma-ray - Particle time difference versus gamma-ray energy;#Deltat;Gamma-ray energy (keV);Counts";
 	gamma_particle_E_vs_td = new TH2F( hname.data(), htitle.data(),
-								 TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
+									  TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
+	
+	// Sector-by-sector particle plots
+	if( react->HistBySector() ) {
+		
+		gamma_particle_td_sec.resize( set->GetNumberOfCDSectors() );
+		gamma_particle_E_vs_td_sec.resize( set->GetNumberOfCDSectors() );
+
+		for( unsigned int i = 0; i < set->GetNumberOfCDSectors(); ++i ) {
+			
+			hname = "gamma_particle_td_sec" + std::to_string(i);
+			htitle = "Gamma-ray - Particle time difference for CD sector ";
+			htitle += std::to_string(i) + ";#Deltat;Counts";
+			gamma_particle_td_sec[i] = new TH1F( hname.data(), htitle.data(),
+											 TBIN, TMIN, TMAX );
+			
+			hname = "gamma_particle_E_vs_td_sec" + std::to_string(i);
+			htitle = "Gamma-ray - Particle time difference versus gamma-ray energy for CD sector ";
+			htitle += std::to_string(i) + ";#Deltat;Gamma-ray energy (keV);Counts";
+			gamma_particle_E_vs_td_sec[i] = new TH2F( hname.data(), htitle.data(),
+											  TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
+			
+		}
+		
+	}
 
 	hname = "gamma_gamma_td";
 	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat [ns];Counts";
@@ -252,6 +276,14 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "pE_theta_recoil";
 	htitle = "Particle energy singles, gated on recoil;Angle [deg];Energy [keV];Counts";
 	pE_theta_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	
+	hname = "pE_theta_2p_ejectile";
+	htitle = "Particle energy singles, gated on ejectile with 2-particle condition;Angle [deg];Energy [keV];Counts";
+	pE_theta_2p_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	
+	hname = "pE_theta_2p_recoil";
+	htitle = "Particle energy singles, gated on recoil with 2-particle condition;Angle [deg];Energy [keV];Counts";
+	pE_theta_2p_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 	
 	// Sector-by-sector particle plots
 	if( react->HistBySector() ) {
@@ -1127,6 +1159,8 @@ void MiniballHistogrammer::ResetHists() {
 	pE_theta_coinc->Reset("ICESM");
 	pE_theta_ejectile->Reset("ICESM");
 	pE_theta_recoil->Reset("ICESM");
+	pE_theta_2p_ejectile->Reset("ICESM");
+	pE_theta_2p_recoil->Reset("ICESM");
 	pBeta_theta_ejectile->Reset("ICESM");
 	pBeta_theta_recoil->Reset("ICESM");
 	particle_xy_map_forward->Reset("ICESM");
@@ -1359,6 +1393,8 @@ void MiniballHistogrammer::ResetHists() {
 			pE_theta_coinc_sec[i]->Reset("ICESM");
 			pE_theta_ejectile_sec[i]->Reset("ICESM");
 			pE_theta_recoil_sec[i]->Reset("ICESM");
+			gamma_particle_td_sec[i]->Reset("ICESM");
+			gamma_particle_E_vs_td_sec[i]->Reset("ICESM");
 
 		}
 		
@@ -1923,6 +1959,14 @@ unsigned long MiniballHistogrammer::FillHists() {
 				gamma_particle_td->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
 				gamma_particle_E_vs_td->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime(), gamma_evt->GetEnergy() );
 
+				// Time differences by sector
+				if( react->HistBySector() ) {
+					
+					gamma_particle_td_sec[particle_evt->GetDetector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
+					gamma_particle_E_vs_td_sec[particle_evt->GetDetector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime(), gamma_evt->GetEnergy() );
+					
+				}
+				
 				// Check for prompt coincidence
 				if( PromptCoincidence( gamma_evt, particle_evt ) ){
 					
@@ -2000,6 +2044,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
@@ -2025,6 +2071,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 

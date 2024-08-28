@@ -323,6 +323,7 @@ private:
 
 	// Particles
 	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_ejectile, *pE_theta_recoil;
+	TH2F *pE_theta_2p_ejectile, *pE_theta_2p_recoil;
 	std::vector<TH2F*> pE_dE, pE_dE_coinc, pE_dE_cut;
 	std::vector<TH2F*> pE_theta_sec, pE_theta_coinc_sec;
 	std::vector<TH2F*> pE_theta_ejectile_sec, pE_theta_recoil_sec;
@@ -334,6 +335,8 @@ private:
 	// Particle-gamma coincidences with and without addback
 	TH1F *gamma_particle_td;
 	TH2F *gamma_particle_E_vs_td;
+	std::vector<TH1F*> gamma_particle_td_sec;
+	std::vector<TH2F*> gamma_particle_E_vs_td_sec;
 	TH1F *gE_prompt, *gE_prompt_1p, *gE_prompt_2p;
 	TH1F *gE_random, *gE_random_1p, *gE_random_2p;
 	TH1F *aE_prompt, *aE_prompt_1p, *aE_prompt_2p;

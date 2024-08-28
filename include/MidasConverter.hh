@@ -27,16 +27,16 @@ public:
 	bool ProcessCurrentBlock( long nblock );
 
 	void SetBlockHeader( char *input_header );
-	void ProcessBlockHeader( unsigned long nblock );
+	void ProcessBlockHeader( long nblock );
 
 	void SetBlockData( char *input_data );
-	void ProcessBlockData( unsigned long nblock );
+	void ProcessBlockData( long nblock );
 
 	bool GetFebexChanID();
 	int  ProcessTraceData( int pos );
-	void ProcessFebexData();
-	void FinishFebexData();
-	void ProcessInfoData();
+	void ProcessFebexData( long nblock );
+	void FinishFebexData( long nblock );
+	void ProcessInfoData( long nblock );
 
 
 
