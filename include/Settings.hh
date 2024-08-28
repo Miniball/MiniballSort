@@ -172,6 +172,7 @@ public:
 	// Event builder
 	inline double GetEventWindow(){ return event_window; };
 	inline double GetMbsEventMode(){ return mbs_event_sort; };
+	inline void   SetMbsEventMode( bool flag ){ mbs_event_sort = flag; };
 
 	
 	// Data settings
