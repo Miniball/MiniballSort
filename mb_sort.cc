@@ -1039,6 +1039,10 @@ int main( int argc, char *argv[] ){
 	// Force data block size for MBS and MED data
 	if( flag_mbs ) myset->SetBlockSize( 0x8000 );
 	else if( flag_med ) myset->SetBlockSize( 0x4000 );
+	
+	// Turn of MBS event sorting for MIDAS and MED files
+	if( flag_midas || flag_med ) myset->SetMbsEventMode(false);
+
 
 	//-------------------//
 	// Online monitoring //
