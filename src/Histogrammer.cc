@@ -1962,8 +1962,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Time differences by sector
 				if( react->HistBySector() ) {
 					
-					gamma_particle_td_sec[particle_evt->GetDetector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
-					gamma_particle_E_vs_td_sec[particle_evt->GetDetector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime(), gamma_evt->GetEnergy() );
+					gamma_particle_td_sec[particle_evt->GetSector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
+					gamma_particle_E_vs_td_sec[particle_evt->GetSector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime(), gamma_evt->GetEnergy() );
 					
 				}
 				
