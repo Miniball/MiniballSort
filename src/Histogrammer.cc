@@ -2493,7 +2493,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				ic_E->Fill( ic_evt->GetEnergyRest() );
 				
 				// 2D plot
-				ic_dE_E->Fill( ic_evt->GetEnergyRest(), ic_evt->GetEnergyLoss() );
+				ic_dE_E->Fill( ic_evt->GetEnergyLoss(), ic_evt->GetEnergyRest() );
 				
 			} // j: ion chamber
 			
