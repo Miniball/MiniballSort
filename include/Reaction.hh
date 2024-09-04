@@ -501,6 +501,8 @@ public:
 	inline bool IsRecoilDetected(){ return recoil_detected; };
 	inline bool IsTransferDetected(){ return transfer_detected; };
 
+	// Events tree options
+	inline bool EventsParticleGammaOnly(){ return events_particle_gamma; };
 	
 	// Histogram options
 	inline bool HistSegmentPhi(){ return hist_segment_phi; };
@@ -595,6 +597,9 @@ private:
 	
 	// Laser status mode: 0 = OFF, 1 = ON, 2 = OFF or ON
 	unsigned char laser_mode;
+	
+	// Events tree options
+	bool events_particle_gamma;
 	
 	// Histogram options
 	bool hist_segment_phi;
