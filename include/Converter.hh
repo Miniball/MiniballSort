@@ -76,7 +76,7 @@ public:
 		if( ebis_period == 0 ) return false;
 		else {
 			long long test_t = ( t - ebis_tm_stp ) % ebis_period;
-			return ( test_t < 4000000 );
+			return ( test_t < 4000000 && test_t > 0 );
 		}
 	};
 

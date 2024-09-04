@@ -206,7 +206,7 @@ MiniballCalibration::MiniballCalibration( std::string filename, std::shared_ptr<
 
 	SetFile( filename );
 	set = myset;
-	fRand = std::make_unique<TRandom>();
+	fRand = std::make_unique<TRandom3>();
 	default_qint = false;
 
 }

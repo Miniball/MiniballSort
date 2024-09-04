@@ -11,7 +11,7 @@
 
 #include "TSystem.h"
 #include "TEnv.h"
-#include "TRandom.h"
+#include "TRandom3.h"
 #include "TMath.h"
 #include "TGraph.h"
 
@@ -211,7 +211,7 @@ public:
 private:
 
 	std::string fInputFile;
-	std::unique_ptr<TRandom> fRand;
+	std::unique_ptr<TRandom3> fRand;
 	
 	bool default_qint;
 	

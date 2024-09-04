@@ -258,6 +258,9 @@ void MiniballReaction::ReadReaction() {
 	EBIS_Off = config->GetValue( "EBIS.Off", 2.52e7 );	// this allows a off window 20 times bigger than on
 	EBIS_ratio = config->GetValue( "EBIS.FillRatio", GetEBISTimeRatio() );	// this is the measured ratio of EBIS On/off. Default is just the time window ratio
 	
+	// Events tree options
+	events_particle_gamma = config->GetValue( "Events.ParticleGammaOnly", false );	// only do histogramming for particle-gamma coincidences to speed things up
+
 	// Histogram options
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
 	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", false );	// turn on histograms for gamma-gamma

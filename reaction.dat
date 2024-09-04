@@ -77,7 +77,7 @@
 # EBIS time windows
 #EBIS.On: 1.20e6		# slow extraction is about 1.2 ms
 #EBIS.Off: 2.52e7		# Off window is 20 times the On window
-EBIS.FillRatio: 0.05	# default is equal to the time window ratio
+#EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 
 # Particle and Gamma coincidence time windows
 #ParticleGamma_PromptTime.Min: -300		# lower limit of particle-gamma prompt window
@@ -122,6 +122,9 @@ EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 #TransferCut.X: E			# variable along the x axis of the plot that is cut (default E, options: dE, E, theta)
 #TransferCut.Y: dE			# variable along the y axis of the plot that is cut (default dE, options: dE, E, theta)
 
+
+## Read events
+#Events.ParticleGammaOnly: false	# only include events with particle-gamma coincidences when reading from events tree
 
 ## Histogram options
 #Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)

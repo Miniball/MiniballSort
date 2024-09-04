@@ -1911,6 +1911,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// Test if we want to plot this event or not
 		if( laser_status != laser_mode && laser_mode != 2 ) continue;
 		
+		// Check if it we are restricting to particle-gamma events
+		int g_e_mult = read_evts->GetGammaRayMultiplicity() + read_evts->GetSpedeMultiplicity();
+		if( ( read_evts->GetParticleMultiplicity() == 0 || g_e_mult == 0 )
+		   && react->EventsParticleGammaOnly() ) continue;
 		
 		// ------------------------- //
 		// Loop over particle events //
@@ -1962,8 +1966,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Time differences by sector
 				if( react->HistBySector() ) {
 					
-					gamma_particle_td_sec[particle_evt->GetDetector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
-					gamma_particle_E_vs_td_sec[particle_evt->GetDetector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime(), gamma_evt->GetEnergy() );
+					gamma_particle_td_sec[particle_evt->GetSector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
+					gamma_particle_E_vs_td_sec[particle_evt->GetSector()]->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime(), gamma_evt->GetEnergy() );
 					
 				}
 				
@@ -2493,7 +2497,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				ic_E->Fill( ic_evt->GetEnergyRest() );
 				
 				// 2D plot
-				ic_dE_E->Fill( ic_evt->GetEnergyRest(), ic_evt->GetEnergyLoss() );
+				ic_dE_E->Fill( ic_evt->GetEnergyLoss(), ic_evt->GetEnergyRest() );
 				
 			} // j: ion chamber
 			
