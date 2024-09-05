@@ -1911,6 +1911,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// Test if we want to plot this event or not
 		if( laser_status != laser_mode && laser_mode != 2 ) continue;
 		
+		// Apply the T1 cut if requested by the user
+		if( react->GetT1Cut() && !T1Cut() ) continue;
+		
 		// Check if it we are restricting to particle-gamma events
 		int g_e_mult = read_evts->GetGammaRayMultiplicity() + read_evts->GetSpedeMultiplicity();
 		if( ( read_evts->GetParticleMultiplicity() == 0 || g_e_mult == 0 )
