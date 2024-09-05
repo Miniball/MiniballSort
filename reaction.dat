@@ -79,6 +79,12 @@
 #EBIS.Off: 2.52e7		# Off window is 20 times the On window
 #EBIS.FillRatio: 0.05	# default is equal to the time window ratio
 
+# T1 cut
+#T1.Cut: false			# set to true to enable gating on the T1 time
+#T1.Min: 0.0			# [ns] lower limit of event time with respect to T1 time for cut
+#T1.Max: 1.2e9			# [ns] upper limit of event time with respect to T1 time for cut
+
+
 # Particle and Gamma coincidence time windows
 #ParticleGamma_PromptTime.Min: -300		# lower limit of particle-gamma prompt window
 #ParticleGamma_PromptTime.Max: 300		# upper limit of particle-gamma prompt window

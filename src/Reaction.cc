@@ -258,6 +258,11 @@ void MiniballReaction::ReadReaction() {
 	EBIS_Off = config->GetValue( "EBIS.Off", 2.52e7 );	// this allows a off window 20 times bigger than on
 	EBIS_ratio = config->GetValue( "EBIS.FillRatio", GetEBISTimeRatio() );	// this is the measured ratio of EBIS On/off. Default is just the time window ratio
 	
+	// T1 cuts
+	t1_cut = config->GetValue( "T1.Cut", false );		// enable or disable the T1 cuts
+	t1_time[0] = config->GetValue( "T1.Min", 0.0 );		// minimum T1 time for cut (ns), default 0
+	t1_time[1] = config->GetValue( "T1.Max", 1.2e9 );	// maximum T1 time for cut (ns), default 1.2 seconds
+	
 	// Events tree options
 	events_particle_gamma = config->GetValue( "Events.ParticleGammaOnly", false );	// only do histogramming for particle-gamma coincidences to speed things up
 

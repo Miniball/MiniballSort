@@ -215,6 +215,11 @@ public:
 			(double)s->GetTime() - (double)read_evts->GetEBIS() < react->GetEBISOffTime() ) return true;
 		else return false;
 	};
+	inline bool T1Cut(){
+		if( (double)read_evts->GetEBIS() - (double)read_evts->GetT1() >= react->GetT1MinTime() &&
+		    (double)read_evts->GetEBIS() - (double)read_evts->GetT1() < react->GetT1MaxTime() ) return true;
+		else return false;
+	}
 
 	// Particle energy vs angle cuts
 	inline bool TransferCut( std::shared_ptr<ParticleEvt> p ){
