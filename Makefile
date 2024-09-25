@@ -12,6 +12,7 @@ SRIM_DIR	:= \"$(PWD)/srim/\"
 CUR_DIR		:= \"$(PWD)/\"
 
 ROOTVER     := $(shell root-config --version | head -c1)
+ROOTSUBVER  := $(shell root-config --version | cut -d '.' -f 2)
 ifeq ($(ROOTVER),5)
 	ROOTDICT  := rootcint
 	DICTEXT   := .h
@@ -47,6 +48,9 @@ INCLUDES	+= -I$(INC_DIR) -I.
 CFLAGS		+= -DAME_FILE=$(AME_FILE)
 CFLAGS		+= -DSRIM_DIR=$(SRIM_DIR)
 CFLAGS		+= -DCUR_DIR=$(CUR_DIR)
+
+# Pass in the ROOT version
+CFLAGS		+= -DROOTVER=$(ROOTVER) -DROOTSUBVER=$(ROOTSUBVER)
 
 # Linker.
 LD          = $(shell root-config --ld)

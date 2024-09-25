@@ -410,7 +410,8 @@ TString MiniballGUI::get_filename() {
 	fi.fIniDir = StrDup(dir);
 	
 	// Open a file dialog
-	new TGFileDialog( gClient->GetRoot(), main_frame, kFDOpen, &fi );
+	auto open_mode = kFDOpen;
+	new TGFileDialog( gClient->GetRoot(), main_frame, open_mode, &fi );
 	
 	return fi.fFilename;
 	
@@ -425,7 +426,11 @@ TString MiniballGUI::get_directory() {
 	fi.fIniDir = StrDup(dir);
 	
 	// Open a file dialog
-	new TGFileDialog( gClient->GetRoot(), main_frame, kDOpen, &fi );
+	auto open_mode = kDOpen;
+#if ( ROOTVER == 5 || ( ROOTVER == 6 && ROOTSUBVER < 24 ) )
+	open_mode = kFDOpen;
+#endif
+	new TGFileDialog( gClient->GetRoot(), main_frame, open_mode, &fi );
 	
 	return fi.fIniDir;
 	
