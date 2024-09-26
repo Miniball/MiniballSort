@@ -58,3 +58,12 @@ use mb_sort with following flags:
 [-g                      : Launch the GUI]
 [-h                      : Print this help]
 ```
+
+
+## Dependencies
+
+You will need to have ROOT installed with a minumum standard that your compiler supports C++14.
+At the moment it works with v5 or v6, but let me know of any problems by raising an issue on GitHub.
+ROOT must be built with GSL library support, otherwise known as MathMore.
+To check this is true, you can type: `root-config --has-mathmore` and hope the response is `yes`.
+If it isn't, you will need to install the GSL libraries and reconfigure/rebuild ROOT.

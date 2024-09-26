@@ -2003,11 +2003,14 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Time differences
 				electron_particle_td->Fill( (double)particle_evt->GetTime() - (double)spede_evt->GetTime() );
 								
-			} // k: eleectrons
-
-			// This flag is used so that we don't double count
-			// TODO: It needs to be improved to allow multiple particles in transfer
-			bool event_used = false;
+			} // k: electrons
+			
+		} // j: particles
+		
+		// Annoyingly, we need to do another loop to check the kinematics
+		// TODO: make this more efficient than looping twice?
+		// TODO: It needs to be improved to allow multiple particles in transfer
+		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 
 			// See if we are doing transfer reactions
 			if( react->GetBeam()->GetIsotope() != react->GetEjectile()->GetIsotope() &&
@@ -2015,12 +2018,15 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 				react->TransferProduct( particle_evt );
 				react->SetParticleTime( particle_evt->GetTime() );
-				event_used = true;
 				
 				pE_dE_cut[particle_evt->GetDetector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
 				
 				if( react->HistBySector() )
 					pE_dE_cut_sec[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
+
+				// Got what we came for
+				// TODO: What if we have multiple particles in transfer?
+				break;
 				
 			} // transfer event
 			
@@ -2034,20 +2040,15 @@ unsigned long MiniballHistogrammer::FillHists() {
 				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
 				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
 				
-				// Don't try to make more particle events
-				// if we already got one?
-				if( event_used ) continue;
-				
 				// Do a two-particle cut and check that they are coincident
 				// particle_evt (j) is beam and particle_evt2 (k) is target
-				else if( TwoParticleCut( particle_evt, particle_evt2 ) ){
+				if( TwoParticleCut( particle_evt, particle_evt2 ) ){
 					
 					react->IdentifyEjectile( particle_evt );
 					react->IdentifyRecoil( particle_evt2 );
 					if( particle_evt->GetTime() < particle_evt2->GetTime() )
 						react->SetParticleTime( particle_evt->GetTime() );
 					else react->SetParticleTime( particle_evt2->GetTime() );
-					event_used = true;
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
@@ -2063,6 +2064,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 						pE_theta_recoil_sec[particle_evt->GetSector()]->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 						
 					} // by sector
+					
+					// Got what we came for
+					break;
 
 				} // 2-particle check
 				
@@ -2074,7 +2078,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 					if( particle_evt->GetTime() < particle_evt2->GetTime() )
 						react->SetParticleTime( particle_evt->GetTime() );
 					else react->SetParticleTime( particle_evt2->GetTime() );
-					event_used = true;
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
@@ -2091,16 +2094,16 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 					} // by sector
 					
+					// Got what we came for
+					break;
+					
 				} // 2-particle check
-
+				
 			} // k: second particle
 			
-			// If we found a particle and used it, then we need to
-			// stop so we don't fill the gamma-spectra more than once
-			if( event_used ) break;
-
-			// Otherwise we can build a one particle event
-			else if( EjectileCut( particle_evt ) ) {
+			// If we got here, there were no transfer events or 2p events
+			// Therefore, we can build a one particle event
+			if( EjectileCut( particle_evt ) ) {
 				
 				react->IdentifyEjectile( particle_evt );
 				react->CalculateRecoil();
@@ -2111,6 +2114,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 				if( react->HistBySector() )
 					pE_theta_ejectile_sec[particle_evt->GetSector()]->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+				
+				// Got what we came for
+				break;
 				
 			} // ejectile event
 
@@ -2126,10 +2132,12 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( react->HistBySector() )
 					pE_theta_recoil_sec[particle_evt->GetSector()]->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 				
+				// Got what we came for
+				break;
+				
 			} // recoil event
 
 		} // j: particles
-
 		
 		
 		// ------------------------------------------ //
