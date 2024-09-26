@@ -2012,6 +2012,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 		react->ResetParticles();
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 
+			// Make sure that we don't double count
+			bool event_used = false;
+
 			// See if we are doing transfer reactions
 			if( react->GetBeam()->GetIsotope() != react->GetEjectile()->GetIsotope() &&
 				TransferCut( particle_evt ) ) {
@@ -2031,7 +2034,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 			} // transfer event
 			
 			// Check for prompt coincidence with another particle
-			bool event_used = false;
 			for( unsigned int k = j+1; k < read_evts->GetParticleMultiplicity(); ++k ){
 				
 				// Get second particle event
