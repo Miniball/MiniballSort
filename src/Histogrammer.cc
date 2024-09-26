@@ -1922,7 +1922,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// ------------------------- //
 		// Loop over particle events //
 		// ------------------------- //
-		react->ResetParticles();
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 			
 			// Get particle event
@@ -1956,7 +1955,19 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // by sector
 
-			// Check for prompt coincidence with a gamma-ray
+			// Check for coincidence with another particle
+			for( unsigned int k = j+1; k < read_evts->GetParticleMultiplicity(); ++k ){
+				
+				// Get second particle event
+				particle_evt2 = read_evts->GetParticleEvt(k);
+				
+				// Time differences and fill symmetrically
+				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
+				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
+
+			}
+
+			// Check for coincidence with a gamma-ray
 			for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
 				
 				// Get gamma-ray event
@@ -1994,7 +2005,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // k: gammas
 			
-			// Check for prompt coincidence with an electron
+			// Check for coincidence with an electron
 			for( unsigned int k = 0; k < read_evts->GetSpedeMultiplicity(); ++k ){
 				
 				// Get SPEDE event
@@ -2010,7 +2021,14 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// Annoyingly, we need to do another loop to check the kinematics
 		// TODO: make this more efficient than looping twice?
 		// TODO: It needs to be improved to allow multiple particles in transfer
+		react->ResetParticles();
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
+
+			// Get particle event
+			particle_evt = read_evts->GetParticleEvt(j);
+			
+			// Make sure that we don't double count
+			bool event_used = false;
 
 			// See if we are doing transfer reactions
 			if( react->GetBeam()->GetIsotope() != react->GetEjectile()->GetIsotope() &&
@@ -2036,10 +2054,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Get second particle event
 				particle_evt2 = read_evts->GetParticleEvt(k);
 
-				// Time differences and fill symmetrically
-				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
-				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
-				
 				// Do a two-particle cut and check that they are coincident
 				// particle_evt (j) is beam and particle_evt2 (k) is target
 				if( TwoParticleCut( particle_evt, particle_evt2 ) ){
@@ -2066,6 +2080,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 					} // by sector
 					
 					// Got what we came for
+					event_used = true;
 					break;
 
 				} // 2-particle check
@@ -2095,15 +2110,19 @@ unsigned long MiniballHistogrammer::FillHists() {
 					} // by sector
 					
 					// Got what we came for
+					event_used = true;
 					break;
-					
+
 				} // 2-particle check
 				
 			} // k: second particle
 			
+			// If we found a two-particle event, we're done
+			if( event_used ) break;
+			
 			// If we got here, there were no transfer events or 2p events
 			// Therefore, we can build a one particle event
-			if( EjectileCut( particle_evt ) ) {
+			else if( EjectileCut( particle_evt ) ) {
 				
 				react->IdentifyEjectile( particle_evt );
 				react->CalculateRecoil();
