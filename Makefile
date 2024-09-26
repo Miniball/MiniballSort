@@ -12,7 +12,7 @@ SRIM_DIR	:= \"$(PWD)/srim/\"
 CUR_DIR		:= \"$(PWD)/\"
 
 ROOTVER     := $(shell root-config --version | head -c1)
-ROOTSUBVER  := $(shell root-config --version | cut -d '.' -f 2)
+ROOTSUBVER  := $(shell root-config --version | cut -d '.' -f 2 | cut -d '/' -f 1)
 ifeq ($(ROOTVER),5)
 	ROOTDICT  := rootcint
 	DICTEXT   := .h
