@@ -640,20 +640,20 @@ void MiniballAngleFitter::DoFit() {
 				indx += cry * myset->GetNumberOfMiniballSegments();
 				indx += clu * myset->GetNumberOfMiniballCrystals() * myset->GetNumberOfMiniballSegments();
 				
-				engraph->AddPoint( indx, ff.GetExpEnergy( clu, cry, seg ) );
+				engraph->SetPoint(engraph->GetN(), indx, ff.GetExpEnergy( clu, cry, seg ) );
 				engraph->SetPointError( engraph->GetN()-1, 0, ff.GetExpError( clu, cry, seg ) );
 				
-				corrgraph->AddPoint( indx, ff.GetExpEnergy( clu, cry, seg ) * corr );
+				corrgraph->SetPoint(corrgraph->GetN(), indx, ff.GetExpEnergy( clu, cry, seg ) * corr );
 				corrgraph->SetPointError( engraph->GetN()-1, 0, ff.GetExpError( clu, cry, seg ) );
 				
-				calcgraph->AddPoint( indx, edop );
+				calcgraph->SetPoint(calcgraph->GetN(), indx, edop );
 				
-				resgraph->AddPoint( indx, edop - ff.GetExpEnergy( clu, cry, seg ) );
+				resgraph->SetPoint(resgraph->GetN(), indx, edop - ff.GetExpEnergy( clu, cry, seg ) );
 				resgraph->SetPointError( resgraph->GetN()-1, 0, ff.GetExpError( clu, cry, seg ) );
 
 				// Get experimental phi
 				if( !ff.HasPhiConstraint( clu, cry, seg ) ) continue;
-				phigraph->AddPoint( indx, phi - ff.GetExpPhi( clu, cry, seg ) );
+				phigraph->SetPoint(phigraph->GetN(), indx, phi - ff.GetExpPhi( clu, cry, seg ) );
 				phigraph->SetPointError( phigraph->GetN()-1, 0, ff.GetExpPhiError( clu, cry, seg ) );
 
 			} // seg
@@ -782,11 +782,11 @@ void MiniballAngleFitter::DoFit() {
 				double z = myreact->GetGammaZ( clu, cry, seg );
 
 				// Plot positions
-				theta_phi[clu][cry]->AddPoint( theta, phi );
-				if( z > 0 ) xy_f[clu][cry]->AddPoint( y, x );
-				else xy_b[clu][cry]->AddPoint( y, x );
-				if( y > 0 ) xz_r[clu][cry]->AddPoint( z, x );
-				else xz_l[clu][cry]->AddPoint( z, x );
+				theta_phi[clu][cry]->SetPoint(theta_phi[clu][cry]->GetN(), theta, phi );
+				if( z > 0 ) xy_f[clu][cry]->SetPoint(xy_f[clu][cry]->GetN(), y, x );
+				else xy_b[clu][cry]->SetPoint(xy_b[clu][cry]->GetN(), y, x );
+				if( y > 0 ) xz_r[clu][cry]->SetPoint(xz_r[clu][cry]->GetN(), z, x );
+				else xz_l[clu][cry]->SetPoint(xz_l[clu][cry]->GetN(), z, x );
 				
 			} // seg
 			
