@@ -1922,7 +1922,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// ------------------------- //
 		// Loop over particle events //
 		// ------------------------- //
-		react->ResetParticles();
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 			
 			// Get particle event
@@ -2010,6 +2009,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 		// Annoyingly, we need to do another loop to check the kinematics
 		// TODO: make this more efficient than looping twice?
 		// TODO: It needs to be improved to allow multiple particles in transfer
+		react->ResetParticles();
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 
 			// See if we are doing transfer reactions
@@ -2031,6 +2031,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 			} // transfer event
 			
 			// Check for prompt coincidence with another particle
+			bool event_used = false;
 			for( unsigned int k = j+1; k < read_evts->GetParticleMultiplicity(); ++k ){
 				
 				// Get second particle event
@@ -2066,6 +2067,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 					} // by sector
 					
 					// Got what we came for
+					event_used = true;
 					break;
 
 				} // 2-particle check
@@ -2095,15 +2097,19 @@ unsigned long MiniballHistogrammer::FillHists() {
 					} // by sector
 					
 					// Got what we came for
+					event_used = true;
 					break;
-					
+
 				} // 2-particle check
 				
 			} // k: second particle
 			
+			// If we found a two-particle event, we're done
+			if( event_used ) break;
+			
 			// If we got here, there were no transfer events or 2p events
 			// Therefore, we can build a one particle event
-			if( EjectileCut( particle_evt ) ) {
+			else if( EjectileCut( particle_evt ) ) {
 				
 				react->IdentifyEjectile( particle_evt );
 				react->CalculateRecoil();
