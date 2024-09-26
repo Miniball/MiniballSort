@@ -1955,7 +1955,19 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // by sector
 
-			// Check for prompt coincidence with a gamma-ray
+			// Check for coincidence with another particle
+			for( unsigned int k = j+1; k < read_evts->GetParticleMultiplicity(); ++k ){
+				
+				// Get second particle event
+				particle_evt2 = read_evts->GetParticleEvt(k);
+				
+				// Time differences and fill symmetrically
+				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
+				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
+
+			}
+
+			// Check for coincidence with a gamma-ray
 			for( unsigned int k = 0; k < read_evts->GetGammaRayMultiplicity(); ++k ){
 				
 				// Get gamma-ray event
@@ -1993,7 +2005,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 			} // k: gammas
 			
-			// Check for prompt coincidence with an electron
+			// Check for coincidence with an electron
 			for( unsigned int k = 0; k < read_evts->GetSpedeMultiplicity(); ++k ){
 				
 				// Get SPEDE event
@@ -2012,6 +2024,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 		react->ResetParticles();
 		for( unsigned int j = 0; j < read_evts->GetParticleMultiplicity(); ++j ){
 
+			// Get particle event
+			particle_evt = read_evts->GetParticleEvt(j);
+			
 			// Make sure that we don't double count
 			bool event_used = false;
 
@@ -2039,10 +2054,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Get second particle event
 				particle_evt2 = read_evts->GetParticleEvt(k);
 
-				// Time differences and fill symmetrically
-				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
-				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
-				
 				// Do a two-particle cut and check that they are coincident
 				// particle_evt (j) is beam and particle_evt2 (k) is target
 				if( TwoParticleCut( particle_evt, particle_evt2 ) ){
