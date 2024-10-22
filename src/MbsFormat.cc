@@ -318,6 +318,13 @@ const MBSEvent* MBS::GetNextMedEvent() {
 	eh = (s_evhe *)(ptr + pos);
 	ConvertEventHeader();
 	evtsiz = elen * sizeof(UShort_t) + sizeof(s_evhe);
+	if( pos + evtsiz > len ) {
+		std::cerr << "End of file before end of event" << std::endl;
+		running = false;
+		eof = true;
+		pos = len;
+		return nullptr;
+	}
 
 	// Check the event type
 	for( unsigned int i = 0; i < event_types.size(); i++ ){
