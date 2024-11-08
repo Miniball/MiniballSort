@@ -480,9 +480,9 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
 		// Timestamp checks
-		long long int sfp_check		= febex_data->GetTime() - tm_stp_read[febex_data->GetSfp()];
-		long long int board_check	= febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()];
-		long long int channel_check	= febex_data->GetTime() - tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()];
+		long long int sfp_check		= time_corr - tm_stp_read[febex_data->GetSfp()];
+		long long int board_check	= time_corr - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()];
+		long long int channel_check	= time_corr - tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()];
 		
 		// Check how we compare to the first timestamp from this buffer (1000 seconds)
 		if( !first_data[febex_data->GetSfp()] && ( sfp_check > 1000e9 || sfp_check < -1000e9 ) && nblock > 1 ){
@@ -668,8 +668,8 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
 			
 			// Reset the latest board and channel timestamps
-			tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] = febex_data->GetTime();
-			tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] = febex_data->GetTime();
+			tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] = time_corr;
+			tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()] = time_corr;
 
 		} // not being rejecting for jumps or warps
 		
