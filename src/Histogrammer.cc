@@ -1550,8 +1550,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		// T1 impact time
 		if( react->HistByT1() ) {
 			
-			gE_ejectile_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
-			gE_ejectile_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			gE_ejectile_dc_ejectile_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
+			gE_ejectile_dc_recoil_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
 			
 		}
 		
@@ -1583,8 +1583,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		// T1 impact time
 		if( react->HistByT1() ) {
 			
-			gE_recoil_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
-			gE_recoil_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			gE_recoil_dc_ejectile_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
+			gE_recoil_dc_recoil_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
 
 		}
 
@@ -1618,8 +1618,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		// T1 impact time
 		if( react->HistByT1() ) {
 			
-			gE_2p_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
-			gE_2p_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			gE_2p_dc_ejectile_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
+			gE_2p_dc_recoil_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
 			
 		}
 
@@ -1706,8 +1706,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		// T1 impact time
 		if( react->HistByT1() ) {
 			
-			aE_ejectile_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
-			aE_ejectile_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			aE_ejectile_dc_ejectile_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
+			aE_ejectile_dc_recoil_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
 			
 		}
 
@@ -1739,8 +1739,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		// T1 impact time
 		if( react->HistByT1() ) {
 			
-			aE_recoil_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
-			aE_recoil_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			aE_recoil_dc_ejectile_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
+			aE_recoil_dc_recoil_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
 			
 		}
 
@@ -1774,8 +1774,8 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		// T1 impact time
 		if( react->HistByT1() ) {
 			
-			aE_2p_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
-			aE_2p_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			aE_2p_dc_ejectile_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
+			aE_2p_dc_recoil_t1->Fill( g->GetTime() - read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
 			
 		}
 
