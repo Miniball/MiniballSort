@@ -1269,12 +1269,6 @@ void MiniballHistogrammer::ResetHists() {
 	gE_2p_dc_none->Reset("ICESM");
 	gE_2p_dc_ejectile->Reset("ICESM");
 	gE_2p_dc_recoil->Reset("ICESM");
-	gE_ejectile_dc_ejectile_t1->Reset("ICESM");
-	gE_ejectile_dc_recoil_t1->Reset("ICESM");
-	gE_recoil_dc_ejectile_t1->Reset("ICESM");
-	gE_recoil_dc_recoil_t1->Reset("ICESM");
-	gE_2p_dc_ejectile_t1->Reset("ICESM");
-	gE_2p_dc_recoil_t1->Reset("ICESM");
 	gE_costheta_ejectile->Reset("ICESM");
 	gE_costheta_recoil->Reset("ICESM");
 	gE_vs_theta_ejectile_dc_none->Reset("ICESM");
@@ -1301,12 +1295,6 @@ void MiniballHistogrammer::ResetHists() {
 	aE_2p_dc_none->Reset("ICESM");
 	aE_2p_dc_ejectile->Reset("ICESM");
 	aE_2p_dc_recoil->Reset("ICESM");
-	aE_ejectile_dc_ejectile_t1->Reset("ICESM");
-	aE_ejectile_dc_recoil_t1->Reset("ICESM");
-	aE_recoil_dc_ejectile_t1->Reset("ICESM");
-	aE_recoil_dc_recoil_t1->Reset("ICESM");
-	aE_2p_dc_ejectile_t1->Reset("ICESM");
-	aE_2p_dc_recoil_t1->Reset("ICESM");
 	aE_costheta_ejectile->Reset("ICESM");
 	aE_costheta_recoil->Reset("ICESM");
 	aE_vs_theta_ejectile_dc_none->Reset("ICESM");
@@ -1318,6 +1306,24 @@ void MiniballHistogrammer::ResetHists() {
 	aE_vs_theta_2p_dc_none->Reset("ICESM");
 	aE_vs_theta_2p_dc_ejectile->Reset("ICESM");
 	aE_vs_theta_2p_dc_recoil->Reset("ICESM");
+	
+	// T1 impact time
+	if( react->HistByT1() ) {
+		
+		gE_ejectile_dc_ejectile_t1->Reset("ICESM");
+		gE_ejectile_dc_recoil_t1->Reset("ICESM");
+		gE_recoil_dc_ejectile_t1->Reset("ICESM");
+		gE_recoil_dc_recoil_t1->Reset("ICESM");
+		gE_2p_dc_ejectile_t1->Reset("ICESM");
+		gE_2p_dc_recoil_t1->Reset("ICESM");
+		aE_ejectile_dc_ejectile_t1->Reset("ICESM");
+		aE_ejectile_dc_recoil_t1->Reset("ICESM");
+		aE_recoil_dc_ejectile_t1->Reset("ICESM");
+		aE_recoil_dc_recoil_t1->Reset("ICESM");
+		aE_2p_dc_ejectile_t1->Reset("ICESM");
+		aE_2p_dc_recoil_t1->Reset("ICESM");
+		
+	}
 	
 	// Per crystal Doppler-corrected spectra
 	if( react->HistByCrystal() ) {
@@ -1537,13 +1543,18 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 
-		gE_ejectile_dc_ejectile_t1->Fill( read_evts->GetT1(), g->GetTime() -  react->DopplerCorrection( g, true ), weight );
-		gE_ejectile_dc_recoil_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
-
 		gE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		gE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		gE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
+		// T1 impact time
+		if( react->HistByT1() ) {
+			
+			gE_ejectile_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
+			gE_ejectile_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			
+		}
+		
 		// Per crystal Doppler-corrected spectra
 		if( react->HistByCrystal() ) {
 		
@@ -1564,13 +1575,18 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_recoil_dc_none->Fill( g->GetEnergy(), weight );
 		gE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
-		
-		gE_recoil_dc_ejectile_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
-		gE_recoil_dc_recoil_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
-		
+				
 		gE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		gE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		gE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
+
+		// T1 impact time
+		if( react->HistByT1() ) {
+			
+			gE_recoil_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
+			gE_recoil_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+
+		}
 
 		// Per crystal Doppler-corrected spectra
 		if( react->HistByCrystal() ) {
@@ -1595,13 +1611,18 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 		gE_2p_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		gE_2p_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 		
-		gE_2p_dc_ejectile_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
-		gE_2p_dc_recoil_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
-		
 		gE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		gE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		gE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 		
+		// T1 impact time
+		if( react->HistByT1() ) {
+			
+			gE_2p_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
+			gE_2p_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			
+		}
+
 		// Per crystal Doppler-corrected spectra
 		if( react->HistByCrystal() ) {
 			
@@ -1678,12 +1699,17 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 		
-		aE_ejectile_dc_ejectile_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
-		aE_ejectile_dc_recoil_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
-		
 		aE_vs_theta_ejectile_dc_none->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		aE_vs_theta_ejectile_dc_ejectile->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		aE_vs_theta_ejectile_dc_recoil->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
+
+		// T1 impact time
+		if( react->HistByT1() ) {
+			
+			aE_ejectile_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
+			aE_ejectile_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			
+		}
 
 		// Per crystal Doppler-corrected spectra
 		if( react->HistByCrystal() ) {
@@ -1706,12 +1732,17 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 		
-		aE_recoil_dc_ejectile_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
-		aE_recoil_dc_recoil_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
-		
 		aE_vs_theta_recoil_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		aE_vs_theta_recoil_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		aE_vs_theta_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
+
+		// T1 impact time
+		if( react->HistByT1() ) {
+			
+			aE_recoil_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
+			aE_recoil_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			
+		}
 
 		// Per crystal Doppler-corrected spectra
 		if( react->HistByCrystal() ) {
@@ -1736,13 +1767,18 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 		aE_2p_dc_ejectile->Fill( react->DopplerCorrection( g, true ), weight );
 		aE_2p_dc_recoil->Fill( react->DopplerCorrection( g, false ), weight );
 		
-		aE_2p_dc_ejectile_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, true ), weight );
-		aE_2p_dc_recoil_t1->Fill( read_evts->GetT1(), react->DopplerCorrection( g, false ), weight );
-		
 		aE_vs_theta_2p_dc_none->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), g->GetEnergy(), weight );
 		aE_vs_theta_2p_dc_ejectile->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, true ), weight );
 		aE_vs_theta_2p_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 		
+		// T1 impact time
+		if( react->HistByT1() ) {
+			
+			aE_2p_dc_ejectile_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, true ), weight );
+			aE_2p_dc_recoil_t1->Fill( read_evts->GetT1() - g->GetTime(), react->DopplerCorrection( g, false ), weight );
+			
+		}
+
 		// Per crystal Doppler-corrected spectra
 		if( react->HistByCrystal() ) {
 			
