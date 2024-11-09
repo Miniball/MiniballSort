@@ -295,7 +295,10 @@ private:
 	unsigned int TBIN;				// number of bins in time difference histograms
 	float TMIN;						// lower limit of time difference
 	float TMAX;						// upper limit of time difference
-	
+	unsigned int T1BIN = 2000;		// number of bins in T1 time difference histograms
+	float T1MIN = 0;				// lower limit of T1 time difference
+	float T1MAX = 20e9;				// upper limit of T1 time difference
+
 	// EBIS
 	TH1F *ebis_td_particle, *ebis_td_gamma;
 	
@@ -360,6 +363,9 @@ private:
 	TH1F *gE_ejectile_dc_none, *gE_ejectile_dc_ejectile, *gE_ejectile_dc_recoil;
 	TH1F *gE_recoil_dc_none,   *gE_recoil_dc_ejectile,   *gE_recoil_dc_recoil;
 	TH1F *gE_2p_dc_none,       *gE_2p_dc_ejectile,       *gE_2p_dc_recoil;
+	TH2F *gE_ejectile_dc_ejectile_t1, *gE_ejectile_dc_recoil_t1;
+	TH2F *gE_recoil_dc_ejectile_t1,   *gE_recoil_dc_recoil_t1;
+	TH2F *gE_2p_dc_ejectile_t1,       *gE_2p_dc_recoil_t1;
 	TH2F *gE_vs_theta_ejectile_dc_none, *gE_vs_theta_ejectile_dc_ejectile, *gE_vs_theta_ejectile_dc_recoil;
 	TH2F *gE_vs_theta_recoil_dc_none,   *gE_vs_theta_recoil_dc_ejectile,   *gE_vs_theta_recoil_dc_recoil;
 	TH2F *gE_vs_theta_2p_dc_none,       *gE_vs_theta_2p_dc_ejectile,       *gE_vs_theta_2p_dc_recoil;
@@ -373,6 +379,9 @@ private:
 	TH1F *aE_ejectile_dc_none, *aE_ejectile_dc_ejectile, *aE_ejectile_dc_recoil;
 	TH1F *aE_recoil_dc_none,   *aE_recoil_dc_ejectile,   *aE_recoil_dc_recoil;
 	TH1F *aE_2p_dc_none,       *aE_2p_dc_ejectile,       *aE_2p_dc_recoil;
+	TH2F *aE_ejectile_dc_ejectile_t1, *aE_ejectile_dc_recoil_t1;
+	TH2F *aE_recoil_dc_ejectile_t1,   *aE_recoil_dc_recoil_t1;
+	TH2F *aE_2p_dc_ejectile_t1,       *aE_2p_dc_recoil_t1;
 	TH2F *aE_vs_theta_ejectile_dc_none, *aE_vs_theta_ejectile_dc_ejectile, *aE_vs_theta_ejectile_dc_recoil;
 	TH2F *aE_vs_theta_recoil_dc_none,   *aE_vs_theta_recoil_dc_ejectile,   *aE_vs_theta_recoil_dc_recoil;
 	TH2F *aE_vs_theta_2p_dc_none,       *aE_vs_theta_2p_dc_ejectile,       *aE_vs_theta_2p_dc_recoil;

@@ -210,6 +210,7 @@ void* monitor_run( void* ptr ){
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
 	if( flag_source ) conv_mon->SourceOnly();
+	if( flag_ebis ) conv_mon->EBISOnly();
 	conv_mon->AddCalibration( calfiles->mycal );
 	conv_mon->SetOutput( "monitor_singles.root" );
 	conv_mon->MakeTree();
