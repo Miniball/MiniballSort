@@ -454,18 +454,13 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	}
 	
 	// Create a TVector3 to handle the angles
-	float x = 9.0;
-	if( set->GetNumberOfCDNStrips() == 12 ) 		// standard CD
-		x += ( 15.5 - pid + std::floor(pid) - std::ceil(pid) ) * 2.0;
-	else if( set->GetNumberOfCDNStrips() == 16 )	// CREX and TREX
-		x += ( pid + 0.5 ) * 2.0;
-
-	TVector3 vec( x, 0, cd_dist[det] ); // set z now
-	//TVector3 vec( x, 0, 0 ); // set z later
+	TVector3 vec( 0, 0, cd_dist[det] ); // set z now
 	
-	// Rotate by the phi angle
+	// Get the phi rotation of the quadrant
 	float phi = 90.0 * sec;
 	phi += cd_offset[det]; // left edge of first strip
+	
+	// Recalculate this points for the standard CD (not yet done for CREX/TREX)
 	if( set->GetNumberOfCDNStrips() == 12 )	{			// standard CD
 
 		// CD phi calculation using method from Tim Gray
@@ -532,6 +527,13 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	
 	else if( set->GetNumberOfCDNStrips() == 16 ) {		// CREX and TREX
 		
+		// Inner ring starts at 9.0 mm
+		float x = 9.0;
+		
+		// Each strip centre is 2.0 mm apart
+		x += ( pid + 0.5 ) * 2.0;
+		
+		// Then find phi angle for each n-side strip
 		phi += 1.75; // centre of first strip
 		if( nid < 4 ) phi += nid * 3.5; // first 4 strips singles (=4 nid)
 		else if( nid < 12 ) phi += 14. + ( nid - 4 ) * 7.0; // middle 16 strips doubles (=8 nids)
@@ -541,8 +543,6 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	
 	// Rotate to the correct phi angle
 	vec.RotateZ( phi * TMath::DegToRad() );
-	
-	//vec.SetZ( cd_dist[det] ); // set z distance after rotation
 	
 	return vec;
 
