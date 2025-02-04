@@ -224,6 +224,9 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
 	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
 
+	// FEBEX timestamps are in 10ns precision?
+	my_tm_stp = my_tm_stp*10;
+	
 	// Make a FebexData item
 	febex_data->SetTime( my_tm_stp );
 	febex_data->SetSfp( my_sfp_id );
