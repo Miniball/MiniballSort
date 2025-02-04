@@ -115,49 +115,11 @@ void MiniballMidasConverter::ProcessBlockData( long nblock ){
 	else buffer_part = false;
 
 	
-	// Process all words to check size of real data
-	UInt_t real_DataLen = 0;
-	for( UInt_t i = 0; i <= WORD_SIZE; i++ ) {
-		
-		word = GetWord(i);
-		word_0 = (word & 0xFFFFFFFF00000000) >> 32;
-		word_1 = (word & 0x00000000FFFFFFFF);
+	// Get the size of real data
+	UInt_t real_DataLen = header_DataLen/sizeof(ULong64_t);
 
-		real_DataLen = i;
-		
-		// Check the trailer: reject or keep the block.
-		if( ( ( word_0 & 0xFFFFFFFF ) == 0xFFFFFFFF &&
-		    ( word_1 & 0xFFFFFFFF ) == 0xFFFFFFFF ) ||
-		    ( ( word_0 & 0xFFFFFFFF ) == 0x5E5E5E5E &&
-		    ( word_1 & 0xFFFFFFFF ) == 0x5E5E5E5E ) ){
-			
-			//std::cout << "Found some padding at the end of the buffer" << std::endl;
-			//std::cout << "  word_0 = " << std::hex << word_0 << std::dec << " = ";
-			//std::cout << std::bitset<32>{word_0} << std::endl;
-			//std::cout << "  word_1 = " << std::hex << word_1 << std::dec << " = ";
-			//std::cout << std::bitset<32>{word_1} << std::endl;
-
-			flag_terminator = true;
-			break;
-			
-		}
-		
-		else if( i >= header_DataLen/sizeof(ULong64_t) ){
-			
-			flag_terminator = true;
-			real_DataLen = header_DataLen/sizeof(ULong64_t);
-			break;
-
-		}
-		
-	}
-	
 	// Check if this is a full buffer
 	if( real_DataLen == WORD_SIZE ) buffer_full = true;
-	
-	//std::cout << "header_DataLen = " << header_DataLen/sizeof(ULong64_t);
-	//std::cout << "\treal_DataLen = " << real_DataLen;
-	//std::cout << "\tWORD_SIZE = " << WORD_SIZE << std::endl;
 	
 	// Check if we should reject this event
 	if( ( buffer_full && set->GetBufferFullRejection() ) ||
@@ -262,6 +224,9 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	my_tm_stp_lsb = word_1 & 0x0FFFFFFF;  // 28 bits from 0
 	my_tm_stp = ( my_tm_stp_hsb << 48 ) | ( my_tm_stp_msb << 28 ) | my_tm_stp_lsb;
 
+	// FEBEX timestamps are in 10ns precision?
+	my_tm_stp = my_tm_stp*10;
+	
 	// Make a FebexData item
 	febex_data->SetTime( my_tm_stp );
 	febex_data->SetSfp( my_sfp_id );
@@ -480,9 +445,9 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 		time_corr += cal->FebexTime( febex_data->GetSfp(), febex_data->GetBoard(), febex_data->GetChannel() );
 
 		// Timestamp checks
-		long long int sfp_check		= time_corr - tm_stp_read[febex_data->GetSfp()];
-		long long int board_check	= time_corr - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()];
-		long long int channel_check	= time_corr - tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()];
+		long long int sfp_check		= febex_data->GetTime() - tm_stp_read[febex_data->GetSfp()];
+		long long int board_check	= febex_data->GetTime() - tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()];
+		long long int channel_check	= febex_data->GetTime() - tm_stp_febex_ch[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()];
 		
 		// Check how we compare to the first timestamp from this buffer (1000 seconds)
 		if( !first_data[febex_data->GetSfp()] && ( sfp_check > 1000e9 || sfp_check < -1000e9 ) && nblock > 1 ){

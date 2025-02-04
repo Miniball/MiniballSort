@@ -839,7 +839,7 @@ void MiniballEventBuilder::ParticleFinder() {
 				
 				// Hack to recalibrate the pads that are coupled
 				// IS595 - 10th October 2023
-				if( i == 0 && j == 1 ) pad_coinc_en *= 9.8;
+				//if( i == 0 && j == 1 ) pad_coinc_en *= 9.8;
 
 			} // k: all pad events
 			
