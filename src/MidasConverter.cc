@@ -803,6 +803,11 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 	if( my_info_code == set->GetHsbSyncCode() ) {
 		
 		sync_tm_stp_hsb = my_info_field & 0x000000FF;
+		my_tm_stp = ( sync_tm_stp_hsb << 48 ) | ( sync_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
+		sync_tm_stp = my_tm_stp;
+		
+		hfebex_sync[my_sfp_id][my_board_id]->Fill( ctr_febex_sync[my_sfp_id][my_board_id], sync_tm_stp, 1 );
+		ctr_febex_sync[my_sfp_id][my_board_id]++;
 
 	}
 	
@@ -810,11 +815,6 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 	if( my_info_code == set->GetMsbSyncCode() ) {
 		
 		sync_tm_stp_msb = my_info_field & 0x000FFFFF;
-		my_tm_stp = ( sync_tm_stp_hsb << 48 ) | ( sync_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
-		sync_tm_stp = my_tm_stp;
-		
-		hfebex_sync[my_sfp_id][my_board_id]->Fill( ctr_febex_sync[my_sfp_id][my_board_id], sync_tm_stp, 1 );
-		ctr_febex_sync[my_sfp_id][my_board_id]++;
 		
 	}
 	
