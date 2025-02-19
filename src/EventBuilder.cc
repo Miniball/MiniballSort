@@ -1565,7 +1565,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			mysfp = febex_data->GetSfp();
 			myboard = febex_data->GetBoard();
 			mych = febex_data->GetChannel();
-			mypileup = febex_data->IsPileUp();
+			mypileup = febex_data->IsPileup();
 			myclipped = febex_data->IsClipped();
 
 			// check for repeated timestamps in same channel

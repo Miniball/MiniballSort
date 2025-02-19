@@ -181,9 +181,10 @@ public:
 	inline unsigned int IsFebexOnly(){ return flag_febex_only; };
 
 
-	// Are we rejecting pileup
+	// Are we rejecting pileup and/or clipped events
 	inline double GetPileupRejection(){ return pileup_reject; };
-	
+	inline double GetClippedRejection(){ return clipped_reject; };
+
 
 	// Are we rejecting full buffers?
 	inline double GetBufferFullRejection(){ return bufferfull_reject; };
@@ -458,9 +459,10 @@ private:
 	unsigned int block_size;		///< not yet implemented, needs C++ style reading of data files
 	bool flag_febex_only;			///< when there is only FEBEX data in the file
 
-	// Pile-up rejection
-	bool pileup_reject;
-	
+	// Pile-up and clipped pulse rejection
+	bool pileup_reject;				///< reject events where the pileup flag is set by the MWD firmware
+	bool clipped_reject;			///< reject events that are clipped by the ADC range
+
 	// Buffer full rejection
 	bool bufferfull_reject;
 	bool bufferpart_reject;

@@ -303,7 +303,7 @@ public:
 	inline unsigned char				GetChannel() { return ch; };
 	inline float						GetEnergy() { return energy; };
 	inline bool							IsOverThreshold() { return thres; };
-	inline bool							IsPileUp() { return pileup; };
+	inline bool							IsPileup() { return pileup; };
 	inline bool							IsClipped() { return clipped; };
 	inline bool							HasFlag() { return flagbit; };
 	inline std::vector<unsigned short>	GetTrace() { return trace; };
@@ -337,7 +337,7 @@ public:
 	inline void	SetChannel( unsigned char c ) { ch = c; };
 	inline void SetEnergy( float e ){ energy = e; };
 	inline void SetThreshold( bool t ){ thres = t; };
-	inline void SetPileUp( bool p ){ pileup = p; };
+	inline void SetPileup( bool p ){ pileup = p; };
 	inline void SetClipped( bool cl ){ clipped = cl; };
 	inline void SetFlag( bool f ){ flagbit = f; };
 
