@@ -233,14 +233,12 @@ void MiniballEventBuilder::Initialise(){
 	mb_clu_list.clear();
 	mb_cry_list.clear();
 	mb_seg_list.clear();
-	mb_pu_list.clear();
 
 	std::vector<float>().swap(mb_en_list);
 	std::vector<unsigned long long>().swap(mb_ts_list);
 	std::vector<unsigned char>().swap(mb_clu_list);
 	std::vector<unsigned char>().swap(mb_cry_list);
 	std::vector<unsigned char>().swap(mb_seg_list);
-	std::vector<bool>().swap(mb_pu_list);
 
 	cd_en_list.clear();
 	cd_ts_list.clear();
@@ -1565,7 +1563,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			mysfp = febex_data->GetSfp();
 			myboard = febex_data->GetBoard();
 			mych = febex_data->GetChannel();
-			mypileup = febex_data->IsPileUp();
+			mypileup = febex_data->IsPileup();
 			myclipped = febex_data->IsClipped();
 
 			// check for repeated timestamps in same channel
@@ -1627,12 +1625,17 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					hit_ctr++;
 					event_open = true;
 					
-					mb_en_list.push_back( myenergy );
-					mb_ts_list.push_back( mytime );
-					mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
-					mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
-					mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
-					mb_pu_list.push_back( mypileup );
+					// Clipped rejection and pileup rejection
+					if( ( !myclipped || !set->GetClippedRejection() ) &&
+					    ( !mypileup || !set->GetPileupRejection() ) ) {
+
+						mb_en_list.push_back( myenergy );
+						mb_ts_list.push_back( mytime );
+						mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
+						mb_cry_list.push_back( set->GetMiniballCrystal( mysfp, myboard, mych ) );
+						mb_seg_list.push_back( set->GetMiniballSegment( mysfp, myboard, mych ) );
+						
+					}
 					
 				}
 				
@@ -1644,7 +1647,9 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					hit_ctr++;
 					event_open = true;
 					
-					if( !mypileup || !set->GetPileupRejection() ) {
+					// Clipped rejection and pileup rejection
+					if( ( !myclipped || !set->GetClippedRejection() ) &&
+						( !mypileup || !set->GetPileupRejection() ) ) {
 						
 						cd_en_list.push_back( myenergy );
 						cd_ts_list.push_back( mytime );
@@ -1665,8 +1670,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					hit_ctr++;
 					event_open = true;
 					
-					if( !mypileup || !set->GetPileupRejection() ) {
-						
+					// Clipped rejection and pileup rejection
+					if( ( !myclipped || !set->GetClippedRejection() ) &&
+					    ( !mypileup || !set->GetPileupRejection() ) ) {
+
 						pad_en_list.push_back( myenergy );
 						pad_ts_list.push_back( mytime );
 						pad_det_list.push_back( set->GetPadDetector( mysfp, myboard, mych ) );
@@ -1684,8 +1691,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					hit_ctr++;
 					event_open = true;
 					
-					if( !mypileup || !set->GetPileupRejection() ) {
-						
+					// Clipped rejection and pileup rejection
+					if( ( !myclipped || !set->GetClippedRejection() ) &&
+					    ( !mypileup || !set->GetPileupRejection() ) ) {
+
 						spede_en_list.push_back( myenergy );
 						spede_ts_list.push_back( mytime );
 						spede_seg_list.push_back( set->GetSpedeSegment( mysfp, myboard, mych ) );
@@ -1702,8 +1711,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					hit_ctr++;
 					event_open = true;
 					
-					if( !mypileup || !set->GetPileupRejection() ) {
-						
+					// Clipped rejection and pileup rejection
+					if( ( !myclipped || !set->GetClippedRejection() ) &&
+					    ( !mypileup || !set->GetPileupRejection() ) ) {
+
 						bd_en_list.push_back( myenergy );
 						bd_ts_list.push_back( mytime );
 						bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
@@ -1720,8 +1731,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					hit_ctr++;
 					event_open = true;
 					
-					if( !mypileup || !set->GetPileupRejection() ) {
-						
+					// Clipped rejection and pileup rejection
+					if( ( !myclipped || !set->GetClippedRejection() ) &&
+					    ( !mypileup || !set->GetPileupRejection() ) ) {
+
 						ic_en_list.push_back( myenergy );
 						ic_ts_list.push_back( mytime );
 						ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
@@ -1826,7 +1839,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				mb_clu_list.push_back( set->GetMiniballCluster( mydgf, mych ) );
 				mb_cry_list.push_back( set->GetMiniballCrystal( mydgf, mych ) );
 				mb_seg_list.push_back( set->GetMiniballSegment( mydgf, mych ) );
-				mb_pu_list.push_back( mypileup );
 				
 			}
 			

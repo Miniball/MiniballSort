@@ -261,9 +261,11 @@ void MiniballSettings::ReadSettings() {
 	flag_febex_only		= config->GetValue( "FebexOnlyData", true );
 
 	
-	// Pileup rejection
-	pileup_reject		= config->GetValue( "PileUpRejection", false );
-	
+	// Pileup and clipped rejection
+	pileup_reject		= config->GetValue( "PileupRejection",
+								config->GetValue( "PileUpRejection", false ) );
+	clipped_reject		= config->GetValue( "ClippedRejection", true );
+
 	
 	// Buffer full rejection
 	bufferfull_reject	= config->GetValue( "BufferFullRejection", false );

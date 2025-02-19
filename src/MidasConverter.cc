@@ -232,7 +232,7 @@ int MiniballMidasConverter::ProcessTraceData( int pos ){
 	febex_data->SetSfp( my_sfp_id );
 	febex_data->SetBoard( my_board_id );
 	febex_data->SetChannel( my_ch_id );
-	febex_data->SetPileUp( false );
+	febex_data->SetPileup( false );
 	febex_data->SetFlag( my_flagbit );
 
 	// sample length
@@ -336,7 +336,7 @@ void MiniballMidasConverter::ProcessFebexData( long nblock ){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		febex_data->SetPileUp( my_pileup );
+		febex_data->SetPileup( my_pileup );
 		febex_data->SetClipped( my_clip );
 		febex_data->SetFlag( my_flagbit );
 
@@ -358,7 +358,7 @@ void MiniballMidasConverter::ProcessFebexData( long nblock ){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		febex_data->SetPileUp( my_pileup );
+		febex_data->SetPileup( my_pileup );
 		febex_data->SetClipped( my_clip );
 		febex_data->SetFlag( my_flagbit );
 
@@ -382,7 +382,7 @@ void MiniballMidasConverter::ProcessFebexData( long nblock ){
 		febex_data->SetSfp( my_sfp_id );
 		febex_data->SetBoard( my_board_id );
 		febex_data->SetChannel( my_ch_id );
-		febex_data->SetPileUp( my_pileup );
+		febex_data->SetPileup( my_pileup );
 		febex_data->SetClipped( my_clip );
 		febex_data->SetFlag( my_flagbit );
 	
@@ -627,10 +627,22 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 				
 			}
 			
-			// Fill histograms
-			hfebex_qshort[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQshort() );
-			hfebex_qint[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
-			hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+			// Fill histograms and check clipped etc
+			bool fillflag = true;
+			if( febex_data->IsClipped() && set->GetClippedRejection() )
+				fillflag = false;
+			
+			if( febex_data->IsPileup() && set->GetPileupRejection() )
+				fillflag = false;
+
+			// Only fill if we haven't rejected it, but data still goes to the tree
+			if( fillflag ){
+				
+				hfebex_qshort[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQshort() );
+				hfebex_qint[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( febex_data->GetQint() );
+				hfebex_cal[febex_data->GetSfp()][febex_data->GetBoard()][febex_data->GetChannel()]->Fill( my_energy );
+				
+			}
 			
 			// Reset the latest board and channel timestamps
 			tm_stp_febex[febex_data->GetSfp()][febex_data->GetBoard()] = time_corr;
@@ -803,6 +815,11 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 	if( my_info_code == set->GetHsbSyncCode() ) {
 		
 		sync_tm_stp_hsb = my_info_field & 0x000000FF;
+		my_tm_stp = ( sync_tm_stp_hsb << 48 ) | ( sync_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
+		sync_tm_stp = my_tm_stp;
+		
+		hfebex_sync[my_sfp_id][my_board_id]->Fill( ctr_febex_sync[my_sfp_id][my_board_id], sync_tm_stp, 1 );
+		ctr_febex_sync[my_sfp_id][my_board_id]++;
 
 	}
 	
@@ -810,11 +827,6 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 	if( my_info_code == set->GetMsbSyncCode() ) {
 		
 		sync_tm_stp_msb = my_info_field & 0x000FFFFF;
-		my_tm_stp = ( sync_tm_stp_hsb << 48 ) | ( sync_tm_stp_msb << 28 ) | ( my_tm_stp_lsb & 0x0FFFFFFF );
-		sync_tm_stp = my_tm_stp;
-		
-		hfebex_sync[my_sfp_id][my_board_id]->Fill( ctr_febex_sync[my_sfp_id][my_board_id], sync_tm_stp, 1 );
-		ctr_febex_sync[my_sfp_id][my_board_id]++;
 		
 	}
 	

@@ -91,7 +91,7 @@ void MiniballDataPackets::SetData( std::shared_ptr<FebexData> data ){
 	fill_data.SetChannel( data->GetChannel() );
 	fill_data.SetEnergy( data->GetEnergy() );
 	fill_data.SetThreshold( data->IsOverThreshold() );
-	fill_data.SetPileUp( data->IsPileUp() );
+	fill_data.SetPileup( data->IsPileup() );
 	fill_data.SetClipped( data->IsClipped() );
 	fill_data.SetFlag( data->HasFlag() );
 
