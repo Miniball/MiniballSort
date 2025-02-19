@@ -186,7 +186,7 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 				febex_data->SetSfp( my_sfp_id );
 				febex_data->SetBoard( my_board_id );
 				febex_data->SetChannel( my_hit_ch_id );
-				febex_data->SetPileUp( more_than_1_hit_in_cha );
+				febex_data->SetPileup( more_than_1_hit_in_cha );
 				
 				if( my_sfp_id == 0 ) my_good_tm_stp = my_tm_stp;
 				
@@ -302,8 +302,8 @@ void MiniballMbsConverter::ProcessFebexData( UInt_t &pos ) {
 			febex_data->SetBoard( my_board_id );
 			febex_data->SetChannel( my_ch_id );
 			if( mwd.NumberOfTriggers() > 1 )
-				febex_data->SetPileUp( true );
-			else febex_data->SetPileUp( false );
+				febex_data->SetPileup( true );
+			else febex_data->SetPileup( false );
 
 
 			// Close the data packet and clean up
