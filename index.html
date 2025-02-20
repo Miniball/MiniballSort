@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.11.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>MiniballSort: Main Page</title>
+<title>MiniballSort: MiniballSort</title>
 <link rel="icon" href=".miniballsort_logo.png" type="image/x-icon" />
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -85,10 +85,53 @@ $(function(){ initResizable(false); });
 </div>
 </div>
 
-<div class="header">
-  <div class="headertitle"><div class="title">MiniballSort Documentation</div></div>
+<div><div class="header">
+  <div class="headertitle"><div class="title">MiniballSort </div></div>
 </div><!--header-->
 <div class="contents">
+<div class="textblock"><p><a class="anchor" id="md_README"></a> <a href="https://doi.org/10.5281/zenodo.7867978"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7867978.svg" alt="DOI" style="pointer-events: none;" class="inline"/></a></p>
+<p>Sort code for Miniball data using the new FEBEX/MIDAS DAQ from the 2022 campaign onwards.</p>
+<p>This sort code has been updated to take data from the MBS/FEBEX DAQ (.lmd files - 2022) and the MBS/DGF DAQ (.med files - 2001-2018). Not all features of the old DAQ have yet been implemented, but if you have an old data set that you would like to sort, make a request with the "issues" feature and we will try to implement your requirement.</p>
+<p>There is a <a href="https://github.com/Miniball/MiniballSort/wiki">Wiki</a> page for this code, giving some more detailed instructions of how to analyse data.</p>
+<p>Please cite the code using the DOI if you use it for your publications: <a href="http://doi.org/10.5281/zenodo.7867978">doi:10.5281/zenodo.7867979</a>.</p>
+<h1><a class="anchor" id="autotoc_md1"></a>
+Download</h1>
+<div class="fragment"><div class="line">git clone https://github.com/Miniball/MiniballSort</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md2"></a>
+Compile</h1>
+<div class="fragment"><div class="line">make clean</div>
+<div class="line">make</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md3"></a>
+Execute</h1>
+<div class="fragment"><div class="line">mb_sort</div>
+</div><!-- fragment --><p> if you add the MiniballSort/bin to your PATH variable. You can also add MiniballSort/lib to your (DY)LD_LIBRARY_PATH too.</p>
+<p>or </p><div class="fragment"><div class="line">./bin/mb_sort</div>
+</div><!-- fragment --><p>The input options are described below</p>
+<div class="fragment"><div class="line">use mb_sort with following flags:</div>
+<div class="line">        [-i         &lt;vector&lt;string&gt;&gt;: List of input files]</div>
+<div class="line">        [-o         &lt;string        &gt;: Output file for histogram file]</div>
+<div class="line">        [-s         &lt;string        &gt;: Settings file]</div>
+<div class="line">        [-c         &lt;string        &gt;: Calibration file]</div>
+<div class="line">        [-r         &lt;string        &gt;: Reaction file]</div>
+<div class="line">        [-f                         : Flag to force new ROOT conversion]</div>
+<div class="line">        [-e                         : Flag to force new event builder (new calibration)]</div>
+<div class="line">        [-source                    : Flag to define an source only run]</div>
+<div class="line">        [-ebis                      : Flag to define an EBIS only run, discarding data &gt;4ms after an EBIS event]</div>
+<div class="line">        [-midas                     : Flag to define input as MIDAS data type (FEBEX with Daresbury firmware - default)]</div>
+<div class="line">        [-mbs                       : Flag to define input as MBS data type (FEBEX with GSI firmware)]</div>
+<div class="line">        [-med                       : Flag to define input as MED data type (DGF and MADC)]</div>
+<div class="line">        [-anglefit                  : Flag to run the angle fit]</div>
+<div class="line">        [-angledata &lt;string        &gt;: File containing 22Ne segment energies]</div>
+<div class="line">        [-spy                       : Flag to run the DataSpy]</div>
+<div class="line">        [-m         &lt;int           &gt;: Monitor input file every X seconds]</div>
+<div class="line">        [-p         &lt;int           &gt;: Port number for web server (default 8030)]</div>
+<div class="line">        [-d         &lt;string        &gt;: Directory to put the sorted data default is /path/to/data/sorted]</div>
+<div class="line">        [-g                         : Launch the GUI]</div>
+<div class="line">        [-h                         : Print this help]</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md4"></a>
+Dependencies</h1>
+<p>You will need to have ROOT installed with a minumum standard that your compiler supports C++14. At the moment it works with v5 or v6, but let me know of any problems by raising an issue on GitHub. ROOT must be built with GSL library support, otherwise known as MathMore. To check this is true, you can type: <code>root-config --has-mathmore</code> and hope the response is <code>yes</code>. If it isn't, you will need to install the GSL libraries and reconfigure/rebuild ROOT. </p>
+</div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"/>
 </div><!-- contents -->
 <!-- start footer part -->

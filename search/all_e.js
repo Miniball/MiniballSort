@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['of_20hits_0',['of hits',['../classMBSBufferElem.html#autotoc_md0',1,'']]],
+  ['of_20hits_0',['of hits',['../classMBSBufferElem.html#autotoc_md5',1,'']]],
   ['offbeam_1',['OffBeam',['../classMiniballHistogrammer.html#a92ad7a720ad2727413665209ebf05aae',1,'MiniballHistogrammer::OffBeam(std::shared_ptr&lt; GammaRayEvt &gt; g)'],['../classMiniballHistogrammer.html#a68bcba014891e0938ad23e301e2e6a25',1,'MiniballHistogrammer::OffBeam(std::shared_ptr&lt; ParticleEvt &gt; p)'],['../classMiniballHistogrammer.html#a3d7a5bc9bbe6a8714e3dedfb61e81700',1,'MiniballHistogrammer::OffBeam(std::shared_ptr&lt; SpedeEvt &gt; s)']]],
   ['on_5fadd_5fclicked_2',['on_add_clicked',['../classMiniballGUI.html#a7bf229f558cea06741963170f57c8a71',1,'MiniballGUI']]],
   ['on_5fcal_5fclicked_3',['on_cal_clicked',['../classMiniballGUI.html#a12ab889dd62f3751d88de6671ce4055d',1,'MiniballGUI']]],

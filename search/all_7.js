@@ -82,7 +82,7 @@ var searchData=
   ['ge_5fvs_5ftheta_5frecoil_5fdc_5fnone_79',['gE_vs_theta_recoil_dc_none',['../classMiniballHistogrammer.html#ae49b93ec75fa3f5755e10929d0ffbbf2',1,'MiniballHistogrammer']]],
   ['ge_5fvs_5ftheta_5frecoil_5fdc_5frecoil_80',['gE_vs_theta_recoil_dc_recoil',['../classMiniballHistogrammer.html#acb30652214d755bd6fa17369a23a60fa',1,'MiniballHistogrammer']]],
   ['gelname_81',['gElName',['../Reaction_8hh.html#a35cdfd07c72746ef0de43531a2eff02b',1,'Reaction.hh']]],
-  ['geometry_20class_82',['Miniball Geometry class',['../classMiniballGeometry.html#autotoc_md1',1,'']]],
+  ['geometry_20class_82',['Miniball Geometry class',['../classMiniballGeometry.html#autotoc_md6',1,'']]],
   ['get_5fdirectory_83',['get_directory',['../classMiniballGUI.html#a945d6b818db2266627afc79e6ae4ab61',1,'MiniballGUI']]],
   ['get_5ffilename_84',['get_filename',['../classMiniballGUI.html#a7e03bca49e965f8a126a426d8a1f1ee9',1,'MiniballGUI']]],
   ['geta_85',['GetA',['../classMiniballParticle.html#ae71880523992089321993bc0117e60fa',1,'MiniballParticle']]],

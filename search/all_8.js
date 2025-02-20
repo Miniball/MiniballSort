@@ -61,6 +61,6 @@ var searchData=
   ['hit_58',['hit',['../classMBSBufferElem.html#afc4a678458a0b6c6952db72315764943',1,'MBSBufferElem']]],
   ['hit_5fctr_59',['hit_ctr',['../classMiniballEventBuilder.html#a9113c1e674c5f3f6d184d4ce79e0986b',1,'MiniballEventBuilder']]],
   ['hitpattern_60',['HitPattern',['../classDgfData.html#a05aa9af4988aec31a93d0c958ed1d842',1,'DgfData']]],
-  ['hits_61',['of hits',['../classMBSBufferElem.html#autotoc_md0',1,'']]],
+  ['hits_61',['of hits',['../classMBSBufferElem.html#autotoc_md5',1,'']]],
   ['hsize_62',['hsize',['../classMBSBufferElem.html#a1b5f60908e03ab087f84073aad36035b',1,'MBSBufferElem']]]
 ];
