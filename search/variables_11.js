@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['r_0',['r',['../classMiniballGeometry.html#aa631857a5c539d4c20429ddb3f82a4cb',1,'MiniballGeometry']]],
+  ['rand_1',['rand',['../classMiniballHistogrammer.html#a180e814959294cce00174531cd4ad7b8',1,'MiniballHistogrammer::rand'],['../classMiniballReaction.html#a99635a9208a42b599f79d8f08569eadc',1,'MiniballReaction::rand']]],
+  ['react_2',['react',['../classMiniballHistogrammer.html#ad72c4e304fa668371f755c9b2832c630',1,'MiniballHistogrammer']]],
+  ['read_5fevts_3',['read_evts',['../classMiniballHistogrammer.html#a0ad449cce140fe8b429f5e992b8a7f89',1,'MiniballHistogrammer']]],
+  ['recoil_4',['Recoil',['../classMiniballReaction.html#a9c30d47364f40a527605f7548d8f0f51',1,'MiniballReaction']]],
+  ['recoil_5fcut_5',['recoil_cut',['../classMiniballReaction.html#a644f979886c544326cd491a6658d0be5',1,'MiniballReaction']]],
+  ['recoil_5fdetected_6',['recoil_detected',['../classMiniballReaction.html#af715a7e140fb449c345dbcdc81a979a4',1,'MiniballReaction']]],
+  ['recoilcutfile_7',['recoilcutfile',['../classMiniballReaction.html#ae217257ed44c285cc9f1cccd5e916498',1,'MiniballReaction']]],
+  ['recoilcutname_8',['recoilcutname',['../classMiniballReaction.html#a8637072481de5b50764f6f989cd33dd6',1,'MiniballReaction']]],
+  ['reject_5fctr_9',['reject_ctr',['../classMiniballConverter.html#abe7d2dde2b18c494f0322cbec07c1695',1,'MiniballConverter']]],
+  ['repeat_5fctr_10',['repeat_ctr',['../classMiniballEventBuilder.html#a457e0491a31f0cf6348f4ab0f8db706f',1,'MiniballEventBuilder']]],
+  ['resume_5fcode_11',['resume_code',['../classMiniballSettings.html#afc46d31b8faec2a6df8e1eb7165db873',1,'MiniballSettings']]],
+  ['resume_5ftime_12',['resume_time',['../classMiniballEventBuilder.html#aeb9f16c53d7c4bb40b5b22562f861358',1,'MiniballEventBuilder']]],
+  ['rise_5ftime_13',['rise_time',['../classFebexMWD.html#a7bfb6c3aa43368056d79e197012f8e87',1,'FebexMWD']]],
+  ['rtime_14',['rtime',['../classParticleEvt.html#ad2e1c5ee27c342ebec9c44baa16afbea',1,'ParticleEvt']]],
+  ['run_5flist_5fbox_15',['run_list_box',['../classMiniballGUI.html#a25d6b5403251ab7b5f4343f2e37e49c6',1,'MiniballGUI']]],
+  ['run_5fselected_16',['run_selected',['../classMiniballGUI.html#a677b210de0934ed8415c64af58c75bba',1,'MiniballGUI']]],
+  ['running_17',['running',['../classMBS.html#a5b84c11ae357115776f96c8bb4f41d5d',1,'MBS']]],
+  ['runtime_18',['RunTime',['../classDgfData.html#a22d1b92516bad58aa0d4ea4ed40659a1',1,'DgfData']]]
+];

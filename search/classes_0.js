@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['thptr_0',['thptr',['../structthptr.html',1,'']]]
+  ['adcdata_0',['AdcData',['../classAdcData.html',1,'']]]
 ];

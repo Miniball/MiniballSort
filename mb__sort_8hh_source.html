@@ -6,6 +6,7 @@
 <meta name="generator" content="Doxygen 1.11.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>MiniballSort: mb_sort.hh Source File</title>
+<link rel="icon" href=".miniballsort_logo.png" type="image/x-icon" />
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -88,7 +89,7 @@ $(function(){ initResizable(false); });
   <div class="headertitle"><div class="title">mb_sort.hh</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef __MBSORT_HH</span></div>
+<a href="mb__sort_8hh.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef __MBSORT_HH</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor"># define __MBSORT_HH</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">// ROOT include.</span></div>
@@ -109,27 +110,35 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">// Some compiler things</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#ifndef CURDIR</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor"># define CURDIR &quot;./&quot;</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="mb__sort_8hh.html#ad74aff401f1ae189b6da3a9090f158c0">   22</a></span><span class="preprocessor"># define CURDIR &quot;./&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#ifndef AMEDIR</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor"># define AMEDIR &quot;./data&quot;</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="mb__sort_8hh.html#a51b536a52e8432864d14f261266b0d33">   25</a></span><span class="preprocessor"># define AMEDIR &quot;./data&quot;</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#ifndef SRIMDIR</span></div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor"># define SRIMDIR &quot;./srim&quot;</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="mb__sort_8hh.html#ad4a16855f850e7e0a023399712355727">   28</a></span><span class="preprocessor"># define SRIMDIR &quot;./srim&quot;</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>Bool_t bRunMon = kTRUE;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>Bool_t bFirstRun = kTRUE;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>std::string curFileMon;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="mb__sort_8hh.html#a6ea06357ba10e3675cee950b1474dea6">   31</a></span>Bool_t <a class="code hl_variable" href="mb__sort_8hh.html#a6ea06357ba10e3675cee950b1474dea6">bRunMon</a> = kTRUE;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="mb__sort_8hh.html#ade3e438e927b0d6396cef81c46c5b376">   32</a></span>Bool_t <a class="code hl_variable" href="mb__sort_8hh.html#ade3e438e927b0d6396cef81c46c5b376">bFirstRun</a> = kTRUE;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="mb__sort_8hh.html#a884da8f9c0baff238c641c96e890fb5f">   33</a></span>std::string <a class="code hl_variable" href="mb__sort_8hh.html#a884da8f9c0baff238c641c96e890fb5f">curFileMon</a>;</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keywordtype">void</span> reset_conv_hists();</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keywordtype">void</span> reset_evnt_hists();</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keywordtype">void</span> reset_phys_hists();</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keywordtype">void</span> stop_monitor();</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keywordtype">void</span> start_monitor();</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keywordtype">void</span> <a class="code hl_function" href="mb__sort_8hh.html#a5a9cc2ced9ddc357a74bf334e73ef7b0">reset_conv_hists</a>();</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keywordtype">void</span> <a class="code hl_function" href="mb__sort_8hh.html#a9a30d2ef51336f1df5b39ea8e50528bf">reset_evnt_hists</a>();</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keywordtype">void</span> <a class="code hl_function" href="mb__sort_8hh.html#adc87d30880b762e82ccefc6c5b529fa8">reset_phys_hists</a>();</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keywordtype">void</span> <a class="code hl_function" href="mb__sort_8hh.html#a470d540938164e20f89f85247e49203e">stop_monitor</a>();</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keywordtype">void</span> <a class="code hl_function" href="mb__sort_8hh.html#ad571456d4a7beeba9a226e7ac9199fe2">start_monitor</a>();</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="amb__sort_8hh_html_a470d540938164e20f89f85247e49203e"><div class="ttname"><a href="mb__sort_8hh.html#a470d540938164e20f89f85247e49203e">stop_monitor</a></div><div class="ttdeci">void stop_monitor()</div><div class="ttdef"><b>Definition</b> <a href="mb__sort_8cc_source.html#l00151">mb_sort.cc:151</a></div></div>
+<div class="ttc" id="amb__sort_8hh_html_a5a9cc2ced9ddc357a74bf334e73ef7b0"><div class="ttname"><a href="mb__sort_8hh.html#a5a9cc2ced9ddc357a74bf334e73ef7b0">reset_conv_hists</a></div><div class="ttdeci">void reset_conv_hists()</div><div class="ttdef"><b>Definition</b> <a href="mb__sort_8cc_source.html#l00139">mb_sort.cc:139</a></div></div>
+<div class="ttc" id="amb__sort_8hh_html_a6ea06357ba10e3675cee950b1474dea6"><div class="ttname"><a href="mb__sort_8hh.html#a6ea06357ba10e3675cee950b1474dea6">bRunMon</a></div><div class="ttdeci">Bool_t bRunMon</div><div class="ttdef"><b>Definition</b> <a href="#l00031">mb_sort.hh:31</a></div></div>
+<div class="ttc" id="amb__sort_8hh_html_a884da8f9c0baff238c641c96e890fb5f"><div class="ttname"><a href="mb__sort_8hh.html#a884da8f9c0baff238c641c96e890fb5f">curFileMon</a></div><div class="ttdeci">std::string curFileMon</div><div class="ttdef"><b>Definition</b> <a href="#l00033">mb_sort.hh:33</a></div></div>
+<div class="ttc" id="amb__sort_8hh_html_a9a30d2ef51336f1df5b39ea8e50528bf"><div class="ttname"><a href="mb__sort_8hh.html#a9a30d2ef51336f1df5b39ea8e50528bf">reset_evnt_hists</a></div><div class="ttdeci">void reset_evnt_hists()</div><div class="ttdef"><b>Definition</b> <a href="mb__sort_8cc_source.html#l00143">mb_sort.cc:143</a></div></div>
+<div class="ttc" id="amb__sort_8hh_html_ad571456d4a7beeba9a226e7ac9199fe2"><div class="ttname"><a href="mb__sort_8hh.html#ad571456d4a7beeba9a226e7ac9199fe2">start_monitor</a></div><div class="ttdeci">void start_monitor()</div><div class="ttdef"><b>Definition</b> <a href="mb__sort_8cc_source.html#l00155">mb_sort.cc:155</a></div></div>
+<div class="ttc" id="amb__sort_8hh_html_adc87d30880b762e82ccefc6c5b529fa8"><div class="ttname"><a href="mb__sort_8hh.html#adc87d30880b762e82ccefc6c5b529fa8">reset_phys_hists</a></div><div class="ttdeci">void reset_phys_hists()</div><div class="ttdef"><b>Definition</b> <a href="mb__sort_8cc_source.html#l00147">mb_sort.cc:147</a></div></div>
+<div class="ttc" id="amb__sort_8hh_html_ade3e438e927b0d6396cef81c46c5b376"><div class="ttname"><a href="mb__sort_8hh.html#ade3e438e927b0d6396cef81c46c5b376">bFirstRun</a></div><div class="ttdeci">Bool_t bFirstRun</div><div class="ttdef"><b>Definition</b> <a href="#l00032">mb_sort.hh:32</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
