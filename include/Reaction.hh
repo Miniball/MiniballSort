@@ -564,20 +564,20 @@ private:
 	double t1_time[2];	///< event time - T1 cut window
 	
 	// Particle and Gamma coincidences windows
-	int pg_prompt[2];	// particle-gamma prompt
-	int pg_random[2];	// particle-gamma random
-	int gg_prompt[2];	// gamma-gamma prompt
-	int gg_random[2];	// gamma-gamma random
-	int pp_prompt[2];	// particle-particle prompt
-	int pp_random[2];	// particle-particle random
-	int ge_prompt[2];	// gamma-electron prompt
-	int ge_random[2];	// gamma-electron random
-	int ee_prompt[2];	// electron-electron prompt
-	int ee_random[2];	// electron-electron random
-	int pe_prompt[2];	// particle-electron prompt
-	int pe_random[2];	// particle-electron random
-	double pg_ratio, gg_ratio, pp_ratio; // fill ratios
-	double pe_ratio, ge_ratio, ee_ratio; // fill ratios
+	int pg_prompt[2];	///< particle-gamma prompt
+	int pg_random[2];	///< particle-gamma random
+	int gg_prompt[2];	///< gamma-gamma prompt
+	int gg_random[2];	///< gamma-gamma random
+	int pp_prompt[2];	///< particle-particle prompt
+	int pp_random[2];	///< particle-particle random
+	int ge_prompt[2];	///< gamma-electron prompt
+	int ge_random[2];	///< gamma-electron random
+	int ee_prompt[2];	///< electron-electron prompt
+	int ee_random[2];	///< electron-electron random
+	int pe_prompt[2];	///< particle-electron prompt
+	int pe_random[2];	///< particle-electron random
+	double pg_ratio, gg_ratio, pp_ratio; ///< fill ratios
+	double pe_ratio, ge_ratio, ee_ratio; ///< fill ratios
 
 	// Target thickness and offsets
 	double target_thickness;	///< target thickness in units of mg/cm^2
@@ -599,15 +599,15 @@ private:
 	double spede_dist;	///< distance from target to SPEDE detector
 	double spede_offset;	///< phi rotation of the SPEDE detector
 	
-	// Doppler mode, calculating the velocity for Doppler correction
-	// 0 = use angles and two-body kinematics at centre of the target
-	// 1 = like 0, but corrected for energy loss through the back of the target
-	// 2 = use energy of particle in the CD detector
-	// 3 = like 2, but corrected for energy loss in dead-layer and back of the target
-	unsigned char doppler_mode;
+	unsigned char doppler_mode; 	///< Doppler mode, calculating the velocity for Doppler correction
+									///< 0 = use angles and two-body kinematics at centre of the target
+									///< 1 = like 0, but corrected for energy loss through the back of the target
+									///< 2 = use energy of particle in the CD detector
+									///< 3 = like 2, but corrected for energy loss in dead-layer
+
 	
-	// Laser status mode: 0 = OFF, 1 = ON, 2 = OFF or ON
-	unsigned char laser_mode;
+	unsigned char laser_mode;		///< Laser status mode:
+									///< 0 = OFF, 1 = ON, 2 = OFF or ON
 	
 	// Events tree options
 	bool events_particle_gamma;
