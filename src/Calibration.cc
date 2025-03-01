@@ -215,21 +215,17 @@ void MiniballCalibration::ReadCalibration() {
 
 	std::unique_ptr<TEnv> config = std::make_unique<TEnv>( fInputFile.data() );
 	
-	default_MWD_Decay		= 5000;
-	default_MWD_Rise		= 780; // L
-	default_MWD_Top			= 870; // mwd_cfd_trig_delay
-	default_MWD_Baseline	= 60;  // delay MWD in James' firmware
-	default_MWD_Window		= 880; // M
-	default_CFD_Delay		= 30;
-	default_CFD_HoldOff		= 100; // prevent double triggering?
-	default_CFD_Shaping		= 15;
-	default_CFD_Integration	= 10;
-	default_CFD_Threshold	= 500;
-	default_CFD_Fraction	= 0.3;
-	
-	std::string default_type = config->GetValue( "febex_default.Type", "Qshort" );
-	if( default_qint ) default_type = "Qint"; // override for MBS
-
+	default_FebexMWD_Decay			= 5000;
+	default_FebexMWD_Rise			= 780; // L
+	default_FebexMWD_Top			= 870; // mwd_cfd_trig_delay
+	default_FebexMWD_Baseline		= 60;  // delay MWD in James' firmware
+	default_FebexMWD_Window			= 880; // M
+	default_FebexCFD_Delay			= 30;
+	default_FebexCFD_HoldOff		= 100; // prevent double triggering?
+	default_FebexCFD_Shaping		= 15;
+	default_FebexCFD_Integration	= 10;
+	default_FebexCFD_Threshold		= 500;
+	default_FebexCFD_Fraction		= 0.3;
 	
 	// FEBEX initialisation
 	fFebexOffset.resize( set->GetNumberOfFebexSfps() );
@@ -249,6 +245,27 @@ void MiniballCalibration::ReadCalibration() {
 	fFebexCFD_Integration.resize( set->GetNumberOfFebexSfps() );
 	fFebexCFD_Threshold.resize( set->GetNumberOfFebexSfps() );
 	fFebexCFD_Fraction.resize( set->GetNumberOfFebexSfps() );
+	
+	// Global parameters
+	double default_FebexOffset = (double)config->GetValue( "febex.Offset", (double)0 );
+	double default_FebexGain = (double)config->GetValue( "febex.Gain", 0.25 );
+	double default_FebexGainQuadr = (double)config->GetValue( "febex.GainQuadr", (double)0 );
+	unsigned int default_FebexThreshold = (unsigned int)config->GetValue( "febex.Threshold", (double)0 );
+	std::string default_FebexType = config->GetValue( "febex.Type", "Qshort" );
+	if( default_qint ) default_FebexType = "Qint"; // override for MBS
+	long default_FebexTime = (long)config->GetValue( "febex.Time", (double)0 );
+	default_FebexMWD_Decay = (unsigned int)config->GetValue( "febex.MWD.DecayTime", (double)default_FebexMWD_Decay );
+	default_FebexMWD_Rise = (unsigned int)config->GetValue( "febex_.MWD.RiseTime", (double)default_FebexMWD_Rise );
+	default_FebexMWD_Top = (unsigned int)config->GetValue( "febex.MWD.FlatTop", (double)default_FebexMWD_Top );
+	default_FebexMWD_Baseline = (unsigned int)config->GetValue( "febex.MWD.Baseline", (double)default_FebexMWD_Baseline );
+	default_FebexMWD_Window = (unsigned int)config->GetValue( "febex.MWD.Window", (double)default_FebexMWD_Window );
+	default_FebexCFD_Delay = (unsigned int)config->GetValue( "febex.CFD.DelayTime", (double)default_FebexCFD_Delay );
+	default_FebexCFD_HoldOff = (unsigned int)config->GetValue( "febex.CFD.HoldOff", (double)default_FebexCFD_HoldOff );
+	default_FebexCFD_Shaping = (unsigned int)config->GetValue( "febex.CFD.ShapingTime", (double)default_FebexCFD_Shaping );
+	default_FebexCFD_Integration = (unsigned int)config->GetValue( "febex.CFD.IntegrationTime", (double)default_FebexCFD_Integration );
+	default_FebexCFD_Threshold = (int)config->GetValue( "febex.CFD.Threshold", (double)default_FebexCFD_Threshold );
+	default_FebexCFD_Fraction = (float)config->GetValue( "febex.CFD.Fraction", (double)default_FebexCFD_Fraction );
+
 
 	// FEBEX parameter read
 	for( unsigned char i = 0; i < set->GetNumberOfFebexSfps(); i++ ){
@@ -270,6 +287,24 @@ void MiniballCalibration::ReadCalibration() {
 		fFebexCFD_Integration[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexCFD_Threshold[i].resize( set->GetNumberOfFebexBoards() );
 		fFebexCFD_Fraction[i].resize( set->GetNumberOfFebexBoards() );
+		
+		double sfpFebexOffset = (double)config->GetValue( Form( "febex_%d.Offset", i ), (double)default_FebexOffset );
+		double sfpFebexGain = (double)config->GetValue( Form( "febex_%d.Gain", i ), (double)default_FebexGain );
+		double sfpFebexGainQuadr = (double)config->GetValue( Form( "febex_%d.GainQuadr", i ), (double)default_FebexGainQuadr );
+		unsigned int sfpFebexThreshold = (unsigned int)config->GetValue( Form( "febex_%d.Threshold", i ), (double)default_FebexThreshold );
+		std::string sfpFebexType = config->GetValue( Form( "febex_%d.Type", i ), default_FebexType.data() );
+		long sfpFebexTime = (long)config->GetValue( Form( "febex_%d.Time", i ), (double)default_FebexTime );
+		unsigned int sfpFebexMWD_Decay = (unsigned int)config->GetValue( Form( "febex_%d.MWD.DecayTime", i ), (double)default_FebexMWD_Decay );
+		unsigned int sfpFebexMWD_Rise = (unsigned int)config->GetValue( Form( "febex_%d.MWD.RiseTime", i ), (double)default_FebexMWD_Rise );
+		unsigned int sfpFebexMWD_Top = (unsigned int)config->GetValue( Form( "febex_%d.MWD.FlatTop", i ), (double)default_FebexMWD_Top );
+		unsigned int sfpFebexMWD_Baseline = (unsigned int)config->GetValue( Form( "febex_%d.MWD.Baseline", i ), (double)default_FebexMWD_Baseline );
+		unsigned int sfpFebexMWD_Window = (unsigned int)config->GetValue( Form( "febex_%d.MWD.Window", i ), (double)default_FebexMWD_Window );
+		unsigned int sfpFebexCFD_Delay = (unsigned int)config->GetValue( Form( "febex_%d.CFD.DelayTime", i ), (double)default_FebexCFD_Delay );
+		unsigned int sfpFebexCFD_HoldOff = (unsigned int)config->GetValue( Form( "febex_%d.CFD.HoldOff", i ), (double)default_FebexCFD_HoldOff );
+		unsigned int sfpFebexCFD_Shaping = (unsigned int)config->GetValue( Form( "febex_%d.CFD.ShapingTime", i ), (double)default_FebexCFD_Shaping );
+		unsigned int sfpFebexCFD_Integration = (unsigned int)config->GetValue( Form( "febex_%d.CFD.IntegrationTime", i ), (double)default_FebexCFD_Integration );
+		int sfpFebexCFD_Threshold = (int)config->GetValue( Form( "febex_%d.CFD.Threshold", i ), (double)default_FebexCFD_Threshold );
+		float sfpFebexCFD_Fraction = (float)config->GetValue( Form( "febex_%d.CFD.Fraction", i ), (double)default_FebexCFD_Fraction );
 
 		for( unsigned char j = 0; j < set->GetNumberOfFebexBoards(); j++ ){
 
@@ -291,25 +326,43 @@ void MiniballCalibration::ReadCalibration() {
 			fFebexCFD_Threshold[i][j].resize( set->GetNumberOfFebexChannels() );
 			fFebexCFD_Fraction[i][j].resize( set->GetNumberOfFebexChannels() );
 
+			double boardFebexOffset = (double)config->GetValue( Form( "febex_%d_%d.Offset", i, j ), (double)sfpFebexOffset );
+			double boardFebexGain = (double)config->GetValue( Form( "febex_%d_%d.Gain", i, j ), (double)sfpFebexGain );
+			double boardFebexGainQuadr = (double)config->GetValue( Form( "febex_%d_%d.GainQuadr", i, j ), (double)sfpFebexGainQuadr );
+			unsigned int boardFebexThreshold = (unsigned int)config->GetValue( Form( "febex_%d_%d.Threshold", i, j ), (double)sfpFebexThreshold );
+			std::string boardFebexType = config->GetValue( Form( "febex_%d_%d.Type", i, j ), sfpFebexType.data() );
+			long boardFebexTime = (long)config->GetValue( Form( "febex_%d_%d.Time", i, j ), (double)sfpFebexTime );
+			unsigned int boardFebexMWD_Decay = (unsigned int)config->GetValue( Form( "febex_%d_%d.MWD.DecayTime", i, j ), (double)sfpFebexMWD_Decay );
+			unsigned int boardFebexMWD_Rise = (unsigned int)config->GetValue( Form( "febex_%d_%d.MWD.RiseTime", i, j ), (double)sfpFebexMWD_Rise );
+			unsigned int boardFebexMWD_Top = (unsigned int)config->GetValue( Form( "febex_%d_%d.MWD.FlatTop", i, j ), (double)sfpFebexMWD_Top );
+			unsigned int boardFebexMWD_Baseline = (unsigned int)config->GetValue( Form( "febex_%d_%d.MWD.Baseline", i, j ), (double)sfpFebexMWD_Baseline );
+			unsigned int boardFebexMWD_Window = (unsigned int)config->GetValue( Form( "febex_%d_%d.MWD.Window", i, j ), (double)sfpFebexMWD_Window );
+			unsigned int boardFebexCFD_Delay = (unsigned int)config->GetValue( Form( "febex_%d_%d.CFD.DelayTime", i, j ), (double)sfpFebexCFD_Delay );
+			unsigned int boardFebexCFD_HoldOff = (unsigned int)config->GetValue( Form( "febex_%d_%d.CFD.HoldOff", i, j ), (double)sfpFebexCFD_HoldOff );
+			unsigned int boardFebexCFD_Shaping = (unsigned int)config->GetValue( Form( "febex_%d_%d.CFD.ShapingTime", i, j ), (double)sfpFebexCFD_Shaping );
+			unsigned int boardFebexCFD_Integration = (unsigned int)config->GetValue( Form( "febex_%d_%d.CFD.IntegrationTime", i, j ), (double)sfpFebexCFD_Integration );
+			int boardFebexCFD_Threshold = (int)config->GetValue( Form( "febex_%d_%d.CFD.Threshold", i, j ), (double)sfpFebexCFD_Threshold );
+			float boardFebexCFD_Fraction = (float)config->GetValue( Form( "febex_%d_%d.CFD.Fraction", i, j ), (double)sfpFebexCFD_Fraction );
+
 			for( unsigned char k = 0; k < set->GetNumberOfFebexChannels(); k++ ){
 				
-				fFebexOffset[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.Offset", i, j, k ), (double)0 );
-				fFebexGain[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), 0.25 );
-				fFebexGainQuadr[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), (double)0 );
-				fFebexThreshold[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), (double)0 );
-				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), default_type.data() );
-				fFebexTime[i][j][k] = (long)config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)0 );
-				fFebexMWD_Decay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), (double)default_MWD_Decay );
-				fFebexMWD_Rise[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (double)default_MWD_Rise );
-				fFebexMWD_Top[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (double)default_MWD_Top );
-				fFebexMWD_Baseline[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (double)default_MWD_Baseline );
-				fFebexMWD_Window[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (double)default_MWD_Window );
-				fFebexCFD_Delay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), (double)default_CFD_Delay );
-				fFebexCFD_HoldOff[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.HoldOff", i, j, k ), (double)default_CFD_HoldOff );
-				fFebexCFD_Shaping[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.ShapingTime", i, j, k ), (double)default_CFD_Shaping );
-				fFebexCFD_Integration[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.IntegrationTime", i, j, k ), (double)default_CFD_Integration );
-				fFebexCFD_Threshold[i][j][k] = (int)config->GetValue( Form( "febex_%d_%d_%d.CFD.Threshold", i, j, k ), (double)default_CFD_Threshold );
-				fFebexCFD_Fraction[i][j][k] = (float)config->GetValue( Form( "febex_%d_%d_%d.CFD.Fraction", i, j, k ), (double)default_CFD_Fraction );
+				fFebexOffset[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.Offset", i, j, k ), (double)boardFebexOffset );
+				fFebexGain[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.Gain", i, j, k ), (double)boardFebexGain );
+				fFebexGainQuadr[i][j][k] = (double)config->GetValue( Form( "febex_%d_%d_%d.GainQuadr", i, j, k ), (double)boardFebexGainQuadr );
+				fFebexThreshold[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.Threshold", i, j, k ), (double)boardFebexThreshold );
+				fFebexType[i][j][k] = config->GetValue( Form( "febex_%d_%d_%d.Type", i, j, k ), boardFebexType.data() );
+				fFebexTime[i][j][k] = (long)config->GetValue( Form( "febex_%d_%d_%d.Time", i, j, k ), (double)boardFebexTime );
+				fFebexMWD_Decay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.DecayTime", i, j, k ), (double)boardFebexMWD_Decay );
+				fFebexMWD_Rise[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.RiseTime", i, j, k ), (double)boardFebexMWD_Rise );
+				fFebexMWD_Top[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.FlatTop", i, j, k ), (double)boardFebexMWD_Top );
+				fFebexMWD_Baseline[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Baseline", i, j, k ), (double)boardFebexMWD_Baseline );
+				fFebexMWD_Window[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.MWD.Window", i, j, k ), (double)boardFebexMWD_Window );
+				fFebexCFD_Delay[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.DelayTime", i, j, k ), (double)boardFebexCFD_Delay );
+				fFebexCFD_HoldOff[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.HoldOff", i, j, k ), (double)boardFebexCFD_HoldOff );
+				fFebexCFD_Shaping[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.ShapingTime", i, j, k ), (double)boardFebexCFD_Shaping );
+				fFebexCFD_Integration[i][j][k] = (unsigned int)config->GetValue( Form( "febex_%d_%d_%d.CFD.IntegrationTime", i, j, k ), (double)boardFebexCFD_Integration );
+				fFebexCFD_Threshold[i][j][k] = (int)config->GetValue( Form( "febex_%d_%d_%d.CFD.Threshold", i, j, k ), (double)boardFebexCFD_Threshold );
+				fFebexCFD_Fraction[i][j][k] = (float)config->GetValue( Form( "febex_%d_%d_%d.CFD.Fraction", i, j, k ), (double)boardFebexCFD_Fraction );
 
 			} // k: channel
 			
