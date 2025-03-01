@@ -385,14 +385,20 @@ void MiniballCalibration::ReadCalibration() {
 		fAdcGainQuadr[i].resize( set->GetMaximumNumberOfAdcChannels() );
 		fAdcThreshold[i].resize( set->GetMaximumNumberOfAdcChannels() );
 		fAdcTime[i].resize( set->GetMaximumNumberOfAdcChannels() );
-	
+		
+		double defaultAdcOffset = config->GetValue( Form( "adc_%d.Offset", i ), (double)0.0 );
+		double defaultAdcGain = config->GetValue( Form( "adc_%d.Gain", i ), (double)1.0 );
+		double defaultAdcGainQuadr = config->GetValue( Form( "adc_%d.GainQuadr", i ), (double)0.0 );
+		unsigned int defaultAdcThreshold = (unsigned int)config->GetValue( Form( "adc_%d.Threshold", i ), (double)0 );
+		long defaultAdcTime = (long)config->GetValue( Form( "adc_%d.Time", i ), (double)0 );
+
 		for( unsigned char j = 0; j < set->GetMaximumNumberOfAdcChannels(); j++ ){
 
-			fAdcOffset[i][j] = config->GetValue( Form( "adc_%d_%d.Offset", i, j ), (double)0.0 );
-			fAdcGain[i][j] = config->GetValue( Form( "adc_%d_%d.Gain", i, j ), (double)1.0 );
-			fAdcGainQuadr[i][j] = config->GetValue( Form( "adc_%d_%d.GainQuadr", i, j ), (double)0.0 );
-			fAdcThreshold[i][j] = (unsigned int)config->GetValue( Form( "adc_%d_%d.Threshold", i, j ), (double)0 );
-			fAdcTime[i][j] = (long)config->GetValue( Form( "adc_%d_%d.Time", i, j ), (double)0 );
+			fAdcOffset[i][j] = config->GetValue( Form( "adc_%d_%d.Offset", i, j ), (double)defaultAdcOffset );
+			fAdcGain[i][j] = config->GetValue( Form( "adc_%d_%d.Gain", i, j ), (double)defaultAdcGain );
+			fAdcGainQuadr[i][j] = config->GetValue( Form( "adc_%d_%d.GainQuadr", i, j ), (double)defaultAdcGainQuadr );
+			fAdcThreshold[i][j] = (unsigned int)config->GetValue( Form( "adc_%d_%d.Threshold", i, j ), (double)defaultAdcThreshold );
+			fAdcTime[i][j] = (long)config->GetValue( Form( "adc_%d_%d.Time", i, j ), (double)defaultAdcTime );
 			
 		}
 
@@ -414,13 +420,19 @@ void MiniballCalibration::ReadCalibration() {
 		fDgfThreshold[i].resize( set->GetNumberOfDgfChannels() );
 		fDgfTime[i].resize( set->GetNumberOfDgfChannels() );
 	
+		double defaultDgfOffset = config->GetValue( Form( "dgf_%d.Offset", i ), (double)0.0 );
+		double defaultDgfGain = config->GetValue( Form( "dgf_%d.Gain", i ), (double)1.0 );
+		double defaultDgfGainQuadr = config->GetValue( Form( "dgf_%d.GainQuadr", i ), (double)0.0 );
+		unsigned int defaultDgfThreshold = (unsigned int)config->GetValue( Form( "dgf_%d.Threshold", i ), (double)0 );
+		long defaultDgfTime = (long)config->GetValue( Form( "dgf_%d.Time", i ), (double)0 );
+		
 		for( unsigned char j = 0; j < set->GetNumberOfDgfChannels(); j++ ){
 
-			fDgfOffset[i][j] = config->GetValue( Form( "dgf_%d_%d.Offset", i, j ), (double)0.0 );
-			fDgfGain[i][j] = config->GetValue( Form( "dgf_%d_%d.Gain", i, j ), (double)1.0 );
-			fDgfGainQuadr[i][j] = config->GetValue( Form( "dgf_%d_%d.GainQuadr", i, j ), (double)0.0 );
-			fDgfThreshold[i][j] = (unsigned int)config->GetValue( Form( "dgf_%d_%d.Threshold", i, j ), (double)0 );
-			fDgfTime[i][j] = (long)config->GetValue( Form( "dgf_%d_%d.Time", i, j ), (double)0 );
+			fDgfOffset[i][j] = config->GetValue( Form( "dgf_%d_%d.Offset", i, j ), (double)defaultDgfOffset );
+			fDgfGain[i][j] = config->GetValue( Form( "dgf_%d_%d.Gain", i, j ), (double)defaultDgfGain );
+			fDgfGainQuadr[i][j] = config->GetValue( Form( "dgf_%d_%d.GainQuadr", i, j ), (double)defaultDgfGainQuadr );
+			fDgfThreshold[i][j] = (unsigned int)config->GetValue( Form( "dgf_%d_%d.Threshold", i, j ), (double)defaultDgfThreshold );
+			fDgfTime[i][j] = (long)config->GetValue( Form( "dgf_%d_%d.Time", i, j ), (double)defaultDgfTime );
 			
 		}
 
