@@ -253,17 +253,17 @@ private:
 	std::vector< std::vector<std::vector<float>> > fFebexCFD_Fraction;
 
 	// MWD defaults
-	unsigned int default_MWD_Decay;
-	unsigned int default_MWD_Rise;
-	unsigned int default_MWD_Top;
-	unsigned int default_MWD_Baseline;
-	unsigned int default_MWD_Window;
-	float default_CFD_Fraction;
-	unsigned int default_CFD_Delay;
-	unsigned int default_CFD_HoldOff;
-	unsigned int default_CFD_Shaping;
-	unsigned int default_CFD_Integration;
-	int default_CFD_Threshold;
+	unsigned int default_FebexMWD_Decay;
+	unsigned int default_FebexMWD_Rise;
+	unsigned int default_FebexMWD_Top;
+	unsigned int default_FebexMWD_Baseline;
+	unsigned int default_FebexMWD_Window;
+	float default_FebexCFD_Fraction;
+	unsigned int default_FebexCFD_Delay;
+	unsigned int default_FebexCFD_HoldOff;
+	unsigned int default_FebexCFD_Shaping;
+	unsigned int default_FebexCFD_Integration;
+	int default_FebexCFD_Threshold;
 
 	
 	ClassDef( MiniballCalibration, 4 )

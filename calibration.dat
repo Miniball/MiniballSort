@@ -27,5 +27,10 @@
 # febex_<sfp>_<board>_<ch>.CFD.HoldOff:				# this is equivalent to 'CFD Delay', i.e. the hold-off time of the CFD (from initual LED threshold crossing).
 
 
-# The above can be set to some default parameters, and then overridden on a channel-by-channel basis using
-#febex_default.<parameter>:
+# The above can be set to some default parameters
+#febex.<parameter>: <value>
+
+# Which can be overridden on an SFP, board or channel basis
+#febex_<sfp>.<parameter>: <value>
+#febex_<sfp>_<board>.<parameter>: <value>
+#febex_<sfp>_<board>_<ch>.<parameter>: <value>

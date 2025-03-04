@@ -1623,12 +1623,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					// Increment counts and open the event
 					n_miniball++;
 					hit_ctr++;
-					event_open = true;
 					
 					// Clipped rejection and pileup rejection
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 					    ( !mypileup || !set->GetPileupRejection() ) ) {
 
+						event_open = true;
 						mb_en_list.push_back( myenergy );
 						mb_ts_list.push_back( mytime );
 						mb_clu_list.push_back( set->GetMiniballCluster( mysfp, myboard, mych ) );
@@ -1645,12 +1645,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					// Increment counts and open the event
 					n_cd++;
 					hit_ctr++;
-					event_open = true;
 					
 					// Clipped rejection and pileup rejection
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 						( !mypileup || !set->GetPileupRejection() ) ) {
 						
+						event_open = true;
 						cd_en_list.push_back( myenergy );
 						cd_ts_list.push_back( mytime );
 						cd_det_list.push_back( set->GetCDDetector( mysfp, myboard, mych ) );
@@ -1668,12 +1668,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					// Increment counts and open the event
 					n_pad++;
 					hit_ctr++;
-					event_open = true;
 					
 					// Clipped rejection and pileup rejection
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 					    ( !mypileup || !set->GetPileupRejection() ) ) {
 
+						event_open = true;
 						pad_en_list.push_back( myenergy );
 						pad_ts_list.push_back( mytime );
 						pad_det_list.push_back( set->GetPadDetector( mysfp, myboard, mych ) );
@@ -1689,12 +1689,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					// Increment counts and open the event
 					n_spede++;
 					hit_ctr++;
-					event_open = true;
 					
 					// Clipped rejection and pileup rejection
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 					    ( !mypileup || !set->GetPileupRejection() ) ) {
 
+						event_open = true;
 						spede_en_list.push_back( myenergy );
 						spede_ts_list.push_back( mytime );
 						spede_seg_list.push_back( set->GetSpedeSegment( mysfp, myboard, mych ) );
@@ -1709,12 +1709,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					// Increment counts and open the event
 					n_bd++;
 					hit_ctr++;
-					event_open = true;
 					
 					// Clipped rejection and pileup rejection
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 					    ( !mypileup || !set->GetPileupRejection() ) ) {
 
+						event_open = true;
 						bd_en_list.push_back( myenergy );
 						bd_ts_list.push_back( mytime );
 						bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
@@ -1729,12 +1729,12 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					// Increment counts and open the event
 					n_ic++;
 					hit_ctr++;
-					event_open = true;
 					
 					// Clipped rejection and pileup rejection
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 					    ( !mypileup || !set->GetPileupRejection() ) ) {
 
+						event_open = true;
 						ic_en_list.push_back( myenergy );
 						ic_ts_list.push_back( mytime );
 						ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
@@ -1845,18 +1845,13 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			// Is it a gamma ray from the beam dump?
 			else if( set->IsBeamDump( mydgf, mych ) && mythres ) {
 				
-				// Increment counts and open the event
+				// Increment counts but do not open the event
 				n_bd++;
 				hit_ctr++;
-				event_open = true;
 				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
-					bd_en_list.push_back( myenergy );
-					bd_ts_list.push_back( mytime );
-					bd_det_list.push_back( set->GetBeamDumpDetector( mydgf, mych ) );
-					
-				}
+				bd_en_list.push_back( myenergy );
+				bd_ts_list.push_back( mytime );
+				bd_det_list.push_back( set->GetBeamDumpDetector( mydgf, mych ) );
 				
 			}
 			
@@ -1901,15 +1896,15 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			n_adc[myadc]++;
 			
 			// Is it a particle from the CD?
-			if( set->IsCD( myadc, mych ) && mythres && !myclipped ) {
+			if( set->IsCD( myadc, mych ) && mythres ) {
 				
 				// Increment counts and open the event
 				n_cd++;
 				hit_ctr++;
-				event_open = true;
 				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
+				if( !myclipped || !set->GetClippedRejection() ) {
+
+					event_open = true;
 					cd_en_list.push_back( myenergy );
 					cd_ts_list.push_back( mytime );
 					cd_det_list.push_back( set->GetCDDetector( myadc, mych ) );
@@ -1922,15 +1917,15 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 			}
 			
 			// Is it a particle from the Pad?
-			else if( set->IsPad( myadc, mych ) && mythres && !myclipped ) {
+			else if( set->IsPad( myadc, mych ) && mythres ) {
 				
 				// Increment counts and open the event
 				n_pad++;
 				hit_ctr++;
-				event_open = true;
 				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
+				if( !myclipped || !set->GetClippedRejection() ) {
+
+					event_open = true;
 					pad_en_list.push_back( myenergy );
 					pad_ts_list.push_back( mytime );
 					pad_det_list.push_back( set->GetPadDetector( myadc, mych ) );
@@ -1946,10 +1941,10 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				// Increment counts and open the event
 				n_ic++;
 				hit_ctr++;
-				event_open = true;
 				
-				if( !mypileup || !set->GetPileupRejection() ) {
-					
+				if( !myclipped || !set->GetClippedRejection() ) {
+
+					event_open = true;
 					ic_en_list.push_back( myenergy );
 					ic_ts_list.push_back( mytime );
 					ic_id_list.push_back( set->GetIonChamberLayer( myadc, mych ) );
