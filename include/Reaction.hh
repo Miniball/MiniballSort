@@ -513,6 +513,7 @@ public:
 	// Histogram options
 	inline bool HistSegmentPhi(){ return hist_segment_phi; };
 	inline bool HistByCrystal(){ return hist_by_crystal; };
+	inline bool HistByMultiplicity(){ return hist_by_pmult; };
 	inline bool HistBySector(){ return hist_by_sector; };
 	inline bool HistByT1(){ return hist_by_t1; };
 	inline bool HistGammaGamma(){ return hist_gamma_gamma; };
@@ -615,6 +616,7 @@ private:
 	// Histogram options
 	bool hist_segment_phi;
 	bool hist_by_crystal;
+	bool hist_by_pmult;
 	bool hist_by_sector;
 	bool hist_by_t1;
 	bool hist_gamma_gamma;
