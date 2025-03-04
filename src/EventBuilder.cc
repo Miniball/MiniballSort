@@ -1706,7 +1706,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				// Is it a gamma ray from the beam dump?
 				else if( set->IsBeamDump( mysfp, myboard, mych ) && mythres ) {
 					
-					// Increment counts but do not open the event
+					// Increment counts and open the event
 					n_bd++;
 					hit_ctr++;
 					
@@ -1714,6 +1714,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 					    ( !mypileup || !set->GetPileupRejection() ) ) {
 
+						event_open = true;
 						bd_en_list.push_back( myenergy );
 						bd_ts_list.push_back( mytime );
 						bd_det_list.push_back( set->GetBeamDumpDetector( mysfp, myboard, mych ) );
@@ -1725,7 +1726,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				// Is it an IonChamber event
 				else if( set->IsIonChamber( mysfp, myboard, mych ) && mythres ) {
 					
-					// Increment counts but do not open the event
+					// Increment counts and open the event
 					n_ic++;
 					hit_ctr++;
 					
@@ -1733,6 +1734,7 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 					if( ( !myclipped || !set->GetClippedRejection() ) &&
 					    ( !mypileup || !set->GetPileupRejection() ) ) {
 
+						event_open = true;
 						ic_en_list.push_back( myenergy );
 						ic_ts_list.push_back( mytime );
 						ic_id_list.push_back( set->GetIonChamberLayer( mysfp, myboard, mych ) );
