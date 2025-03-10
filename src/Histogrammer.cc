@@ -748,6 +748,11 @@ void MiniballHistogrammer::MakeHists() {
 			htitle += "T1 time [ns];Energy [keV];Counts per eV";
 			gE_1p_recoil_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
 
+			hname = "gE_2p_dc_none_t1";
+			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil with random subtraction;";
+			htitle += "Energy [keV];Counts per keV";
+			gE_2p_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
+			
 			hname = "gE_2p_dc_ejectile_t1";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
@@ -1745,6 +1750,7 @@ void MiniballHistogrammer::ResetHists() {
 			gE_1p_recoil_dc_none_t1->Reset("ICESM");
 			gE_1p_recoil_dc_ejectile_t1->Reset("ICESM");
 			gE_1p_recoil_dc_recoil_t1->Reset("ICESM");
+			gE_2p_dc_none_t1->Reset("ICESM");
 			gE_2p_dc_ejectile_t1->Reset("ICESM");
 			gE_2p_dc_recoil_t1->Reset("ICESM");
 			
@@ -1754,6 +1760,7 @@ void MiniballHistogrammer::ResetHists() {
 			aE_1p_recoil_dc_none_t1->Reset("ICESM");
 			aE_1p_recoil_dc_ejectile_t1->Reset("ICESM");
 			aE_1p_recoil_dc_recoil_t1->Reset("ICESM");
+			aE_2p_dc_none_t1->Reset("ICESM");
 			aE_2p_dc_ejectile_t1->Reset("ICESM");
 			aE_2p_dc_recoil_t1->Reset("ICESM");
 
