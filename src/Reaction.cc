@@ -269,6 +269,7 @@ void MiniballReaction::ReadReaction() {
 	// Histogram options
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
 	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", false );	// turn on histograms for gamma-gamma
+	hist_by_pmult = config->GetValue( "Histograms.ByMultiplicity", false );	// turn on particle-gamma(-electron) spectra by multiplicity, i.e. 1p and 2p spectra
 	hist_by_sector = config->GetValue( "Histograms.BySector", false );	// turn on sector-by-sector histograms for particles
 	hist_by_t1 = config->GetValue( "Histograms.ByT1", false );	// turn on histograms as a function of T1
 	hist_gamma_gamma = config->GetValue( "Histograms.GammaGamma", true );	// turn on histograms for gamma-gamma
@@ -454,18 +455,13 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	}
 	
 	// Create a TVector3 to handle the angles
-	float x = 9.0;
-	if( set->GetNumberOfCDNStrips() == 12 ) 		// standard CD
-		x += ( 15.5 - pid + std::floor(pid) - std::ceil(pid) ) * 2.0;
-	else if( set->GetNumberOfCDNStrips() == 16 )	// CREX and TREX
-		x += ( pid + 0.5 ) * 2.0;
-
-	TVector3 vec( x, 0, cd_dist[det] ); // set z now
-	//TVector3 vec( x, 0, 0 ); // set z later
+	TVector3 vec( 0, 0, cd_dist[det] ); // set z now
 	
-	// Rotate by the phi angle
+	// Get the phi rotation of the quadrant
 	float phi = 90.0 * sec;
 	phi += cd_offset[det]; // left edge of first strip
+	
+	// Recalculate this points for the standard CD (not yet done for CREX/TREX)
 	if( set->GetNumberOfCDNStrips() == 12 )	{			// standard CD
 
 		// CD phi calculation using method from Tim Gray
@@ -532,6 +528,13 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	
 	else if( set->GetNumberOfCDNStrips() == 16 ) {		// CREX and TREX
 		
+		// Inner ring starts at 9.0 mm
+		float x = 9.0;
+		
+		// Each strip centre is 2.0 mm apart
+		x += ( pid + 0.5 ) * 2.0;
+		
+		// Then find phi angle for each n-side strip
 		phi += 1.75; // centre of first strip
 		if( nid < 4 ) phi += nid * 3.5; // first 4 strips singles (=4 nid)
 		else if( nid < 12 ) phi += 14. + ( nid - 4 ) * 7.0; // middle 16 strips doubles (=8 nids)
@@ -541,8 +544,6 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	
 	// Rotate to the correct phi angle
 	vec.RotateZ( phi * TMath::DegToRad() );
-	
-	//vec.SetZ( cd_dist[det] ); // set z distance after rotation
 	
 	return vec;
 
@@ -783,8 +784,8 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
 	if( stopping && doppler_mode > 2 ) {
-		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] ); // ejectile in dead layer
-		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[0] ); // ejectile in target
+		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[2] ); // ejectile in dead layer
 	}
 	Ejectile.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
 	Ejectile.SetTheta( GetParticleTheta(p) );
@@ -819,7 +820,7 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 		// Do energy loss out the back of target if requested
 		if( stopping && doppler_mode == 1 ) {
 			
-			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos( GetParticleTheta(p) ), gStopping[0] );
+			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[0] );
 			Ejectile.SetEnergy( En - eloss );
 			
 		}
@@ -838,8 +839,8 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
 	if( stopping && doppler_mode > 2 ) {
-		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[3] ); // recoil in dead layer
-		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[1] ); // recoil in target
+		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[3] ); // recoil in dead layer
 	}
 	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative to add back the dead layer energy
 	Recoil.SetTheta( GetParticleTheta(p) );
@@ -871,7 +872,7 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 		// Do energy loss out the back of target if requested
 		if( stopping && doppler_mode == 1 ) {
 			
-			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos( GetParticleTheta(p) ), gStopping[1] );
+			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[1] );
 			Recoil.SetEnergy( En - eloss );
 			
 		}
@@ -904,7 +905,7 @@ void MiniballReaction::CalculateEjectile(){
 	// Do energy loss out the back of target if requested
 	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
 		
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Cos(Th), gStopping[0] );
+		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[0] );
 		Ejectile.SetEnergy( En - eloss );
 		
 	}
@@ -957,8 +958,8 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 	double eloss = 0;
 	if( stopping ) {
-		eloss  = GetEnergyLoss( p->GetEnergy(), -1.0 * dead_layer[p->GetDetector()], gStopping[2] ); // transfer product in dead layers
-		eloss += GetEnergyLoss( p->GetEnergy() - eloss, -0.5 * target_thickness, gStopping[0] ); // transfer product in target
+		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[2] ); // transfer product in dead layers
 	}
 	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
 	Recoil.SetTheta( GetParticleTheta(p) );
