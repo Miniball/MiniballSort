@@ -30,7 +30,8 @@ void MiniballHistogrammer::MakeHists() {
 	
 	std::string hname, htitle;
 	std::string dirname;
-	
+	unsigned int ncry = set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals();
+
 	// Time difference plots
 	dirname = "Timing";
 	output_file->mkdir( dirname.data() );
@@ -107,6 +108,14 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy singles;Energy [keV];Counts per 0.5 keV";
 	gE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 	
+	if( react->HistByCrystal() ) {
+
+		hname = "gE_singles_vs_crystal";
+		htitle = "Gamma-ray energy singles versus crystal ID;Crystal ID;Energy [keV];Counts per 0.5 keV";
+		gE_singles_vs_crystal = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
+
+	}
+
 	hname = "gE_singles_ebis";
 	htitle = "Gamma-ray energy singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
@@ -130,7 +139,14 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "aE_singles";
 	htitle = "Gamma-ray energy with addback singles;Energy [keV];Counts per 0.5 keV";
 	aE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
+	if( react->HistByCrystal() ) {
+
+		hname = "aE_singles_vs_crystal";
+		htitle = "Gamma-ray energy with addback singles versus crystal ID;Crystal ID;Energy [keV];Counts per 0.5 keV";
+		aE_singles_vs_crystal = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
+
+	}
 	hname = "aE_singles_ebis";
 	htitle = "Gamma-ray energy with addback singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
@@ -597,8 +613,6 @@ void MiniballHistogrammer::MakeHists() {
 
 	// Per crystal Doppler-corrected spectra
 	if( react->HistByCrystal() ) {
-		
-		unsigned int ncry = set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals();
 		
 		hname = "gE_vs_crystal_ejectile_dc_none";
 		htitle = "Gamma-ray energy, gated on the ejectile with random subtraction;";
@@ -1771,6 +1785,7 @@ void MiniballHistogrammer::ResetHists() {
 	// Per crystal Doppler-corrected spectra
 	if( react->HistByCrystal() ) {
 		
+		gE_singles_vs_crystal->Reset("ICESM");
 		gE_vs_crystal_ejectile_dc_none->Reset("ICESM");
 		gE_vs_crystal_ejectile_dc_ejectile->Reset("ICESM");
 		gE_vs_crystal_ejectile_dc_recoil->Reset("ICESM");
@@ -1778,6 +1793,7 @@ void MiniballHistogrammer::ResetHists() {
 		gE_vs_crystal_recoil_dc_ejectile->Reset("ICESM");
 		gE_vs_crystal_recoil_dc_recoil->Reset("ICESM");
 
+		aE_singles_vs_crystal->Reset("ICESM");
 		aE_vs_crystal_ejectile_dc_none->Reset("ICESM");
 		aE_vs_crystal_ejectile_dc_ejectile->Reset("ICESM");
 		aE_vs_crystal_ejectile_dc_recoil->Reset("ICESM");
@@ -2977,8 +2993,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 			gamma_evt = read_evts->GetGammaRayEvt(j);
 			
 			// Singles
+			int cry = gamma_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_evt->GetCluster();
 			gE_singles->Fill( gamma_evt->GetEnergy() );
-			
+			gE_singles_vs_crystal->Fill( cry, gamma_evt->GetEnergy() );
+
 			// Singles - Doppler corrected
 			gE_singles_dc->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
 			
@@ -3074,8 +3092,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 			gamma_ab_evt = read_evts->GetGammaRayAddbackEvt(j);
 			
 			// Singles
+			int cry = gamma_ab_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_ab_evt->GetCluster();
 			aE_singles->Fill( gamma_ab_evt->GetEnergy() );
-			
+			aE_singles_vs_crystal->Fill( cry, gamma_ab_evt->GetEnergy() );
+
 			// Singles - Doppler corrected
 			aE_singles_dc->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
 			
