@@ -462,13 +462,14 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	phi += cd_offset[det]; // left edge of first strip
 	
 	// Recalculate this points for the standard CD (not yet done for CREX/TREX)
-	if( set->GetNumberOfCDNStrips() == 12 )	{			// standard CD
+	if( set->GetNumberOfCDNStrips() == 12 || set->GetNumberOfCDNStrips() == 24 ) { // standard CD
 
 		// CD phi calculation using method from Tim Gray
 		double alpha = 82.0;
 		double offset = 1.625;
+		double grouping = 24.0 / (double)set->GetNumberOfCDNStrips();
 
-		double phi_body = ( 2.0*nid + 1.0 ) * alpha / 24.;
+		double phi_body = ( grouping * nid + 1.0 ) * alpha / 24.;
 
 		double r_lab = 9.0;
 		r_lab += ( 15.5 - pid ) * 2.0; // pid = 0 is outer ring and pid = 15 is inner ring
