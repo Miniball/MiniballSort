@@ -27,7 +27,7 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 }
 
 void MiniballHistogrammer::MakeHists() {
-	
+
 	std::string hname, htitle;
 	std::string dirname;
 	unsigned int ncry = set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals();
@@ -36,78 +36,78 @@ void MiniballHistogrammer::MakeHists() {
 	dirname = "Timing";
 	output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
-	
+
 	ebis_td_gamma = new TH1F( "ebis_td_gamma", "Gamma-ray time with respect to EBIS;#Deltat;Counts per 20 #mus", 5.5e3, -0.1e8, 1e8  );
 	ebis_td_particle = new TH1F( "ebis_td_particle", "Particle time with respect to EBIS;#Deltat;Counts per 20 #mus", 5.5e3, -0.1e8, 1e8  );
-	
+
 	hname = "gamma_particle_td";
 	htitle = "Gamma-ray - Particle time difference;#Deltat;Counts";
 	gamma_particle_td = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
-	
+
 	hname = "gamma_particle_E_vs_td";
 	htitle = "Gamma-ray - Particle time difference versus gamma-ray energy;#Deltat;Gamma-ray energy (keV);Counts";
 	gamma_particle_E_vs_td = new TH2F( hname.data(), htitle.data(),
 									  TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
-	
+
 	// Sector-by-sector particle plots
 	if( react->HistBySector() ) {
-		
+
 		gamma_particle_td_sec.resize( set->GetNumberOfCDSectors() );
 		gamma_particle_E_vs_td_sec.resize( set->GetNumberOfCDSectors() );
-		
+
 		for( unsigned int i = 0; i < set->GetNumberOfCDSectors(); ++i ) {
-			
+
 			hname = "gamma_particle_td_sec" + std::to_string(i);
 			htitle = "Gamma-ray - Particle time difference for CD sector ";
 			htitle += std::to_string(i) + ";#Deltat;Counts";
 			gamma_particle_td_sec[i] = new TH1F( hname.data(), htitle.data(),
 												TBIN, TMIN, TMAX );
-			
+
 			hname = "gamma_particle_E_vs_td_sec" + std::to_string(i);
 			htitle = "Gamma-ray - Particle time difference versus gamma-ray energy for CD sector ";
 			htitle += std::to_string(i) + ";#Deltat;Gamma-ray energy (keV);Counts";
 			gamma_particle_E_vs_td_sec[i] = new TH2F( hname.data(), htitle.data(),
 													 TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
-			
+
 		}
-		
+
 	}
-	
+
 	hname = "gamma_gamma_td";
 	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat [ns];Counts";
 	gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
 							  TBIN, TMIN, TMAX );
-	
+
 	hname = "gamma_electron_td";
 	htitle = "Gamma-ray - Electron time difference;#Deltat [ns];Counts per 10 ns";
 	gamma_electron_td = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
-	
+
 	hname = "electron_electron_td";
 	htitle = "Electron - Electron time difference;#Deltat [ns];Counts per 10 ns";
 	electron_electron_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
-	
+
 	hname = "electron_particle_td";
 	htitle = "Electron - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	electron_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
-	
+
 	hname = "particle_particle_td";
 	htitle = "Particle - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	particle_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
-	
+
 	// Gamma-ray singles histograms
 	dirname = "GammaRaySingles";
 	output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
-	
+
 	hname = "gE_singles";
 	htitle = "Gamma-ray energy singles;Energy [keV];Counts per 0.5 keV";
 	gE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	if( react->HistByCrystal() ) {
 
 		hname = "gE_singles_vs_crystal";
@@ -119,23 +119,23 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gE_singles_ebis";
 	htitle = "Gamma-ray energy singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "gE_singles_ebis_on";
 	htitle = "Gamma-ray energy singles EBIS on;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "gE_singles_ebis_off";
 	htitle = "Gamma-ray energy singles EBIS off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "gE_singles_dc";
 	htitle = "Gamma-ray energy singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
 	gE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "gE_singles_dc_ebis";
 	htitle = "Gamma-ray energy singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "aE_singles";
 	htitle = "Gamma-ray energy with addback singles;Energy [keV];Counts per 0.5 keV";
 	aE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
@@ -150,157 +150,170 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "aE_singles_ebis";
 	htitle = "Gamma-ray energy with addback singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "aE_singles_ebis_on";
 	htitle = "Gamma-ray energy with addback singles EBIS on;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "aE_singles_ebis_off";
 	htitle = "Gamma-ray energy with addback singles EBIS off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "aE_singles_dc";
 	htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
 	aE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "aE_singles_dc_ebis";
 	htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+
 	hname = "gamma_xy_map_forward";
 	htitle = "Gamma-ray X-Y hit map (forward: z > 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xy_map_forward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
-	
+
 	hname = "gamma_xy_map_backward";
 	htitle = "Gamma-ray X-Y hit map (backwards: z < 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xy_map_backward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
-	
+
 	hname = "gamma_xz_map_left";
 	htitle = "Gamma-ray X-Z hit map (left: y < 0);z (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xz_map_left = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
-	
+
 	hname = "gamma_xz_map_right";
 	htitle = "Gamma-ray X-Z hit map (right: y > 0);z (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xz_map_right = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
-	
+
 	hname = "gamma_theta_phi_map";
 	htitle = "Gamma-ray #theta-#phi hit map;#theta [degrees];#phi [degrees];Counts";
 	gamma_theta_phi_map = new TH2F( hname.data(), htitle.data(), 180, 0., 180., 360, 0., 360. );
-	
+
 	// Gamma-ray coincidence histograms
 	dirname = "CoincidenceMatrices";
 	output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
-	
+
 	// If gamma-gamma histograms are turned on
 	if( react->HistGammaGamma() ) {
-		
+
 		hname = "gE_gE";
 		htitle = "Gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		gE_gE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+
 		hname = "gE_gE_ebis_on";
 		htitle = "Gamma-ray coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		gE_gE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+
 		hname = "aE_aE";
 		htitle = "Gamma-ray addback coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		aE_aE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+
 		hname = "aE_aE_ebis_on";
 		htitle = "Gamma-ray addback coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		aE_aE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+
 	} // gamma-gamma on
-	
+
 	// If electron histograms are turned on
 	if( react->HistElectron() ) {
-		
+
 		hname = "eE_eE";
 		htitle = "Electron coincidence matrix;Energy [keV];Energy [keV];Counts per keV";
 		eE_eE = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
-		
+
 		hname = "eE_eE_ebis_on";
 		htitle = "Electron coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per keV";
 		eE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
-		
+
 		// If electron-gamma histograms are turned on
 		if( react->HistElectronGamma() ) {
-			
+
 			hname = "gE_eE";
 			htitle = "Gamma-ray and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			gE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-			
+
 			hname = "gE_eE_ebis_on";
 			htitle = "Gamma-ray and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			gE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-			
+
 			hname = "aE_eE";
 			htitle = "Gamma-ray addback and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			aE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-			
+
 			hname = "aE_eE_ebis_on";
 			htitle = "Gamma-ray addback and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			aE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
-			
+
 		} // electron-gamma on
-		
+
 		// Electron singles histograms
 		dirname = "ElectronSingles";
 		output_file->mkdir( dirname.data() );
 		output_file->cd( dirname.data() );
-		
+
 		hname = "eE_singles";
 		htitle = "Electron energy singles;Energy [keV];Counts keV";
 		eE_singles = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+
 		hname = "eE_singles_ebis";
 		htitle = "Electron energy singles EBIS on-off;Energy [keV];Counts keV";
 		eE_singles_ebis = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+
 		hname = "eE_singles_ebis_on";
 		htitle = "Electron energy singles EBIS on;Energy [keV];Counts keV";
 		eE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+
 		hname = "eE_singles_ebis_off";
 		htitle = "Electron energy singles EBIS off;Energy [keV];Counts keV";
 		eE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+
 		hname = "electron_xy_map";
 		htitle = "Electron X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
 		electron_xy_map = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
-		
+
 	} // electrons on
-	
+
 	// CD singles histograms
 	dirname = "ParticleSpectra";
 	output_file->mkdir( dirname.data() );
 	output_file->cd( dirname.data() );
-	
+
 	hname = "pE_theta";
 	htitle = "Particle energy singles;Angle [deg];Energy [keV];Counts";
 	pE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-	
+
 	hname = "pE_theta_coinc";
 	htitle = "Particle energy in coincidence with a gamma ray;Angle [deg];Energy [keV];Counts";
 	pE_theta_coinc = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-	
+
 	hname = "pE_theta_ejectile";
 	htitle = "Particle energy singles, gated on ejectile;Angle [deg];Energy [keV];Counts";
 	pE_theta_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-	
+
 	hname = "pE_theta_recoil";
 	htitle = "Particle energy singles, gated on recoil;Angle [deg];Energy [keV];Counts";
 	pE_theta_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-	
-	hname = "pE_theta_2p_ejectile";
-	htitle = "Particle energy singles, gated on ejectile with 2-particle condition;Angle [deg];Energy [keV];Counts";
-	pE_theta_2p_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-	
-	hname = "pE_theta_2p_recoil";
-	htitle = "Particle energy singles, gated on recoil with 2-particle condition;Angle [deg];Energy [keV];Counts";
-	pE_theta_2p_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-	
+
+	// 1p and 2p particle histograms
+	if( react->HistByMultiplicity() ){
+
+		hname = "pE_theta_1p_ejectile";
+		htitle = "Particle energy singles, gated on ejectile without matching recoil;Angle [deg];Energy [keV];Counts";
+		pE_theta_1p_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+
+		hname = "pE_theta_1p_recoil";
+		htitle = "Particle energy singles, gated on recoil without matching ejectile;Angle [deg];Energy [keV];Counts";
+		pE_theta_1p_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+
+		hname = "pE_theta_2p_ejectile";
+		htitle = "Particle energy singles, gated on ejectile with 2-particle condition;Angle [deg];Energy [keV];Counts";
+		pE_theta_2p_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+
+		hname = "pE_theta_2p_recoil";
+		htitle = "Particle energy singles, gated on recoil with 2-particle condition;Angle [deg];Energy [keV];Counts";
+		pE_theta_2p_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+
+	}
+
 	// Sector-by-sector particle plots
 	if( react->HistBySector() ) {
 		
@@ -1647,8 +1660,6 @@ void MiniballHistogrammer::ResetHists() {
 	pE_theta_coinc->Reset("ICESM");
 	pE_theta_ejectile->Reset("ICESM");
 	pE_theta_recoil->Reset("ICESM");
-	pE_theta_2p_ejectile->Reset("ICESM");
-	pE_theta_2p_recoil->Reset("ICESM");
 	pBeta_theta_ejectile->Reset("ICESM");
 	pBeta_theta_recoil->Reset("ICESM");
 	particle_xy_map_forward->Reset("ICESM");
@@ -1698,6 +1709,10 @@ void MiniballHistogrammer::ResetHists() {
 	// 1p and 2p gamma-ray histograms
 	if( react->HistByMultiplicity() ){
 		
+		pE_theta_1p_ejectile->Reset("ICESM");
+		pE_theta_1p_recoil->Reset("ICESM");
+		pE_theta_2p_ejectile->Reset("ICESM");
+		pE_theta_2p_recoil->Reset("ICESM");
 		gE_1p_ejectile_dc_none->Reset("ICESM");
 		gE_1p_ejectile_dc_ejectile->Reset("ICESM");
 		gE_1p_ejectile_dc_recoil->Reset("ICESM");
@@ -2891,8 +2906,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
-					pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
-					pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					if( react->HistByMultiplicity() ){
+						pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+						pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+					}
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
@@ -2921,8 +2938,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 					
 					pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 					pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
-					pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
-					pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					if( react->HistByMultiplicity() ){
+						pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+						pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+					}
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
@@ -2954,6 +2973,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 				react->SetParticleTime( particle_evt->GetTime() );
 
 				pE_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+				if( react->HistByMultiplicity() )
+					pE_theta_1p_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 				pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 
 				if( react->HistBySector() )
@@ -2971,6 +2992,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 				react->SetParticleTime( particle_evt->GetTime() );
 
 				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+				if( react->HistByMultiplicity() )
+					pE_theta_1p_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 				pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
 
 				if( react->HistBySector() )
