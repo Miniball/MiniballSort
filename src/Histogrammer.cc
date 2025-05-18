@@ -3018,7 +3018,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 			// Singles
 			int cry = gamma_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_evt->GetCluster();
 			gE_singles->Fill( gamma_evt->GetEnergy() );
-			gE_singles_vs_crystal->Fill( cry, gamma_evt->GetEnergy() );
+			if( react->HistByCrystal() )
+				gE_singles_vs_crystal->Fill( cry, gamma_evt->GetEnergy() );
 
 			// Singles - Doppler corrected
 			gE_singles_dc->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
@@ -3117,7 +3118,8 @@ unsigned long MiniballHistogrammer::FillHists() {
 			// Singles
 			int cry = gamma_ab_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_ab_evt->GetCluster();
 			aE_singles->Fill( gamma_ab_evt->GetEnergy() );
-			aE_singles_vs_crystal->Fill( cry, gamma_ab_evt->GetEnergy() );
+			if( react->HistByCrystal() )
+				aE_singles_vs_crystal->Fill( cry, gamma_ab_evt->GetEnergy() );
 
 			// Singles - Doppler corrected
 			aE_singles_dc->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
