@@ -534,7 +534,8 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 		
 		// Each strip centre is 2.0 mm apart
 		x += ( pid + 0.5 ) * 2.0;
-		
+		vec.SetX(x);
+
 		// Then find phi angle for each n-side strip
 		phi += 1.75; // centre of first strip
 		if( nid < 4 ) phi += nid * 3.5; // first 4 strips singles (=4 nid)
