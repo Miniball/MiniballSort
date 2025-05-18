@@ -182,13 +182,13 @@ public:
 
 
 	// Are we rejecting pileup and/or clipped events
-	inline double GetPileupRejection(){ return pileup_reject; };
-	inline double GetClippedRejection(){ return clipped_reject; };
+	inline bool GetPileupRejection(){ return pileup_reject; };
+	inline bool GetClippedRejection(){ return clipped_reject; };
 
 
 	// Are we rejecting full buffers?
-	inline double GetBufferFullRejection(){ return bufferfull_reject; };
-	inline double GetBufferPartRejection(){ return bufferpart_reject; };
+	inline bool GetBufferFullRejection(){ return bufferfull_reject; };
+	inline bool GetBufferPartRejection(){ return bufferpart_reject; };
 
 
 	// Miniball array
