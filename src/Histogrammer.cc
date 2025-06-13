@@ -2812,7 +2812,11 @@ unsigned long MiniballHistogrammer::FillHists() {
 			
 			// Get particle event
 			particle_evt = read_evts->GetParticleEvt(j);
-			
+
+			// Check if we are demanding CD-Pad coincidences
+			if( react->EventsCdPadCoincidence() && particle_evt->GetEnergyPad() < 1e-9 )
+				continue;
+
 			// EBIS time
 			ebis_td_particle->Fill( (double)particle_evt->GetTime() - (double)read_evts->GetEBIS() );
 			
@@ -2847,6 +2851,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Get second particle event
 				particle_evt2 = read_evts->GetParticleEvt(k);
 				
+				// Check if we are demanding CD-Pad coincidences
+				if( react->EventsCdPadCoincidence() && particle_evt2->GetEnergyPad() < 1e-9 )
+					continue;
+
 				// Time differences and fill symmetrically
 				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
 				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
@@ -2913,6 +2921,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 			// Get particle event
 			particle_evt = read_evts->GetParticleEvt(j);
 			
+			// Check if we are demanding CD-Pad coincidences
+			if( react->EventsCdPadCoincidence() && particle_evt->GetEnergyPad() < 1e-9 )
+				continue;
+
 			// Make sure that we don't double count
 			bool event_used = false;
 
@@ -2939,6 +2951,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 				// Get second particle event
 				particle_evt2 = read_evts->GetParticleEvt(k);
+
+				// Check if we are demanding CD-Pad coincidences
+				if( react->EventsCdPadCoincidence() && particle_evt2->GetEnergyPad() < 1e-9 )
+					continue;
 
 				// Do a two-particle cut and check that they are coincident
 				// particle_evt (j) is beam and particle_evt2 (k) is target

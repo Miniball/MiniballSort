@@ -265,6 +265,7 @@ void MiniballReaction::ReadReaction() {
 	
 	// Events tree options
 	events_particle_gamma = config->GetValue( "Events.ParticleGammaOnly", false );	// only do histogramming for particle-gamma coincidences to speed things up
+	events_particle_cdpad = config->GetValue( "Events.CdPadCoincidence", false );	// only do histogramming for particles with CD-Pad coincidences
 
 	// Histogram options
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
