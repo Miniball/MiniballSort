@@ -922,9 +922,9 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>                </div>
 <div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>                <span class="comment">// The following is a hack because of the cabling of the Pad</span></div>
 <div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>                <span class="comment">// detector in September 2023 for the IS656 run</span></div>
-<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>                <span class="keywordflow">if</span>( i != <a class="code hl_variable" href="classMiniballEventBuilder.html#a3c25bae3b3a461e7170e9a4c5a236cef">pad_det_list</a>.at(k) ) <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>                <span class="keywordflow">if</span>( ( j == 0 || j == 3 ) &amp;&amp; <a class="code hl_variable" href="classMiniballEventBuilder.html#a6546568523222864808d9c1b1b4ae7a7">pad_sec_list</a>.at(k) != 0 ) <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>                <span class="keywordflow">if</span>( ( j == 1 || j == 2 ) &amp;&amp; <a class="code hl_variable" href="classMiniballEventBuilder.html#a6546568523222864808d9c1b1b4ae7a7">pad_sec_list</a>.at(k) != 1 ) <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>                <span class="comment">//if( i != pad_det_list.at(k) ) continue;</span></div>
+<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>                <span class="comment">//if( ( j == 0 || j == 3 ) &amp;&amp; pad_sec_list.at(k) != 0 ) continue;</span></div>
+<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>                <span class="comment">//if( ( j == 1 || j == 2 ) &amp;&amp; pad_sec_list.at(k) != 1 ) continue;</span></div>
 <div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span>                </div>
 <div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span>                <span class="comment">// Count the pad multiplicity (panic if it is &gt;1)</span></div>
 <div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span>                padmult++;</div>
