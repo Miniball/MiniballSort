@@ -358,10 +358,6 @@ private:
 	TH1F *eE_prompt, *eE_prompt_1p, *eE_prompt_2p;
 	TH1F *eE_random, *eE_random_1p, *eE_random_2p;
 
-	// Gamma-ray energy versus cos(theta)
-	TH2F *gE_costheta_ejectile, *gE_costheta_recoil;
-	TH2F *aE_costheta_ejectile, *aE_costheta_recoil;
-
 	// Doppler-corrected gamma-rays without addback
 	TH1F *gE_ejectile_dc_none,               *gE_ejectile_dc_ejectile,               *gE_ejectile_dc_recoil;
 	TH1F *gE_recoil_dc_none,                 *gE_recoil_dc_ejectile,                 *gE_recoil_dc_recoil;
@@ -378,6 +374,8 @@ private:
 	TH2F *gE_vs_theta_1p_ejectile_dc_none,   *gE_vs_theta_1p_ejectile_dc_ejectile,   *gE_vs_theta_1p_ejectile_dc_recoil;
 	TH2F *gE_vs_theta_1p_recoil_dc_none,     *gE_vs_theta_1p_recoil_dc_ejectile,     *gE_vs_theta_1p_recoil_dc_recoil;
 	TH2F *gE_vs_theta_2p_dc_none,            *gE_vs_theta_2p_dc_ejectile,            *gE_vs_theta_2p_dc_recoil;
+	TH2F *gE_vs_costheta_ejectile_dc_none,   *gE_vs_costheta_ejectile_dc_ejectile,   *gE_vs_costheta_ejectile_dc_recoil;
+	TH2F *gE_vs_costheta_recoil_dc_none,     *gE_vs_costheta_recoil_dc_ejectile,     *gE_vs_costheta_recoil_dc_recoil;
 	TH2F *gE_vs_crystal_ejectile_dc_none,    *gE_vs_crystal_ejectile_dc_ejectile,    *gE_vs_crystal_ejectile_dc_recoil;
 	TH2F *gE_vs_crystal_recoil_dc_none,      *gE_vs_crystal_recoil_dc_ejectile,      *gE_vs_crystal_recoil_dc_recoil;
 	TH2F *gE_vs_crystal_1p_ejectile_dc_none, *gE_vs_crystal_1p_ejectile_dc_ejectile, *gE_vs_crystal_1p_ejectile_dc_recoil;
@@ -402,6 +400,8 @@ private:
 	TH2F *aE_vs_theta_1p_ejectile_dc_none,   *aE_vs_theta_1p_ejectile_dc_ejectile,   *aE_vs_theta_1p_ejectile_dc_recoil;
 	TH2F *aE_vs_theta_1p_recoil_dc_none,     *aE_vs_theta_1p_recoil_dc_ejectile,     *aE_vs_theta_1p_recoil_dc_recoil;
 	TH2F *aE_vs_theta_2p_dc_none,            *aE_vs_theta_2p_dc_ejectile,            *aE_vs_theta_2p_dc_recoil;
+	TH2F *aE_vs_costheta_ejectile_dc_none,   *aE_vs_costheta_ejectile_dc_ejectile,   *aE_vs_costheta_ejectile_dc_recoil;
+	TH2F *aE_vs_costheta_recoil_dc_none,     *aE_vs_costheta_recoil_dc_ejectile,     *aE_vs_costheta_recoil_dc_recoil;
 	TH2F *aE_vs_crystal_ejectile_dc_none,    *aE_vs_crystal_ejectile_dc_ejectile,    *aE_vs_crystal_ejectile_dc_recoil;
 	TH2F *aE_vs_crystal_recoil_dc_none,      *aE_vs_crystal_recoil_dc_ejectile,      *aE_vs_crystal_recoil_dc_recoil;
 	TH2F *aE_vs_crystal_1p_ejectile_dc_none, *aE_vs_crystal_1p_ejectile_dc_ejectile, *aE_vs_crystal_1p_ejectile_dc_recoil;
