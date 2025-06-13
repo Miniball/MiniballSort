@@ -807,9 +807,9 @@ void MiniballEventBuilder::ParticleFinder() {
 				
 				// The following is a hack because of the cabling of the Pad
 				// detector in September 2023 for the IS656 run
-				if( i != pad_det_list.at(k) ) continue;
-				if( ( j == 0 || j == 3 ) && pad_sec_list.at(k) != 0 ) continue;
-				if( ( j == 1 || j == 2 ) && pad_sec_list.at(k) != 1 ) continue;
+				//if( i != pad_det_list.at(k) ) continue;
+				//if( ( j == 0 || j == 3 ) && pad_sec_list.at(k) != 0 ) continue;
+				//if( ( j == 1 || j == 2 ) && pad_sec_list.at(k) != 1 ) continue;
 				
 				// Count the pad multiplicity (panic if it is >1)
 				padmult++;
