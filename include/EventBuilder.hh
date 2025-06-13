@@ -66,7 +66,7 @@ public:
 		prog = myprog;
 		_prog_ = true;
 	};
-	
+
 	unsigned long	BuildEvents();
 
 	// Resolve multiplicities and coincidences etc
