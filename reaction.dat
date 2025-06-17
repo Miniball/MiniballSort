@@ -38,11 +38,17 @@
 #TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
 #TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD or SPEDE distance)
 
+# For plunger runs, need details of the degrader foil
+#DegraderThickness: -1.0	# in units of mg/cm2, a negative value means that it doesn't exist
+#DegraderMaterial: 197Au	# a string containing the material that matches the SRIM file for energy loss, usually an isotope name
+
 # Doppler mode, calculating the velocity for Doppler correction
 #DopplerMode: 1	# 0 = use angles and two-body kinematics at the centre of the target
 				# 1 = like 0, but corrected for energy loss though the back of the target (default)
 				# 2 = use energy of particle in the CD detector
 				# 3 = like 2, but corrected for energy loss in dead-layer
+				# 4 = like 1, but corrected for energy loss in degrader (plunger experiment: energy after degrader)
+				# 5 = like 3, but corrected for energy loss in degrader (plunger experiment: energy after target)
 
 # Plot laser ON/OFF data? (0 = OFF, 1 = ON, 2 = OFF or ON)
 #LaserMode: 2

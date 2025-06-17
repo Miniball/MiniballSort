@@ -587,10 +587,14 @@ private:
 	double y_offset;			///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
 	double z_offset;			///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
 
+	// Degrader material and thickness
+	double degrader_thickness;		///< target thickness in units of mg/cm^2. Negative if degrader not present. SHM, RAB 12 June 2025
+	std::string degrader_material;	///< can be an isotope name, or some string that matches the material used and corresponding SRIM file
+
 	// CD detector things
 	std::vector<double> cd_dist;		///< distance from target to CD detector in mm
-	std::vector<double> cd_offset;	///< phi rotation of the CD in degrees
-	std::vector<double> dead_layer;	///< dead layer thickness in mm
+	std::vector<double> cd_offset;		///< phi rotation of the CD in degrees
+	std::vector<double> dead_layer;		///< dead layer thickness in mm
 
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;
@@ -606,6 +610,8 @@ private:
 									///< 1 = like 0, but corrected for energy loss through the back of the target
 									///< 2 = use energy of particle in the CD detector
 									///< 3 = like 2, but corrected for energy loss in dead-layer
+									///< 4 = like 1, but also corrected for energy loss through the degrader
+									///< 5 = like 3, but also corrected for energy loss through the degrader
 
 	
 	unsigned char laser_mode;		///< Laser status mode:
