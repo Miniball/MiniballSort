@@ -166,9 +166,6 @@ void MiniballReaction::ReadReaction() {
 	Recoil.SetEx( config->GetValue( "RecoilEx", 0. ) );
 
 	// Get particle energy cut
-	bool ejectile_cut_flag = false;
-	bool recoil_cut_flag = false;
-	bool transfer_cut_flag = false;
 	ejectilecutfile = config->GetValue( "EjectileCut.File", "NULL" );
 	ejectilecutname = config->GetValue( "EjectileCut.Name", "CUTG" );
 	recoilcutfile = config->GetValue( "RecoilCut.File", "NULL" );
@@ -178,75 +175,11 @@ void MiniballReaction::ReadReaction() {
 	transfercut_x = config->GetValue( "TransferCut.X", "E" );
 	transfercut_y = config->GetValue( "TransferCut.Y", "dE" );
 	
-	// Check if beam cut is given by the user
-	if( ejectilecutfile != "NULL" ) {
-	
-		cut_file = new TFile( ejectilecutfile.data(), "READ" );
-		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << ejectilecutfile << " correctly" << std::endl;
-			
-		else {
-		
-			if( !cut_file->GetListOfKeys()->Contains( ejectilecutname.data() ) )
-				std::cout << "Couldn't find " << ejectilecutname << " in " << ejectilecutfile << std::endl;
-			else {
-				ejectile_cut = (TCutG*)cut_file->Get( ejectilecutname.data() )->Clone();
-				ejectile_cut_flag = true;
-			}
-		}
-		
-		cut_file->Close();
-		
-	}
+	// Check if ejectile/recoil/transfer cuts are given by the user
+	ejectile_cut = ReadCutFile( ejectilecutfile, ejectilecutname );
+	recoil_cut = ReadCutFile( recoilcutfile, recoilcutname );
+	transfer_cut = ReadCutFile( transfercutfile, transfercutname );
 
-	// Check if target cut is given by the user
-	if( recoilcutfile != "NULL" ) {
-	
-		cut_file = new TFile( recoilcutfile.data(), "READ" );
-		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << recoilcutfile << " correctly" << std::endl;
-			
-		else {
-		
-			if( !cut_file->GetListOfKeys()->Contains( recoilcutname.data() ) )
-				std::cout << "Couldn't find " << recoilcutname << " in " << recoilcutfile << std::endl;
-			else {
-				recoil_cut = (TCutG*)cut_file->Get( recoilcutname.data() )->Clone();
-				recoil_cut_flag = true;
-			}
-		}
-		
-		cut_file->Close();
-		
-	}
-
-	// Check if transfer cut is given by the user
-	if( transfercutfile != "NULL" ) {
-	
-		cut_file = new TFile( transfercutfile.data(), "READ" );
-		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << transfercutfile << " correctly" << std::endl;
-			
-		else {
-		
-			if( !cut_file->GetListOfKeys()->Contains( transfercutname.data() ) )
-				std::cout << "Couldn't find " << transfercutname << " in " << transfercutfile << std::endl;
-			else {
-				transfer_cut = (TCutG*)cut_file->Get( transfercutname.data() )->Clone();
-				transfer_cut_flag = true;
-			}
-		}
-		
-		cut_file->Close();
-		
-	}
-
-	// Assign an empty cut file if none is given, so the code doesn't crash
-	if( !ejectile_cut_flag ) ejectile_cut = new TCutG();
-	if( !recoil_cut_flag ) recoil_cut = new TCutG();
-	if( !transfer_cut_flag ) transfer_cut = new TCutG();
-
-	
 	// Velocity calculation for Doppler correction
 	doppler_mode = config->GetValue( "DopplerMode", 1 );
 	
@@ -451,6 +384,42 @@ void MiniballReaction::PrintReaction( std::ostream &stream, std::string opt = ""
 	}
 	
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Loads a TCutG from file, either a saved TCutG from a ROOT file or the (x,y)
+/// coordinates from a text file.
+std::shared_ptr<TCutG> MiniballReaction::ReadCutFile( std::string cut_filename, std::string cut_name ) {
+
+	std::shared_ptr<TCutG> cut;
+
+	// Check if filename is given in the settings file.
+	if( cut_filename != "NULL" ) {
+
+		TFile *cut_file = new TFile( cut_filename.data(), "READ" );
+		if( cut_file->IsZombie() )
+			std::cout << "Couldn't open " << cut_filename << " correctly" << std::endl;
+
+		else {
+
+			if( !cut_file->GetListOfKeys()->Contains( cut_name.data() ) )
+				std::cout << "Couldn't find " << cut_name << " in "
+				<< cut_filename << std::endl;
+			else
+				cut = std::make_shared<TCutG>( *static_cast<TCutG*>( cut_file->Get( cut_name.data() )->Clone() ) );
+
+		}
+
+		cut_file->Close();
+
+	}
+
+	// Assign an empty cut file if none is given, so the code doesn't crash
+	if( !cut ) cut = std::make_shared<TCutG>();
+
+	return cut;
+
+}
+
 
 TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, float pid, float nid ){
 	
