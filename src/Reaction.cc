@@ -332,9 +332,10 @@ void MiniballReaction::ReadReaction() {
 	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), Target.GetIsotope(), gStopping[2] );
 	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), "Si", gStopping[3] );
 	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), "Si", gStopping[4] );
-	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), degrader_material, gStopping[5] );
-	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
-
+	if( degrader_thickness > 0 ) {
+		stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), degrader_material, gStopping[5] );
+		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
+	}
 
 	
 	// Some diagnostics and info
@@ -367,9 +368,9 @@ void MiniballReaction::ReadReaction() {
 		std::cout << "A " << degrader_material << " of " << degrader_thickness;
 		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
 		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
-			std::cout << " AFTER the degrader";
-		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
 			std::cout << " BEFORE the degrader";
+		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
+			std::cout << " AFTER the degrader";
 		else
 			std::cout << " with unknown DopplerMode = " << doppler_mode;
 		std::cout << std::endl;
