@@ -362,6 +362,20 @@ void MiniballReaction::ReadReaction() {
 	std::cout << "Beam velocity at reaction position = ";
 	std::cout << Beam.GetBeta() << "c" << std::endl;
 
+	if( degrader_thickness > 0 ) {
+
+		std::cout << "A " << degrader_material << " of " << degrader_thickness;
+		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
+		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
+			std::cout << " AFTER the degrader";
+		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
+			std::cout << " BEFORE the degrader";
+		else
+			std::cout << " with unknown DopplerMode = " << doppler_mode;
+		std::cout << std::endl;
+
+	}
+
 	// Finished
 	delete config;
 
