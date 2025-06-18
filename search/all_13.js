@@ -50,7 +50,7 @@ var searchData=
   ['tmax_47',['TMAX',['../classMiniballHistogrammer.html#afa6f7a540bfcd3511ed409633e1e186c',1,'MiniballHistogrammer']]],
   ['tmin_48',['TMIN',['../classMiniballHistogrammer.html#a74082ce1050b04d418f5d4fe2b1645a6',1,'MiniballHistogrammer']]],
   ['trace_49',['trace',['../classFebexMWD.html#a276f9e4e51a08e5356fdb05db4606208',1,'FebexMWD::trace'],['../classDgfData.html#a7210a6906d0aa2d4c232ba24fb0758be',1,'DgfData::trace'],['../classFebexData.html#a9c7826b20fa1a3f6ea39756d7784c712',1,'FebexData::trace']]],
-  ['transfer_5fcut_50',['transfer_cut',['../classMiniballReaction.html#a401d1d3f4084a1e68065e5bf5b3e8a73',1,'MiniballReaction']]],
+  ['transfer_5fcut_50',['transfer_cut',['../classMiniballReaction.html#a964f2de31c617fd43e60571c8327bbe1',1,'MiniballReaction']]],
   ['transfer_5fdetected_51',['transfer_detected',['../classMiniballReaction.html#a5a960d272dfe56eefb50c81c123d2d71',1,'MiniballReaction']]],
   ['transfercut_52',['TransferCut',['../classMiniballHistogrammer.html#a447678efc25548936d65b27df9fcca0f',1,'MiniballHistogrammer']]],
   ['transfercut_5fx_53',['transfercut_x',['../classMiniballReaction.html#a855972e0b3728103a7bc3808204277c0',1,'MiniballReaction']]],

@@ -5,7 +5,7 @@ var searchData=
   ['react_2',['react',['../classMiniballHistogrammer.html#ad72c4e304fa668371f755c9b2832c630',1,'MiniballHistogrammer']]],
   ['read_5fevts_3',['read_evts',['../classMiniballHistogrammer.html#a0ad449cce140fe8b429f5e992b8a7f89',1,'MiniballHistogrammer']]],
   ['recoil_4',['Recoil',['../classMiniballReaction.html#a9c30d47364f40a527605f7548d8f0f51',1,'MiniballReaction']]],
-  ['recoil_5fcut_5',['recoil_cut',['../classMiniballReaction.html#a644f979886c544326cd491a6658d0be5',1,'MiniballReaction']]],
+  ['recoil_5fcut_5',['recoil_cut',['../classMiniballReaction.html#a3293806f37cabd917b010ce0e9272748',1,'MiniballReaction']]],
   ['recoil_5fdetected_6',['recoil_detected',['../classMiniballReaction.html#af715a7e140fb449c345dbcdc81a979a4',1,'MiniballReaction']]],
   ['recoilcutfile_7',['recoilcutfile',['../classMiniballReaction.html#ae217257ed44c285cc9f1cccd5e916498',1,'MiniballReaction']]],
   ['recoilcutname_8',['recoilcutname',['../classMiniballReaction.html#a8637072481de5b50764f6f989cd33dd6',1,'MiniballReaction']]],

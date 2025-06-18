@@ -92,7 +92,7 @@ var searchData=
   ['ege_5frecoil_5fdc_5frecoil_89',['egE_recoil_dc_recoil',['../classMiniballHistogrammer.html#a43b5e2bd98d0c69cd15953448dcf3470',1,'MiniballHistogrammer']]],
   ['eh_90',['eh',['../classMBS.html#acd20fff363c812005ec08dfa08b17bc7',1,'MBS']]],
   ['ejectile_91',['Ejectile',['../classMiniballReaction.html#a22948285ea6c8be9dc198d2dfc0a07a8',1,'MiniballReaction']]],
-  ['ejectile_5fcut_92',['ejectile_cut',['../classMiniballReaction.html#a29b9d174e399a7e9b6f399ef4a9b24dd',1,'MiniballReaction']]],
+  ['ejectile_5fcut_92',['ejectile_cut',['../classMiniballReaction.html#a5b4b91f26ead03f59f4c868c5bfc0ec6',1,'MiniballReaction']]],
   ['ejectile_5fdetected_93',['ejectile_detected',['../classMiniballReaction.html#a7429b01bd4f4efe71a2140ff55374732',1,'MiniballReaction']]],
   ['ejectilecut_94',['EjectileCut',['../classMiniballHistogrammer.html#a3e3a139baece36949d85b8082dee998d',1,'MiniballHistogrammer']]],
   ['ejectilecutfile_95',['ejectilecutfile',['../classMiniballReaction.html#a377f7f4f29ccd274dd4432aef8575249',1,'MiniballReaction']]],
