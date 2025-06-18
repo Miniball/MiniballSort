@@ -158,6 +158,7 @@ public:
 	
 	// Main functions
 	void AddBindingEnergy( short Ai, short Zi, TString ame_be_str );
+	std::shared_ptr<TCutG> ReadCutFile( std::string cut_filename, std::string cut_name );
 	void ReadMassTables();
 	void ReadReaction();
 	void SetFile( std::string filename ){
@@ -483,9 +484,9 @@ public:
 	inline double GetOffsetZ(){ return z_offset; };
 
 	// Get cuts
-	inline TCutG* GetEjectileCut(){ return ejectile_cut; };
-	inline TCutG* GetRecoilCut(){ return recoil_cut; };
-	inline TCutG* GetTransferCut(){ return transfer_cut; };
+	inline std::shared_ptr<TCutG> GetEjectileCut(){ return ejectile_cut; };
+	inline std::shared_ptr<TCutG> GetRecoilCut(){ return recoil_cut; };
+	inline std::shared_ptr<TCutG> GetTransferCut(){ return transfer_cut; };
 	inline std::string GetTransferX(){ return transfercut_x; };
 	inline std::string GetTransferY(){ return transfercut_y; };
 
@@ -587,10 +588,14 @@ private:
 	double y_offset;			///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
 	double z_offset;			///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
 
+	// Degrader material and thickness
+	double degrader_thickness;		///< target thickness in units of mg/cm^2. Negative if degrader not present. SHM, RAB 12 June 2025
+	std::string degrader_material;	///< can be an isotope name, or some string that matches the material used and corresponding SRIM file
+
 	// CD detector things
 	std::vector<double> cd_dist;		///< distance from target to CD detector in mm
-	std::vector<double> cd_offset;	///< phi rotation of the CD in degrees
-	std::vector<double> dead_layer;	///< dead layer thickness in mm
+	std::vector<double> cd_offset;		///< phi rotation of the CD in degrees
+	std::vector<double> dead_layer;		///< dead layer thickness in mm
 
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;
@@ -606,6 +611,8 @@ private:
 									///< 1 = like 0, but corrected for energy loss through the back of the target
 									///< 2 = use energy of particle in the CD detector
 									///< 3 = like 2, but corrected for energy loss in dead-layer
+									///< 4 = like 1, but also corrected for energy loss through the degrader
+									///< 5 = like 3, but also corrected for energy loss through the degrader
 
 	
 	unsigned char laser_mode;		///< Laser status mode:
@@ -640,8 +647,10 @@ private:
 	std::string transfercutfile, transfercutname;
 	std::string transfercut_x, transfercut_y;
 	TFile *cut_file;
-	TCutG *ejectile_cut, *recoil_cut, *transfer_cut;
-	
+	std::shared_ptr<TCutG> ejectile_cut;
+	std::shared_ptr<TCutG> recoil_cut;
+	std::shared_ptr<TCutG> transfer_cut;
+
 	// Stopping powers
 	std::vector<std::unique_ptr<TGraph>> gStopping;
 	bool stopping;
