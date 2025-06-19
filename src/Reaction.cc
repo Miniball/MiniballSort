@@ -1167,10 +1167,10 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 		
 		total = nucl + elec ; // in some units, conversion done later
 		
-		g->SetPoint( g->GetN(), En, total );
-		
 		// If we've reached the end, stop
 		if( line.substr( 3, 9 ) == "---------" ) break;
+
+		g->SetPoint( g->GetN(), En, total );
 		
 	}
 	
