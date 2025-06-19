@@ -4,5 +4,6 @@ var searchData=
   ['ebiswindow_1',['EBISWindow',['../classMiniballConverter.html#ad959b293e67d5bb8bb4afe58b345db39',1,'MiniballConverter']]],
   ['ejectilecut_2',['EjectileCut',['../classMiniballHistogrammer.html#a3e3a139baece36949d85b8082dee998d',1,'MiniballHistogrammer']]],
   ['eventscdpadcoincidence_3',['EventsCdPadCoincidence',['../classMiniballReaction.html#acba19b42232b1cd8ad17ad54fdcbf077',1,'MiniballReaction']]],
-  ['eventsparticlegammaonly_4',['EventsParticleGammaOnly',['../classMiniballReaction.html#ac3e6ed977543da3dd6e278d7dc0451f7',1,'MiniballReaction']]]
+  ['eventscdpadveto_4',['EventsCdPadVeto',['../classMiniballReaction.html#a45e158408c5c1c59d514dd35676f3806',1,'MiniballReaction']]],
+  ['eventsparticlegammaonly_5',['EventsParticleGammaOnly',['../classMiniballReaction.html#ac3e6ed977543da3dd6e278d7dc0451f7',1,'MiniballReaction']]]
 ];
