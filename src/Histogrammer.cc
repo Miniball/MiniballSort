@@ -2817,6 +2817,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 			if( react->EventsCdPadCoincidence() && particle_evt->GetEnergyPad() < 1e-9 )
 				continue;
 
+			// Check if we are demanding CD-Pad veto
+			if( react->EventsCdPadVeto() && particle_evt->GetEnergyPad() > 1e-9 )
+				continue;
+
 			// EBIS time
 			ebis_td_particle->Fill( (double)particle_evt->GetTime() - (double)read_evts->GetEBIS() );
 			
@@ -2853,6 +2857,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 				
 				// Check if we are demanding CD-Pad coincidences
 				if( react->EventsCdPadCoincidence() && particle_evt2->GetEnergyPad() < 1e-9 )
+					continue;
+
+				// Check if we are demanding CD-Pad veto
+				if( react->EventsCdPadVeto() && particle_evt->GetEnergyPad() > 1e-9 )
 					continue;
 
 				// Time differences and fill symmetrically
@@ -2925,6 +2933,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 			if( react->EventsCdPadCoincidence() && particle_evt->GetEnergyPad() < 1e-9 )
 				continue;
 
+			// Check if we are demanding CD-Pad veto
+			if( react->EventsCdPadVeto() && particle_evt->GetEnergyPad() > 1e-9 )
+				continue;
+
 			// Make sure that we don't double count
 			bool event_used = false;
 
@@ -2954,6 +2966,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 				// Check if we are demanding CD-Pad coincidences
 				if( react->EventsCdPadCoincidence() && particle_evt2->GetEnergyPad() < 1e-9 )
+					continue;
+
+				// Check if we are demanding CD-Pad veto
+				if( react->EventsCdPadVeto() && particle_evt->GetEnergyPad() > 1e-9 )
 					continue;
 
 				// Do a two-particle cut and check that they are coincident

@@ -138,6 +138,7 @@
 ## Read events
 #Events.ParticleGammaOnly: false	# only include events with particle-gamma coincidences when reading from events tree
 #Events.CdPadCoincidence: false		# only include particle events with CD-Pad coincidences when reading from events tree
+#Events.CdPadVeto: false			# only include particle events without CD-Pad coincidences (veto) when reading from events tree
 
 ## Histogram options
 #Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)
