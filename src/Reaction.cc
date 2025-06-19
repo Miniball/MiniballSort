@@ -108,18 +108,18 @@ void MiniballReaction::ReadMassTables() {
 void MiniballReaction::ReadReaction() {
 
 	TEnv *config = new TEnv( fInputFile.data() );
-	
+
 	std::string isotope_key;
 
 	// Get particle properties
 	Beam.SetA( config->GetValue( "BeamA", 185 ) );
 	Beam.SetZ( config->GetValue( "BeamZ", 80 ) );
 	if( Beam.GetZ() < 0 || Beam.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Beam.GetZ() << " (beam)" << std::endl;
 		exit(1);
-		
+
 	}
 	Beam.SetBindingEnergy( ame_be.at( Beam.GetIsotope() ) );
 	Beam.SetEx( config->GetValue( "BeamEx", 0. ) );
@@ -127,16 +127,16 @@ void MiniballReaction::ReadReaction() {
 	Eb = config->GetValue( "BeamE", 4500.0 ); // in keV per nucleon
 	Eb *= Beam.GetMass_u(); // keV
 	Beam.SetEnergy( Eb ); // keV
-	
+
 	Target.SetA( config->GetValue( "TargetA", 120 ) );
 	Target.SetZ( config->GetValue( "TargetZ", 50 ) );
 	Target.SetEnergy( 0.0 );
 	if( Target.GetZ() < 0 || Target.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Target.GetZ() << " (target)" << std::endl;
 		exit(1);
-		
+
 	}
 	Target.SetBindingEnergy( ame_be.at( Target.GetIsotope() ) );
 	Target.SetEx( config->GetValue( "TargetEx", 0. ) );
@@ -144,11 +144,11 @@ void MiniballReaction::ReadReaction() {
 	Ejectile.SetA( config->GetValue( "EjectileA", 185 ) );
 	Ejectile.SetZ( config->GetValue( "EjectileZ", 80 ) );
 	if( Ejectile.GetZ() < 0 || Ejectile.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Ejectile.GetZ() << " (ejectile)" << std::endl;
 		exit(1);
-		
+
 	}
 	Ejectile.SetBindingEnergy( ame_be.at( Ejectile.GetIsotope() ) );
 	Ejectile.SetEx( config->GetValue( "EjectileEx", 500. ) );
@@ -156,11 +156,11 @@ void MiniballReaction::ReadReaction() {
 	Recoil.SetA( config->GetValue( "RecoilA", 120 ) );
 	Recoil.SetZ( config->GetValue( "RecoilZ", 50 ) );
 	if( Recoil.GetZ() < 0 || Recoil.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Recoil.GetZ() << " (recoil)" << std::endl;
 		exit(1);
-		
+
 	}
 	Recoil.SetBindingEnergy( ame_be.at( Recoil.GetIsotope() ) );
 	Recoil.SetEx( config->GetValue( "RecoilEx", 0. ) );
@@ -174,7 +174,7 @@ void MiniballReaction::ReadReaction() {
 	transfercutname = config->GetValue( "TransferCut.Name", "CUTG" );
 	transfercut_x = config->GetValue( "TransferCut.X", "E" );
 	transfercut_y = config->GetValue( "TransferCut.Y", "dE" );
-	
+
 	// Check if ejectile/recoil/transfer cuts are given by the user
 	ejectile_cut = ReadCutFile( ejectilecutfile, ejectilecutname );
 	recoil_cut = ReadCutFile( recoilcutfile, recoilcutname );
@@ -182,23 +182,24 @@ void MiniballReaction::ReadReaction() {
 
 	// Velocity calculation for Doppler correction
 	doppler_mode = config->GetValue( "DopplerMode", 1 );
-	
+
 	// Laser mode
 	laser_mode = config->GetValue( "LaserMode", 2 );
-	
+
 	// EBIS time window
 	EBIS_On = config->GetValue( "EBIS.On", 1.2e6 );		// normally 1.2 ms in slow extraction
 	EBIS_Off = config->GetValue( "EBIS.Off", 2.52e7 );	// this allows a off window 20 times bigger than on
 	EBIS_ratio = config->GetValue( "EBIS.FillRatio", GetEBISTimeRatio() );	// this is the measured ratio of EBIS On/off. Default is just the time window ratio
-	
+
 	// T1 cuts
 	t1_cut = config->GetValue( "T1.Cut", false );		// enable or disable the T1 cuts
 	t1_time[0] = config->GetValue( "T1.Min", 0.0 );		// minimum T1 time for cut (ns), default 0
 	t1_time[1] = config->GetValue( "T1.Max", 1.2e9 );	// maximum T1 time for cut (ns), default 1.2 seconds
-	
+
 	// Events tree options
-	events_particle_gamma = config->GetValue( "Events.ParticleGammaOnly", false );	// only do histogramming for particle-gamma coincidences to speed things up
-	events_particle_cdpad = config->GetValue( "Events.CdPadCoincidence", false );	// only do histogramming for particles with CD-Pad coincidences
+	events_particle_gamma       = config->GetValue( "Events.ParticleGammaOnly", false );	// only do histogramming for particle-gamma coincidences to speed things up
+	events_particle_cdpad_coinc = config->GetValue( "Events.CdPadCoincidence", false );		// only do histogramming for particles with CD-Pad coincidences
+	events_particle_cdpad_veto  = config->GetValue( "Events.CdPadVeto", false );			// only do histogramming for particles without CD-Pad coincidences (Pad as veto)
 
 	// Histogram options
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
@@ -280,7 +281,7 @@ void MiniballReaction::ReadReaction() {
 	dead_layer.resize( set->GetNumberOfCDDetectors() );
 	double d_tmp;
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
-	
+
 		if( i == 0 ) d_tmp = 32.0; // standard CD
 		else if( i == 1 ) d_tmp = -64.0; // TREX backwards CD
 		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );		// distance to target in mm
@@ -288,7 +289,7 @@ void MiniballReaction::ReadReaction() {
 		dead_layer[i] = config->GetValue( Form( "CD_%d.DeadLayer", i ), 0.0007 );	// dead layer thickness in mm of Si
 
 	}
-	
+
 	// Target thickness and offsets
 	target_thickness = config->GetValue( "TargetThickness", 2.0 ); // units of mg/cm^2
 	x_offset = config->GetValue( "TargetOffset.X", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, vertical
@@ -297,7 +298,12 @@ void MiniballReaction::ReadReaction() {
 
 	// Degrader thickness and material
 	degrader_thickness = config->GetValue( "DegraderThickness", -1.0 ); 	// units of mg/cm^2 - negative means it doesn't exist (only plunger runs)
-	degrader_material = config->GetValue( "DegraderMaterial", "197Au" );	// can be isotope name or other material name that matches SRIM file
+	std::string degrader_material_tmp = config->GetValue( "DegraderMaterial", "197Au" );	// can be isotope name or other material name that matches SRIM file
+	for( unsigned int i = 0; i < degrader_material_tmp.length(); i++ ){
+		if( std::isspace( degrader_material_tmp[i] ) || degrader_material_tmp[i] == '#' )
+			break;
+		else degrader_material += degrader_material_tmp[i];
+	}
 
 	// Read in Miniball geometry
 	mb_type = config->GetValue( "MiniballGeometry.Type", 1 ); // default = 1
@@ -332,9 +338,10 @@ void MiniballReaction::ReadReaction() {
 	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), Target.GetIsotope(), gStopping[2] );
 	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), "Si", gStopping[3] );
 	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), "Si", gStopping[4] );
-	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), degrader_material, gStopping[5] );
-	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
-
+	if( degrader_thickness > 0 ) {
+		stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), degrader_material, gStopping[5] );
+		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
+	}
 
 	
 	// Some diagnostics and info
@@ -367,9 +374,9 @@ void MiniballReaction::ReadReaction() {
 		std::cout << "A " << degrader_material << " of " << degrader_thickness;
 		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
 		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
-			std::cout << " AFTER the degrader";
-		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
 			std::cout << " BEFORE the degrader";
+		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
+			std::cout << " AFTER the degrader";
 		else
 			std::cout << " with unknown DopplerMode = " << doppler_mode;
 		std::cout << std::endl;
@@ -1069,10 +1076,17 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 	double E = Ei;
 	
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
-		
-		E -= g->Eval(E) * dx;
+
+		double Eloss = g->Eval(E) * dx;
+		if( Eloss > E ) {
+			E = 0.01;
+			break;
+		}
+		else
+			E -= Eloss;
 		
 	}
+
 	return Ei - E;
 
 }
@@ -1160,10 +1174,10 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 		
 		total = nucl + elec ; // in some units, conversion done later
 		
-		g->SetPoint( g->GetN(), En, total );
-		
 		// If we've reached the end, stop
 		if( line.substr( 3, 9 ) == "---------" ) break;
+
+		g->SetPoint( g->GetN(), En, total );
 		
 	}
 	

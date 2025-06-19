@@ -375,7 +375,9 @@ private:
 	TH2F *gE_vs_theta_1p_recoil_dc_none,     *gE_vs_theta_1p_recoil_dc_ejectile,     *gE_vs_theta_1p_recoil_dc_recoil;
 	TH2F *gE_vs_theta_2p_dc_none,            *gE_vs_theta_2p_dc_ejectile,            *gE_vs_theta_2p_dc_recoil;
 	TH2F *gE_vs_costheta_ejectile_dc_none,   *gE_vs_costheta_ejectile_dc_ejectile,   *gE_vs_costheta_ejectile_dc_recoil;
+	TH2F *gE_vs_costheta2_ejectile_dc_none;
 	TH2F *gE_vs_costheta_recoil_dc_none,     *gE_vs_costheta_recoil_dc_ejectile,     *gE_vs_costheta_recoil_dc_recoil;
+	TH2F *gE_vs_costheta2_recoil_dc_none;
 	TH2F *gE_vs_crystal_ejectile_dc_none,    *gE_vs_crystal_ejectile_dc_ejectile,    *gE_vs_crystal_ejectile_dc_recoil;
 	TH2F *gE_vs_crystal_recoil_dc_none,      *gE_vs_crystal_recoil_dc_ejectile,      *gE_vs_crystal_recoil_dc_recoil;
 	TH2F *gE_vs_crystal_1p_ejectile_dc_none, *gE_vs_crystal_1p_ejectile_dc_ejectile, *gE_vs_crystal_1p_ejectile_dc_recoil;
@@ -401,7 +403,9 @@ private:
 	TH2F *aE_vs_theta_1p_recoil_dc_none,     *aE_vs_theta_1p_recoil_dc_ejectile,     *aE_vs_theta_1p_recoil_dc_recoil;
 	TH2F *aE_vs_theta_2p_dc_none,            *aE_vs_theta_2p_dc_ejectile,            *aE_vs_theta_2p_dc_recoil;
 	TH2F *aE_vs_costheta_ejectile_dc_none,   *aE_vs_costheta_ejectile_dc_ejectile,   *aE_vs_costheta_ejectile_dc_recoil;
+	TH2F *aE_vs_costheta2_ejectile_dc_none;
 	TH2F *aE_vs_costheta_recoil_dc_none,     *aE_vs_costheta_recoil_dc_ejectile,     *aE_vs_costheta_recoil_dc_recoil;
+	TH2F *aE_vs_costheta2_recoil_dc_none;
 	TH2F *aE_vs_crystal_ejectile_dc_none,    *aE_vs_crystal_ejectile_dc_ejectile,    *aE_vs_crystal_ejectile_dc_recoil;
 	TH2F *aE_vs_crystal_recoil_dc_none,      *aE_vs_crystal_recoil_dc_ejectile,      *aE_vs_crystal_recoil_dc_recoil;
 	TH2F *aE_vs_crystal_1p_ejectile_dc_none, *aE_vs_crystal_1p_ejectile_dc_ejectile, *aE_vs_crystal_1p_ejectile_dc_recoil;

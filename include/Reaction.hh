@@ -510,7 +510,8 @@ public:
 
 	// Events tree options
 	inline bool EventsParticleGammaOnly(){ return events_particle_gamma; };
-	inline bool EventsCdPadCoincidence(){ return events_particle_cdpad; };
+	inline bool EventsCdPadCoincidence(){ return events_particle_cdpad_coinc; };
+	inline bool EventsCdPadVeto(){ return events_particle_cdpad_veto; };
 
 	// Histogram options
 	inline bool HistSegmentPhi(){ return hist_segment_phi; };
@@ -620,7 +621,8 @@ private:
 	
 	// Events tree options
 	bool events_particle_gamma;
-	bool events_particle_cdpad;
+	bool events_particle_cdpad_coinc;
+	bool events_particle_cdpad_veto;
 
 	// Histogram options
 	bool hist_segment_phi;
