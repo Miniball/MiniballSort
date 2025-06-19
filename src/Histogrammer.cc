@@ -539,7 +539,11 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gE_vs_costheta_ejectile_dc_none";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
-	
+
+	hname = "gE_vs_costheta2_ejectile_dc_none";
+	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
+	gE_vs_costheta2_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+
 	hname = "gE_vs_costheta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
@@ -551,6 +555,10 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gE_vs_costheta_recoil_dc_none";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+
+	hname = "gE_vs_costheta2_recoil_dc_none";
+	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
+	gE_vs_costheta2_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
 
 	hname = "gE_vs_costheta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
@@ -957,6 +965,10 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
 
+	hname = "aE_vs_costheta2_ejectile_dc_none";
+	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between recoil and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
+	aE_vs_costheta2_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+
 	hname = "aE_vs_costheta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
@@ -968,6 +980,10 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "aE_vs_costheta_recoil_dc_none";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between recoil and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+
+	hname = "aE_vs_costheta2_recoil_dc_none";
+	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
+	aE_vs_costheta2_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
 
 	hname = "aE_vs_costheta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
@@ -1708,9 +1724,11 @@ void MiniballHistogrammer::ResetHists() {
 	gE_recoil_dc_ejectile->Reset("ICESM");
 	gE_recoil_dc_recoil->Reset("ICESM");
 	gE_vs_costheta_ejectile_dc_none->Reset("ICESM");
+	gE_vs_costheta2_ejectile_dc_none->Reset("ICESM");
 	gE_vs_costheta_ejectile_dc_ejectile->Reset("ICESM");
 	gE_vs_costheta_ejectile_dc_recoil->Reset("ICESM");
 	gE_vs_costheta_recoil_dc_none->Reset("ICESM");
+	gE_vs_costheta2_recoil_dc_none->Reset("ICESM");
 	gE_vs_costheta_recoil_dc_ejectile->Reset("ICESM");
 	gE_vs_costheta_recoil_dc_recoil->Reset("ICESM");
 	gE_vs_theta_ejectile_dc_none->Reset("ICESM");
@@ -1732,9 +1750,11 @@ void MiniballHistogrammer::ResetHists() {
 	aE_recoil_dc_ejectile->Reset("ICESM");
 	aE_recoil_dc_recoil->Reset("ICESM");
 	aE_vs_costheta_ejectile_dc_none->Reset("ICESM");
+	aE_vs_costheta2_ejectile_dc_none->Reset("ICESM");
 	aE_vs_costheta_ejectile_dc_ejectile->Reset("ICESM");
 	aE_vs_costheta_ejectile_dc_recoil->Reset("ICESM");
 	aE_vs_costheta_recoil_dc_none->Reset("ICESM");
+	aE_vs_costheta2_recoil_dc_none->Reset("ICESM");
 	aE_vs_costheta_recoil_dc_ejectile->Reset("ICESM");
 	aE_vs_costheta_recoil_dc_recoil->Reset("ICESM");
 	aE_vs_theta_ejectile_dc_none->Reset("ICESM");
@@ -2089,6 +2109,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 	if( react->IsEjectileDetected() ) {
 		
 		gE_vs_costheta_ejectile_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, true ), weight );
+		gE_vs_costheta2_ejectile_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
 		gE_vs_costheta_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), react->CosTheta( g, true ), weight );
 		gE_vs_costheta_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), react->CosTheta( g, false ), weight );
 
@@ -2157,6 +2178,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
 		
 		gE_vs_costheta_recoil_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
+		gE_vs_costheta2_recoil_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, true ), weight );
 		gE_vs_costheta_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), react->CosTheta( g, true ), weight );
 		gE_vs_costheta_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), react->CosTheta( g, false ), weight );
 
@@ -2320,6 +2342,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 	if( react->IsEjectileDetected() ) {
 		
 		aE_vs_costheta_ejectile_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, true ), weight );
+		aE_vs_costheta2_ejectile_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
 		aE_vs_costheta_ejectile_dc_ejectile->Fill( react->DopplerCorrection( g, true ), react->CosTheta( g, true ), weight );
 		aE_vs_costheta_ejectile_dc_recoil->Fill( react->DopplerCorrection( g, false ), react->CosTheta( g, false ), weight );
 
@@ -2387,6 +2410,7 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayAddba
 	if( react->IsRecoilDetected() || react->IsTransferDetected() ) {
 		
 		aE_vs_costheta_recoil_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, false ), weight );
+		aE_vs_costheta2_recoil_dc_none->Fill( g->GetEnergy(), react->CosTheta( g, true ), weight );
 		aE_vs_costheta_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), react->CosTheta( g, true ), weight );
 		aE_vs_costheta_recoil_dc_recoil->Fill( react->DopplerCorrection( g, false ), react->CosTheta( g, false ), weight );
 
