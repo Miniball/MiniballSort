@@ -1076,10 +1076,17 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 	double E = Ei;
 	
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
-		
-		E -= g->Eval(E) * dx;
+
+		double Eloss = g->Eval(E) * dx;
+		if( Eloss > E ) {
+			E = 0.01;
+			break;
+		}
+		else
+			E -= Eloss;
 		
 	}
+
 	return Ei - E;
 
 }
