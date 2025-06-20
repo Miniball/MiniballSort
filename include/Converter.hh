@@ -156,7 +156,10 @@ protected:
 	std::shared_ptr<AdcData> adc_data;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
-	
+
+	// Vector for storing the data packets before time ordering
+	std::vector<MiniballDataPackets> data_vector;
+
 	// Output stuff
 	std::string output_dir_name;
 	TFile *output_file;

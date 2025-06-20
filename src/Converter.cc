@@ -85,6 +85,9 @@ void MiniballConverter::StartFile(){
 	
 	buffer_full = false;	// first buffer not yet assumed to be full
 
+	// clear the data vectors
+	std::vector<MiniballDataPackets>().swap(data_vector);
+
 	return;
 	
 }
@@ -579,7 +582,8 @@ void MiniballConverter::NoSortTree(){
 	std::cout << "Filtering data, but not time ordering" << std::endl;
 	
 	// Loop on entries and fill sorted tree
-	long long int n_ents = output_tree->GetEntries();
+	//long long int n_ents = output_tree->GetEntries(); // TTree method
+	long long int n_ents = data_vector.size();	// std::vector method
 	for( long long int i = 0; i < n_ents; ++i ) {
 
 		// Read entry
@@ -698,59 +702,39 @@ unsigned long long int MiniballConverter::SortTree(){
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();
 
-	// Load the full tree if possible
-	//output_tree->SetMaxVirtualSize(200e6); // 200 MB
-	//sorted_tree->SetMaxVirtualSize(200e6); // 200 MB
-	//output_tree->LoadBaskets(200e6); 	 // Load 6 MB of data to memory
-	
+	// Get number of data packets
+	long long int n_ents = data_vector.size();	// std::vector method
+
 	// Check we have entries and build time-ordered index
-	if( output_tree->GetEntries() ){
+	if( n_ents ){
 
 		std::cout << "Building time-ordered index of events..." << std::endl;
-		output_tree->BuildIndex( "data.GetTime()" );
+		std::sort( data_vector.begin(), data_vector.end() ); // std::vector method
 
 	}
 	else return 0;
-	
-	// Get index and prepare for sorting
-	TTreeIndex *att_index = (TTreeIndex*)output_tree->GetTreeIndex();
-	unsigned long long int nb_idx = att_index->GetN();
-	std::cout << " Sorting: size of the sorted index = " << nb_idx << std::endl;
 
 	// Loop on t_raw entries and fill t
-	for( unsigned long i = 0; i < nb_idx; ++i ) {
-		
-		// Clean up old data
-		data_packet->ClearData();
-		
-		// Get time-ordered event index
-		unsigned long long int idx = att_index->GetIndex()[i];
-		
-		// Check if the input or output trees are filling
-		//if( output_tree->MemoryFull(30e6) )
-		//	output_tree->DropBaskets();
-		//if( sorted_tree->MemoryFull(30e6) )
-		//	sorted_tree->FlushBaskets();
-		
-		// Get entry from unsorted tree and fill to sorted tree
-		output_tree->GetEntry( idx );
-		sorted_tree->Fill();
+	for( long long int i = 0; i < n_ents; ++i ) {
 
-		// Optimise filling tree
-		//if( i == 100 ) sorted_tree->OptimizeBaskets(30e6);	 // sorted tree basket size max 30 MB
+		// Get the data item back from the vector
+		data_packet->SetData( data_vector[i] );
+
+		// Fill the sorted tree
+		sorted_tree->Fill();
 
 		// Progress bar
 		bool update_progress = false;
-		if( nb_idx < 200 )
+		if( n_ents < 200 )
 			update_progress = true;
-		else if( i % (nb_idx/100) == 0 || i+1 == nb_idx )
+		else if( i % (n_ents/100) == 0 || i+1 == n_ents )
 			update_progress = true;
 		
 		if( update_progress ) {
 			
 			// Percent complete
-			float percent = (float)(i+1)*100.0/(float)nb_idx;
-			
+			float percent = (float)(i+1)*100.0/(float)n_ents;
+
 			// Progress bar in GUI
 			if( _prog_ ) {
 				
@@ -764,16 +748,12 @@ unsigned long long int MiniballConverter::SortTree(){
 			std::cout << percent << "%    \r";
 			std::cout.flush();
 
-		}
+		} // progress bar
 
-	}
-	
-	// Reset the output tree so it's empty after we've finished
-	output_tree->FlushBaskets();
-	output_tree->Reset();
+	} // i
 
-	return nb_idx;
-	
+	return n_ents;
+
 }
 
 

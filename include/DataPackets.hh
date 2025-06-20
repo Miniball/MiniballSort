@@ -416,31 +416,57 @@ public:
 	MiniballDataPackets() {};
 	~MiniballDataPackets() {};
 
-	inline bool	IsDgf()		{ return dgf_packets.size(); };
-	inline bool	IsAdc() 	{ return adc_packets.size(); };
-	inline bool	IsFebex()	{ return febex_packets.size(); };
-	inline bool	IsInfo()	{ return info_packets.size(); };
-	
+	MiniballDataPackets( std::unique_ptr<MiniballDataPackets> &in ) {
+		if( in->IsDgf() )	SetData( in->GetDgfData() );
+		if( in->IsAdc() )	SetData( in->GetAdcData() );
+		if( in->IsFebex() )	SetData( in->GetFebexData() );
+		if( in->IsInfo() )	SetData( in->GetInfoData() );
+	};
+
+	inline bool	IsDgf() const { return dgf_packets.size(); };
+	inline bool	IsAdc() const { return adc_packets.size(); };
+	inline bool	IsFebex() const { return febex_packets.size(); };
+	inline bool	IsInfo() const { return info_packets.size(); };
+
+	void SetData( MiniballDataPackets in ){
+		if( in.IsDgf() )	SetData( in.GetDgfData() );
+		if( in.IsAdc() )	SetData( in.GetAdcData() );
+		if( in.IsFebex() )	SetData( in.GetFebexData() );
+		if( in.IsInfo() )	SetData( in.GetInfoData() );
+	};
 	void SetData( std::shared_ptr<DgfData> data );
 	void SetData( std::shared_ptr<AdcData> data );
 	void SetData( std::shared_ptr<FebexData> data );
 	void SetData( std::shared_ptr<InfoData> data );
 
 	// These methods are not very safe for access
-	inline std::shared_ptr<DgfData> GetDgfData() { return std::make_shared<DgfData>( dgf_packets.at(0) ); };
-	inline std::shared_ptr<AdcData> GetAdcData() { return std::make_shared<AdcData>( adc_packets.at(0) ); };
-	inline std::shared_ptr<FebexData> GetFebexData() { return std::make_shared<FebexData>( febex_packets.at(0) ); };
-	inline std::shared_ptr<InfoData> GetInfoData() { return std::make_shared<InfoData>( info_packets.at(0) ); };
-	
+	inline std::shared_ptr<DgfData> GetDgfData() const {
+		return std::make_shared<DgfData>( dgf_packets.at(0) );
+	};
+	inline std::shared_ptr<AdcData> GetAdcData() const {
+		return std::make_shared<AdcData>( adc_packets.at(0) );
+	};
+	inline std::shared_ptr<FebexData> GetFebexData() const {
+		return std::make_shared<FebexData>( febex_packets.at(0) );
+	};
+	inline std::shared_ptr<InfoData> GetInfoData() const {
+		return std::make_shared<InfoData>( info_packets.at(0) );
+	};
+
 	// Complicated way to get the time...
-	unsigned long long int GetEventID();
-	long long int GetTime();
-	UInt_t GetTimeMSB();
-	UInt_t GetTimeLSB();
-	unsigned char GetSfp();
-	unsigned char GetBoard();
-	unsigned char GetModule();
-	unsigned char GetChannel();
+	unsigned long long int GetEventID() const;
+	long long int GetTime() const;
+	UInt_t GetTimeMSB() const;
+	UInt_t GetTimeLSB() const;
+	unsigned char GetSfp() const;
+	unsigned char GetBoard() const;
+	unsigned char GetModule() const;
+	unsigned char GetChannel() const;
+
+	// Sorting function to do time ordering
+	bool operator < ( const MiniballDataPackets &data ) const {
+		return( this->GetTime() < data.GetTime() );
+	};
 
 	void ClearData();
 
