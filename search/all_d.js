@@ -62,12 +62,11 @@ var searchData=
   ['nenergy_59',['nenergy',['../classParticleEvt.html#ad4a1ae5fc58faece3c0a631eb2617453',1,'ParticleEvt']]],
   ['newbuffer_60',['NewBuffer',['../classMiniballConverter.html#a9526c508ac388aa48f33c3c113b518fe',1,'MiniballConverter']]],
   ['next_5findex_61',['next_index',['../classDataSpy.html#ad15d4da1116c1fc3d79180f2b54ffe09',1,'DataSpy']]],
-  ['nosorttree_62',['NoSortTree',['../classMiniballConverter.html#aaf5e7e259d2a12bbc99cb13a7c912a97',1,'MiniballConverter']]],
-  ['npars_63',['npars',['../classMiniballAngleFitter.html#a13c78b389e856ed169d80b70f2adfa29',1,'MiniballAngleFitter']]],
-  ['nsamples_64',['nsamples',['../classMiniballConverter.html#aa109744fc7ed95c591fbc547f292a198',1,'MiniballConverter']]],
-  ['nseg_65',['nseg',['../classMiniballGeometry.html#a3986ac343ab23ae26214955a57fbba2c',1,'MiniballGeometry']]],
-  ['nstrip_66',['nstrip',['../classParticleEvt.html#ae37c84cad540ef7594bcbd1839d3d590',1,'ParticleEvt']]],
-  ['ntime_67',['ntime',['../classParticleEvt.html#a89dbd30aa4491ddaa05e869f03eeaa0b',1,'ParticleEvt']]],
-  ['number_5fof_5fbuffers_68',['number_of_buffers',['../classDataSpy.html#a51c326a0179b1f4ec7fcaf26ecaa8646',1,'DataSpy']]],
-  ['numberoftriggers_69',['NumberOfTriggers',['../classFebexMWD.html#ae4c20d438a4993748f2e71173e5c15b1',1,'FebexMWD']]]
+  ['npars_62',['npars',['../classMiniballAngleFitter.html#a13c78b389e856ed169d80b70f2adfa29',1,'MiniballAngleFitter']]],
+  ['nsamples_63',['nsamples',['../classMiniballConverter.html#aa109744fc7ed95c591fbc547f292a198',1,'MiniballConverter']]],
+  ['nseg_64',['nseg',['../classMiniballGeometry.html#a3986ac343ab23ae26214955a57fbba2c',1,'MiniballGeometry']]],
+  ['nstrip_65',['nstrip',['../classParticleEvt.html#ae37c84cad540ef7594bcbd1839d3d590',1,'ParticleEvt']]],
+  ['ntime_66',['ntime',['../classParticleEvt.html#a89dbd30aa4491ddaa05e869f03eeaa0b',1,'ParticleEvt']]],
+  ['number_5fof_5fbuffers_67',['number_of_buffers',['../classDataSpy.html#a51c326a0179b1f4ec7fcaf26ecaa8646',1,'DataSpy']]],
+  ['numberoftriggers_68',['NumberOfTriggers',['../classFebexMWD.html#ae4c20d438a4993748f2e71173e5c15b1',1,'FebexMWD']]]
 ];

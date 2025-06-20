@@ -20,11 +20,12 @@ var searchData=
   ['openlmdfile_17',['OpenLmdFile',['../classMBS.html#a2e6476004a0a70f84e6643ff0016c45b',1,'MBS']]],
   ['openmedfile_18',['OpenMedFile',['../classMBS.html#a3e4a41f8923e336bfc06e760e87ce669',1,'MBS']]],
   ['operator_28_29_19',['operator()',['../classMiniballAngleFunction.html#ae1298610c018bc80283c849c84162d63',1,'MiniballAngleFunction::operator()()'],['../classFitFunc.html#a582fd936816cfe2fc618840c5446d9ea',1,'FitFunc::operator()()']]],
-  ['operator_3c_3c_20',['operator&lt;&lt;',['../classCommandLineInterface.html#ad9254cf4c9089bf9eb6aa84fa9985607',1,'CommandLineInterface::operator&lt;&lt;'],['../CommandLineInterface_8cc.html#ad9254cf4c9089bf9eb6aa84fa9985607',1,'operator&lt;&lt;():&#160;CommandLineInterface.cc']]],
-  ['output_5fbuffer_21',['output_buffer',['../classMiniballMedConverter.html#ae28bdb9f0b19dde72e3ec4287ae1907a',1,'MiniballMedConverter']]],
-  ['output_5fdir_5fname_22',['output_dir_name',['../classMiniballConverter.html#a9eeed7fa3b020b3b757b458674136951',1,'MiniballConverter']]],
-  ['output_5ffile_23',['output_file',['../classMiniballConverter.html#ac4fe45b5b2fc2be0939a914f2fa6d17d',1,'MiniballConverter::output_file'],['../classMiniballEventBuilder.html#ade9a0c31aab5a32321a54a8d694e5540',1,'MiniballEventBuilder::output_file'],['../classMiniballHistogrammer.html#a441963f72ec7cee806290a86289c41c9',1,'MiniballHistogrammer::output_file']]],
-  ['output_5fname_24',['output_name',['../mb__sort_8cc.html#a4bfaa4b497cb5e62d0cfc56f5ce8cfc9',1,'mb_sort.cc']]],
-  ['output_5ftree_25',['output_tree',['../classMiniballConverter.html#ac0ba41798e170d069b4870467ca53eb2',1,'MiniballConverter::output_tree'],['../classMiniballEventBuilder.html#a84daab61f232865021c255e85044eb4f',1,'MiniballEventBuilder::output_tree']]],
-  ['overwrite_5fcal_26',['overwrite_cal',['../classMiniballEventBuilder.html#ae323a5997ece6db109101aabbf748f51',1,'MiniballEventBuilder::overwrite_cal'],['../mb__sort_8cc.html#af9f81236e86fb558e6611a3921cb01c3',1,'overwrite_cal:&#160;mb_sort.cc']]]
+  ['operator_3c_20',['operator&lt;',['../classMiniballDataPackets.html#a614e480af2cd79189968b95957b7a4c5',1,'MiniballDataPackets']]],
+  ['operator_3c_3c_21',['operator&lt;&lt;',['../classCommandLineInterface.html#ad9254cf4c9089bf9eb6aa84fa9985607',1,'CommandLineInterface::operator&lt;&lt;'],['../CommandLineInterface_8cc.html#ad9254cf4c9089bf9eb6aa84fa9985607',1,'operator&lt;&lt;():&#160;CommandLineInterface.cc']]],
+  ['output_5fbuffer_22',['output_buffer',['../classMiniballMedConverter.html#ae28bdb9f0b19dde72e3ec4287ae1907a',1,'MiniballMedConverter']]],
+  ['output_5fdir_5fname_23',['output_dir_name',['../classMiniballConverter.html#a9eeed7fa3b020b3b757b458674136951',1,'MiniballConverter']]],
+  ['output_5ffile_24',['output_file',['../classMiniballConverter.html#ac4fe45b5b2fc2be0939a914f2fa6d17d',1,'MiniballConverter::output_file'],['../classMiniballEventBuilder.html#ade9a0c31aab5a32321a54a8d694e5540',1,'MiniballEventBuilder::output_file'],['../classMiniballHistogrammer.html#a441963f72ec7cee806290a86289c41c9',1,'MiniballHistogrammer::output_file']]],
+  ['output_5fname_25',['output_name',['../mb__sort_8cc.html#a4bfaa4b497cb5e62d0cfc56f5ce8cfc9',1,'mb_sort.cc']]],
+  ['output_5ftree_26',['output_tree',['../classMiniballEventBuilder.html#a84daab61f232865021c255e85044eb4f',1,'MiniballEventBuilder']]],
+  ['overwrite_5fcal_27',['overwrite_cal',['../classMiniballEventBuilder.html#ae323a5997ece6db109101aabbf748f51',1,'MiniballEventBuilder::overwrite_cal'],['../mb__sort_8cc.html#af9f81236e86fb558e6611a3921cb01c3',1,'overwrite_cal:&#160;mb_sort.cc']]]
 ];

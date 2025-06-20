@@ -11,7 +11,7 @@ var searchData=
   ['miniballanglefunction_8',['MiniballAngleFunction',['../classMiniballAngleFunction.html#ab18999f930eb9c00444d8505f4fb35c5',1,'MiniballAngleFunction::MiniballAngleFunction()'],['../classMiniballAngleFunction.html#abada10dd162d08de03da79e24eaaedb6',1,'MiniballAngleFunction::MiniballAngleFunction(std::shared_ptr&lt; MiniballSettings &gt; _myset, std::shared_ptr&lt; MiniballReaction &gt; _myreact)']]],
   ['miniballcalibration_9',['MiniballCalibration',['../classMiniballCalibration.html#ad0fd95b1a6854fe09d118cb4f0411b23',1,'MiniballCalibration']]],
   ['miniballconverter_10',['MiniballConverter',['../classMiniballConverter.html#aedcf0d2bf75c743ccd7087c1707d0a6c',1,'MiniballConverter']]],
-  ['miniballdatapackets_11',['MiniballDataPackets',['../classMiniballDataPackets.html#a30904f000651ebc03545bfa916b63815',1,'MiniballDataPackets']]],
+  ['miniballdatapackets_11',['MiniballDataPackets',['../classMiniballDataPackets.html#a30904f000651ebc03545bfa916b63815',1,'MiniballDataPackets::MiniballDataPackets()'],['../classMiniballDataPackets.html#aa589de2be69c66a887941b6a2e08f265',1,'MiniballDataPackets::MiniballDataPackets(std::unique_ptr&lt; MiniballDataPackets &gt; &amp;in)']]],
   ['miniballeventbuilder_12',['MiniballEventBuilder',['../classMiniballEventBuilder.html#a2398b4e85a47bbb8d2710c34f4666271',1,'MiniballEventBuilder']]],
   ['miniballevts_13',['MiniballEvts',['../classMiniballEvts.html#a57e7e7348a9d06c615ba32a7e7ed8c7a',1,'MiniballEvts']]],
   ['miniballgeometry_14',['MiniballGeometry',['../classMiniballGeometry.html#ac99c897b55e3ae5a396991be4cf4f14e',1,'MiniballGeometry']]],
