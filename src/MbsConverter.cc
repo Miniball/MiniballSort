@@ -415,7 +415,6 @@ void MiniballMbsConverter::FinishFebexData(){
 		info_data->SetBoard( febex_data->GetBoard() );
 		info_data->SetCode( my_info_code );
 		data_packet->SetData( info_data );
-		//output_tree->Fill(); // TTree method for time ordering
 		data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 
 
@@ -440,7 +439,6 @@ void MiniballMbsConverter::FinishFebexData(){
 		// Also add the time offset when we do this
 		febex_data->SetTime( time_corr );
 		data_packet->SetData( febex_data );
-		//output_tree->Fill(); // TTree method for time ordering
 		data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 
 	}

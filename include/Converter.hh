@@ -48,9 +48,7 @@ public:
 	void MakeTree();
 	void StartFile();
 	void BuildMbsIndex();
-	void BodgeMidasSort();
-	void NoSortTree();
-	unsigned long long int SortTree();
+	unsigned long long int SortTree( bool do_sort = true );
 
 	void SetOutput( std::string output_file_name );
 	inline void SetOutputDirectory( std::string output_dir ){ output_dir_name = output_dir; };
@@ -65,7 +63,7 @@ public:
 		output_file->Purge(2);
 	}
 	inline TFile* GetFile(){ return output_file; };
-	inline TTree* GetTree(){ return output_tree; };
+	inline TTree* GetTree(){ return GetSortedTree(); };
 	inline TTree* GetMbsInfo(){ return mbsinfo_tree; };
 	inline TTree* GetSortedTree(){ return sorted_tree; };
 
@@ -163,7 +161,6 @@ protected:
 	// Output stuff
 	std::string output_dir_name;
 	TFile *output_file;
-	TTree *output_tree;
 	TTree *sorted_tree;
 	TTree *mbsinfo_tree;
 

@@ -481,7 +481,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_mbs.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_mbs.NoSortTree();
+						conv_mbs.SortTree(false);
 					else conv_mbs.SortTree();
 				}
 				conv_mbs.CloseOutput();
@@ -499,10 +499,7 @@ void do_convert() {
 				conv_midas.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) {
-					conv_midas.SortTree();
-					//conv_midas.BodgeMidasSort();
-				}
+				if( !flag_source ) conv_midas.SortTree();
 				conv_midas.CloseOutput();
 				
 			}
@@ -521,7 +518,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_med.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_med.NoSortTree();
+						conv_med.SortTree(false);
 					else conv_med.SortTree();
 				}
 				conv_med.CloseOutput();

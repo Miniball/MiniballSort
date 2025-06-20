@@ -224,7 +224,6 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 
 			// Fill the tree
 			data_packet->SetData( adc_data );
-			//output_tree->Fill(); // TTree method for time ordering
 			data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 
 			// Fill histograms
@@ -696,7 +695,6 @@ void MiniballMedConverter::ProcessDgfData() {
 
 								// Fill the tree
 								data_packet->SetData( info_data );
-								//output_tree->Fill(); // TTree method for time ordering
 								data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 
 							}
@@ -722,7 +720,6 @@ void MiniballMedConverter::ProcessDgfData() {
 
 							// Fill the tree
 							data_packet->SetData( dgf_data );
-							//output_tree->Fill(); // TTree method for time ordering
 							data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 
 						}
