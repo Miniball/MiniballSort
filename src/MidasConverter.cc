@@ -607,9 +607,9 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 				data_packet->SetData( info_data );
 				
 				// Fill only if we are not doing a source run
-				if( !flag_source ) output_tree->Fill();
+				if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 				data_ctr++;
-				
+
 			}
 			
 			// Otherwise it is real data, so fill a FEBEX event
@@ -622,7 +622,7 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 				data_packet->SetData( febex_data );
 				
 				// Fill only if we are not doing a source run
-				if( !flag_source ) output_tree->Fill();
+				if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 				data_ctr++;
 				
 			}
@@ -843,7 +843,7 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 		
 		// Fill only if we are not doing a source run
 		// Or comment out if we want to skip them because we're not debugging
-		if( !flag_source ) output_tree->Fill();
+		if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
 		info_data->Clear();
 
 	}
@@ -913,7 +913,7 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	std::cout << "Converting MIDAS file: " << input_file_name;
 	std::cout << " from block " << start_block << std::endl;
 	
-	// Reset counters to zero for every file
+	// Reset counters and data vectors to zero for every file
 	StartFile();
 
 	// Calculate the size of the file.

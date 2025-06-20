@@ -253,7 +253,10 @@ void* monitor_run( void* ptr ){
 				// Clean up the trees before we start
 				conv_midas_mon->GetSortedTree()->Reset();
 				conv_midas_mon->GetMbsInfo()->Reset();
-				
+
+				// Empty the previous data vector and reset counters
+				conv_midas_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from DataSpy" << std::endl;
 				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
@@ -296,6 +299,9 @@ void* monitor_run( void* ptr ){
 			// Convert - from MBS event server
 			else if( flag_spy && flag_mbs ){
 				
+				// Empty the previous data vector and reset counters
+				conv_mbs_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from MBSEventServer" << std::endl;
 				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
@@ -475,7 +481,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_mbs.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_mbs.NoSortTree();
+						conv_mbs.SortTree(false);
 					else conv_mbs.SortTree();
 				}
 				conv_mbs.CloseOutput();
@@ -493,10 +499,7 @@ void do_convert() {
 				conv_midas.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) {
-					conv_midas.SortTree();
-					//conv_midas.BodgeMidasSort();
-				}
+				if( !flag_source ) conv_midas.SortTree();
 				conv_midas.CloseOutput();
 				
 			}
@@ -515,7 +518,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_med.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_med.NoSortTree();
+						conv_med.SortTree(false);
 					else conv_med.SortTree();
 				}
 				conv_med.CloseOutput();
