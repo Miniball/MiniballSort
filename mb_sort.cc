@@ -253,7 +253,10 @@ void* monitor_run( void* ptr ){
 				// Clean up the trees before we start
 				conv_midas_mon->GetSortedTree()->Reset();
 				conv_midas_mon->GetMbsInfo()->Reset();
-				
+
+				// Empty the previous data vector and reset counters
+				conv_midas_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from DataSpy" << std::endl;
 				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
@@ -296,6 +299,9 @@ void* monitor_run( void* ptr ){
 			// Convert - from MBS event server
 			else if( flag_spy && flag_mbs ){
 				
+				// Empty the previous data vector and reset counters
+				conv_mbs_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from MBSEventServer" << std::endl;
 				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
