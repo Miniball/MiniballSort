@@ -417,7 +417,6 @@ void MiniballMbsConverter::FinishFebexData(){
 		write_packet->SetData( info_data );
 		data_vector.emplace_back( write_packet ); // std::vector method for time ordering
 
-
 	}
 	
 	// Otherwise it is real data, so fill a FEBEX event
