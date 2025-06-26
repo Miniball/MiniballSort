@@ -463,8 +463,8 @@ public:
 	unsigned char GetChannel() const;
 
 	// Sorting function to do time ordering
-	bool operator < ( const MiniballDataPackets &data ) const {
-		return( this->GetTime() < data.GetTime() );
+	bool operator <( const MiniballDataPackets &rhs ) const {
+		return( GetTime() < rhs.GetTime() );
 	};
 
 	void ClearData();

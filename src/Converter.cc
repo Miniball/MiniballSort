@@ -580,7 +580,11 @@ unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 	if( n_ents && do_sort ){
 
 		std::cout << "Building time-ordered index of events..." << std::endl;
-		std::sort( data_vector.begin(), data_vector.end() ); // std::vector method
+		//std::sort( data_vector.begin(), data_vector.end() ); // std::vector method
+		std::sort( data_vector.begin(), data_vector.end(),
+				  []( std::shared_ptr<MiniballDataPackets> &lhs, std::shared_ptr<MiniballDataPackets> &rhs) {
+			return lhs->GetTime() < rhs->GetTime();
+		} );
 
 	}
 	else return 0;
@@ -589,7 +593,7 @@ unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 	for( long long int i = 0; i < n_ents; ++i ) {
 
 		// Get the data item back from the vector
-		write_packet = data_vector[i];
+		write_packet->SetData( data_vector[i] );
 
 		// Fill the sorted tree
 		sorted_tree->Fill();
