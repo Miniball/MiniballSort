@@ -416,23 +416,22 @@ public:
 	MiniballDataPackets() {};
 	~MiniballDataPackets() {};
 
-	MiniballDataPackets( std::unique_ptr<MiniballDataPackets> &in ) {
-		if( in->IsDgf() )	SetData( in->GetDgfData() );
-		if( in->IsAdc() )	SetData( in->GetAdcData() );
-		if( in->IsFebex() )	SetData( in->GetFebexData() );
-		if( in->IsInfo() )	SetData( in->GetInfoData() );
-	};
+	MiniballDataPackets( std::shared_ptr<MiniballDataPackets> in ) { SetData(in); };
+	MiniballDataPackets( std::shared_ptr<DgfData> in ){ SetData(in); };
+	MiniballDataPackets( std::shared_ptr<AdcData> in ){ SetData(in); };
+	MiniballDataPackets( std::shared_ptr<FebexData> in ){ SetData(in); };
+	MiniballDataPackets( std::shared_ptr<InfoData> in ){ SetData(in); };
 
 	inline bool	IsDgf() const { return dgf_packets.size(); };
 	inline bool	IsAdc() const { return adc_packets.size(); };
 	inline bool	IsFebex() const { return febex_packets.size(); };
 	inline bool	IsInfo() const { return info_packets.size(); };
 
-	void SetData( MiniballDataPackets in ){
-		if( in.IsDgf() )	SetData( in.GetDgfData() );
-		if( in.IsAdc() )	SetData( in.GetAdcData() );
-		if( in.IsFebex() )	SetData( in.GetFebexData() );
-		if( in.IsInfo() )	SetData( in.GetInfoData() );
+	void SetData( std::shared_ptr<MiniballDataPackets> in ){
+		if( in->IsDgf() )	SetData( in->GetDgfData() );
+		if( in->IsAdc() )	SetData( in->GetAdcData() );
+		if( in->IsFebex() )	SetData( in->GetFebexData() );
+		if( in->IsInfo() )	SetData( in->GetInfoData() );
 	};
 	void SetData( std::shared_ptr<DgfData> data );
 	void SetData( std::shared_ptr<AdcData> data );
@@ -477,7 +476,7 @@ protected:
 	std::vector<FebexData>		febex_packets;
 	std::vector<InfoData>		info_packets;
 
-	ClassDef( MiniballDataPackets, 3 )
+	ClassDef( MiniballDataPackets, 5 )
 
 };
 

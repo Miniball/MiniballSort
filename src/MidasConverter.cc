@@ -604,10 +604,10 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 				info_data->SetSfp( febex_data->GetSfp() );
 				info_data->SetBoard( febex_data->GetBoard() );
 				info_data->SetCode( my_info_code );
-				data_packet->SetData( info_data );
-				
+				write_packet->SetData( info_data );
+
 				// Fill only if we are not doing a source run
-				if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+				if( !flag_source ) data_vector.emplace_back( write_packet ); // std::vector method for time ordering
 				data_ctr++;
 
 			}
@@ -619,10 +619,10 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 				// Set this data and fill event to tree
 				// Also add the time offset when we do this
 				febex_data->SetTime( time_corr );
-				data_packet->SetData( febex_data );
-				
+				write_packet->SetData( febex_data );
+
 				// Fill only if we are not doing a source run
-				if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+				if( !flag_source ) data_vector.emplace_back( write_packet ); // std::vector method for time ordering
 				data_ctr++;
 				
 			}
@@ -839,11 +839,11 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 		info_data->SetBoard( my_board_id );
 		info_data->SetTime( my_tm_stp*10 );
 		info_data->SetCode( my_info_code );
-		data_packet->SetData( info_data );
-		
+		write_packet->SetData( info_data );
+
 		// Fill only if we are not doing a source run
 		// Or comment out if we want to skip them because we're not debugging
-		if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+		if( !flag_source ) data_vector.emplace_back( write_packet ); // std::vector method for time ordering
 		info_data->Clear();
 
 	}

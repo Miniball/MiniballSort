@@ -86,7 +86,7 @@ void MiniballConverter::StartFile(){
 	buffer_full = false;	// first buffer not yet assumed to be full
 
 	// clear the data vectors
-	std::vector<MiniballDataPackets>().swap(data_vector);
+	std::vector<std::shared_ptr<MiniballDataPackets>>().swap(data_vector);
 
 	return;
 	
@@ -109,9 +109,9 @@ void MiniballConverter::MakeTree() {
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
 	sorted_tree = new TTree( "mb_sort", "Time sorted, calibrated Miniball data" );
 	mbsinfo_tree = new TTree( "mbsinfo", "mbsinfo" );
-	data_packet = std::make_unique<MiniballDataPackets>();
-	mbsinfo_packet = std::make_unique<MBSInfoPackets>();
-	sorted_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
+	write_packet = std::make_shared<MiniballDataPackets>();
+	mbsinfo_packet = std::make_shared<MBSInfoPackets>();
+	sorted_tree->Branch( "data", "MiniballDataPackets", write_packet.get(), bufsize, splitLevel );
 	mbsinfo_tree->Branch( "mbsinfo", "MBSInfoPackets", mbsinfo_packet.get(), sizeof(MBSInfoPackets), 0 );
 	
 	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
@@ -589,7 +589,7 @@ unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 	for( long long int i = 0; i < n_ents; ++i ) {
 
 		// Get the data item back from the vector
-		data_packet->SetData( data_vector[i] );
+		write_packet = data_vector[i];
 
 		// Fill the sorted tree
 		sorted_tree->Fill();

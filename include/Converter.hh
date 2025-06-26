@@ -148,15 +148,15 @@ protected:
 	unsigned long long qmax_default;
 	
 	// Data types
-	std::unique_ptr<MBSInfoPackets> mbsinfo_packet = nullptr;
-	std::unique_ptr<MiniballDataPackets> data_packet = nullptr;
+	std::shared_ptr<MBSInfoPackets> mbsinfo_packet = nullptr;
+	std::shared_ptr<MiniballDataPackets> write_packet = nullptr;
 	std::shared_ptr<DgfData> dgf_data;
 	std::shared_ptr<AdcData> adc_data;
 	std::shared_ptr<FebexData> febex_data;
 	std::shared_ptr<InfoData> info_data;
 
 	// Vector for storing the data packets before time ordering
-	std::vector<MiniballDataPackets> data_vector;
+	std::vector<std::shared_ptr<MiniballDataPackets>> data_vector;
 
 	// Output stuff
 	std::string output_dir_name;
