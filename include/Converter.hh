@@ -73,7 +73,9 @@ public:
 	inline bool EBISWindow( long long int t ){
 		if( ebis_period == 0 ) return false;
 		else {
-			long long test_t = ( t - ebis_tm_stp ) % ebis_period;
+			// Note: (a % b) is not in range 0..b-1 for negative a.
+			long long test_t = ((( t - ebis_tm_stp ) % ebis_period ) +
+								ebis_period ) % ebis_period;
 			return ( test_t < 4000000 && test_t > 0 );
 		}
 	};
@@ -146,7 +148,7 @@ protected:
 	
 	// Maximum size of the ADC value
 	unsigned long long qmax_default;
-	
+
 	// Data types
 	std::shared_ptr<MBSInfoPackets> mbsinfo_packet = nullptr;
 	std::shared_ptr<MiniballDataPackets> write_packet = nullptr;
