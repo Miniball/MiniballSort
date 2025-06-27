@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -48,7 +49,10 @@ public:
 	void MakeTree();
 	void StartFile();
 	void BuildMbsIndex();
+	void SortDataVector();
 	unsigned long long int SortTree( bool do_sort = true );
+	static bool TimeComparator( const std::shared_ptr<MiniballDataPackets> &lhs,
+							    const std::shared_ptr<MiniballDataPackets> &rhs );
 
 	void SetOutput( std::string output_file_name );
 	inline void SetOutputDirectory( std::string output_dir ){ output_dir_name = output_dir; };

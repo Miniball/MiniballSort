@@ -567,6 +567,19 @@ void MiniballConverter::BuildMbsIndex(){
 	
 }
 
+bool MiniballConverter::TimeComparator( const std::shared_ptr<MiniballDataPackets> &lhs,
+									    const std::shared_ptr<MiniballDataPackets> &rhs ) {
+
+	return lhs->GetTime() < rhs->GetTime();
+
+}
+
+void MiniballConverter::SortDataVector() {
+
+	// Sort the data vector as we go along
+	std::sort( data_vector.begin(), data_vector.end(), TimeComparator );
+
+}
 
 unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 
@@ -577,19 +590,14 @@ unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 	long long int n_ents = data_vector.size();	// std::vector method
 
 	// Check we have entries and build time-ordered index
-	if( n_ents && do_sort ){
-
-		std::cout << "Building time-ordered index of events..." << std::endl;
-		//std::sort( data_vector.begin(), data_vector.end() ); // std::vector method
-		std::sort( data_vector.begin(), data_vector.end(),
-				  []( std::shared_ptr<MiniballDataPackets> &lhs, std::shared_ptr<MiniballDataPackets> &rhs) {
-			return lhs->GetTime() < rhs->GetTime();
-		} );
-
+	if( n_ents && do_sort ) {
+		std::cout << "Time ordering the data items..." << std::endl;
+		SortDataVector();
 	}
 	else return 0;
 
 	// Loop on t_raw entries and fill t
+	std::cout << "Writing time-ordered data items to the output tree..." << std::endl;
 	for( long long int i = 0; i < n_ents; ++i ) {
 
 		// Get the data item back from the vector

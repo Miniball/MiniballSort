@@ -872,6 +872,9 @@ bool MiniballMidasConverter::ProcessCurrentBlock( long nblock ) {
 	//
 	//}
 
+	// Occassionally, sort the data vector to speed things up?
+	//if( (nblock+1) % 3000 == 0 && (BLOCKS_NUM-nblock) > 3000 ) SortDataVector();
+
 	return true;
 
 }
@@ -924,7 +927,7 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	unsigned long long int FILE_SIZE = size_end - size_beg;
 	
 	// Calculate the number of blocks in the file.
-	unsigned long BLOCKS_NUM = FILE_SIZE / DATA_BLOCK_SIZE;
+	BLOCKS_NUM = FILE_SIZE / DATA_BLOCK_SIZE;
 	
 	// a sanity check for file size...
 	if( FILE_SIZE % DATA_BLOCK_SIZE != 0 ){
