@@ -18,6 +18,6 @@ var searchData=
   ['openlmdfile_15',['OpenLmdFile',['../classMBS.html#a2e6476004a0a70f84e6643ff0016c45b',1,'MBS']]],
   ['openmedfile_16',['OpenMedFile',['../classMBS.html#a3e4a41f8923e336bfc06e760e87ce669',1,'MBS']]],
   ['operator_28_29_17',['operator()',['../classMiniballAngleFunction.html#ae1298610c018bc80283c849c84162d63',1,'MiniballAngleFunction::operator()()'],['../classFitFunc.html#a582fd936816cfe2fc618840c5446d9ea',1,'FitFunc::operator()()']]],
-  ['operator_3c_18',['operator&lt;',['../classMiniballDataPackets.html#a614e480af2cd79189968b95957b7a4c5',1,'MiniballDataPackets']]],
+  ['operator_3c_18',['operator&lt;',['../classMiniballDataPackets.html#a795f490023e0cbaf43b058d817b09686',1,'MiniballDataPackets']]],
   ['operator_3c_3c_19',['operator&lt;&lt;',['../CommandLineInterface_8cc.html#ad9254cf4c9089bf9eb6aa84fa9985607',1,'CommandLineInterface.cc']]]
 ];
