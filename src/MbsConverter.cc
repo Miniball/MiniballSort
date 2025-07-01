@@ -414,8 +414,14 @@ void MiniballMbsConverter::FinishFebexData(){
 		info_data->SetSfp( febex_data->GetSfp() );
 		info_data->SetBoard( febex_data->GetBoard() );
 		info_data->SetCode( my_info_code );
-		write_packet->SetData( info_data );
-		data_vector.emplace_back( write_packet ); // std::vector method for time ordering
+
+		if( !flag_source ) {
+			std::shared_ptr<MiniballDataPackets> data_packet =
+				std::make_shared<MiniballDataPackets>( info_data );
+			data_vector.emplace_back( data_packet );
+			data_map.push_back( std::make_pair<unsigned long,double>(
+				 data_vector.size()-1, data_packet->GetTime() ) );
+		}
 
 	}
 	
@@ -437,8 +443,13 @@ void MiniballMbsConverter::FinishFebexData(){
 		// Set this data and fill event to tree
 		// Also add the time offset when we do this
 		febex_data->SetTime( time_corr );
-		write_packet->SetData( febex_data );
-		data_vector.emplace_back( write_packet ); // std::vector method for time ordering
+		if( !flag_source ) {
+			std::shared_ptr<MiniballDataPackets> data_packet =
+				std::make_shared<MiniballDataPackets>( febex_data );
+			data_vector.emplace_back( data_packet );
+			data_map.push_back( std::make_pair<unsigned long,double>(
+				data_vector.size()-1, data_packet->GetTime() ) );
+		}
 
 	}
 	

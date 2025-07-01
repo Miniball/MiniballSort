@@ -50,9 +50,12 @@ public:
 	void StartFile();
 	void BuildMbsIndex();
 	void SortDataVector();
+	void SortDataMap();
 	unsigned long long int SortTree( bool do_sort = true );
 	static bool TimeComparator( const std::shared_ptr<MiniballDataPackets> &lhs,
 							    const std::shared_ptr<MiniballDataPackets> &rhs );
+	static bool MapComparator( const std::pair<unsigned long,double> &lhs,
+							   const std::pair<unsigned long,double> &rhs );
 
 	void SetOutput( std::string output_file_name );
 	inline void SetOutputDirectory( std::string output_dir ){ output_dir_name = output_dir; };
@@ -163,6 +166,7 @@ protected:
 
 	// Vector for storing the data packets before time ordering
 	std::vector<std::shared_ptr<MiniballDataPackets>> data_vector;
+	std::vector<std::pair<unsigned long,double>> data_map;
 
 	// Output stuff
 	std::string output_dir_name;
