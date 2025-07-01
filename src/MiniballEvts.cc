@@ -14,13 +14,6 @@ ClassImp(MiniballEvts)
 // --------------- //
 void MiniballEvts::ClearEvt() {
 	
-	gamma_event.clear();
-	gamma_ab_event.clear();
-	particle_event.clear();
-	bd_event.clear();
-	spede_event.clear();
-	ic_event.clear();
-
 	std::vector<GammaRayEvt>().swap(gamma_event);
 	std::vector<GammaRayAddbackEvt>().swap(gamma_ab_event);
 	std::vector<ParticleEvt>().swap(particle_event);
@@ -125,9 +118,6 @@ void MiniballEvts::AddEvt( std::shared_ptr<IonChamberEvt> event ) {
 void IonChamberEvt::ClearEvt() {
 	
 	// Clear the ionisation chamber event ready for a new one
-	energy.clear();
-	id.clear();
-	
 	std::vector<float>().swap(energy);
 	std::vector<unsigned char>().swap(id);
 

@@ -228,25 +228,12 @@ void MiniballEventBuilder::Initialise(){
 
 	hit_ctr = 0;
 	
-	mb_en_list.clear();
-	mb_ts_list.clear();
-	mb_clu_list.clear();
-	mb_cry_list.clear();
-	mb_seg_list.clear();
-
 	std::vector<float>().swap(mb_en_list);
 	std::vector<unsigned long long>().swap(mb_ts_list);
 	std::vector<unsigned char>().swap(mb_clu_list);
 	std::vector<unsigned char>().swap(mb_cry_list);
 	std::vector<unsigned char>().swap(mb_seg_list);
 
-	cd_en_list.clear();
-	cd_ts_list.clear();
-	cd_det_list.clear();
-	cd_sec_list.clear();
-	cd_side_list.clear();
-	cd_strip_list.clear();
-	
 	std::vector<float>().swap(cd_en_list);
 	std::vector<unsigned long long>().swap(cd_ts_list);
 	std::vector<unsigned char>().swap(cd_det_list);
@@ -254,36 +241,19 @@ void MiniballEventBuilder::Initialise(){
 	std::vector<unsigned char>().swap(cd_side_list);
 	std::vector<unsigned char>().swap(cd_strip_list);
 	
-	pad_en_list.clear();
-	pad_ts_list.clear();
-	pad_det_list.clear();
-	pad_sec_list.clear();
-	
 	std::vector<float>().swap(pad_en_list);
 	std::vector<unsigned long long>().swap(pad_ts_list);
 	std::vector<unsigned char>().swap(pad_det_list);
 	std::vector<unsigned char>().swap(pad_sec_list);
 	
-	bd_en_list.clear();
-	bd_ts_list.clear();
-	bd_det_list.clear();
-	
 	std::vector<float>().swap(bd_en_list);
 	std::vector<unsigned long long>().swap(bd_ts_list);
 	std::vector<unsigned char>().swap(bd_det_list);
 
-	spede_en_list.clear();
-	spede_ts_list.clear();
-	spede_seg_list.clear();
-	
 	std::vector<float>().swap(spede_en_list);
 	std::vector<unsigned long long>().swap(spede_ts_list);
 	std::vector<unsigned char>().swap(spede_seg_list);
 
-	ic_en_list.clear();
-	ic_ts_list.clear();
-	ic_id_list.clear();
-	
 	std::vector<float>().swap(ic_en_list);
 	std::vector<unsigned long long>().swap(ic_ts_list);
 	std::vector<unsigned char>().swap(ic_id_list);
