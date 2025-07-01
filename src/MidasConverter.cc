@@ -604,10 +604,15 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 				info_data->SetSfp( febex_data->GetSfp() );
 				info_data->SetBoard( febex_data->GetBoard() );
 				info_data->SetCode( my_info_code );
-				data_packet->SetData( info_data );
-				
+
 				// Fill only if we are not doing a source run
-				if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+				if( !flag_source ) {
+					std::shared_ptr<MiniballDataPackets> data_packet =
+						std::make_shared<MiniballDataPackets>( info_data );
+					data_vector.emplace_back( data_packet );
+					data_map.push_back( std::make_pair<unsigned long,double>(
+						data_vector.size()-1, data_packet->GetTime() ) );
+				}
 				data_ctr++;
 
 			}
@@ -619,10 +624,15 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 				// Set this data and fill event to tree
 				// Also add the time offset when we do this
 				febex_data->SetTime( time_corr );
-				data_packet->SetData( febex_data );
-				
+
 				// Fill only if we are not doing a source run
-				if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+				if( !flag_source ) {
+					std::shared_ptr<MiniballDataPackets> data_packet =
+						std::make_shared<MiniballDataPackets>( febex_data );
+					data_vector.emplace_back( data_packet );
+					data_map.push_back( std::make_pair<unsigned long,double>(
+						data_vector.size()-1, data_packet->GetTime() ) );
+				}
 				data_ctr++;
 				
 			}
@@ -839,11 +849,17 @@ void MiniballMidasConverter::ProcessInfoData( long nblock ){
 		info_data->SetBoard( my_board_id );
 		info_data->SetTime( my_tm_stp*10 );
 		info_data->SetCode( my_info_code );
-		data_packet->SetData( info_data );
-		
+		std::shared_ptr<MiniballDataPackets> data_packet = std::make_shared<MiniballDataPackets>( info_data );
+
 		// Fill only if we are not doing a source run
 		// Or comment out if we want to skip them because we're not debugging
-		if( !flag_source ) data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+		if( !flag_source ) {
+			std::shared_ptr<MiniballDataPackets> data_packet =
+				std::make_shared<MiniballDataPackets>( info_data );
+			data_vector.emplace_back( data_packet );
+			data_map.push_back( std::make_pair<unsigned long,double>(
+				data_vector.size()-1, data_packet->GetTime() ) );
+		}
 		info_data->Clear();
 
 	}
@@ -871,6 +887,9 @@ bool MiniballMidasConverter::ProcessCurrentBlock( long nblock ) {
 	//	return false;
 	//
 	//}
+
+	// Occassionally, sort the data vector to speed things up?
+	//if( (nblock+1) % 3000 == 0 && (BLOCKS_NUM-nblock) > 3000 ) SortDataVector();
 
 	return true;
 
@@ -924,7 +943,7 @@ int MiniballMidasConverter::ConvertFile( std::string input_file_name,
 	unsigned long long int FILE_SIZE = size_end - size_beg;
 	
 	// Calculate the number of blocks in the file.
-	unsigned long BLOCKS_NUM = FILE_SIZE / DATA_BLOCK_SIZE;
+	BLOCKS_NUM = FILE_SIZE / DATA_BLOCK_SIZE;
 	
 	// a sanity check for file size...
 	if( FILE_SIZE % DATA_BLOCK_SIZE != 0 ){

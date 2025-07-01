@@ -86,7 +86,8 @@ void MiniballConverter::StartFile(){
 	buffer_full = false;	// first buffer not yet assumed to be full
 
 	// clear the data vectors
-	std::vector<MiniballDataPackets>().swap(data_vector);
+	std::vector<std::shared_ptr<MiniballDataPackets>>().swap(data_vector);
+	std::vector<std::pair<unsigned long,double>>().swap(data_map);
 
 	return;
 	
@@ -109,9 +110,9 @@ void MiniballConverter::MakeTree() {
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
 	sorted_tree = new TTree( "mb_sort", "Time sorted, calibrated Miniball data" );
 	mbsinfo_tree = new TTree( "mbsinfo", "mbsinfo" );
-	data_packet = std::make_unique<MiniballDataPackets>();
-	mbsinfo_packet = std::make_unique<MBSInfoPackets>();
-	sorted_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
+	write_packet = std::make_shared<MiniballDataPackets>();
+	mbsinfo_packet = std::make_shared<MBSInfoPackets>();
+	sorted_tree->Branch( "data", "MiniballDataPackets", write_packet.get(), bufsize, splitLevel );
 	mbsinfo_tree->Branch( "mbsinfo", "MBSInfoPackets", mbsinfo_packet.get(), sizeof(MBSInfoPackets), 0 );
 	
 	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
@@ -567,6 +568,33 @@ void MiniballConverter::BuildMbsIndex(){
 	
 }
 
+bool MiniballConverter::TimeComparator( const std::shared_ptr<MiniballDataPackets> &lhs,
+									    const std::shared_ptr<MiniballDataPackets> &rhs ) {
+
+	return lhs->GetTime() < rhs->GetTime();
+
+}
+
+bool MiniballConverter::MapComparator( const std::pair<unsigned long,double> &lhs,
+									   const std::pair<unsigned long,double> &rhs ) {
+
+	return lhs.second < rhs.second;
+
+}
+
+void MiniballConverter::SortDataVector() {
+
+	// Sort the data vector as we go along
+	std::sort( data_vector.begin(), data_vector.end(), TimeComparator );
+
+}
+
+void MiniballConverter::SortDataMap() {
+
+	// Sort the data vector as we go along
+	std::sort( data_map.begin(), data_map.end(), MapComparator );
+
+}
 
 unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 
@@ -577,19 +605,19 @@ unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 	long long int n_ents = data_vector.size();	// std::vector method
 
 	// Check we have entries and build time-ordered index
-	if( n_ents && do_sort ){
-
-		std::cout << "Building time-ordered index of events..." << std::endl;
-		std::sort( data_vector.begin(), data_vector.end() ); // std::vector method
-
+	if( n_ents && do_sort ) {
+		std::cout << "Time ordering " << n_ents << " data items..." << std::endl;
+		SortDataMap();
 	}
 	else return 0;
 
 	// Loop on t_raw entries and fill t
+	std::cout << "Writing time-ordered data items to the output tree..." << std::endl;
 	for( long long int i = 0; i < n_ents; ++i ) {
 
 		// Get the data item back from the vector
-		data_packet->SetData( data_vector[i] );
+		unsigned long idx = data_map[i].first;
+		write_packet->SetData( data_vector[idx] );
 
 		// Fill the sorted tree
 		sorted_tree->Fill();

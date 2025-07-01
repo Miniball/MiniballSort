@@ -456,6 +456,10 @@ void do_convert() {
 			ftest.close();
 			rtest = new TFile( name_output_file.data() );
 			if( rtest->IsZombie() ) force_convert.at(i) = true;
+			if( rtest->TestBit(TFile::kRecovered) ){
+				std::cout << name_output_file << " possibly corrupted, reconverting" << std::endl;
+				force_convert.at(i) = true;
+			}
 			if( !flag_convert && !force_convert.at(i) )
 				std::cout << name_output_file << " already converted" << std::endl;
 			rtest->Close();
@@ -591,6 +595,10 @@ bool do_build() {
 				ftest.close();
 				rtest = new TFile( name_output_file.data() );
 				if( rtest->IsZombie() ) force_events = true;
+				if( rtest->TestBit(TFile::kRecovered) ){
+					std::cout << name_output_file << " possibly corrupted, rebuilding" << std::endl;
+					force_events = true;
+				}
 				if( !force_events )
 					std::cout << name_output_file << " already built" << std::endl;
 				rtest->Close();

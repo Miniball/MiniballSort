@@ -200,7 +200,7 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 
 			// Clear the old stuff
 			adc_data->ClearData();
-			data_packet->ClearData();
+			//data_packet->ClearData();
 
 			// Some basic info for every event
 			adc_data->SetEventID( my_event_id );
@@ -223,8 +223,13 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 			adc_data->SetClipped( clipped );
 
 			// Fill the tree
-			data_packet->SetData( adc_data );
-			data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+			if( !flag_source ) {
+				std::shared_ptr<MiniballDataPackets> data_packet =
+					std::make_shared<MiniballDataPackets>( adc_data );
+				data_vector.emplace_back( data_packet );
+				data_map.push_back( std::make_pair<unsigned long,double>(
+					data_vector.size()-1, data_packet->GetTime() ) );
+			}
 
 			// Fill histograms
 			hadc_qshort[mod][ch_vec[item]]->Fill( qshort_vec[item] );
@@ -663,7 +668,7 @@ void MiniballMedConverter::ProcessDgfData() {
 						// Clear the old stuff
 						dgf_data->ClearData();
 						info_data->ClearData();
-						data_packet->ClearData();
+						//data_packet->ClearData();
 
 						//std::cout << "DGF module " << mod << ", time = ";
 						//std::cout << LongFastTriggerTime << ", Qshort = ";
@@ -694,8 +699,13 @@ void MiniballMedConverter::ProcessDgfData() {
 								info_data->SetBoard( mod );
 
 								// Fill the tree
-								data_packet->SetData( info_data );
-								data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+								if( !flag_source ) {
+									std::shared_ptr<MiniballDataPackets> data_packet =
+										std::make_shared<MiniballDataPackets>( info_data );
+									data_vector.emplace_back( data_packet );
+									data_map.push_back( std::make_pair<unsigned long,double>(
+										data_vector.size()-1, data_packet->GetTime() ) );
+								}
 
 							}
 
@@ -719,8 +729,13 @@ void MiniballMedConverter::ProcessDgfData() {
 							dgf_data->SetUserValues( trace );
 
 							// Fill the tree
-							data_packet->SetData( dgf_data );
-							data_vector.emplace_back( data_packet ); // std::vector method for time ordering
+							if( !flag_source ) {
+								std::shared_ptr<MiniballDataPackets> data_packet =
+									std::make_shared<MiniballDataPackets>( dgf_data );
+								data_vector.emplace_back( data_packet );
+								data_map.push_back( std::make_pair<unsigned long,double>(
+									data_vector.size()-1, data_packet->GetTime() ) );
+							}
 
 						}
 

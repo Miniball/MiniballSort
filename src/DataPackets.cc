@@ -120,11 +120,6 @@ void MiniballDataPackets::SetData( std::shared_ptr<InfoData> data ){
 
 void MiniballDataPackets::ClearData(){
 	
-	dgf_packets.clear();
-	adc_packets.clear();
-	febex_packets.clear();
-	info_packets.clear();
-	
 	std::vector<DgfData>().swap(dgf_packets);
 	std::vector<AdcData>().swap(adc_packets);
 	std::vector<FebexData>().swap(febex_packets);
