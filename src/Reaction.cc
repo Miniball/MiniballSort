@@ -1042,27 +1042,52 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	if( stopping ) {
 		eloss = GetEnergyLoss( Beam.GetEnergy(), 0.5 * target_thickness, gStopping[0] ); // beam in target
 	}
-	Ejectile.SetEnergy( Beam.GetEnergy() - eloss ); // eloss is positive
-	Ejectile.SetTheta( 0.0 ); // asume is goes straight for now
+
+	double p4x = Recoil.GetMomentum() * TMath::Cos(Recoil.GetTheta());
+	double p4y = Recoil.GetMomentum() * TMath::Sin(Recoil.GetTheta());
+	double p3x = Beam.GetMomentum() - p4x;
+	double p3y = -p4y;
+	double theta3 = TMath::ATan2(p3y, p3x);
+	double E3 = GetEnergyTotLab() - Recoil.GetEnergyTot();
+	
+	cout << "Ejectile energy in LAB frame: " << E3;
+	cout << "Ejectile theta in LAB frame: " << theta3;
+
+	Ejectile.SetEnergy( E3 ); // eloss is positive
+	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
 	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
 
-	// Calculate the centre of mass angle
-	// TODO: ALL OF THIS IS WRONG. IT NEEDS FIXING PLEASE THANKS YOU
-	double maxang = TMath::ASin( 1. / GetEpsilon() );
-	double y = GetEpsilon();
-	if( GetParticleTheta(p) > maxang )
-		y *= TMath::Sin( maxang );
-	else
-		y *= TMath::Sin( GetParticleTheta(p) );
-	
-	if( kinflag ) y = TMath::ASin( -y );
-	else y = TMath::ASin( y );
+	// Calculate the centre-of-mass energy and angle
+	// Vili's version
+	double E3_CoM = Ejectile.GetGamma()*(E3 - Ejectile.GetBeta() * p3x);
+	double p3x_CoM = Ejectile.GetGamma()*(p3x - Ejectile.GetBeta() * E3);
+	double p3y_CoM = p3y;
+	// double p_CoM = TMath::Sqrt(TMath::Power(p3x_CoM, 2.0) + TMath::Power(p3y_CoM, 2.0));
+	double theta3_CoM = TMath::ATan2(p3y_CoM, p3x_CoM);
 
-	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
-	Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
+	cout << "Ejectile energy in CoM frame: " << E3_CoM;
+	cout << "Ejectile theta in CoM frame: " << theta3_CoM;
+
+	Ejectile.SetEnergyCoM(E3_CoM); // Energy of the ejectile in CoM frame
+	Ejectile.SetThetaCoM(theta3_CoM); // theta of ejectile in CoM frame in radians
+	Recoil.SetThetaCoM( TMath::Pi() - theta3_CoM ); // theta of recoil in CoM frame in radians
+
+	// Recoil.SetThetaCoM( GetParticleTheta(p) + y );
+	// Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
 	transfer_detected = true;
 
+
 }
+
+double MiniballReaction::GetMomentum( double E_beam, double mass) {
+
+	/// Returns the Lab frame momentum (p1) of the beam/projectile
+	double E = beam.GetEnergyTot()
+	double m = beam.GetMass()
+	momentum = TMath::sqrt(TMath::power(E, 2.0) - TMath::power(m, 2.0))
+	return momentum
+}
+
 
 
 

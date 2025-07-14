@@ -96,15 +96,13 @@ public:
 	inline double		GetBindingEnergy(){ return bindingE; };
 	inline double		GetEnergyTot(){ return GetEnergy() + GetMass(); };
 	inline double		GetBeta(){
-		double beta2 = 0.25 * GetMass() + 1.5 * GetEnergy();
-		beta2  = TMath::Sqrt( beta2 * GetMass() );
-		beta2 -= 0.5 * GetMass();
-		return TMath::Sqrt( beta2 / ( 0.75 * GetMass() ) );
+		return GetMomentum()/GetEnergyTotLab();
 	};
 	inline double		GetGamma(){
 		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
 	};
 	inline double		GetEnergy(){ return Elab; };
+	inline double		GetEnergy(){ return ECoM; };
 	inline double		GetEx(){ return Ex; };
 	inline double		GetTheta(){ return Theta; };
 	inline double		GetThetaCoM(){ return ThetaCoM; };
@@ -115,6 +113,27 @@ public:
 		vec.SetPhi( GetPhi() );
 		return vec;
 	};
+	inline double GetMomentum(){
+	/// Returns the Lab frame momentum of the particle.
+		double E = GetEnergyTot(),
+		double m = GetMass(),
+		Momentum = TMath::Sqrt(TMath::Power(E, 2.0) - TMath::Power(m, 2.0)),
+		return Momentum;
+	};
+
+	"""
+	inline double GetMomentumX() { return GetMomentum() * TMath::Cos(GetTheta());}; 
+	inline double GetMomentumY() { return GetMomentum() * TMath::Sin(GetTheta());};
+	inline double GetMomentumX_ejectile() { return GetMomentum() - GetMomentumX()};
+	inline double GetMomentumY_ejectile() { return -GetMomentumY()};
+	inline double GetTheta_ejectile() {
+		 return TMath::ATan2(GetMomentumY_ejectile(), GetMomentumX_ejectile()) ;
+	};
+	inline double GetMomentum_ejectile() { 
+		return TMath::Sqrt(TMath::Power(GetMomentumX_ejectile(), 2.0) + TMath::Power(GetMomentumY_ejectile(), 2.0));
+	};
+	inline double GetEnergy_ejectile() { return GetEnergyTotLab() - GetMass()};
+	"""
 
 
 	// Set properties
@@ -122,6 +141,7 @@ public:
 	inline void		SetZ( int myZ ){ Z = myZ; };
 	inline void		SetBindingEnergy( double myBE ){ bindingE = myBE; };
 	inline void		SetEnergy( double myElab ){ Elab = myElab; };
+	inline void		SetEnergyCoM( double myECoM ){ ECoM = myECoM; };	
 	inline void		SetEx( double myEx ){ Ex = myEx; };
 	inline void		SetTheta( double mytheta ){ Theta = mytheta; };
 	inline void		SetThetaCoM( double mytheta ){ ThetaCoM = mytheta; };
@@ -135,6 +155,7 @@ private:
 	int		Z; 			///< The Z of the particle, obviously
 	double	bindingE;	///< binding energy per nucleon in keV/c^2
 	double	Elab;		///< energy in the laboratory system
+	double	ECoM;		///< energy in the Center-of-Mass system	
 	double	Ex;			///< excitation energy of the nucleus
 	double	Theta;		///< theta in the laboratory system in radians
 	double	ThetaCoM;	///< theta in the centre-of-mass system in radians
@@ -316,6 +337,7 @@ public:
 	void	TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
 
 
+
 	// Reaction calculations
 	inline double GetQvalue(){
 		return Beam.GetMass() + Target.GetMass() -
@@ -332,14 +354,10 @@ public:
 		return etot;
 	};
 	inline double GetBeta(){
-		double beta2 = 0.25 * Beam.GetMass() + 1.5 * Beam.GetEnergy();
-		beta2  = TMath::Sqrt( beta2 * Beam.GetMass() );
-		beta2 -= 0.5 * Beam.GetMass();
-		return TMath::Sqrt( beta2 / ( 0.75 * Beam.GetMass() ) );
-		//return TMath::Sqrt( 2.0 * Beam.GetEnergy() / Beam.GetMass() );
+		return Beam.GetBeta();
 	};
 	inline double GetGamma(){
-		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
+		return Beam.GetGamma();
 	};
 	inline double GetTau(){
 		return Beam.GetMass() / Target.GetMass();
