@@ -1050,8 +1050,8 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	double theta3 = TMath::ATan2(p3y, p3x);
 	double E3 = GetEnergyTotLab() - Recoil.GetEnergyTot();
 	
-	cout << "Ejectile energy in LAB frame: " << E3;
-	cout << "Ejectile theta in LAB frame: " << theta3;
+	std::cout << "Ejectile energy in LAB frame: " << E3 << std::endl;
+	std::cout << "Ejectile theta in LAB frame: " << theta3 << std::endl;
 
 	Ejectile.SetEnergy( E3 ); // eloss is positive
 	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
@@ -1065,8 +1065,8 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	// double p_CoM = TMath::Sqrt(TMath::Power(p3x_CoM, 2.0) + TMath::Power(p3y_CoM, 2.0));
 	double theta3_CoM = TMath::ATan2(p3y_CoM, p3x_CoM);
 
-	cout << "Ejectile energy in CoM frame: " << E3_CoM;
-	cout << "Ejectile theta in CoM frame: " << theta3_CoM;
+	std::cout << "Ejectile energy in CoM frame: " << E3_CoM << std::endl;
+	std::cout << "Ejectile theta in CoM frame: " << theta3_CoM << std::endl;
 
 	Ejectile.SetEnergyCoM(E3_CoM); // Energy of the ejectile in CoM frame
 	Ejectile.SetThetaCoM(theta3_CoM); // theta of ejectile in CoM frame in radians
