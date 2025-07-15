@@ -117,8 +117,7 @@ public:
 	/// Returns the Lab frame momentum of the particle.
 		double E = GetEnergyTot();
 		double m = GetMass();
-		Momentum = TMath::Sqrt(TMath::Power(E, 2.0) - TMath::Power(m, 2.0));
-		return Momentum;
+		return TMath::Sqrt(TMath::Power(E, 2.0) - TMath::Power(m, 2.0));
 	};
 
 	// Set properties
