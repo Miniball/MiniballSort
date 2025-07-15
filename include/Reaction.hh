@@ -96,13 +96,13 @@ public:
 	inline double		GetBindingEnergy(){ return bindingE; };
 	inline double		GetEnergyTot(){ return GetEnergy() + GetMass(); };
 	inline double		GetBeta(){
-		return GetMomentum()/GetEnergyTotLab();
+		return GetMomentum()/GetEnergyTot();
 	};
 	inline double		GetGamma(){
 		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
 	};
 	inline double		GetEnergy(){ return Elab; };
-	inline double		GetEnergy(){ return ECoM; };
+	inline double		GetEnergyCoM(){ return ECoM; };
 	inline double		GetEx(){ return Ex; };
 	inline double		GetTheta(){ return Theta; };
 	inline double		GetThetaCoM(){ return ThetaCoM; };
@@ -115,26 +115,11 @@ public:
 	};
 	inline double GetMomentum(){
 	/// Returns the Lab frame momentum of the particle.
-		double E = GetEnergyTot(),
-		double m = GetMass(),
-		Momentum = TMath::Sqrt(TMath::Power(E, 2.0) - TMath::Power(m, 2.0)),
+		double E = GetEnergyTot();
+		double m = GetMass();
+		Momentum = TMath::Sqrt(TMath::Power(E, 2.0) - TMath::Power(m, 2.0));
 		return Momentum;
 	};
-
-	"""
-	inline double GetMomentumX() { return GetMomentum() * TMath::Cos(GetTheta());}; 
-	inline double GetMomentumY() { return GetMomentum() * TMath::Sin(GetTheta());};
-	inline double GetMomentumX_ejectile() { return GetMomentum() - GetMomentumX()};
-	inline double GetMomentumY_ejectile() { return -GetMomentumY()};
-	inline double GetTheta_ejectile() {
-		 return TMath::ATan2(GetMomentumY_ejectile(), GetMomentumX_ejectile()) ;
-	};
-	inline double GetMomentum_ejectile() { 
-		return TMath::Sqrt(TMath::Power(GetMomentumX_ejectile(), 2.0) + TMath::Power(GetMomentumY_ejectile(), 2.0));
-	};
-	inline double GetEnergy_ejectile() { return GetEnergyTotLab() - GetMass()};
-	"""
-
 
 	// Set properties
 	inline void		SetA( int myA ){ A = myA; };

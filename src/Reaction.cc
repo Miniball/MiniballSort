@@ -1079,17 +1079,6 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 
 }
 
-double MiniballReaction::GetMomentum( double E_beam, double mass) {
-
-	/// Returns the Lab frame momentum (p1) of the beam/projectile
-	double E = beam.GetEnergyTot()
-	double m = beam.GetMass()
-	momentum = TMath::sqrt(TMath::power(E, 2.0) - TMath::power(m, 2.0))
-	return momentum
-}
-
-
-
 
 double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g ) {
 
