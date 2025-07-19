@@ -951,7 +951,7 @@ int main( int argc, char *argv[] ){
 	if( flag_spy ) {
 
 		// Register signal and signal handler for DataSpy only
-		signal( SIGINT, signal_callback_handler );
+		std::signal( SIGINT, signal_callback_handler );
 
 		flag_monitor = true;
 		if( mon_time < 0 ) mon_time = 30;
