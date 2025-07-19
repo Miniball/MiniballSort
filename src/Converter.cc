@@ -85,6 +85,13 @@ void MiniballConverter::StartFile(){
 	
 	buffer_full = false;	// first buffer not yet assumed to be full
 
+	// Flags for FEBEX data items
+	flag_febex_data0 = false;
+	flag_febex_data1 = false;
+	flag_febex_data2 = false;
+	flag_febex_data3 = false;
+	flag_febex_trace = false;
+
 	// clear the data vectors
 	std::vector<MiniballDataPackets>().swap(data_vector);
 

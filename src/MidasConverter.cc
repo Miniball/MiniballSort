@@ -18,13 +18,6 @@ void MiniballMidasConverter::ProcessBlockHeader( long nblock ){
 	// For each new header, reset the swap mode
 	swap = 0;
 
-	// Flags for FEBEX data items
-	flag_febex_data0 = false;
-	flag_febex_data1 = false;
-	flag_febex_data2 = false;
-	flag_febex_data3 = false;
-	flag_febex_trace = false;
-
 	// Flag when we find the end of the data
 	flag_terminator = false;
 
