@@ -492,56 +492,56 @@ void MiniballEventBuilder::MakeEventHists(){
 	
 }
 
-void MiniballEventBuilder::ResetHists(){
+// Reset histograms in the DataSpy
+void MiniballEventBuilder::ResetHist( TObject *obj, std::string cls ) {
 
-	// Reset all histograms in the DataSpy
-	tdiff->Reset( "ICEMS" );
-	tdiff_clean->Reset( "ICEMS" );
-	pulser_period->Reset( "ICEMS" );
-	ebis_period->Reset( "ICEMS" );
-	t1_period->Reset( "ICEMS" );
-	sc_period->Reset( "ICEMS" );
-	pulser_freq->Reset( "ICEMS" );
-	ebis_freq->Reset( "ICEMS" );
-	t1_freq->Reset( "ICEMS" );
-	sc_freq->Reset( "ICEMS" );
-	pulser_tdiff->Reset( "ICEMS" );
+	if( obj == nullptr ) return;
 
-	mb_td_core_seg->Reset( "ICEMS" );
-	mb_td_core_core->Reset( "ICEMS" );
-	
-	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
-		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
-			mb_en_core_seg[i][j]->Reset( "ICEMS" );
-			mb_en_core_seg_ebis_on[i][j]->Reset( "ICEMS" );
-		}
-	}
-
-	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
-		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
-			cd_pen_id[i][j]->Reset( "ICEMS" );
-			cd_nen_id[i][j]->Reset( "ICEMS" );
-			cd_pn_1v1[i][j]->Reset( "ICEMS" );
-			cd_pn_1v2[i][j]->Reset( "ICEMS" );
-			cd_pn_2v1[i][j]->Reset( "ICEMS" );
-			cd_pn_2v2[i][j]->Reset( "ICEMS" );
-			cd_pn_td[i][j]->Reset( "ICEMS" );
-			cd_pp_td[i][j]->Reset( "ICEMS" );
-			cd_nn_td[i][j]->Reset( "ICEMS" );
-			cd_pn_mult[i][j]->Reset( "ICEMS" );
-			cd_ppad_td[i][j]->Reset( "ICEMS" );
-			cd_ppad_mult[i][j]->Reset( "ICEMS" );
-		}
-		pad_en_id[i]->Reset( "ICEMS" );
-	}
-	
-	ic_td->Reset( "ICEMS" );
-	ic_dE->Reset( "ICEMS" );
-	ic_E->Reset( "ICEMS" );
-	ic_dE_E->Reset( "ICEMS" );
+	if( cls == "TH1" )
+		( (TH1*)obj )->Reset("ICESM");
+	else if( cls ==  "TH2" )
+		( (TH2*)obj )->Reset("ICESM");
+	else if( cls ==  "TProfile" )
+		( (TProfile*)obj )->Reset("ICESM");
 
 	return;
-	
+
+}
+
+// Reset histograms in the DataSpy
+void MiniballEventBuilder::ResetHists(){
+
+	TKey *key1, *key2, *key3;
+	TIter keyList1( output_file->GetListOfKeys() );
+	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
+
+		if( std::strcmp( key1->GetClassName(), "TDirectory" ) == 0 ){
+
+			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
+			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
+
+				if( std::strcmp( key2->GetClassName(), "TDirectory" ) == 0 ){
+
+					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
+					while( ( key3 = (TKey*)keyList3() ) ) // level 3
+						ResetHist( key3->ReadObj(), key3->GetClassName() );
+
+				}
+
+				else
+					ResetHist( key2->ReadObj(), key2->GetClassName() );
+
+			} // level 2
+
+		}
+
+		else
+			ResetHist( key1->ReadObj(), key1->GetClassName() );
+
+	} // level 1
+
+	return;
+
 }
 
 

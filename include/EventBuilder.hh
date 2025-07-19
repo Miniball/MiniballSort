@@ -19,6 +19,9 @@
 #include <TVector3.h>
 #include <TGProgressBar.h>
 #include <TSystem.h>
+#include <TKey.h>
+#include <TCanvas.h>
+#include <TROOT.h>
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -56,6 +59,7 @@ public:
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
+	void	ResetHist( TObject *obj, std::string cls );
 	void	ResetHists();
 	
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){

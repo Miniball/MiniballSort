@@ -1677,409 +1677,58 @@ void MiniballHistogrammer::MakeHists() {
 }
 
 // Reset histograms in the DataSpy
-void MiniballHistogrammer::ResetHists() {
-	
-	
-	ebis_td_gamma->Reset("ICESM");
-	ebis_td_particle->Reset("ICESM");
-	gamma_particle_td->Reset("ICESM");
-	gamma_particle_E_vs_td->Reset("ICESM");
-	gamma_gamma_td->Reset("ICESM");
-	gamma_electron_td->Reset("ICESM");
-	electron_electron_td->Reset("ICESM");
-	electron_particle_td->Reset("ICESM");
-	particle_particle_td->Reset("ICESM");
-	gE_singles->Reset("ICESM");
-	gE_singles_ebis->Reset("ICESM");
-	gE_singles_ebis_on->Reset("ICESM");
-	gE_singles_ebis_off->Reset("ICESM");
-	aE_singles->Reset("ICESM");
-	aE_singles_ebis->Reset("ICESM");
-	aE_singles_ebis_on->Reset("ICESM");
-	aE_singles_ebis_off->Reset("ICESM");
-	gamma_xy_map_forward->Reset("ICESM");
-	gamma_xy_map_backward->Reset("ICESM");
-	gamma_xz_map_left->Reset("ICESM");
-	gamma_xz_map_right->Reset("ICESM");
-	gamma_theta_phi_map->Reset("ICESM");
-	pE_theta->Reset("ICESM");
-	pE_theta_coinc->Reset("ICESM");
-	pE_theta_ejectile->Reset("ICESM");
-	pE_theta_recoil->Reset("ICESM");
-	pBeta_theta_ejectile->Reset("ICESM");
-	pBeta_theta_recoil->Reset("ICESM");
-	particle_xy_map_forward->Reset("ICESM");
-	particle_xy_map_backward->Reset("ICESM");
-	particle_theta_phi_map->Reset("ICESM");
-	gE_prompt->Reset("ICESM");
-	gE_prompt_1p->Reset("ICESM");
-	gE_prompt_2p->Reset("ICESM");
-	gE_random->Reset("ICESM");
-	gE_random_1p->Reset("ICESM");
-	gE_random_2p->Reset("ICESM");
-	gE_ejectile_dc_none->Reset("ICESM");
-	gE_ejectile_dc_ejectile->Reset("ICESM");
-	gE_ejectile_dc_recoil->Reset("ICESM");
-	gE_recoil_dc_none->Reset("ICESM");
-	gE_recoil_dc_ejectile->Reset("ICESM");
-	gE_recoil_dc_recoil->Reset("ICESM");
-	gE_vs_costheta_ejectile_dc_none->Reset("ICESM");
-	gE_vs_costheta2_ejectile_dc_none->Reset("ICESM");
-	gE_vs_costheta_ejectile_dc_ejectile->Reset("ICESM");
-	gE_vs_costheta_ejectile_dc_recoil->Reset("ICESM");
-	gE_vs_costheta_recoil_dc_none->Reset("ICESM");
-	gE_vs_costheta2_recoil_dc_none->Reset("ICESM");
-	gE_vs_costheta_recoil_dc_ejectile->Reset("ICESM");
-	gE_vs_costheta_recoil_dc_recoil->Reset("ICESM");
-	gE_vs_theta_ejectile_dc_none->Reset("ICESM");
-	gE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
-	gE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
-	gE_vs_theta_recoil_dc_none->Reset("ICESM");
-	gE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
-	gE_vs_theta_recoil_dc_recoil->Reset("ICESM");
-	aE_prompt->Reset("ICESM");
-	aE_prompt_1p->Reset("ICESM");
-	aE_prompt_2p->Reset("ICESM");
-	aE_random->Reset("ICESM");
-	aE_random_1p->Reset("ICESM");
-	aE_random_2p->Reset("ICESM");
-	aE_ejectile_dc_none->Reset("ICESM");
-	aE_ejectile_dc_ejectile->Reset("ICESM");
-	aE_ejectile_dc_recoil->Reset("ICESM");
-	aE_recoil_dc_none->Reset("ICESM");
-	aE_recoil_dc_ejectile->Reset("ICESM");
-	aE_recoil_dc_recoil->Reset("ICESM");
-	aE_vs_costheta_ejectile_dc_none->Reset("ICESM");
-	aE_vs_costheta2_ejectile_dc_none->Reset("ICESM");
-	aE_vs_costheta_ejectile_dc_ejectile->Reset("ICESM");
-	aE_vs_costheta_ejectile_dc_recoil->Reset("ICESM");
-	aE_vs_costheta_recoil_dc_none->Reset("ICESM");
-	aE_vs_costheta2_recoil_dc_none->Reset("ICESM");
-	aE_vs_costheta_recoil_dc_ejectile->Reset("ICESM");
-	aE_vs_costheta_recoil_dc_recoil->Reset("ICESM");
-	aE_vs_theta_ejectile_dc_none->Reset("ICESM");
-	aE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
-	aE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
-	aE_vs_theta_recoil_dc_none->Reset("ICESM");
-	aE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
-	aE_vs_theta_recoil_dc_recoil->Reset("ICESM");
+void MiniballHistogrammer::ResetHist( TObject *obj, std::string cls ) {
 
-	// 1p and 2p gamma-ray histograms
-	if( react->HistByMultiplicity() ){
-		
-		pE_theta_1p_ejectile->Reset("ICESM");
-		pE_theta_1p_recoil->Reset("ICESM");
-		pE_theta_2p_ejectile->Reset("ICESM");
-		pE_theta_2p_recoil->Reset("ICESM");
-		gE_1p_ejectile_dc_none->Reset("ICESM");
-		gE_1p_ejectile_dc_ejectile->Reset("ICESM");
-		gE_1p_ejectile_dc_recoil->Reset("ICESM");
-		gE_1p_recoil_dc_none->Reset("ICESM");
-		gE_1p_recoil_dc_ejectile->Reset("ICESM");
-		gE_1p_recoil_dc_recoil->Reset("ICESM");
-		gE_2p_dc_none->Reset("ICESM");
-		gE_2p_dc_ejectile->Reset("ICESM");
-		gE_2p_dc_recoil->Reset("ICESM");
-		gE_vs_theta_1p_ejectile_dc_none->Reset("ICESM");
-		gE_vs_theta_1p_ejectile_dc_ejectile->Reset("ICESM");
-		gE_vs_theta_1p_ejectile_dc_recoil->Reset("ICESM");
-		gE_vs_theta_1p_recoil_dc_none->Reset("ICESM");
-		gE_vs_theta_1p_recoil_dc_ejectile->Reset("ICESM");
-		gE_vs_theta_1p_recoil_dc_recoil->Reset("ICESM");
-		gE_vs_theta_2p_dc_none->Reset("ICESM");
-		gE_vs_theta_2p_dc_ejectile->Reset("ICESM");
-		gE_vs_theta_2p_dc_recoil->Reset("ICESM");
+	if( obj == nullptr ) return;
 
-		aE_1p_ejectile_dc_none->Reset("ICESM");
-		aE_1p_ejectile_dc_ejectile->Reset("ICESM");
-		aE_1p_ejectile_dc_recoil->Reset("ICESM");
-		aE_1p_recoil_dc_none->Reset("ICESM");
-		aE_1p_recoil_dc_ejectile->Reset("ICESM");
-		aE_1p_recoil_dc_recoil->Reset("ICESM");
-		aE_2p_dc_none->Reset("ICESM");
-		aE_2p_dc_ejectile->Reset("ICESM");
-		aE_2p_dc_recoil->Reset("ICESM");
-		aE_vs_theta_1p_ejectile_dc_none->Reset("ICESM");
-		aE_vs_theta_1p_ejectile_dc_ejectile->Reset("ICESM");
-		aE_vs_theta_1p_ejectile_dc_recoil->Reset("ICESM");
-		aE_vs_theta_1p_recoil_dc_none->Reset("ICESM");
-		aE_vs_theta_1p_recoil_dc_ejectile->Reset("ICESM");
-		aE_vs_theta_1p_recoil_dc_recoil->Reset("ICESM");
-		aE_vs_theta_2p_dc_none->Reset("ICESM");
-		aE_vs_theta_2p_dc_ejectile->Reset("ICESM");
-		aE_vs_theta_2p_dc_recoil->Reset("ICESM");
-
-	}
-	
-	// T1 impact time
-	if( react->HistByT1() ) {
-		
-		gE_ejectile_dc_none_t1->Reset("ICESM");
-		gE_ejectile_dc_ejectile_t1->Reset("ICESM");
-		gE_ejectile_dc_recoil_t1->Reset("ICESM");
-		gE_recoil_dc_none_t1->Reset("ICESM");
-		gE_recoil_dc_ejectile_t1->Reset("ICESM");
-		gE_recoil_dc_recoil_t1->Reset("ICESM");
-
-		aE_ejectile_dc_none_t1->Reset("ICESM");
-		aE_ejectile_dc_ejectile_t1->Reset("ICESM");
-		aE_ejectile_dc_recoil_t1->Reset("ICESM");
-		aE_recoil_dc_none_t1->Reset("ICESM");
-		aE_recoil_dc_ejectile_t1->Reset("ICESM");
-		aE_recoil_dc_recoil_t1->Reset("ICESM");
-
-		// 1p and 2p gamma-ray histograms
-		if( react->HistByMultiplicity() ){
-			
-			gE_1p_ejectile_dc_none_t1->Reset("ICESM");
-			gE_1p_ejectile_dc_ejectile_t1->Reset("ICESM");
-			gE_1p_ejectile_dc_recoil_t1->Reset("ICESM");
-			gE_1p_recoil_dc_none_t1->Reset("ICESM");
-			gE_1p_recoil_dc_ejectile_t1->Reset("ICESM");
-			gE_1p_recoil_dc_recoil_t1->Reset("ICESM");
-			gE_2p_dc_none_t1->Reset("ICESM");
-			gE_2p_dc_ejectile_t1->Reset("ICESM");
-			gE_2p_dc_recoil_t1->Reset("ICESM");
-			
-			aE_1p_ejectile_dc_none_t1->Reset("ICESM");
-			aE_1p_ejectile_dc_ejectile_t1->Reset("ICESM");
-			aE_1p_ejectile_dc_recoil_t1->Reset("ICESM");
-			aE_1p_recoil_dc_none_t1->Reset("ICESM");
-			aE_1p_recoil_dc_ejectile_t1->Reset("ICESM");
-			aE_1p_recoil_dc_recoil_t1->Reset("ICESM");
-			aE_2p_dc_none_t1->Reset("ICESM");
-			aE_2p_dc_ejectile_t1->Reset("ICESM");
-			aE_2p_dc_recoil_t1->Reset("ICESM");
-
-		}
-		
-	}
-	
-	// Per crystal Doppler-corrected spectra
-	if( react->HistByCrystal() ) {
-		
-		gE_singles_vs_crystal->Reset("ICESM");
-		gE_vs_crystal_ejectile_dc_none->Reset("ICESM");
-		gE_vs_crystal_ejectile_dc_ejectile->Reset("ICESM");
-		gE_vs_crystal_ejectile_dc_recoil->Reset("ICESM");
-		gE_vs_crystal_recoil_dc_none->Reset("ICESM");
-		gE_vs_crystal_recoil_dc_ejectile->Reset("ICESM");
-		gE_vs_crystal_recoil_dc_recoil->Reset("ICESM");
-
-		aE_singles_vs_crystal->Reset("ICESM");
-		aE_vs_crystal_ejectile_dc_none->Reset("ICESM");
-		aE_vs_crystal_ejectile_dc_ejectile->Reset("ICESM");
-		aE_vs_crystal_ejectile_dc_recoil->Reset("ICESM");
-		aE_vs_crystal_recoil_dc_none->Reset("ICESM");
-		aE_vs_crystal_recoil_dc_ejectile->Reset("ICESM");
-		aE_vs_crystal_recoil_dc_recoil->Reset("ICESM");
-
-		// 1p and 2p gamma-ray histograms
-		if( react->HistByMultiplicity() ){
-			
-			gE_vs_crystal_1p_ejectile_dc_none->Reset("ICESM");
-			gE_vs_crystal_1p_ejectile_dc_ejectile->Reset("ICESM");
-			gE_vs_crystal_1p_ejectile_dc_recoil->Reset("ICESM");
-			gE_vs_crystal_1p_recoil_dc_none->Reset("ICESM");
-			gE_vs_crystal_1p_recoil_dc_ejectile->Reset("ICESM");
-			gE_vs_crystal_1p_recoil_dc_recoil->Reset("ICESM");
-			gE_vs_crystal_2p_dc_none->Reset("ICESM");
-			gE_vs_crystal_2p_dc_ejectile->Reset("ICESM");
-			gE_vs_crystal_2p_dc_recoil->Reset("ICESM");
-			
-			aE_vs_crystal_1p_ejectile_dc_none->Reset("ICESM");
-			aE_vs_crystal_1p_ejectile_dc_ejectile->Reset("ICESM");
-			aE_vs_crystal_1p_ejectile_dc_recoil->Reset("ICESM");
-			aE_vs_crystal_1p_recoil_dc_none->Reset("ICESM");
-			aE_vs_crystal_1p_recoil_dc_ejectile->Reset("ICESM");
-			aE_vs_crystal_1p_recoil_dc_recoil->Reset("ICESM");
-			aE_vs_crystal_2p_dc_none->Reset("ICESM");
-			aE_vs_crystal_2p_dc_ejectile->Reset("ICESM");
-			aE_vs_crystal_2p_dc_recoil->Reset("ICESM");
-			
-		}
-
-	}
-	
-	// Gamma-gamma hists
-	if( react->HistGammaGamma() ) {
-		
-		gE_gE->Reset("ICESM");
-		gE_gE_ebis_on->Reset("ICESM");
-		aE_aE->Reset("ICESM");
-		aE_aE_ebis_on->Reset("ICESM");
-		ggE_ejectile_dc_none->Reset("ICESM");
-		ggE_ejectile_dc_ejectile->Reset("ICESM");
-		ggE_ejectile_dc_recoil->Reset("ICESM");
-		ggE_recoil_dc_none->Reset("ICESM");
-		ggE_recoil_dc_ejectile->Reset("ICESM");
-		ggE_recoil_dc_recoil->Reset("ICESM");
-		aaE_ejectile_dc_none->Reset("ICESM");
-		aaE_ejectile_dc_ejectile->Reset("ICESM");
-		aaE_ejectile_dc_recoil->Reset("ICESM");
-		aaE_recoil_dc_none->Reset("ICESM");
-		aaE_recoil_dc_ejectile->Reset("ICESM");
-		aaE_recoil_dc_recoil->Reset("ICESM");
-
-	} // gamma-gamma
-	
-	// Segment phi determination
-	if( react->HistSegmentPhi() ) {
-		
-		for( unsigned int i = 0; i < gE_vs_phi_dc_ejectile.size(); i++ )
-			gE_vs_phi_dc_ejectile[i]->Reset("ICESM");
-		
-		for( unsigned int i = 0; i < gE_vs_phi_dc_recoil.size(); i++ )
-			gE_vs_phi_dc_recoil[i]->Reset("ICESM");
-		
-	} // segment phi
-
-	//  Electron-particle singles and coincidences
-	if( react->HistElectron() ) {
-		
-		eE_singles->Reset("ICESM");
-		eE_singles_ebis->Reset("ICESM");
-		eE_singles_ebis_on->Reset("ICESM");
-		eE_singles_ebis_off->Reset("ICESM");
-		electron_xy_map->Reset("ICESM");
-		
-		eE_prompt->Reset("ICESM");
-		eE_prompt_1p->Reset("ICESM");
-		eE_prompt_2p->Reset("ICESM");
-		eE_random->Reset("ICESM");
-		eE_random_1p->Reset("ICESM");
-		eE_random_2p->Reset("ICESM");
-		eE_ejectile_dc_none->Reset("ICESM");
-		eE_ejectile_dc_ejectile->Reset("ICESM");
-		eE_ejectile_dc_recoil->Reset("ICESM");
-		eE_recoil_dc_none->Reset("ICESM");
-		eE_recoil_dc_ejectile->Reset("ICESM");
-		eE_recoil_dc_recoil->Reset("ICESM");
-		eE_vs_theta_ejectile_dc_none->Reset("ICESM");
-		eE_vs_theta_ejectile_dc_ejectile->Reset("ICESM");
-		eE_vs_theta_ejectile_dc_recoil->Reset("ICESM");
-		eE_vs_theta_recoil_dc_none->Reset("ICESM");
-		eE_vs_theta_recoil_dc_ejectile->Reset("ICESM");
-		eE_vs_theta_recoil_dc_recoil->Reset("ICESM");
-		
-		// 1p and 2p gamma-ray histograms
-		if( react->HistByMultiplicity() ){
-			
-			eE_1p_ejectile_dc_none->Reset("ICESM");
-			eE_1p_ejectile_dc_ejectile->Reset("ICESM");
-			eE_1p_ejectile_dc_recoil->Reset("ICESM");
-			eE_1p_recoil_dc_none->Reset("ICESM");
-			eE_1p_recoil_dc_ejectile->Reset("ICESM");
-			eE_1p_recoil_dc_recoil->Reset("ICESM");
-			eE_2p_dc_none->Reset("ICESM");
-			eE_2p_dc_ejectile->Reset("ICESM");
-			eE_2p_dc_recoil->Reset("ICESM");
-			eE_vs_theta_1p_ejectile_dc_none->Reset("ICESM");
-			eE_vs_theta_1p_ejectile_dc_ejectile->Reset("ICESM");
-			eE_vs_theta_1p_ejectile_dc_recoil->Reset("ICESM");
-			eE_vs_theta_1p_recoil_dc_none->Reset("ICESM");
-			eE_vs_theta_1p_recoil_dc_ejectile->Reset("ICESM");
-			eE_vs_theta_1p_recoil_dc_recoil->Reset("ICESM");
-			eE_vs_theta_2p_dc_none->Reset("ICESM");
-			eE_vs_theta_2p_dc_ejectile->Reset("ICESM");
-			eE_vs_theta_2p_dc_recoil->Reset("ICESM");
-			
-		}
-	
-		eE_costheta_ejectile->Reset("ICESM");
-		eE_costheta_recoil->Reset("ICESM");
-		eE_vs_ejectile_dc_none_segment->Reset("ICESM");
-		eE_vs_ejectile_dc_ejectile_segment->Reset("ICESM");
-		eE_vs_ejectile_dc_recoil_segment->Reset("ICESM");
-		eE_vs_recoil_dc_none_segment->Reset("ICESM");
-		eE_vs_recoil_dc_ejectile_segment->Reset("ICESM");
-		eE_vs_recoil_dc_recoil_segment->Reset("ICESM");
-
-		eE_eE->Reset("ICESM");
-		eE_eE_ebis_on->Reset("ICESM");
-	
-		if( react->HistElectron() ) {
-			
-			gE_eE->Reset("ICESM");
-			gE_eE_ebis_on->Reset("ICESM");
-			aE_eE->Reset("ICESM");
-			aE_eE_ebis_on->Reset("ICESM");
-			egE_ejectile_dc_none->Reset("ICESM");
-			egE_ejectile_dc_ejectile->Reset("ICESM");
-			egE_ejectile_dc_recoil->Reset("ICESM");
-			egE_recoil_dc_none->Reset("ICESM");
-			egE_recoil_dc_ejectile->Reset("ICESM");
-			egE_recoil_dc_recoil->Reset("ICESM");
-			eaE_ejectile_dc_none->Reset("ICESM");
-			eaE_ejectile_dc_ejectile->Reset("ICESM");
-			eaE_ejectile_dc_recoil->Reset("ICESM");
-			eaE_recoil_dc_none->Reset("ICESM");
-			eaE_recoil_dc_ejectile->Reset("ICESM");
-			eaE_recoil_dc_recoil->Reset("ICESM");
-			
-		}
-		
-	} // electron hists
-
-	// Ionisation chamber
-	if( react->HistIonChamber() ) {
-		
-		ic_dE->Reset("ICESM");
-		ic_E->Reset("ICESM");
-		ic_dE_E->Reset("ICESM");
-	
-	} // ion chamber
-	
-	// Beam dump
-	if( react->HistBeamDump() ) {
-		
-		bdE_singles->Reset("ICESM");
-		bd_bd_td->Reset("ICESM");
-		bdE_bdE->Reset("ICESM");
-		
-		for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i )
-			bdE_singles_det[i]->Reset("ICESM");
-		
-	} // beam dump
-	
-	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ){
-
-		pE_dE[i]->Reset("ICESM");
-		pE_dE_coinc[i]->Reset("ICESM");
-		pE_dE_cut[i]->Reset("ICESM");
-		
-		// Segment phi determination
-		if( react->HistBySector() ) {
-			
-			for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ){
-				pE_dE_sec[i][j]->Reset("ICESM");
-				pE_dE_coinc_sec[i][j]->Reset("ICESM");
-				pE_dE_cut_sec[i][j]->Reset("ICESM");
-			}
-			
-		}
-		
-	}
-	
-	// Particles by sector
-	if( react->HistBySector() ) {
-		
-		for( unsigned int i = 0; i < set->GetNumberOfCDSectors(); ++i ){
-	
-			pE_theta_sec[i]->Reset("ICESM");
-			pE_theta_coinc_sec[i]->Reset("ICESM");
-			pE_theta_ejectile_sec[i]->Reset("ICESM");
-			pE_theta_recoil_sec[i]->Reset("ICESM");
-			gamma_particle_td_sec[i]->Reset("ICESM");
-			gamma_particle_E_vs_td_sec[i]->Reset("ICESM");
-
-		}
-		
-	}
+	if( cls == "TH1" )
+		( (TH1*)obj )->Reset("ICESM");
+	else if( cls ==  "TH2" )
+		( (TH2*)obj )->Reset("ICESM");
+	else if( cls ==  "TProfile" )
+		( (TProfile*)obj )->Reset("ICESM");
 
 	return;
-	
+
 }
+
+// Reset histograms in the DataSpy
+void MiniballHistogrammer::ResetHists(){
+
+	TKey *key1, *key2, *key3;
+	TIter keyList1( output_file->GetListOfKeys() );
+	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
+
+		if( std::strcmp( key1->GetClassName(), "TDirectory" ) == 0 ){
+
+			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
+			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
+
+				if( std::strcmp( key2->GetClassName(), "TDirectory" ) == 0 ){
+
+					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
+					while( ( key3 = (TKey*)keyList3() ) ) // level 3
+						ResetHist( key3->ReadObj(), key3->GetClassName() );
+
+				}
+
+				else
+					ResetHist( key2->ReadObj(), key2->GetClassName() );
+
+			} // level 2
+
+		}
+
+		else
+			ResetHist( key1->ReadObj(), key1->GetClassName() );
+
+	} // level 1
+
+	return;
+
+}
+
+
 // Particle-Gamma coincidences without addback
 void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g ) {
 
