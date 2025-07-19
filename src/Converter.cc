@@ -42,7 +42,10 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	
 	// No progress bar by default
 	_prog_ = false;
-	
+
+	// Histogrammer options
+	TH1::AddDirectory(kFALSE);
+
 }
 
 void MiniballConverter::NewBuffer(){
