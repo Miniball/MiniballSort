@@ -57,7 +57,8 @@ public:
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g );
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayAddbackEvt> g );
 
-	void PlotPhysicsHists( std::vector<std::vector<std::string>> hists, short layout[2] );
+	void PlotPhysicsHists();
+	void SetSpyHists( std::vector<std::vector<std::string>> hists, short layout[2] );
 
 	void SetInputFile( std::vector<std::string> input_file_names );
 	void SetInputFile( std::string input_file_name );
@@ -286,8 +287,10 @@ private:
 	// Check if histograms are made
 	bool hists_ready = false;
 
-	// Canvas for the spy
+	// Canvas and hist lists for the spy
 	std::shared_ptr<TCanvas> cspy;
+	std::vector<std::vector<std::string>> spyhists;
+	short spylayout[2];
 
 	// Counters
 	unsigned long n_entries;

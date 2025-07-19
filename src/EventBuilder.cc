@@ -211,6 +211,7 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 	output_tree = new TTree( "evt_tree", "evt_tree" );
 	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get() );
 	output_tree->SetAutoFlush();
+	gROOT->GetListOfFiles()->Remove(output_file);
 
 	// Create log file.
 	std::string log_file_name = output_file_name.substr( 0, output_file_name.find_last_of(".") );

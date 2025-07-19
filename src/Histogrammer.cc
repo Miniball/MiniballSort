@@ -1687,7 +1687,16 @@ void MiniballHistogrammer::MakeHists() {
 	
 }
 
-void MiniballHistogrammer::PlotPhysicsHists( std::vector<std::vector<std::string>> hists, short layout[2] ) {
+void MiniballHistogrammer::SetSpyHists( std::vector<std::vector<std::string>> hists, short layout[2] ) {
+
+	// Copy the input hists and layouts
+	spyhists = hists;
+	spylayout[0] = layout[0];
+	spylayout[1] = layout[1];
+
+}
+
+void MiniballHistogrammer::PlotPhysicsHists() {
 
 	// Escape if we haven't built the hists to avoid a seg fault
 	if( !hists_ready ){
@@ -1698,20 +1707,20 @@ void MiniballHistogrammer::PlotPhysicsHists( std::vector<std::vector<std::string
 	}
 
 	// Get appropriate layout and number of hists
-	unsigned short maxhists = layout[0] * layout[1];
+	unsigned short maxhists = spylayout[0] * spylayout[1];
 	if( maxhists == 0 ) maxhists = 1;
-	if( hists.size() > maxhists ) {
+	if( spyhists.size() > maxhists ) {
 
 		std::cout << "Too many histograms for layout size. Plotting the first ";
 		std::cout << maxhists << " histograms in the list." << std::endl;
 
 	}
-	else maxhists = hists.size();
+	else maxhists = spyhists.size();
 
 	// Clear and divide canvas
 	cspy->Clear("D");
-	if( maxhists > 1 && layout[0] > 0 && layout[1] > 0 )
-		cspy->Divide( layout[0], layout[1] );
+	if( maxhists > 1 && spylayout[0] > 0 && spylayout[1] > 0 )
+		cspy->Divide( spylayout[0], spylayout[1] );
 
 	// ASIC time difference histograms
 	for( unsigned int i = 0; i < maxhists; i++ ){
@@ -1720,17 +1729,17 @@ void MiniballHistogrammer::PlotPhysicsHists( std::vector<std::vector<std::string
 		cspy->cd(i+1);
 
 		// Get this histogram of the right type
-		if( hists[i][0] == "TH1" )
-			static_cast<TH1*>( output_file->Get( hists[i][1].data() ) )->Draw( hists[i][2].data() );
+		if( spyhists[i][1] == "TH1" )
+			static_cast<TH1*>( output_file->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
 
-		else if( hists[i][0] == "TH2" )
-			static_cast<TH1*>( output_file->Get( hists[i][1].data() ) )->Draw( hists[i][2].data() );
+		else if( spyhists[i][1] == "TH2" )
+			static_cast<TH1*>( output_file->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
 
-		else if( hists[i][0] == "TProfile" )
-			static_cast<TProfile*>( output_file->Get( hists[i][1].data() ) )->Draw( hists[i][2].data() );
+		else if( spyhists[i][1] == "TProfile" )
+			static_cast<TProfile*>( output_file->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
 
 		else
-			std::cout << "Type " << hists[i][0] << " not currently supported" << std::endl;
+			std::cout << "Type " << spyhists[i][1] << " not currently supported" << std::endl;
 
 	}
 

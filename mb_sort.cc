@@ -117,15 +117,6 @@ bool overwrite_cal = false;
 // Reaction file
 std::shared_ptr<MiniballReaction> myreact;
 
-// Struct for passing to the thread
-typedef struct thptr {
-	
-	std::shared_ptr<MiniballCalibration> mycal;
-	std::shared_ptr<MiniballSettings> myset;
-	std::shared_ptr<MiniballReaction> myreact;
-	
-} thread_data;
-
 // Server and controls for the GUI
 std::unique_ptr<THttpServer> serv;
 int port_num = 8030;
@@ -133,6 +124,20 @@ std::shared_ptr<TCanvas> cspy;
 std::string spy_hists_file;
 std::vector<std::vector<std::string>> physhists;
 short spylayout[2] = {2,2};
+
+// Struct for passing to the thread
+typedef struct thptr {
+
+	std::shared_ptr<MiniballCalibration> mycal;
+	std::shared_ptr<MiniballSettings> myset;
+	std::shared_ptr<MiniballReaction> myreact;
+	std::shared_ptr<TCanvas> cspy;
+	std::vector<std::vector<std::string>> physhists;
+	short spylayout[2];
+	bool flag_alive;
+
+} thread_data;
+
 
 // Pointers to the thread events TODO: sort out inhereted class stuff
 std::shared_ptr<MiniballConverter> conv_mon;
@@ -143,7 +148,7 @@ std::shared_ptr<MiniballHistogrammer> hist_mon;
 
 void plot_physics_hists(){
 	if( hist_mon.get() != nullptr )
-		hist_mon->PlotPhysicsHists( physhists, spylayout );
+		hist_mon->PlotPhysicsHists();
 	else
 		std::cout << "Not ready yet, try again" << std::endl;
 }
@@ -178,27 +183,28 @@ void* monitor_run( void* ptr ){
 	
 	// This doesn't make sense for MED data which is historical
 	if( flag_med ) return 0;
-	
+
 	// Get the settings, file etc.
-	thptr *calfiles = (thptr*)ptr;
-	
+	thptr *inputptr = (thptr*)ptr;
+
 	// Load macros in thread
 	std::string rootline = ".L " + std::string(CUR_DIR) + "include/MonitorMacros.hh";
 	gROOT->ProcessLine( rootline.data() );
 
+	std::cout << __LINE__ << std::endl;
+
 	// This function is called to run when monitoring
 	if( flag_mbs ){
-		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( calfiles->myset );
+		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( inputptr->myset );
 		conv_mon.reset( conv_mbs_mon.get() );
 	}
 	else if( flag_midas ) {
-		conv_midas_mon = std::make_shared<MiniballMidasConverter>( calfiles->myset );
+		conv_midas_mon = std::make_shared<MiniballMidasConverter>( inputptr->myset );
 		conv_mon.reset( conv_midas_mon.get() );
 	}
-	eb_mon = std::make_shared<MiniballEventBuilder>( calfiles->myset );
-	hist_mon = std::make_shared<MiniballHistogrammer>( calfiles->myreact, calfiles->myset );
+	eb_mon = std::make_shared<MiniballEventBuilder>( inputptr->myset );
+	hist_mon = std::make_shared<MiniballHistogrammer>( inputptr->myreact, inputptr->myset );
 
-	
 	// Data blocks for Data spy
 	if( flag_spy && ( myset->GetBlockSize() != 0x10000 && flag_midas ) ) {
 	
@@ -208,6 +214,8 @@ void* monitor_run( void* ptr ){
 	
 	}
 	
+	std::cout << __LINE__ << std::endl;
+
 	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
 	long long buffer[2048*1024];
@@ -215,6 +223,8 @@ void* monitor_run( void* ptr ){
 	if( flag_spy && flag_midas ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
 	
+	std::cout << __LINE__ << std::endl;
+
 	// GSI MBS EventServer
 	MBS mbs;
 	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8020 );
@@ -224,17 +234,24 @@ void* monitor_run( void* ptr ){
 	int nblocks = 0, nsubevts = 0;
 	unsigned long nbuild = 0;
 
+	std::cout << __LINE__ << std::endl;
+
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
 	if( flag_source ) conv_mon->SourceOnly();
 	if( flag_ebis ) conv_mon->EBISOnly();
-	conv_mon->AddCalibration( calfiles->mycal );
+	conv_mon->AddCalibration( inputptr->mycal );
 	conv_mon->SetOutput( "monitor_singles.root" );
 	conv_mon->MakeTree();
 	conv_mon->MakeHists();
 
-	// Add canvas for spy
-	hist_mon->AddSpyCanvas( cspy );
+	std::cout << __LINE__ << std::endl;
+
+	// Add canvas and hists for spy
+	hist_mon->SetSpyHists( inputptr->physhists, inputptr->spylayout );
+	hist_mon->AddSpyCanvas( inputptr->cspy );
+
+	std::cout << __LINE__ << std::endl;
 
 	// Update server settings
 	// title of web page
@@ -245,8 +262,11 @@ void* monitor_run( void* ptr ){
 	toptitle += " (" + std::to_string( mon_time ) + " s)";
 	serv->SetItemField("/", "_toptitle", toptitle.data() );
 
+	std::cout << __LINE__ << std::endl;
+
 	// While the sort is running
-	while( flag_alive ) {
+	while( inputptr->flag_alive ) {
+	//while( true ) {
 
 		// bRunMon can be set by the GUI
 		while( bRunMon ) {
@@ -279,7 +299,7 @@ void* monitor_run( void* ptr ){
 
 				// First check if we have data
 				std::cout << "Looking for data from DataSpy" << std::endl;
-				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
+				spy_length = myspy.Read( file_id, (char*)buffer, inputptr->myset->GetBlockSize() );
 				if( spy_length == 0 && bFirstRun ) {
 					  std::cout << "No data yet on first pass" << std::endl;
 					  gSystem->Sleep( 2e3 );
@@ -303,8 +323,8 @@ void* monitor_run( void* ptr ){
 					else gSystem->Sleep( wait_time ); // wait for new data in buffer
 
 					// Read a new block
-					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
-					
+					spy_length = myspy.Read( file_id, (char*)buffer, inputptr->myset->GetBlockSize() );
+
 					byte_ctr += spy_length;
 					poll_ctr++;
 
@@ -1173,14 +1193,22 @@ int main( int argc, char *argv[] ){
 			
 		}
 		
+		// Make the canvas for later
+		cspy = std::make_shared<TCanvas>();
+
+		// Read the histogram list from the file
+		ReadSpyHistogramList();
+
 		// Make some data for the thread
 		thread_data data;
 		data.mycal = mycal;
 		data.myset = myset;
 		data.myreact = myreact;
-
-		// Read the histogram list from the file
-		ReadSpyHistogramList();
+		data.flag_alive = flag_alive;
+		data.cspy = cspy;
+		data.physhists = physhists;
+		data.spylayout[0] = spylayout[0];
+		data.spylayout[1] = spylayout[1];
 
 		// Start the HTTP server from the main thread (should usually do this)
 		start_http();
@@ -1195,7 +1223,7 @@ int main( int argc, char *argv[] ){
 
 			gSystem->Sleep(10);
 			gSystem->ProcessEvents();
-			
+
 		}
 		
 		return 0;
