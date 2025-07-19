@@ -228,25 +228,12 @@ void MiniballEventBuilder::Initialise(){
 
 	hit_ctr = 0;
 	
-	mb_en_list.clear();
-	mb_ts_list.clear();
-	mb_clu_list.clear();
-	mb_cry_list.clear();
-	mb_seg_list.clear();
-
 	std::vector<float>().swap(mb_en_list);
 	std::vector<unsigned long long>().swap(mb_ts_list);
 	std::vector<unsigned char>().swap(mb_clu_list);
 	std::vector<unsigned char>().swap(mb_cry_list);
 	std::vector<unsigned char>().swap(mb_seg_list);
 
-	cd_en_list.clear();
-	cd_ts_list.clear();
-	cd_det_list.clear();
-	cd_sec_list.clear();
-	cd_side_list.clear();
-	cd_strip_list.clear();
-	
 	std::vector<float>().swap(cd_en_list);
 	std::vector<unsigned long long>().swap(cd_ts_list);
 	std::vector<unsigned char>().swap(cd_det_list);
@@ -254,36 +241,19 @@ void MiniballEventBuilder::Initialise(){
 	std::vector<unsigned char>().swap(cd_side_list);
 	std::vector<unsigned char>().swap(cd_strip_list);
 	
-	pad_en_list.clear();
-	pad_ts_list.clear();
-	pad_det_list.clear();
-	pad_sec_list.clear();
-	
 	std::vector<float>().swap(pad_en_list);
 	std::vector<unsigned long long>().swap(pad_ts_list);
 	std::vector<unsigned char>().swap(pad_det_list);
 	std::vector<unsigned char>().swap(pad_sec_list);
 	
-	bd_en_list.clear();
-	bd_ts_list.clear();
-	bd_det_list.clear();
-	
 	std::vector<float>().swap(bd_en_list);
 	std::vector<unsigned long long>().swap(bd_ts_list);
 	std::vector<unsigned char>().swap(bd_det_list);
 
-	spede_en_list.clear();
-	spede_ts_list.clear();
-	spede_seg_list.clear();
-	
 	std::vector<float>().swap(spede_en_list);
 	std::vector<unsigned long long>().swap(spede_ts_list);
 	std::vector<unsigned char>().swap(spede_seg_list);
 
-	ic_en_list.clear();
-	ic_ts_list.clear();
-	ic_id_list.clear();
-	
 	std::vector<float>().swap(ic_en_list);
 	std::vector<unsigned long long>().swap(ic_ts_list);
 	std::vector<unsigned char>().swap(ic_id_list);
@@ -518,60 +488,64 @@ void MiniballEventBuilder::MakeEventHists(){
 	ic_E = new TH1F( "ic_E", "Ionisation chamber;Energy in final layer (Si) (arb. units);Counts", 4096, 0, 10000 );
 	ic_dE_E = new TH2F( "ic_dE_E", "Ionisation chamber;Rest energy, E (arb. units);Energy Loss, dE (arb. units);Counts", 4096, 0, 10000, 4096, 0, 10000 );
 
+
+	// flag to denote that hists are ready (used for spy)
+	hists_ready = true;
+
 	return;
 	
 }
 
-void MiniballEventBuilder::ResetHists(){
+// Reset histograms in the DataSpy
+void MiniballEventBuilder::ResetHist( TObject *obj, std::string cls ) {
 
-	// Reset all histograms in the DataSpy
-	tdiff->Reset( "ICEMS" );
-	tdiff_clean->Reset( "ICEMS" );
-	pulser_period->Reset( "ICEMS" );
-	ebis_period->Reset( "ICEMS" );
-	t1_period->Reset( "ICEMS" );
-	sc_period->Reset( "ICEMS" );
-	pulser_freq->Reset( "ICEMS" );
-	ebis_freq->Reset( "ICEMS" );
-	t1_freq->Reset( "ICEMS" );
-	sc_freq->Reset( "ICEMS" );
-	pulser_tdiff->Reset( "ICEMS" );
+	if( obj == nullptr ) return;
 
-	mb_td_core_seg->Reset( "ICEMS" );
-	mb_td_core_core->Reset( "ICEMS" );
-	
-	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
-		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
-			mb_en_core_seg[i][j]->Reset( "ICEMS" );
-			mb_en_core_seg_ebis_on[i][j]->Reset( "ICEMS" );
-		}
-	}
-
-	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
-		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
-			cd_pen_id[i][j]->Reset( "ICEMS" );
-			cd_nen_id[i][j]->Reset( "ICEMS" );
-			cd_pn_1v1[i][j]->Reset( "ICEMS" );
-			cd_pn_1v2[i][j]->Reset( "ICEMS" );
-			cd_pn_2v1[i][j]->Reset( "ICEMS" );
-			cd_pn_2v2[i][j]->Reset( "ICEMS" );
-			cd_pn_td[i][j]->Reset( "ICEMS" );
-			cd_pp_td[i][j]->Reset( "ICEMS" );
-			cd_nn_td[i][j]->Reset( "ICEMS" );
-			cd_pn_mult[i][j]->Reset( "ICEMS" );
-			cd_ppad_td[i][j]->Reset( "ICEMS" );
-			cd_ppad_mult[i][j]->Reset( "ICEMS" );
-		}
-		pad_en_id[i]->Reset( "ICEMS" );
-	}
-	
-	ic_td->Reset( "ICEMS" );
-	ic_dE->Reset( "ICEMS" );
-	ic_E->Reset( "ICEMS" );
-	ic_dE_E->Reset( "ICEMS" );
+	if( cls == "TH1" )
+		( (TH1*)obj )->Reset("ICESM");
+	else if( cls ==  "TH2" )
+		( (TH2*)obj )->Reset("ICESM");
+	else if( cls ==  "TProfile" )
+		( (TProfile*)obj )->Reset("ICESM");
 
 	return;
-	
+
+}
+
+// Reset histograms in the DataSpy
+void MiniballEventBuilder::ResetHists(){
+
+	TKey *key1, *key2, *key3;
+	TIter keyList1( output_file->GetListOfKeys() );
+	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
+
+		if( std::strcmp( key1->GetClassName(), "TDirectory" ) == 0 ){
+
+			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
+			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
+
+				if( std::strcmp( key2->GetClassName(), "TDirectory" ) == 0 ){
+
+					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
+					while( ( key3 = (TKey*)keyList3() ) ) // level 3
+						ResetHist( key3->ReadObj(), key3->GetClassName() );
+
+				}
+
+				else
+					ResetHist( key2->ReadObj(), key2->GetClassName() );
+
+			} // level 2
+
+		}
+
+		else
+			ResetHist( key1->ReadObj(), key1->GetClassName() );
+
+	} // level 1
+
+	return;
+
 }
 
 

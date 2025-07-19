@@ -29,8 +29,7 @@ extern "C" {
 #endif
 
 // format of the data buffer area header
-#define NBLOCKS 64         // current number of buffers used - must be 2**n
-#define MAX_BUFFERS 128    // unchangeable max because of header structure
+#define MAX_BUFFERS 128		// unchangeable max because of header structure
 
 #define MAX_ID 8
 #define MAX_BUFFER_SIZE 64*1024

@@ -19,6 +19,9 @@
 #include <TCutG.h>
 #include <TGProgressBar.h>
 #include <TSystem.h>
+#include <TKey.h>
+#include <TCanvas.h>
+#include <TROOT.h>
 
 // Reaction header
 #ifndef __REACTION_HH
@@ -43,6 +46,7 @@ public:
 	~MiniballHistogrammer() {};
 	
 	void MakeHists();
+	void ResetHist( TObject *obj, std::string cls );
 	void ResetHists();
 	unsigned long FillHists();
 	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );
@@ -52,6 +56,8 @@ public:
 	void FillParticleGammaGammaHists( std::shared_ptr<GammaRayAddbackEvt> g1, std::shared_ptr<GammaRayAddbackEvt> g2 );
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g );
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayAddbackEvt> g );
+
+	void PlotPhysicsHists( std::vector<std::vector<std::string>> hists, short layout[2] );
 
 	void SetInputFile( std::vector<std::string> input_file_names );
 	void SetInputFile( std::string input_file_name );
@@ -78,7 +84,11 @@ public:
 		prog = myprog;
 		_prog_ = true;
 	};
-	
+
+	inline void AddSpyCanvas( std::shared_ptr<TCanvas> cin ){
+		cspy = cin;
+	}; ///< Adds the canvas for the DataSpy
+
 	// Coincidence conditions (to be put in settings file eventually?)
 	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, std::shared_ptr<ParticleEvt> p ){
 		return PromptCoincidence( g, p->GetTime() );
@@ -272,6 +282,12 @@ private:
 	bool _prog_;
 	std::shared_ptr<TGProgressBar> prog;
 	
+	// Check if histograms are made
+	bool hists_ready = false;
+
+	// Canvas for the spy
+	std::shared_ptr<TCanvas> cspy;
+
 	// Counters
 	unsigned long n_entries;
 	
