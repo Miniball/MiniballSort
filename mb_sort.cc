@@ -214,7 +214,7 @@ void* monitor_run( void* ptr ){
 	
 	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
-	long long buffer[2048*1024];
+	long long buffer[8*1024];
 	int file_id = 0; ///> TapeServer volume = /dev/file/<id> ... <id> = 0 on issdaqpc2
 	if( flag_spy && flag_midas ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
