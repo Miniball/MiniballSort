@@ -8,15 +8,16 @@
 #include <TThread.h>
 #include <TGClient.h>
 #include <TApplication.h>
+#include <TCanvas.h>
 
 // C++ include.
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <memory>
-#include <signal.h>
+#include <csignal>
 
 // Some compiler things
 #ifndef CURDIR
@@ -34,6 +35,7 @@ Bool_t bFirstRun = kTRUE;
 std::string curFileMon;
 
 
+void plot_physics_hists();
 void reset_conv_hists();
 void reset_evnt_hists();
 void reset_phys_hists();

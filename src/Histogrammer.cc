@@ -1671,10 +1671,66 @@ void MiniballHistogrammer::MakeHists() {
 		ic_dE_E = new TH2F( hname.data(), htitle.data(), 4096, 0, 10000, 4096, 0, 10000 );
 		
 	} // ion-chamber on
-	
+
+
+	// flag to denote that hists are ready (used for spy)
+	hists_ready = true;
+
 	return;
 	
 }
+
+void MiniballHistogrammer::PlotPhysicsHists( std::vector<std::vector<std::string>> hists, short layout[2] ) {
+
+	// Escape if we haven't built the hists to avoid a seg fault
+	if( !hists_ready ){
+
+		std::cout << "Cannot plot diagnostics yet, wait until histogrammer is ready" << std::endl;
+		return;
+
+	}
+
+	// Get appropriate layout and number of hists
+	unsigned short maxhists = layout[0] * layout[1];
+	if( maxhists == 0 ) maxhists = 1;
+	if( hists.size() > maxhists ) {
+
+		std::cout << "Too many histograms for layout size. Plotting the first ";
+		std::cout << maxhists << " histograms in the list." << std::endl;
+
+	}
+	else maxhists = hists.size();
+
+	// Clear and divide canvas
+	cspy->Clear("D");
+	if( maxhists > 1 && layout[0] > 0 && layout[1] > 0 )
+		cspy->Divide( layout[0], layout[1] );
+
+	// ASIC time difference histograms
+	for( unsigned int i = 0; i < maxhists; i++ ){
+
+		// Go to corresponding canvas
+		cspy->cd(i+1);
+
+		// Get this histogram of the right type
+		if( hists[i][0] == "TH1" )
+			static_cast<TH1*>( output_file->Get( hists[i][1].data() ) )->Draw( hists[i][2].data() );
+
+		else if( hists[i][0] == "TH2" )
+			static_cast<TH1*>( output_file->Get( hists[i][1].data() ) )->Draw( hists[i][2].data() );
+
+		else if( hists[i][0] == "TProfile" )
+			static_cast<TProfile*>( output_file->Get( hists[i][1].data() ) )->Draw( hists[i][2].data() );
+
+		else
+			std::cout << "Type " << hists[i][0] << " not currently supported" << std::endl;
+
+	}
+
+	return;
+
+}
+
 
 // Reset histograms in the DataSpy
 void MiniballHistogrammer::ResetHist( TObject *obj, std::string cls ) {

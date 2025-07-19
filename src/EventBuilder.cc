@@ -488,6 +488,10 @@ void MiniballEventBuilder::MakeEventHists(){
 	ic_E = new TH1F( "ic_E", "Ionisation chamber;Energy in final layer (Si) (arb. units);Counts", 4096, 0, 10000 );
 	ic_dE_E = new TH2F( "ic_dE_E", "Ionisation chamber;Rest energy, E (arb. units);Energy Loss, dE (arb. units);Counts", 4096, 0, 10000, 4096, 0, 10000 );
 
+
+	// flag to denote that hists are ready (used for spy)
+	hists_ready = true;
+
 	return;
 	
 }

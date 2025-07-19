@@ -135,6 +135,9 @@ private:
 	bool _prog_;
 	std::shared_ptr<TGProgressBar> prog;
 	
+	// Check if histograms are made
+	bool hists_ready = false;
+
 	// Log file
 	std::ofstream log_file; ///< Log file for recording the results of the MiniballEventBuilder
 	

@@ -129,6 +129,10 @@ typedef struct thptr {
 // Server and controls for the GUI
 std::unique_ptr<THttpServer> serv;
 int port_num = 8030;
+std::shared_ptr<TCanvas> cspy;
+std::string spy_hists_file;
+std::vector<std::vector<std::string>> physhists;
+short spylayout[2] = {2,2};
 
 // Pointers to the thread events TODO: sort out inhereted class stuff
 std::shared_ptr<MiniballConverter> conv_mon;
@@ -136,6 +140,13 @@ std::shared_ptr<MiniballMbsConverter> conv_mbs_mon;
 std::shared_ptr<MiniballMidasConverter> conv_midas_mon;
 std::shared_ptr<MiniballEventBuilder> eb_mon;
 std::shared_ptr<MiniballHistogrammer> hist_mon;
+
+void plot_physics_hists(){
+	if( hist_mon.get() != nullptr )
+		hist_mon->PlotPhysicsHists( physhists, spylayout );
+	else
+		std::cout << "Not ready yet, try again" << std::endl;
+}
 
 void reset_conv_hists(){
 	conv_mon->ResetHists();
@@ -221,6 +232,9 @@ void* monitor_run( void* ptr ){
 	conv_mon->SetOutput( "monitor_singles.root" );
 	conv_mon->MakeTree();
 	conv_mon->MakeHists();
+
+	// Add canvas for spy
+	hist_mon->AddSpyCanvas( cspy );
 
 	// Update server settings
 	// title of web page
@@ -399,9 +413,11 @@ void start_http(){
 	// register simple start/stop commands
 	serv->RegisterCommand("/Start", "StartMonitor()");
 	serv->RegisterCommand("/Stop", "StopMonitor()");
+	serv->RegisterCommand("/ResetAll", "ResetAll()");
 	serv->RegisterCommand("/ResetSingles", "ResetConv()");
 	serv->RegisterCommand("/ResetEvents", "ResetEvnt()");
 	serv->RegisterCommand("/ResetHists", "ResetHist()");
+	serv->RegisterCommand("/PlotPhysicsHists", "PlotPhysicsHists()");
 
 	// hide commands so the only show as buttons
 	//serv->Hide("/Start");
@@ -410,6 +426,73 @@ void start_http(){
 
 	return;
 	
+}
+
+// Function to read histogram info from a file into a 2D vector
+void ReadSpyHistogramList() {
+
+	// Check if the user gave a file
+	if( spy_hists_file.length() == 0 ) {
+
+		std::cout << "Default spy hists" << std::endl;
+
+		// If not, just use some defaults
+		spylayout[0] = 2; // x
+		spylayout[1] = 2; // y
+		physhists.push_back( {"gE_singles_ebis", "TH1", "hist"} );
+		physhists.push_back( {"pE_theta", "TH2", "colz"} );
+		physhists.push_back( {"ebis_td_particle", "TH1", "hist"} );
+		physhists.push_back( {"ebis_td_gamma", "TH1", "hist"} );
+
+		return;
+
+	}
+
+	std::ifstream infile( spy_hists_file );
+	std::string line;
+
+	// Check it's open
+	if( !infile.is_open() ) {
+
+		std::cerr << "Error: Could not open file " << spy_hists_file << std::endl;
+		return;
+
+	}
+
+	// Check for comments first
+	std::getline( infile, line );
+	while( line.at(0) == '#' )
+		std::getline( infile, line );
+
+	// Read first line: number of histograms in x direction on canvas
+	std::istringstream iss(line);
+	iss >> spylayout[0];
+
+	// Read second line: number of histograms in y direction on canvas
+	std::getline( infile, line );
+	iss = std::istringstream(line);
+	iss >> spylayout[1];
+
+	// Read the file line by line
+	while( std::getline( infile, line ) ) {
+
+		// skip empty lines
+		if( line.length() == 0 ) continue;
+
+		// Stream the line and check for a new item
+		std::string name, classType = "TH1", drawOption = "hist";
+		iss = std::istringstream(line);
+		iss >> name >> classType >> drawOption;
+
+		// If we got something, add it to the list
+		if( name.length() > 0 )
+			physhists.push_back({name, classType, drawOption});
+
+	}
+
+	infile.close();
+	return;
+
 }
 
 void do_convert() {
@@ -776,6 +859,7 @@ int main( int argc, char *argv[] ){
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
+	interface->Add("-spyhists", "File containing histograms for monitoring in the spy", &spy_hists_file );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
 	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
 	interface->Add("-d", "Directory to put the sorted data default is /path/to/data/sorted", &datadir_name );
@@ -922,7 +1006,8 @@ int main( int argc, char *argv[] ){
 	gSystem->Exec( cmd.data() );	
 	std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
 
-	
+	ReadSpyHistogramList();
+
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
 
@@ -1084,6 +1169,9 @@ int main( int argc, char *argv[] ){
 		data.myset = myset;
 		data.myreact = myreact;
 
+		// Read the histogram list from the file
+		ReadSpyHistogramList();
+
 		// Start the HTTP server from the main thread (should usually do this)
 		start_http();
 		gSystem->ProcessEvents();
@@ -1103,6 +1191,7 @@ int main( int argc, char *argv[] ){
 		return 0;
 		
 	}
+
 
 
 	//------------------//
