@@ -100,6 +100,7 @@ bool flag_angle_fit = false;
 
 // DataSpy
 bool flag_spy = false;
+bool flag_alive = true;
 int open_spy_data = -1;
 
 // Monitoring input file
@@ -156,6 +157,11 @@ void start_monitor(){
 	bRunMon = kTRUE;
 }
 
+void signal_callback_handler( int signum ) {
+	std::cout << "Caught signal " << signum << endl;
+	flag_alive = false;
+}
+
 // Function to call the monitoring loop
 void* monitor_run( void* ptr ){
 	
@@ -193,7 +199,7 @@ void* monitor_run( void* ptr ){
 	
 	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
-	long long buffer[8*1024];
+	long long buffer[2048*1024];
 	int file_id = 0; ///> TapeServer volume = /dev/file/<id> ... <id> = 0 on issdaqpc2
 	if( flag_spy && flag_midas ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
@@ -226,8 +232,8 @@ void* monitor_run( void* ptr ){
 	serv->SetItemField("/", "_toptitle", toptitle.data() );
 
 	// While the sort is running
-	while( true ) {
-		
+	while( flag_alive ) {
+
 		// bRunMon can be set by the GUI
 		while( bRunMon ) {
 			
@@ -271,8 +277,8 @@ void* monitor_run( void* ptr ){
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
-				while( block_ctr < 200 && poll_ctr < 1000 ){
-				
+				while( block_ctr < 256 && poll_ctr < 1000 ){
+
 					//std::cout << "Got some data from DataSpy" << std::endl;
 					if( spy_length > 0 ) {
 						nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
@@ -360,13 +366,13 @@ void* monitor_run( void* ptr ){
 
 		} // bRunMon
 		
-	} // always running
-	
+	} // always running until ctrl+c
+
 	// Close the dataSpy before exiting (no point really)
 	if( flag_spy && flag_midas ) myspy.Close( file_id );
 	if( flag_spy && flag_mbs ) mbs.CloseEventServer();
 
-	// Close all outputs (we never reach here anyway)
+	// Close all outputs
 	conv_mon->CloseOutput();
 	eb_mon->CloseOutput();
 	hist_mon->CloseOutput();
@@ -1084,7 +1090,7 @@ int main( int argc, char *argv[] ){
 		th0->Run();
 
 		// wait until we finish
-		while( true ){
+		while( flag_alive ){
 			
 			gSystem->Sleep(10);
 			gSystem->ProcessEvents();
