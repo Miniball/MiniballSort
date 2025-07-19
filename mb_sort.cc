@@ -191,8 +191,6 @@ void* monitor_run( void* ptr ){
 	std::string rootline = ".L " + std::string(CUR_DIR) + "include/MonitorMacros.hh";
 	gROOT->ProcessLine( rootline.data() );
 
-	std::cout << __LINE__ << std::endl;
-
 	// This function is called to run when monitoring
 	if( flag_mbs ){
 		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( inputptr->myset );
@@ -214,8 +212,6 @@ void* monitor_run( void* ptr ){
 	
 	}
 	
-	std::cout << __LINE__ << std::endl;
-
 	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
 	long long buffer[2048*1024];
@@ -223,8 +219,6 @@ void* monitor_run( void* ptr ){
 	if( flag_spy && flag_midas ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
 	
-	std::cout << __LINE__ << std::endl;
-
 	// GSI MBS EventServer
 	MBS mbs;
 	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8020 );
@@ -233,8 +227,6 @@ void* monitor_run( void* ptr ){
 	int start_block = 0, start_subevt = 0;
 	int nblocks = 0, nsubevts = 0;
 	unsigned long nbuild = 0;
-
-	std::cout << __LINE__ << std::endl;
 
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
@@ -245,13 +237,9 @@ void* monitor_run( void* ptr ){
 	conv_mon->MakeTree();
 	conv_mon->MakeHists();
 
-	std::cout << __LINE__ << std::endl;
-
 	// Add canvas and hists for spy
 	hist_mon->SetSpyHists( inputptr->physhists, inputptr->spylayout );
 	hist_mon->AddSpyCanvas( inputptr->cspy );
-
-	std::cout << __LINE__ << std::endl;
 
 	// Update server settings
 	// title of web page
@@ -261,8 +249,6 @@ void* monitor_run( void* ptr ){
 	else toptitle = "DataSpy ";
 	toptitle += " (" + std::to_string( mon_time ) + " s)";
 	serv->SetItemField("/", "_toptitle", toptitle.data() );
-
-	std::cout << __LINE__ << std::endl;
 
 	// While the sort is running
 	while( inputptr->flag_alive ) {
