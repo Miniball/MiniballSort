@@ -206,7 +206,7 @@ void* monitor_run( void* ptr ){
 	
 	// GSI MBS EventServer
 	MBS mbs;
-	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8030 );
+	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8020 );
 
 	// Data/Event counters
 	int start_block = 0, start_subevt = 0;
