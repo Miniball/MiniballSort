@@ -26,7 +26,7 @@ int ResetConv(){
 
 int ResetEvnt(){
 	reset_evnt_hists();
-	std::cout << "Reset event builder stage histograms (not working yet)" << std::endl;
+	std::cout << "Reset event builder stage histograms" << std::endl;
 	return 0;
 }
 

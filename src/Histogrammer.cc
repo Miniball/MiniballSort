@@ -1749,15 +1749,15 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 
 
 // Reset histograms in the DataSpy
-void MiniballHistogrammer::ResetHist( TObject *obj, std::string cls ) {
+void MiniballHistogrammer::ResetHist( TObject *obj ) {
 
 	if( obj == nullptr ) return;
 
-	if( cls == "TH1" )
+	if( obj->InheritsFrom( "TH1" ) )
 		( (TH1*)obj )->Reset("ICESM");
-	else if( cls ==  "TH2" )
+	else if( obj->InheritsFrom( "TH2" ) )
 		( (TH2*)obj )->Reset("ICESM");
-	else if( cls ==  "TProfile" )
+	else if( obj->InheritsFrom( "TProfile" ) )
 		( (TProfile*)obj )->Reset("ICESM");
 
 	return;
@@ -1771,28 +1771,28 @@ void MiniballHistogrammer::ResetHists(){
 	TIter keyList1( output_file->GetListOfKeys() );
 	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
 
-		if( std::strcmp( key1->GetClassName(), "TDirectory" ) == 0 ){
+		if( key1->InheritsFrom( "TDirectory" ) ){
 
 			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
 			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
 
-				if( std::strcmp( key2->GetClassName(), "TDirectory" ) == 0 ){
+				if( key1->InheritsFrom( "TDirectory" ) ){
 
 					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
 					while( ( key3 = (TKey*)keyList3() ) ) // level 3
-						ResetHist( key3->ReadObj(), key3->GetClassName() );
+						ResetHist( key3->ReadObj() );
 
 				}
 
 				else
-					ResetHist( key2->ReadObj(), key2->GetClassName() );
+					ResetHist( key2->ReadObj() );
 
 			} // level 2
 
 		}
 
 		else
-			ResetHist( key1->ReadObj(), key1->GetClassName() );
+			ResetHist( key1->ReadObj() );
 
 	} // level 1
 

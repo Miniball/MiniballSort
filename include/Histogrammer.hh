@@ -46,7 +46,7 @@ public:
 	~MiniballHistogrammer() {};
 	
 	void MakeHists();
-	void ResetHist( TObject *obj, std::string cls );
+	void ResetHist( TObject *obj );
 	void ResetHists();
 	unsigned long FillHists();
 	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );

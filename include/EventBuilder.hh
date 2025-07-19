@@ -59,7 +59,7 @@ public:
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
-	void	ResetHist( TObject *obj, std::string cls );
+	void	ResetHist( TObject *obj );
 	void	ResetHists();
 	
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){
