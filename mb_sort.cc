@@ -298,10 +298,11 @@ void* monitor_run( void* ptr ){
 					if( spy_length > 0 ) {
 						nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
 						block_ctr += nblocks;
+						//gSystem->Sleep(1); // wait 1 ms before reading next block
 					}
+					else gSystem->Sleep( wait_time ); // wait for new data in buffer
 
 					// Read a new block
-					gSystem->Sleep( wait_time ); // wait 2 ms between each read
 					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
 					
 					byte_ctr += spy_length;
