@@ -29,7 +29,7 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 	TH1::SetDefaultSumw2(kTRUE);
 
 	// Histogrammer options
-	TH1::AddDirectory(kFALSE);
+	//TH1::AddDirectory(kFALSE);
 
 }
 
@@ -3241,7 +3241,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 	} // all events
 	
 	output_file->Write( nullptr, TObject::kOverwrite );
-	output_file->Purge(2);
+	//output_file->Purge(2);
 	
 	return n_entries;
 	

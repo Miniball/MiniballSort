@@ -44,7 +44,7 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	_prog_ = false;
 
 	// Histogrammer options
-	TH1::AddDirectory(kFALSE);
+	//TH1::AddDirectory(kFALSE);
 
 }
 
