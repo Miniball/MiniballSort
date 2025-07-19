@@ -857,7 +857,10 @@ int main( int argc, char *argv[] ){
 	
 	// Check if we should be monitoring the input
 	if( flag_spy ) {
-		
+
+		// Register signal and signal handler for DataSpy only
+		signal( SIGINT, signal_callback_handler );
+
 		flag_monitor = true;
 		if( mon_time < 0 ) mon_time = 30;
 		std::cout << "Getting data from shared memory every " << mon_time;
@@ -1091,7 +1094,7 @@ int main( int argc, char *argv[] ){
 
 		// wait until we finish
 		while( flag_alive ){
-			
+
 			gSystem->Sleep(10);
 			gSystem->ProcessEvents();
 			

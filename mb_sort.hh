@@ -16,6 +16,7 @@
 #include <vector>
 #include <sstream>
 #include <memory>
+#include <signal.h>
 
 // Some compiler things
 #ifndef CURDIR
