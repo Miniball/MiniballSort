@@ -23,7 +23,14 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 	PBIN = react->HistParticleBins();
 	PMIN = react->HistParticleMin();
 	PMAX = react->HistParticleMax();
-	
+
+	// Make the histograms track the sum of the weights for correctly
+	// performing the error propagation when subtracting
+	TH1::SetDefaultSumw2(kTRUE);
+
+	// Histogrammer options
+	TH1::AddDirectory(kFALSE);
+
 }
 
 void MiniballHistogrammer::MakeHists() {

@@ -64,7 +64,10 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 			febex_time_ch[i][j].resize( set->GetNumberOfFebexChannels(), 0 );
 			
 	}
-		
+
+	// Histogrammer options
+	TH1::AddDirectory(kFALSE);
+
 }
 
 void MiniballEventBuilder::StartFile(){

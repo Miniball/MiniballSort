@@ -64,6 +64,8 @@ void MiniballConverter::StartFile(){
 		// Start counters at zero
 		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
 					
+			first_data[i] = true;
+
 			ctr_febex_hit[i][j] = 0;	// hits on each module
 			ctr_febex_pause[i][j] = 0;
 			ctr_febex_resume[i][j] = 0;
