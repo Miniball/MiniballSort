@@ -228,12 +228,17 @@ void* monitor_run( void* ptr ){
 	int nblocks = 0, nsubevts = 0;
 	unsigned long nbuild = 0;
 
+	// Filenames for spy
+	std::string spyname_singles = datadir_name + "monitor_singles.root";
+	std::string spyname_events = datadir_name + "monitor_events.root";
+	std::string spyname_hists = datadir_name + "monitor_hists.root";
+
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
 	if( flag_source ) conv_mon->SourceOnly();
 	if( flag_ebis ) conv_mon->EBISOnly();
 	conv_mon->AddCalibration( inputptr->mycal );
-	conv_mon->SetOutput( "monitor_singles.root" );
+	conv_mon->SetOutput( spyname_singles );
 	conv_mon->MakeTree();
 	conv_mon->MakeHists();
 
@@ -345,7 +350,7 @@ void* monitor_run( void* ptr ){
 			
 				// Event builder
 				if( bFirstRun ) {
-					eb_mon->SetOutput( "monitor_events.root" );
+					eb_mon->SetOutput( spyname_events );
 					eb_mon->StartFile();
 
 				}
@@ -362,7 +367,7 @@ void* monitor_run( void* ptr ){
 
 				// Histogrammer
 				if( bFirstRun ) {
-					hist_mon->SetOutput( "monitor_hists.root" );
+					hist_mon->SetOutput( spyname_hists );
 				}
 				if( nbuild ) {
 					// TODO: This could be done better with smart pointers
@@ -1011,18 +1016,16 @@ int main( int argc, char *argv[] ){
 			
 		}
 		
-		else if( flag_spy ) datadir_name = "dataspy";
-		else if( flag_angle_fit ) datadir_name = "positions";
-		else datadir_name = "mb_sort_outputs";
-				
+		else if( flag_spy ) datadir_name = "./dataspy";
+		else if( flag_angle_fit ) datadir_name = "./positions";
+		else datadir_name = "./mb_sort_outputs";
+
 	}
 	
 	// Create the directory if it doesn't exist (not Windows compliant)
 	std::string cmd = "mkdir -p " + datadir_name;
 	gSystem->Exec( cmd.data() );	
 	std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
-
-	ReadSpyHistogramList();
 
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
@@ -1201,7 +1204,7 @@ int main( int argc, char *argv[] ){
 		gSystem->ProcessEvents();
 
 		// Thread for the monitor process
-		TThread *th0 = new TThread( "monitor", monitor_run, &data );
+		TThread *th0 = new TThread( "monitor", monitor_run, (void*)&data );
 		th0->Run();
 
 		// wait until we finish
