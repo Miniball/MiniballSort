@@ -288,10 +288,11 @@ void* monitor_run( void* ptr ){
 
 				// Keep reading until we have all the data
 				// This could be multi-threaded to process data and go back to read more
+				int wait_time = 20; // ms - between each read
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
-				while( block_ctr < 2048 && poll_ctr < 1000 ){
+				while( block_ctr < 256 && poll_ctr < 1000 * mon_time / wait_time ){
 
 					//std::cout << "Got some data from DataSpy" << std::endl;
 					if( spy_length > 0 ) {
@@ -300,7 +301,7 @@ void* monitor_run( void* ptr ){
 					}
 
 					// Read a new block
-					gSystem->Sleep( 2 ); // wait 2 ms between each read
+					gSystem->Sleep( wait_time ); // wait 2 ms between each read
 					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
 					
 					byte_ctr += spy_length;
