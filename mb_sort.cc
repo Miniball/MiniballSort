@@ -321,7 +321,7 @@ void* monitor_run( void* ptr ){
 
 				}
 				
-				std::cout << "Got " << byte_ctr << " bytes of data from DataSpy" << std::endl;
+				std::cout << "Got " << byte_ctr << " bytes of data in " << block_ctr << " blocks from DataSpy" << std::endl;
 
 				// Sort the packets we just got, then do the rest of the analysis
 				conv_midas_mon->SortTree();

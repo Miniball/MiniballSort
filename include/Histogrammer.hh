@@ -66,7 +66,6 @@ public:
 
 	inline void SetOutput( std::string output_file_name ){
 		output_file = new TFile( output_file_name.data(), "recreate" );
-		gROOT->GetListOfFiles()->Remove(output_file);
 		MakeHists();
 	};
 	inline void CloseOutput( ){
