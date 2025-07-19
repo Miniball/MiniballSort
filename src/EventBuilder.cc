@@ -2352,12 +2352,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	std::cout << ss_log.str();
 	if( log_file.is_open() && flag_input_file ) log_file << ss_log.str();
 
-	std::cout << "Writing output file...\r";
-	std::cout.flush();
-	output_file->Write( nullptr, TObject::kOverwrite );
-	
-	std::cout << "Writing output file... Done!" << std::endl << std::endl;
-
 	return n_entries;
 	
 }

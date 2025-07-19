@@ -83,6 +83,10 @@ public:
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
 	inline void CloseOutput(){
+		std::cout << "Writing output file...\r";
+		std::cout.flush();
+		output_file->Write( nullptr, TObject::kOverwrite );
+		std::cout << "Writing output file... Done!" << std::endl << std::endl;
 		output_tree->ResetBranchAddresses();
 		PurgeOutput();
 		output_file->Close();
