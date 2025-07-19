@@ -69,6 +69,7 @@ public:
 		MakeHists();
 	};
 	inline void CloseOutput( ){
+		output_file->Write( nullptr, TObject::kOverwrite );
 		PurgeOutput();
 		output_file->Close();
 		input_tree->ResetBranchAddresses();

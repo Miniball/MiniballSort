@@ -374,7 +374,7 @@ void* monitor_run( void* ptr ){
 					TTree *evt_tree = eb_mon->GetTree()->CloneTree();
 					hist_mon->SetInputTree( evt_tree );
 					hist_mon->FillHists();
-					//hist_mon->PurgeOutput();
+					hist_mon->PurgeOutput();
 					delete evt_tree;
 				}
 				
