@@ -110,145 +110,135 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">// --------------- //</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a4b6e8bb10964f04ebee8a7df63abb7f0">MiniballEvts::ClearEvt</a>() {</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    <a class="code hl_variable" href="classMiniballEvts.html#a23f1b80b25a1b5d1b7cd1e272e8a24fe">gamma_event</a>.clear();</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <a class="code hl_variable" href="classMiniballEvts.html#aa898b35a3847ad9c6aa12324c4f5b160">gamma_ab_event</a>.clear();</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <a class="code hl_variable" href="classMiniballEvts.html#add4d35c003708388035840960e1d1822">particle_event</a>.clear();</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <a class="code hl_variable" href="classMiniballEvts.html#ae5b465377452115df5cf442fd58e9dac">bd_event</a>.clear();</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <a class="code hl_variable" href="classMiniballEvts.html#a247f4d554f56ea8692bc894d369fe8b8">spede_event</a>.clear();</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <a class="code hl_variable" href="classMiniballEvts.html#a1cfb9cdae7620538c78fbadb664a655d">ic_event</a>.clear();</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    std::vector&lt;GammaRayEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#a23f1b80b25a1b5d1b7cd1e272e8a24fe">gamma_event</a>);</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    std::vector&lt;GammaRayAddbackEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#aa898b35a3847ad9c6aa12324c4f5b160">gamma_ab_event</a>);</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    std::vector&lt;ParticleEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#add4d35c003708388035840960e1d1822">particle_event</a>);</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    std::vector&lt;BeamDumpEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#ae5b465377452115df5cf442fd58e9dac">bd_event</a>);</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    std::vector&lt;SpedeEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#a247f4d554f56ea8692bc894d369fe8b8">spede_event</a>);</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    std::vector&lt;IonChamberEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#a1cfb9cdae7620538c78fbadb664a655d">ic_event</a>);</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    std::vector&lt;GammaRayEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#a23f1b80b25a1b5d1b7cd1e272e8a24fe">gamma_event</a>);</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    std::vector&lt;GammaRayAddbackEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#aa898b35a3847ad9c6aa12324c4f5b160">gamma_ab_event</a>);</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    std::vector&lt;ParticleEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#add4d35c003708388035840960e1d1822">particle_event</a>);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    std::vector&lt;BeamDumpEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#ae5b465377452115df5cf442fd58e9dac">bd_event</a>);</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    std::vector&lt;SpedeEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#a247f4d554f56ea8692bc894d369fe8b8">spede_event</a>);</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    std::vector&lt;IonChamberEvt&gt;().swap(<a class="code hl_variable" href="classMiniballEvts.html#a1cfb9cdae7620538c78fbadb664a655d">ic_event</a>);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <a class="code hl_variable" href="classMiniballEvts.html#a40ee69ef87d8b53b6ec7fc72eb81792a">ebis</a> = 0;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <a class="code hl_variable" href="classMiniballEvts.html#a04c77031f6843d0ea28040cef9bb7308">t1</a> = 0;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <a class="code hl_variable" href="classMiniballEvts.html#afd066b85e8026d8a6383ac9282125585">sc</a> = 0;</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>}</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <a class="code hl_variable" href="classMiniballEvts.html#a40ee69ef87d8b53b6ec7fc72eb81792a">ebis</a> = 0;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <a class="code hl_variable" href="classMiniballEvts.html#a04c77031f6843d0ea28040cef9bb7308">t1</a> = 0;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <a class="code hl_variable" href="classMiniballEvts.html#afd066b85e8026d8a6383ac9282125585">sc</a> = 0;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>}</div>
 </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="foldopen" id="foldopen00039" data-start="{" data-end="}">
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">   39</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;GammaRayEvt&gt; event ) {</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <a class="code hl_class" href="classGammaRayEvt.html">GammaRayEvt</a> fill_evt;</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#abf944acab49ae5f5b72235af539f7c40">SetEnergy</a>( event-&gt;GetEnergy() );</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aa33a3310cc1b556825c2b6e855aed2b0">SetSegmentEnergy</a>( event-&gt;GetEnergy() );</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a2cd2fdbf24d15802a9fa110fd747a7d7">SetTime</a>( event-&gt;GetTime() );</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a137afda6969cf9eb0ad3fe9839859263">SetCluster</a>( event-&gt;GetCluster() );</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aff5e8bf12acd8ce714a5c1f095377920">SetCrystal</a>( event-&gt;GetCrystal() );</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#ad4b7a67872dd174e63d2c3abf9fdd997">SetSegment</a>( event-&gt;GetSegment() );</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <a class="code hl_variable" href="classMiniballEvts.html#a23f1b80b25a1b5d1b7cd1e272e8a24fe">gamma_event</a>.push_back( fill_evt );</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>}</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="foldopen" id="foldopen00032" data-start="{" data-end="}">
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">   32</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;GammaRayEvt&gt; event ) {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <a class="code hl_class" href="classGammaRayEvt.html">GammaRayEvt</a> fill_evt;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#abf944acab49ae5f5b72235af539f7c40">SetEnergy</a>( event-&gt;GetEnergy() );</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aa33a3310cc1b556825c2b6e855aed2b0">SetSegmentEnergy</a>( event-&gt;GetEnergy() );</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a2cd2fdbf24d15802a9fa110fd747a7d7">SetTime</a>( event-&gt;GetTime() );</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a137afda6969cf9eb0ad3fe9839859263">SetCluster</a>( event-&gt;GetCluster() );</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aff5e8bf12acd8ce714a5c1f095377920">SetCrystal</a>( event-&gt;GetCrystal() );</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#ad4b7a67872dd174e63d2c3abf9fdd997">SetSegment</a>( event-&gt;GetSegment() );</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <a class="code hl_variable" href="classMiniballEvts.html#a23f1b80b25a1b5d1b7cd1e272e8a24fe">gamma_event</a>.push_back( fill_evt );</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>}</div>
 </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="foldopen" id="foldopen00054" data-start="{" data-end="}">
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#abeab92bea4b168dbf08c720805567216">   54</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;GammaRayAddbackEvt&gt; event ) {</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <a class="code hl_class" href="classGammaRayAddbackEvt.html">GammaRayAddbackEvt</a> fill_evt;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#abf944acab49ae5f5b72235af539f7c40">SetEnergy</a>( event-&gt;GetEnergy() );</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aa33a3310cc1b556825c2b6e855aed2b0">SetSegmentEnergy</a>( event-&gt;GetEnergy() );</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a2cd2fdbf24d15802a9fa110fd747a7d7">SetTime</a>( event-&gt;GetTime() );</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a137afda6969cf9eb0ad3fe9839859263">SetCluster</a>( event-&gt;GetCluster() );</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aff5e8bf12acd8ce714a5c1f095377920">SetCrystal</a>( event-&gt;GetCrystal() );</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#ad4b7a67872dd174e63d2c3abf9fdd997">SetSegment</a>( event-&gt;GetSegment() );</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <a class="code hl_variable" href="classMiniballEvts.html#aa898b35a3847ad9c6aa12324c4f5b160">gamma_ab_event</a>.push_back( fill_evt );</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>}</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="foldopen" id="foldopen00047" data-start="{" data-end="}">
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#abeab92bea4b168dbf08c720805567216">   47</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;GammaRayAddbackEvt&gt; event ) {</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <a class="code hl_class" href="classGammaRayAddbackEvt.html">GammaRayAddbackEvt</a> fill_evt;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#abf944acab49ae5f5b72235af539f7c40">SetEnergy</a>( event-&gt;GetEnergy() );</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aa33a3310cc1b556825c2b6e855aed2b0">SetSegmentEnergy</a>( event-&gt;GetEnergy() );</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a2cd2fdbf24d15802a9fa110fd747a7d7">SetTime</a>( event-&gt;GetTime() );</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#a137afda6969cf9eb0ad3fe9839859263">SetCluster</a>( event-&gt;GetCluster() );</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#aff5e8bf12acd8ce714a5c1f095377920">SetCrystal</a>( event-&gt;GetCrystal() );</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    fill_evt.<a class="code hl_function" href="classGammaRayEvt.html#ad4b7a67872dd174e63d2c3abf9fdd997">SetSegment</a>( event-&gt;GetSegment() );</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <a class="code hl_variable" href="classMiniballEvts.html#aa898b35a3847ad9c6aa12324c4f5b160">gamma_ab_event</a>.push_back( fill_evt );</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>}</div>
 </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="foldopen" id="foldopen00069" data-start="{" data-end="}">
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a981784c9a704f5d67e52ec29eb128863">   69</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;ParticleEvt&gt; event ) {</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <a class="code hl_class" href="classParticleEvt.html">ParticleEvt</a> fill_evt;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a88be8b6d1b43d785139ce4f0a4d37a4b">SetEnergyP</a>( event-&gt;GetEnergyP() );</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#ad497a099d6df6a5a8218035775e2e874">SetEnergyN</a>( event-&gt;GetEnergyN() );</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a8bda1d2692230608fa5dc19ba0e32e71">SetEnergyPad</a>( event-&gt;GetEnergyPad() );</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#aa03baaeb96efae45f0dc75b06c5be2fc">SetTimeP</a>( event-&gt;GetTimeP() );</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#aa44254dff7a78565d065cbd3c4392624">SetTimeN</a>( event-&gt;GetTimeN() );</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a1f918003b2594ff0b1267c70ae8ee819">SetTimePad</a>( event-&gt;GetTimePad() );</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#aafe944f8b10da2d0ce25e790f57f988f">SetDetector</a>( event-&gt;GetDetector() );</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a5019d00dd6a6e50d706d681ed8737198">SetSector</a>( event-&gt;GetSector() );</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#acf84af5203d491b31b8cfb9f02c4d722">SetStripP</a>( event-&gt;GetStripP() );</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a825ecc73d919b45566d304ab0a9deab5">SetStripN</a>( event-&gt;GetStripN() );</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <a class="code hl_variable" href="classMiniballEvts.html#add4d35c003708388035840960e1d1822">particle_event</a>.push_back( fill_evt );</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    </div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>}</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="foldopen" id="foldopen00062" data-start="{" data-end="}">
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a981784c9a704f5d67e52ec29eb128863">   62</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;ParticleEvt&gt; event ) {</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <a class="code hl_class" href="classParticleEvt.html">ParticleEvt</a> fill_evt;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a88be8b6d1b43d785139ce4f0a4d37a4b">SetEnergyP</a>( event-&gt;GetEnergyP() );</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#ad497a099d6df6a5a8218035775e2e874">SetEnergyN</a>( event-&gt;GetEnergyN() );</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a8bda1d2692230608fa5dc19ba0e32e71">SetEnergyPad</a>( event-&gt;GetEnergyPad() );</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#aa03baaeb96efae45f0dc75b06c5be2fc">SetTimeP</a>( event-&gt;GetTimeP() );</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#aa44254dff7a78565d065cbd3c4392624">SetTimeN</a>( event-&gt;GetTimeN() );</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a1f918003b2594ff0b1267c70ae8ee819">SetTimePad</a>( event-&gt;GetTimePad() );</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#aafe944f8b10da2d0ce25e790f57f988f">SetDetector</a>( event-&gt;GetDetector() );</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a5019d00dd6a6e50d706d681ed8737198">SetSector</a>( event-&gt;GetSector() );</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#acf84af5203d491b31b8cfb9f02c4d722">SetStripP</a>( event-&gt;GetStripP() );</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    fill_evt.<a class="code hl_function" href="classParticleEvt.html#a825ecc73d919b45566d304ab0a9deab5">SetStripN</a>( event-&gt;GetStripN() );</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <a class="code hl_variable" href="classMiniballEvts.html#add4d35c003708388035840960e1d1822">particle_event</a>.push_back( fill_evt );</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>}</div>
 </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="foldopen" id="foldopen00088" data-start="{" data-end="}">
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a6b09dc9f4b4f54031c75321dbec80c95">   88</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;BeamDumpEvt&gt; event ) {</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <a class="code hl_class" href="classBeamDumpEvt.html">BeamDumpEvt</a> fill_evt;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    fill_evt.<a class="code hl_function" href="classBeamDumpEvt.html#aa493ad7c887c7aaf85b9b9531c35842f">SetEnergy</a>( event-&gt;GetEnergy() );</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    fill_evt.<a class="code hl_function" href="classBeamDumpEvt.html#a1a3cd82a983e3461536bd69206f15d83">SetTime</a>( event-&gt;GetTime() );</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    fill_evt.<a class="code hl_function" href="classBeamDumpEvt.html#a0b71abd513d333a1d00965e74f9760f2">SetDetector</a>( event-&gt;GetDetector() );</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_variable" href="classMiniballEvts.html#ae5b465377452115df5cf442fd58e9dac">bd_event</a>.push_back( fill_evt );</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>}</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="foldopen" id="foldopen00081" data-start="{" data-end="}">
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a6b09dc9f4b4f54031c75321dbec80c95">   81</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;BeamDumpEvt&gt; event ) {</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <a class="code hl_class" href="classBeamDumpEvt.html">BeamDumpEvt</a> fill_evt;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    fill_evt.<a class="code hl_function" href="classBeamDumpEvt.html#aa493ad7c887c7aaf85b9b9531c35842f">SetEnergy</a>( event-&gt;GetEnergy() );</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    fill_evt.<a class="code hl_function" href="classBeamDumpEvt.html#a1a3cd82a983e3461536bd69206f15d83">SetTime</a>( event-&gt;GetTime() );</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    fill_evt.<a class="code hl_function" href="classBeamDumpEvt.html#a0b71abd513d333a1d00965e74f9760f2">SetDetector</a>( event-&gt;GetDetector() );</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <a class="code hl_variable" href="classMiniballEvts.html#ae5b465377452115df5cf442fd58e9dac">bd_event</a>.push_back( fill_evt );</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>}</div>
 </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
-<div class="foldopen" id="foldopen00100" data-start="{" data-end="}">
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a9cb8301e6a9a9c0c74fbdf536726698c">  100</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;SpedeEvt&gt; event ) {</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <a class="code hl_class" href="classSpedeEvt.html">SpedeEvt</a> fill_evt;</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    fill_evt.<a class="code hl_function" href="classSpedeEvt.html#a28e15651935e50c12f29f7c3219b79f5">SetEnergy</a>( event-&gt;GetEnergy() );</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    fill_evt.<a class="code hl_function" href="classSpedeEvt.html#aa32c3f31fe702cb3c705970539c8b7fc">SetTime</a>( event-&gt;GetTime() );</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    fill_evt.<a class="code hl_function" href="classSpedeEvt.html#a3a436487642b12c286c8c054c9df4455">SetSegment</a>( event-&gt;GetSegment() );</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_variable" href="classMiniballEvts.html#a247f4d554f56ea8692bc894d369fe8b8">spede_event</a>.push_back( fill_evt );</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>}</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="foldopen" id="foldopen00093" data-start="{" data-end="}">
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a9cb8301e6a9a9c0c74fbdf536726698c">   93</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;SpedeEvt&gt; event ) {</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <a class="code hl_class" href="classSpedeEvt.html">SpedeEvt</a> fill_evt;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    fill_evt.<a class="code hl_function" href="classSpedeEvt.html#a28e15651935e50c12f29f7c3219b79f5">SetEnergy</a>( event-&gt;GetEnergy() );</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    fill_evt.<a class="code hl_function" href="classSpedeEvt.html#aa32c3f31fe702cb3c705970539c8b7fc">SetTime</a>( event-&gt;GetTime() );</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    fill_evt.<a class="code hl_function" href="classSpedeEvt.html#a3a436487642b12c286c8c054c9df4455">SetSegment</a>( event-&gt;GetSegment() );</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <a class="code hl_variable" href="classMiniballEvts.html#a247f4d554f56ea8692bc894d369fe8b8">spede_event</a>.push_back( fill_evt );</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
 </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
-<div class="foldopen" id="foldopen00112" data-start="{" data-end="}">
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a2b935723a8d7f785b1f6610c69167b82">  112</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;IonChamberEvt&gt; event ) {</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    </div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <a class="code hl_class" href="classIonChamberEvt.html">IonChamberEvt</a> fill_evt;</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#afd5b784e07c2ef072215ad9d21d244bb">SetEnergies</a>( event-&gt;GetEnergies() );</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#a4ffb299c029d9792a61db5f06e5d23b7">SetdETime</a>( event-&gt;GetdETime() );</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#a3689361cc14c12a6b7f9c04f70f9ec5f">SetETime</a>( event-&gt;GetETime() );</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#ace8b58e5025a34f9972fdae93f17e618">SetIDs</a>( event-&gt;GetIDs() );</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <a class="code hl_variable" href="classMiniballEvts.html#a1cfb9cdae7620538c78fbadb664a655d">ic_event</a>.push_back( fill_evt );</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>}</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="foldopen" id="foldopen00105" data-start="{" data-end="}">
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno"><a class="line" href="classMiniballEvts.html#a2b935723a8d7f785b1f6610c69167b82">  105</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a>( std::shared_ptr&lt;IonChamberEvt&gt; event ) {</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    </div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="comment">// Make a copy of the event and push it back</span></div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_class" href="classIonChamberEvt.html">IonChamberEvt</a> fill_evt;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#afd5b784e07c2ef072215ad9d21d244bb">SetEnergies</a>( event-&gt;GetEnergies() );</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#a4ffb299c029d9792a61db5f06e5d23b7">SetdETime</a>( event-&gt;GetdETime() );</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#a3689361cc14c12a6b7f9c04f70f9ec5f">SetETime</a>( event-&gt;GetETime() );</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    fill_evt.<a class="code hl_function" href="classIonChamberEvt.html#ace8b58e5025a34f9972fdae93f17e618">SetIDs</a>( event-&gt;GetIDs() );</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <a class="code hl_variable" href="classMiniballEvts.html#a1cfb9cdae7620538c78fbadb664a655d">ic_event</a>.push_back( fill_evt );</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    </div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>}</div>
 </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="foldopen" id="foldopen00125" data-start="{" data-end="}">
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno"><a class="line" href="classIonChamberEvt.html#ad36d13b3c8a2471c3ebeef286f17659a">  125</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classIonChamberEvt.html#ad36d13b3c8a2471c3ebeef286f17659a">IonChamberEvt::ClearEvt</a>() {</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
+<div class="foldopen" id="foldopen00118" data-start="{" data-end="}">
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno"><a class="line" href="classIonChamberEvt.html#ad36d13b3c8a2471c3ebeef286f17659a">  118</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="classIonChamberEvt.html#ad36d13b3c8a2471c3ebeef286f17659a">IonChamberEvt::ClearEvt</a>() {</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="comment">// Clear the ionisation chamber event ready for a new one</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    std::vector&lt;float&gt;().swap(<a class="code hl_variable" href="classIonChamberEvt.html#ae25a1cea574187c022e0705f8038462f">energy</a>);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    std::vector&lt;unsigned char&gt;().swap(<span class="keywordtype">id</span>);</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <a class="code hl_variable" href="classIonChamberEvt.html#a020254a7680f7c59f5b0dd8fdb7bee48">detime</a> = 0;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <a class="code hl_variable" href="classIonChamberEvt.html#aa7b0953310f1cf351828ae375c7096f6">etime</a> = 0;</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    </div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="comment">// Clear the ionisation chamber event ready for a new one</span></div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <a class="code hl_variable" href="classIonChamberEvt.html#ae25a1cea574187c022e0705f8038462f">energy</a>.clear();</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">id</span>.clear();</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    std::vector&lt;float&gt;().swap(<a class="code hl_variable" href="classIonChamberEvt.html#ae25a1cea574187c022e0705f8038462f">energy</a>);</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    std::vector&lt;unsigned char&gt;().swap(<span class="keywordtype">id</span>);</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <a class="code hl_variable" href="classIonChamberEvt.html#a020254a7680f7c59f5b0dd8fdb7bee48">detime</a> = 0;</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <a class="code hl_variable" href="classIonChamberEvt.html#aa7b0953310f1cf351828ae375c7096f6">etime</a> = 0;</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    </div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>}</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    </div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>}</div>
 </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
 <div class="ttc" id="aMiniballEvts_8cc_html_a8a0510b92650b10df642d364da0abc97"><div class="ttname"><a href="MiniballEvts_8cc.html#a8a0510b92650b10df642d364da0abc97">ClassImp</a></div><div class="ttdeci">ClassImp(GammaRayEvt) ClassImp(GammaRayAddbackEvt) ClassImp(ParticleEvt) ClassImp(BeamDumpEvt) ClassImp(SpedeEvt) ClassImp(IonChamberEvt) ClassImp(MiniballEvts) void MiniballEvts</div><div class="ttdef"><b>Definition</b> <a href="#l00003">MiniballEvts.cc:3</a></div></div>
 <div class="ttc" id="aMiniballEvts_8hh_html"><div class="ttname"><a href="MiniballEvts_8hh.html">MiniballEvts.hh</a></div></div>
 <div class="ttc" id="aclassBeamDumpEvt_html"><div class="ttname"><a href="classBeamDumpEvt.html">BeamDumpEvt</a></div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00122">MiniballEvts.hh:122</a></div></div>
@@ -269,7 +259,7 @@ $(function(){ initResizable(false); });
 <div class="ttc" id="aclassIonChamberEvt_html_a4ffb299c029d9792a61db5f06e5d23b7"><div class="ttname"><a href="classIonChamberEvt.html#a4ffb299c029d9792a61db5f06e5d23b7">IonChamberEvt::SetdETime</a></div><div class="ttdeci">void SetdETime(unsigned long t)</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00198">MiniballEvts.hh:198</a></div></div>
 <div class="ttc" id="aclassIonChamberEvt_html_aa7b0953310f1cf351828ae375c7096f6"><div class="ttname"><a href="classIonChamberEvt.html#aa7b0953310f1cf351828ae375c7096f6">IonChamberEvt::etime</a></div><div class="ttdeci">unsigned long etime</div><div class="ttdoc">time stamp of silicon event</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00248">MiniballEvts.hh:248</a></div></div>
 <div class="ttc" id="aclassIonChamberEvt_html_ace8b58e5025a34f9972fdae93f17e618"><div class="ttname"><a href="classIonChamberEvt.html#ace8b58e5025a34f9972fdae93f17e618">IonChamberEvt::SetIDs</a></div><div class="ttdeci">void SetIDs(std::vector&lt; unsigned char &gt; x)</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00201">MiniballEvts.hh:201</a></div></div>
-<div class="ttc" id="aclassIonChamberEvt_html_ad36d13b3c8a2471c3ebeef286f17659a"><div class="ttname"><a href="classIonChamberEvt.html#ad36d13b3c8a2471c3ebeef286f17659a">IonChamberEvt::ClearEvt</a></div><div class="ttdeci">void ClearEvt()</div><div class="ttdef"><b>Definition</b> <a href="#l00125">MiniballEvts.cc:125</a></div></div>
+<div class="ttc" id="aclassIonChamberEvt_html_ad36d13b3c8a2471c3ebeef286f17659a"><div class="ttname"><a href="classIonChamberEvt.html#ad36d13b3c8a2471c3ebeef286f17659a">IonChamberEvt::ClearEvt</a></div><div class="ttdeci">void ClearEvt()</div><div class="ttdef"><b>Definition</b> <a href="#l00118">MiniballEvts.cc:118</a></div></div>
 <div class="ttc" id="aclassIonChamberEvt_html_ae25a1cea574187c022e0705f8038462f"><div class="ttname"><a href="classIonChamberEvt.html#ae25a1cea574187c022e0705f8038462f">IonChamberEvt::energy</a></div><div class="ttdeci">std::vector&lt; float &gt; energy</div><div class="ttdoc">differential energy list</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00245">MiniballEvts.hh:245</a></div></div>
 <div class="ttc" id="aclassIonChamberEvt_html_afd5b784e07c2ef072215ad9d21d244bb"><div class="ttname"><a href="classIonChamberEvt.html#afd5b784e07c2ef072215ad9d21d244bb">IonChamberEvt::SetEnergies</a></div><div class="ttdeci">void SetEnergies(std::vector&lt; float &gt; x)</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00200">MiniballEvts.hh:200</a></div></div>
 <div class="ttc" id="aclassMiniballEvts_html"><div class="ttname"><a href="classMiniballEvts.html">MiniballEvts</a></div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00255">MiniballEvts.hh:255</a></div></div>
@@ -279,7 +269,7 @@ $(function(){ initResizable(false); });
 <div class="ttc" id="aclassMiniballEvts_html_a247f4d554f56ea8692bc894d369fe8b8"><div class="ttname"><a href="classMiniballEvts.html#a247f4d554f56ea8692bc894d369fe8b8">MiniballEvts::spede_event</a></div><div class="ttdeci">std::vector&lt; SpedeEvt &gt; spede_event</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00328">MiniballEvts.hh:328</a></div></div>
 <div class="ttc" id="aclassMiniballEvts_html_a40ee69ef87d8b53b6ec7fc72eb81792a"><div class="ttname"><a href="classMiniballEvts.html#a40ee69ef87d8b53b6ec7fc72eb81792a">MiniballEvts::ebis</a></div><div class="ttdeci">unsigned long ebis</div><div class="ttdoc">absolute EBIS pulse time</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00319">MiniballEvts.hh:319</a></div></div>
 <div class="ttc" id="aclassMiniballEvts_html_a4b6e8bb10964f04ebee8a7df63abb7f0"><div class="ttname"><a href="classMiniballEvts.html#a4b6e8bb10964f04ebee8a7df63abb7f0">MiniballEvts::ClearEvt</a></div><div class="ttdeci">void ClearEvt()</div></div>
-<div class="ttc" id="aclassMiniballEvts_html_a894e474b9dd8dbc9383c1a853d79f305"><div class="ttname"><a href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a></div><div class="ttdeci">void AddEvt(std::shared_ptr&lt; GammaRayEvt &gt; event)</div><div class="ttdef"><b>Definition</b> <a href="#l00039">MiniballEvts.cc:39</a></div></div>
+<div class="ttc" id="aclassMiniballEvts_html_a894e474b9dd8dbc9383c1a853d79f305"><div class="ttname"><a href="classMiniballEvts.html#a894e474b9dd8dbc9383c1a853d79f305">MiniballEvts::AddEvt</a></div><div class="ttdeci">void AddEvt(std::shared_ptr&lt; GammaRayEvt &gt; event)</div><div class="ttdef"><b>Definition</b> <a href="#l00032">MiniballEvts.cc:32</a></div></div>
 <div class="ttc" id="aclassMiniballEvts_html_aa898b35a3847ad9c6aa12324c4f5b160"><div class="ttname"><a href="classMiniballEvts.html#aa898b35a3847ad9c6aa12324c4f5b160">MiniballEvts::gamma_ab_event</a></div><div class="ttdeci">std::vector&lt; GammaRayAddbackEvt &gt; gamma_ab_event</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00325">MiniballEvts.hh:325</a></div></div>
 <div class="ttc" id="aclassMiniballEvts_html_add4d35c003708388035840960e1d1822"><div class="ttname"><a href="classMiniballEvts.html#add4d35c003708388035840960e1d1822">MiniballEvts::particle_event</a></div><div class="ttdeci">std::vector&lt; ParticleEvt &gt; particle_event</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00326">MiniballEvts.hh:326</a></div></div>
 <div class="ttc" id="aclassMiniballEvts_html_ae5b465377452115df5cf442fd58e9dac"><div class="ttname"><a href="classMiniballEvts.html#ae5b465377452115df5cf442fd58e9dac">MiniballEvts::bd_event</a></div><div class="ttdeci">std::vector&lt; BeamDumpEvt &gt; bd_event</div><div class="ttdef"><b>Definition</b> <a href="MiniballEvts_8hh_source.html#l00327">MiniballEvts.hh:327</a></div></div>

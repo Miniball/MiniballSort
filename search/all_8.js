@@ -59,10 +59,11 @@ var searchData=
   ['histparticlebins_56',['HistParticleBins',['../classMiniballReaction.html#a5881869ec48d044c576544974c99cc38',1,'MiniballReaction']]],
   ['histparticlemax_57',['HistParticleMax',['../classMiniballReaction.html#acc9e19d8bfe5b5c3231e96ed3c3bbd2f',1,'MiniballReaction']]],
   ['histparticlemin_58',['HistParticleMin',['../classMiniballReaction.html#a675023f898d69bde27b86779f77ead8c',1,'MiniballReaction']]],
-  ['histsegmentphi_59',['HistSegmentPhi',['../classMiniballReaction.html#a4ea2dbb49347ea4685343f39f743af2a',1,'MiniballReaction']]],
-  ['hit_60',['hit',['../classMBSBufferElem.html#afc4a678458a0b6c6952db72315764943',1,'MBSBufferElem']]],
-  ['hit_5fctr_61',['hit_ctr',['../classMiniballEventBuilder.html#a9113c1e674c5f3f6d184d4ce79e0986b',1,'MiniballEventBuilder']]],
-  ['hitpattern_62',['HitPattern',['../classDgfData.html#a05aa9af4988aec31a93d0c958ed1d842',1,'DgfData']]],
-  ['hits_63',['of hits',['../classMBSBufferElem.html#autotoc_md5',1,'']]],
-  ['hsize_64',['hsize',['../classMBSBufferElem.html#a1b5f60908e03ab087f84073aad36035b',1,'MBSBufferElem']]]
+  ['hists_5fready_59',['hists_ready',['../classMiniballEventBuilder.html#adc9b35137f64335ce5db2fc2d1c6640f',1,'MiniballEventBuilder::hists_ready'],['../classMiniballHistogrammer.html#a076fae9cbe76c62747a523623eadbc20',1,'MiniballHistogrammer::hists_ready']]],
+  ['histsegmentphi_60',['HistSegmentPhi',['../classMiniballReaction.html#a4ea2dbb49347ea4685343f39f743af2a',1,'MiniballReaction']]],
+  ['hit_61',['hit',['../classMBSBufferElem.html#afc4a678458a0b6c6952db72315764943',1,'MBSBufferElem']]],
+  ['hit_5fctr_62',['hit_ctr',['../classMiniballEventBuilder.html#a9113c1e674c5f3f6d184d4ce79e0986b',1,'MiniballEventBuilder']]],
+  ['hitpattern_63',['HitPattern',['../classDgfData.html#a05aa9af4988aec31a93d0c958ed1d842',1,'DgfData']]],
+  ['hits_64',['of hits',['../classMBSBufferElem.html#autotoc_md5',1,'']]],
+  ['hsize_65',['hsize',['../classMBSBufferElem.html#a1b5f60908e03ab087f84073aad36035b',1,'MBSBufferElem']]]
 ];
