@@ -1706,9 +1706,9 @@ void MiniballHistogrammer::PlotDefaultHists() {
 	c1->GetPad(2)->SetLogz();
 	pE_theta->Draw("colz");
 	c1->cd(3);
-	ebis_td_particle->Draw();
+	ebis_td_gamma->Draw("hist");
 	c1->cd(4);
-	ebis_td_gamma->Draw();
+	ebis_td_particle->Draw("hist");
 
 	return;
 
@@ -1744,8 +1744,8 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 	}
 	else maxhists = spyhists.size();
 
-	// Clear and divide canvas
-	cspy->Clear("D");
+	// Make the canvas
+	c2 = std::make_unique<TCanvas>("c2","User hists");
 	if( maxhists > 1 && spylayout[0] > 0 && spylayout[1] > 0 )
 		cspy->Divide( spylayout[0], spylayout[1] );
 
@@ -1753,7 +1753,7 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 	for( unsigned int i = 0; i < maxhists; i++ ){
 
 		// Go to corresponding canvas
-		cspy->cd(i+1);
+		c2->cd(i+1);
 
 		// Get this histogram of the right type
 		if( spyhists[i][1] == "TH1" )

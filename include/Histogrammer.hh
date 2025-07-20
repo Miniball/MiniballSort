@@ -88,10 +88,6 @@ public:
 		_prog_ = true;
 	};
 
-	inline void AddSpyCanvas( std::shared_ptr<TCanvas> cin ){
-		cspy = cin;
-	}; ///< Adds the canvas for the DataSpy
-
 	// Coincidence conditions (to be put in settings file eventually?)
 	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, std::shared_ptr<ParticleEvt> p ){
 		return PromptCoincidence( g, p->GetTime() );
@@ -289,10 +285,9 @@ private:
 	bool hists_ready = false;
 
 	// Canvas and hist lists for the spy
-	std::shared_ptr<TCanvas> cspy;
 	std::vector<std::vector<std::string>> spyhists;
 	short spylayout[2];
-	std::unique_ptr<TCanvas> c1;
+	std::unique_ptr<TCanvas> c1, c2;
 
 	// Counters
 	unsigned long n_entries;

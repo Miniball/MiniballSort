@@ -120,7 +120,6 @@ std::shared_ptr<MiniballReaction> myreact;
 // Server and controls for the GUI
 std::unique_ptr<THttpServer> serv;
 int port_num = 8030;
-std::shared_ptr<TCanvas> cspy;
 std::string spy_hists_file;
 std::vector<std::vector<std::string>> physhists;
 short spylayout[2] = {2,2};
@@ -131,7 +130,6 @@ typedef struct thptr {
 	std::shared_ptr<MiniballCalibration> mycal;
 	std::shared_ptr<MiniballSettings> myset;
 	std::shared_ptr<MiniballReaction> myreact;
-	std::shared_ptr<TCanvas> cspy;
 	std::vector<std::vector<std::string>> physhists;
 	short spylayout[2];
 	bool flag_alive;
@@ -244,7 +242,6 @@ void* monitor_run( void* ptr ){
 
 	// Add canvas and hists for spy
 	hist_mon->SetSpyHists( inputptr->physhists, inputptr->spylayout );
-	hist_mon->AddSpyCanvas( inputptr->cspy );
 
 	// Update server settings
 	// title of web page
@@ -1183,9 +1180,6 @@ int main( int argc, char *argv[] ){
 			return 0;
 			
 		}
-		
-		// Make the canvas for later
-		cspy = std::make_shared<TCanvas>();
 
 		// Read the histogram list from the file
 		ReadSpyHistogramList();
@@ -1196,7 +1190,6 @@ int main( int argc, char *argv[] ){
 		data.myset = myset;
 		data.myreact = myreact;
 		data.flag_alive = flag_alive;
-		data.cspy = cspy;
 		data.physhists = physhists;
 		data.spylayout[0] = spylayout[0];
 		data.spylayout[1] = spylayout[1];
