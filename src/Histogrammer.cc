@@ -1683,6 +1683,9 @@ void MiniballHistogrammer::MakeHists() {
 	// flag to denote that hists are ready (used for spy)
 	hists_ready = true;
 
+	// Write hists once at the start
+	output_file->Write();
+
 	return;
 	
 }
@@ -1754,13 +1757,13 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 
 		// Get this histogram of the right type
 		if( spyhists[i][1] == "TH1" )
-			static_cast<TH1*>( output_file->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
+			static_cast<TH1*>( gDirectory->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
 
 		else if( spyhists[i][1] == "TH2" )
-			static_cast<TH1*>( output_file->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
+			static_cast<TH1*>( gDirectory->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
 
 		else if( spyhists[i][1] == "TProfile" )
-			static_cast<TProfile*>( output_file->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
+			static_cast<TProfile*>( gDirectory->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
 
 		else
 			std::cout << "Type " << spyhists[i][1] << " not currently supported" << std::endl;
