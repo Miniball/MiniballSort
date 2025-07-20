@@ -144,13 +144,6 @@ std::shared_ptr<MiniballMidasConverter> conv_midas_mon;
 std::shared_ptr<MiniballEventBuilder> eb_mon;
 std::shared_ptr<MiniballHistogrammer> hist_mon;
 
-void plot_physics_hists(){
-	if( hist_mon.get() != nullptr )
-		hist_mon->PlotPhysicsHists();
-	else
-		std::cout << "Not ready yet, try again" << std::endl;
-}
-
 void reset_conv_hists(){
 	conv_mon->ResetHists();
 }
@@ -429,7 +422,6 @@ void start_http(){
 	serv->RegisterCommand("/ResetSingles", "ResetConv()");
 	serv->RegisterCommand("/ResetEvents", "ResetEvnt()");
 	serv->RegisterCommand("/ResetHists", "ResetHist()");
-	serv->RegisterCommand("/PlotPhysicsHists", "PlotPhysicsHists()");
 
 	// hide commands so the only show as buttons
 	//serv->Hide("/Start");
