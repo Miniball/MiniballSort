@@ -1801,7 +1801,7 @@ void MiniballHistogrammer::ResetHists(){
 			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
 			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
 
-				if( key1->ReadObj()->InheritsFrom("TDirectory") ){
+				if( key2->ReadObj()->InheritsFrom("TDirectory") ){
 
 					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
 					while( ( key3 = (TKey*)keyList3() ) ) // level 3
