@@ -496,7 +496,7 @@ void MiniballEventBuilder::MakeEventHists(){
 	hists_ready = true;
 
 	// Write once
-	output_file->Write();
+	//output_file->Write();
 
 	return;
 	
@@ -507,10 +507,10 @@ void MiniballEventBuilder::ResetHist( TObject *obj ) {
 
 	if( obj == nullptr ) return;
 
-	if( obj->InheritsFrom( "TH1" ) )
-		( (TH1*)obj )->Reset("ICESM");
-	else if( obj->InheritsFrom( "TH2" ) )
+	if( obj->InheritsFrom( "TH2" ) )
 		( (TH2*)obj )->Reset("ICESM");
+	else if( obj->InheritsFrom( "TH1" ) )
+		( (TH1*)obj )->Reset("ICESM");
 
 	return;
 
@@ -520,7 +520,7 @@ void MiniballEventBuilder::ResetHist( TObject *obj ) {
 void MiniballEventBuilder::ResetHists(){
 
 	TKey *key1, *key2, *key3;
-	TIter keyList1( output_file->GetListOfKeys() );
+	TIter keyList1( gDirectory->GetListOfKeys() );
 	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
 
 		if( key1->ReadObj()->InheritsFrom("TDirectory") ){

@@ -1684,7 +1684,7 @@ void MiniballHistogrammer::MakeHists() {
 	hists_ready = true;
 
 	// Write hists once at the start
-	output_file->Write();
+	//output_file->Write();
 
 	return;
 	
@@ -1749,24 +1749,34 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 	if( maxhists > 1 && spylayout[0] > 0 && spylayout[1] > 0 )
 		c2->Divide( spylayout[0], spylayout[1] );
 
-	// ASIC time difference histograms
+	// User defined histograms
+	std::vector<std::unique_ptr<TH1F>>> ptr_th1;
+	std::vector<std::unique_ptr<TH2F>>> ptr_th2;
 	for( unsigned int i = 0; i < maxhists; i++ ){
 
 		// Go to corresponding canvas
 		c2->cd(i+1);
 
+		std::cout << spyhists[i][0] << "\t" <<  spyhists[i][1] << "\t" <<  spyhists[i][2] << std::endl;
+
 		// Get this histogram of the right type
-		if( spyhists[i][1] == "TH1" )
-			static_cast<TH1*>( gDirectory->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
+		if( spyhists[i][1] == "TH1" || spyhists[i][1] == "TH1F" || spyhists[i][1] == "TH1D" ) {
 
-		else if( spyhists[i][1] == "TH2" )
-			static_cast<TH1*>( gDirectory->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
+			ptr_th1.push_back( static_cast<TH1*>( gDirectory->Get( spyhists[i][0].data() ) ) );
+			if( ptr_th1.back().get() != nullptr )
+				ptr_th1.back()->Draw( spyhists[i][2].data() );
 
-		else if( spyhists[i][1] == "TProfile" )
-			static_cast<TProfile*>( gDirectory->Get( spyhists[i][0].data() ) )->Draw( spyhists[i][2].data() );
+		}
 
-		else
-			std::cout << "Type " << spyhists[i][1] << " not currently supported" << std::endl;
+		else if( spyhists[i][1] == "TH2" || spyhists[i][1] == "TH2F" || spyhists[i][1] == "TH2D" ) {
+
+			ptr_th2.push_back( static_cast<TH2*>( gDirectory->Get( spyhists[i][0].data() ) ) );
+			if( ptr_th2.back().get() != nullptr )
+				ptr_th2.back()->Draw( spyhists[i][2].data() );
+
+		}
+
+		else std::cout << "Type " << spyhists[i][1] << " not currently supported" << std::endl;
 
 	}
 
@@ -1783,10 +1793,10 @@ void MiniballHistogrammer::ResetHist( TObject *obj ) {
 
 	if( obj == nullptr ) return;
 
-	if( obj->InheritsFrom( "TH1" ) )
-		( (TH1*)obj )->Reset("ICESM");
-	else if( obj->InheritsFrom( "TH2" ) )
+	if( obj->InheritsFrom( "TH2" ) )
 		( (TH2*)obj )->Reset("ICESM");
+	else if( obj->InheritsFrom( "TH1" ) )
+		( (TH1*)obj )->Reset("ICESM");
 
 	return;
 
@@ -1796,7 +1806,7 @@ void MiniballHistogrammer::ResetHist( TObject *obj ) {
 void MiniballHistogrammer::ResetHists(){
 
 	TKey *key1, *key2, *key3;
-	TIter keyList1( output_file->GetListOfKeys() );
+	TIter keyList1( gDirectory->GetListOfKeys() );
 	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
 
 		if( key1->ReadObj()->InheritsFrom("TDirectory") ){
