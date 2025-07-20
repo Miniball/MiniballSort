@@ -1700,7 +1700,7 @@ void MiniballHistogrammer::PlotDefaultHists() {
 	c1->cd(1);
 	gE_singles->Draw("hist");
 	c1->cd(2);
-	c1->GetPad(2)->SetLogz()
+	c1->GetPad(2)->SetLogz();
 	pE_theta->Draw("colz");
 	c1->cd(3);
 	ebis_td_particle->Draw();
