@@ -534,41 +534,61 @@ void MiniballConverter::MakeHists() {
 	// Hit time plot
 	hhit_time = new TH1F( "hhit_time", "Hit time distribution", 3200, -16000, 16000 );
 
+	// Write once
+	output_file->Write();
+
 	return;
 	
 }
 
-void MiniballConverter::ResetHists() {
+// Reset histograms in the DataSpy
+void MiniballConverter::ResetHist( TObject *obj ) {
 
-	// Loop over FEBEX SFPs
-	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+	if( obj == nullptr ) return;
 
-		// Loop over each FEBEX board
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-			
-			// Loop over channels of each FEBEX board
-			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
-				
-				hfebex_qshort[i][j][k]->Reset( "ICEMS" );
-				hfebex_qint[i][j][k]->Reset( "ICEMS" );
-				hfebex_cal[i][j][k]->Reset( "ICEMS" );
-				hfebex_mwd[i][j][k]->Reset( "ICEMS" );
-				
-			} // k - channel
+	if( obj->InheritsFrom( "TH2" ) )
+		( (TH2*)obj )->Reset("ICESM");
+	else if( obj->InheritsFrom( "TH1" ) )
+		( (TH1*)obj )->Reset("ICESM");
 
-			hfebex_hit[i][j]->Reset( "ICEMS" );
-			hfebex_pause[i][j]->Reset( "ICEMS" );
-			hfebex_resume[i][j]->Reset( "ICEMS" );
-			hfebex_sync[i][j]->Reset( "ICEMS" );
-
-		} // j - board
-		
-	} // i - SFP
-	
-	hhit_time->Reset( "ICEMS" );
-	
 	return;
-	
+
+}
+
+// Reset histograms in the DataSpy
+void MiniballConverter::ResetHists(){
+
+	TKey *key1, *key2, *key3;
+	TIter keyList1( gDirectory->GetListOfKeys() );
+	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
+
+		if( key1->ReadObj()->InheritsFrom("TDirectory") ){
+
+			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
+			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
+
+				if( key2->ReadObj()->InheritsFrom("TDirectory") ){
+
+					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
+					while( ( key3 = (TKey*)keyList3() ) ) // level 3
+						ResetHist( key3->ReadObj() );
+
+				}
+
+				else
+					ResetHist( key2->ReadObj() );
+
+			} // level 2
+
+		}
+
+		else
+			ResetHist( key1->ReadObj() );
+
+	} // level 1
+
+	return;
+
 }
 
 void MiniballConverter::BuildMbsIndex(){

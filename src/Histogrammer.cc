@@ -1684,7 +1684,7 @@ void MiniballHistogrammer::MakeHists() {
 	hists_ready = true;
 
 	// Write hists once at the start
-	//output_file->Write();
+	output_file->Write();
 
 	return;
 	
@@ -1779,9 +1779,6 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 		else std::cout << "Type " << spyhists[i][1] << " not currently supported" << std::endl;
 
 	}
-
-	// Write once
-	//output_file->Write();
 
 	return;
 

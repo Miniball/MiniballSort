@@ -19,6 +19,8 @@
 #include <TProfile.h>
 #include <TGProgressBar.h>
 #include <TSystem.h>
+#include <TKey.h>
+#include <TROOT.h>
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -45,6 +47,7 @@ public:
 
 	void MakeHists();
 	void NewBuffer();
+	void ResetHist( TObject *obj );
 	void ResetHists();
 	void MakeTree();
 	void StartFile();
