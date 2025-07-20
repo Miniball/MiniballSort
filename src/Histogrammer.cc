@@ -1687,6 +1687,30 @@ void MiniballHistogrammer::MakeHists() {
 	
 }
 
+void MiniballHistogrammer::PlotDefaultHists() {
+
+	// Check that we're ready
+	if( !hists_ready ) return;
+
+	// Make the canvas
+	c1 = std::make_unique<TCanvas>("c1","Monitor hists");
+	c1->Divide(2,2);
+
+	// Plot things
+	c1->cd(1);
+	gE_singles->Draw("hist");
+	c1->cd(2);
+	c1->GetPad(2)->SetLogz()
+	pE_theta->Draw("colz");
+	c1->cd(3);
+	ebis_td_particle->Draw();
+	c1->cd(4);
+	ebis_td_gamma->Draw();
+
+	return;
+
+}
+
 void MiniballHistogrammer::SetSpyHists( std::vector<std::vector<std::string>> hists, short layout[2] ) {
 
 	// Copy the input hists and layouts

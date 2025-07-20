@@ -381,6 +381,8 @@ void* monitor_run( void* ptr ){
 				// If this was the first time we ran, do stuff?
 				if( bFirstRun ) {
 					
+					hist_mon->PlotDefaultHists();
+					hist_mon->PlotPhysicsHists();
 					bFirstRun = kFALSE;
 					
 				}

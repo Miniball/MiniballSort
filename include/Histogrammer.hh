@@ -57,6 +57,7 @@ public:
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g );
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayAddbackEvt> g );
 
+	void PlotDefaultHists();
 	void PlotPhysicsHists();
 	void SetSpyHists( std::vector<std::vector<std::string>> hists, short layout[2] );
 
@@ -291,6 +292,7 @@ private:
 	std::shared_ptr<TCanvas> cspy;
 	std::vector<std::vector<std::string>> spyhists;
 	short spylayout[2];
+	std::unique_ptr<TCanvas> c1;
 
 	// Counters
 	unsigned long n_entries;
