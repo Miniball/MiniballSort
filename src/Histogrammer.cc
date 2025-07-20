@@ -1750,8 +1750,8 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 		c2->Divide( spylayout[0], spylayout[1] );
 
 	// User defined histograms
-	std::vector<std::unique_ptr<TH1F>>> ptr_th1;
-	std::vector<std::unique_ptr<TH2F>>> ptr_th2;
+	TH1F *ptr_th1;
+	TH2F *ptr_th2;
 	for( unsigned int i = 0; i < maxhists; i++ ){
 
 		// Go to corresponding canvas
@@ -1762,17 +1762,17 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 		// Get this histogram of the right type
 		if( spyhists[i][1] == "TH1" || spyhists[i][1] == "TH1F" || spyhists[i][1] == "TH1D" ) {
 
-			ptr_th1.push_back( static_cast<TH1*>( gDirectory->Get( spyhists[i][0].data() ) ) );
-			if( ptr_th1.back().get() != nullptr )
-				ptr_th1.back()->Draw( spyhists[i][2].data() );
+			ptr_th1 = (TH1F*)gDirectory->Get( spyhists[i][0].data() );
+			if( ptr_th1 != nullptr )
+				ptr_th1->Draw( spyhists[i][2].data() );
 
 		}
 
 		else if( spyhists[i][1] == "TH2" || spyhists[i][1] == "TH2F" || spyhists[i][1] == "TH2D" ) {
 
-			ptr_th2.push_back( static_cast<TH2*>( gDirectory->Get( spyhists[i][0].data() ) ) );
-			if( ptr_th2.back().get() != nullptr )
-				ptr_th2.back()->Draw( spyhists[i][2].data() );
+			ptr_th2 = (TH2F*)gDirectory->Get( spyhists[i][0].data() );
+			if( ptr_th2 != nullptr )
+				ptr_th2->Draw( spyhists[i][2].data() );
 
 		}
 
@@ -1781,7 +1781,7 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 	}
 
 	// Write once
-	output_file->Write();
+	//output_file->Write();
 
 	return;
 
