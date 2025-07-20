@@ -1747,7 +1747,7 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 	// Make the canvas
 	c2 = std::make_unique<TCanvas>("c2","User hists");
 	if( maxhists > 1 && spylayout[0] > 0 && spylayout[1] > 0 )
-		cspy->Divide( spylayout[0], spylayout[1] );
+		c2->Divide( spylayout[0], spylayout[1] );
 
 	// ASIC time difference histograms
 	for( unsigned int i = 0; i < maxhists; i++ ){
