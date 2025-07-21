@@ -514,6 +514,8 @@ public:
 	inline bool EventsCdPadVeto(){ return events_particle_cdpad_veto; };
 
 	// Histogram options
+	inline bool HistWithoutAddback(){ return hist_wo_addback; };
+	inline bool HistWithAddback(){ return hist_w_addback; };
 	inline bool HistSegmentPhi(){ return hist_segment_phi; };
 	inline bool HistByCrystal(){ return hist_by_crystal; };
 	inline bool HistByMultiplicity(){ return hist_by_pmult; };
@@ -625,6 +627,8 @@ private:
 	bool events_particle_cdpad_veto;
 
 	// Histogram options
+	bool hist_wo_addback;
+	bool hist_w_addback;
 	bool hist_segment_phi;
 	bool hist_by_crystal;
 	bool hist_by_pmult;
