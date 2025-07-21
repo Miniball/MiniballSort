@@ -2017,20 +2017,31 @@ void MiniballHistogrammer::PlotDefaultHists() {
 
 	// Plot things
 	c1->cd(1);
-	gE_singles->Draw("hist");
+	if( gE_singles != nullptr )
+		gE_singles->Draw("hist");
+
 	c1->cd(2);
 	c1->GetPad(2)->SetLogz();
-	pE_theta->Draw("colz");
+	if( pE_theta != nullptr )
+		pE_theta->Draw("colz");
+
 	c1->cd(3);
-	ebis_td_gamma->Draw("hist");
+	if( ebis_td_gamma != nullptr )
+		ebis_td_gamma->Draw("hist");
+
 	c1->cd(4);
-	ebis_td_particle->Draw("hist");
+	if( ebis_td_particle != nullptr )
+		ebis_td_particle->Draw("hist");
+
 	c1->cd(5);
 	c1->GetPad(5)->SetLogz();
-	gamma_theta_phi_map->Draw("colz");
+	if( gamma_theta_phi_map != nullptr )
+		gamma_theta_phi_map->Draw("colz");
+	
 	c1->cd(6);
 	c1->GetPad(6)->SetLogz();
-	particle_xy_map_forward->Draw("colz");
+	if( particle_xy_map_forward != nullptr )
+		particle_xy_map_forward->Draw("colz");
 
 	return;
 
