@@ -422,6 +422,7 @@ void MiniballConverter::MakeHists() {
 	
 	
 	// Hit time plot
+	output_file->cd( maindirname.data() );
 	hhit_time = new TH1F( "hhit_time", "Hit time distribution", 3200, -16000, 16000 );
 	histlist->Add(hhit_time);
 
