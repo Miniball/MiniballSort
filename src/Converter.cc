@@ -309,7 +309,6 @@ void MiniballConverter::MakeHists() {
 			histlist->Add(hfebex_resume[i][j]);
 
 			// External sync trigger vs timestamp
-			output_file->cd( maindirname.data() );
 			hname = "hfebex_sync_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			htitle = "Profile of external sync trigger ts versus hit_id";
