@@ -293,7 +293,7 @@ void* monitor_run( void* ptr ){
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
-				while( block_ctr < 256 && poll_ctr < 1000 * mon_time / wait_time ){
+				while( block_ctr < 1024 && poll_ctr < 1000 * mon_time / wait_time ){
 
 					//std::cout << "Got " << spy_length << " bytes of data from DataSpy" << std::endl;
 					if( spy_length > 0 ) {
