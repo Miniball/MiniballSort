@@ -1,0 +1,36 @@
+# Calibration file example for MiniballSort
+#
+# Liam Gaffney - January 2022
+# liam.gaffney@liverpool.ac.uk
+#
+# pass this file to mb_sort with the -c flag
+# 
+# Format for the calibration parameters
+# febex_<sfp>_<board>_<ch>.Offset:		# energy calibration offset (default = 0.0)
+# febex_<sfp>_<board>_<ch>.Gain:		# energy calibration gain (default = 1.0)
+# febex_<sfp>_<board>_<ch>.GainQuadr:	# energy calibration quadratic term (default = 0.0)
+# febex_<sfp>_<board>_<ch>.Threshold:	# software threshold in adc units (default = 0)
+# febex_<sfp>_<board>_<ch>.Time:		# time offset in ns (default = 0)
+# febex_<sfp>_<board>_<ch>.Type:		# Qshort or Qint depending if you want to use the 16-bit or 32-bit energy value in the data format
+
+# For the CFD and MWD parameters for trace analysis, one has to pass the values as below:
+# febex_<sfp>_<board>_<ch>.MWD.DecayTime:			# this is equivalent to tau, not James' definition of torr
+# febex_<sfp>_<board>_<ch>.MWD.RiseTime:			# this is equivalent to 'MWD: L'
+# febex_<sfp>_<board>_<ch>.MWD.Window:				# this is equivalent to 'MWD: M'
+# febex_<sfp>_<board>_<ch>.MWD.FlatTop:				# this is equivalent to 'MWD: CFD Trig Delay' - 'MWD: Delay Input'
+# febex_<sfp>_<board>_<ch>.MWD.Baseline:			# this is equivalent to 'MWD: Delay Input', i.e. the number of sample before the trigger where you want to take the baseline energy
+# febex_<sfp>_<board>_<ch>.CFD.Threshold:			# this is equivalent to 'CFD Arm Thresh', i.e. the threshold of the CFD (polarity sensitive)
+# febex_<sfp>_<board>_<ch>.CFD.DelayTime:			# this is equivalent to 'CFD Delay', i.e. the delay time of the CFD
+# febex_<sfp>_<board>_<ch>.CFD.ShapingTime:			# this is equivalent to 'CFD Differential Time', i.e. the differential shaping time of the CFD.
+# febex_<sfp>_<board>_<ch>.CFD.IntegrationTime:		# this is equivalent to 'CFD Integral Time', i.e. the integral shaping time of the CFD - set to 1 to be equivalent to Liam's method.
+# febex_<sfp>_<board>_<ch>.CFD.Fraction:			# this is the CFD fraction, not equivalent to 'CFD Frac', which is a 7-bit integer quantised between 0x00 = 0.0 and 0x7f = 0.992
+# febex_<sfp>_<board>_<ch>.CFD.HoldOff:				# this is equivalent to 'CFD Delay', i.e. the hold-off time of the CFD (from initual LED threshold crossing).
+
+
+# The above can be set to some default parameters
+#febex.<parameter>: <value>
+
+# Which can be overridden on an SFP, board or channel basis
+#febex_<sfp>.<parameter>: <value>
+#febex_<sfp>_<board>.<parameter>: <value>
+#febex_<sfp>_<board>_<ch>.<parameter>: <value>
