@@ -289,13 +289,13 @@ void* monitor_run( void* ptr ){
 
 				// Keep reading until we have all the data
 				// This could be multi-threaded to process data and go back to read more
-				int wait_time = 10; // ms - between each read
+				int wait_time = 100; // ms - between each read
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
 				while( block_ctr < 256 && poll_ctr < 1000 * mon_time / wait_time ){
 
-					//std::cout << "Got some data from DataSpy" << std::endl;
+					//std::cout << "Got " << spy_length << " bytes of data from DataSpy" << std::endl;
 					if( spy_length > 0 ) {
 						nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
 						block_ctr += nblocks;
@@ -309,8 +309,16 @@ void* monitor_run( void* ptr ){
 					byte_ctr += spy_length;
 					poll_ctr++;
 
+					//std::cout << block_ctr << " blocks in " << poll_ctr << " polls" << std::endl;
+
 				}
-				
+
+				// Finish the last block
+				if( spy_length > 0 ) {
+					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
+					block_ctr += nblocks;
+				}
+
 				std::cout << "Got " << byte_ctr << " bytes of data in " << block_ctr << " blocks from DataSpy" << std::endl;
 
 				// Sort the packets we just got, then do the rest of the analysis
