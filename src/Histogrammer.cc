@@ -2017,13 +2017,19 @@ void MiniballHistogrammer::PlotDefaultHists() {
 
 	// Plot things
 	c1->cd(1);
-	if( gE_singles != nullptr )
-		gE_singles->Draw("hist");
+	if( gamma_particle_td != nullptr )
+		gamma_particle_td->Draw("hist");
 
 	c1->cd(2);
-	c1->GetPad(2)->SetLogz();
-	if( pE_theta != nullptr )
-		pE_theta->Draw("colz");
+	if( gE_singles_vs_crystal != nullptr ){
+		c1->GetPad(2)->SetLogz();
+		gE_singles_vs_crystal->GetYaxis()->SetRangeUser(1430,1490);
+		gE_singles_vs_crystal->Draw("colz");
+	}
+	else if( gE_singles != nullptr ){
+		gE_singles->GetXaxis()->SetRangeUser(1430,1490);
+		gE_singles->Draw("hist");
+	}
 
 	c1->cd(3);
 	if( ebis_td_gamma != nullptr )
@@ -3602,7 +3608,7 @@ void MiniballHistogrammer::SetInputFile( std::vector<std::string> input_file_nam
 	input_tree->SetBranchAddress( "MiniballEvts", &read_evts );
 
 	return;
-	
+
 }
 
 void MiniballHistogrammer::SetInputFile( std::string input_file_name ) {

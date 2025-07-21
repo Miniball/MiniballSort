@@ -442,11 +442,11 @@ void ReadSpyHistogramList() {
 
 		// If not, just use some defaults
 		spylayout[0] = 2; // x
-		spylayout[1] = 2; // y
+		spylayout[1] = 3; // y
+		physhists.push_back( {"ParticleSpectra/pE_theta_coinc", "TH2", "colz"} );
+		physhists.push_back( {"ParticleSpectra/pE_dE0", "TH2", "colz"} );
 		physhists.push_back( {"GammaRaySingles/gE_singles_ebis", "TH1", "hist"} );
-		physhists.push_back( {"ParticleSpectra/pE_theta", "TH2", "colz"} );
-		physhists.push_back( {"Timing/ebis_td_particle", "TH1", "hist"} );
-		physhists.push_back( {"Timing/ebis_td_gamma", "TH1", "hist"} );
+		physhists.push_back( {"GammaRaySingles/gE_singles_ebis_dc", "TH1", "hist"} );
 		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_ejectile", "TH1", "hist"} );
 		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_recoil", "TH1", "hist"} );
 

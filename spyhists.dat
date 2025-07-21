@@ -10,9 +10,9 @@
 #
 2
 3
-GammaRaySingles/gE_singles_ebis						TH1		hist
+ParticleSpectra/pE_theta_coinc						TH2		colz
 ParticleSpectra/pE_theta							TH2		colz
-Timing/ebis_td_particle								TH1		hist
-Timing/ebis_td_gamma								TH1		hist
+GammaRaySingles/gE_singles_ebis						TH1		hist
+GammaRaySingles/gE_singles_ebis_dc					TH1		hist
 GammaRayParticleCoincidences/gE_recoil_dc_ejectile	TH1		hist
 GammaRayParticleCoincidences/gE_recoil_dc_recoil	TH1		hist
