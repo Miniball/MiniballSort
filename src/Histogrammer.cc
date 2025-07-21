@@ -2079,8 +2079,6 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 		// Go to corresponding canvas
 		c2->cd(i+1);
 
-		std::cout << spyhists[i][0] << "\t" <<  spyhists[i][1] << "\t" <<  spyhists[i][2] << std::endl;
-
 		// Get this histogram of the right type
 		if( spyhists[i][1] == "TH1" || spyhists[i][1] == "TH1F" || spyhists[i][1] == "TH1D" ) {
 
