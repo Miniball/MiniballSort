@@ -28,8 +28,8 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 	// performing the error propagation when subtracting
 	TH1::SetDefaultSumw2(kTRUE);
 
-	// Histogrammer options
-	//TH1::AddDirectory(kFALSE);
+	// Intialise the hist list
+	histlist = std::make_unique<TList>();
 
 }
 
@@ -46,16 +46,21 @@ void MiniballHistogrammer::MakeHists() {
 
 	ebis_td_gamma = new TH1F( "ebis_td_gamma", "Gamma-ray time with respect to EBIS;#Deltat;Counts per 20 #mus", 5.5e3, -0.1e8, 1e8  );
 	ebis_td_particle = new TH1F( "ebis_td_particle", "Particle time with respect to EBIS;#Deltat;Counts per 20 #mus", 5.5e3, -0.1e8, 1e8  );
+	histlist->Add(ebis_td_gamma);
+	histlist->Add(ebis_td_particle);
 
 	hname = "gamma_particle_td";
 	htitle = "Gamma-ray - Particle time difference;#Deltat;Counts";
 	gamma_particle_td = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
+	histlist->Add(gamma_particle_td);
+
 
 	hname = "gamma_particle_E_vs_td";
 	htitle = "Gamma-ray - Particle time difference versus gamma-ray energy;#Deltat;Gamma-ray energy (keV);Counts";
 	gamma_particle_E_vs_td = new TH2F( hname.data(), htitle.data(),
 									  TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
+	histlist->Add(gamma_particle_E_vs_td);
 
 	// Sector-by-sector particle plots
 	if( react->HistBySector() ) {
@@ -70,12 +75,14 @@ void MiniballHistogrammer::MakeHists() {
 			htitle += std::to_string(i) + ";#Deltat;Counts";
 			gamma_particle_td_sec[i] = new TH1F( hname.data(), htitle.data(),
 												TBIN, TMIN, TMAX );
+			histlist->Add(gamma_particle_td_sec[i]);
 
 			hname = "gamma_particle_E_vs_td_sec" + std::to_string(i);
 			htitle = "Gamma-ray - Particle time difference versus gamma-ray energy for CD sector ";
 			htitle += std::to_string(i) + ";#Deltat;Gamma-ray energy (keV);Counts";
 			gamma_particle_E_vs_td_sec[i] = new TH2F( hname.data(), htitle.data(),
 													 TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
+			histlist->Add(gamma_particle_E_vs_td_sec[i]);
 
 		}
 
@@ -85,26 +92,31 @@ void MiniballHistogrammer::MakeHists() {
 	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat [ns];Counts";
 	gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
 							  TBIN, TMIN, TMAX );
+	histlist->Add(gamma_gamma_td);
 
 	hname = "gamma_electron_td";
 	htitle = "Gamma-ray - Electron time difference;#Deltat [ns];Counts per 10 ns";
 	gamma_electron_td = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
+	histlist->Add(gamma_electron_td);
 
 	hname = "electron_electron_td";
 	htitle = "Electron - Electron time difference;#Deltat [ns];Counts per 10 ns";
 	electron_electron_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
+	histlist->Add(electron_electron_td);
 
 	hname = "electron_particle_td";
 	htitle = "Electron - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	electron_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
+	histlist->Add(electron_particle_td);
 
 	hname = "particle_particle_td";
 	htitle = "Particle - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	particle_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
+	histlist->Add(particle_particle_td);
 
 	// Gamma-ray singles histograms
 	dirname = "GammaRaySingles";
@@ -114,85 +126,104 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gE_singles";
 	htitle = "Gamma-ray energy singles;Energy [keV];Counts per 0.5 keV";
 	gE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(gE_singles);
 
 	if( react->HistByCrystal() ) {
 
 		hname = "gE_singles_vs_crystal";
 		htitle = "Gamma-ray energy singles versus crystal ID;Crystal ID;Energy [keV];Counts per 0.5 keV";
 		gE_singles_vs_crystal = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
+		histlist->Add(gE_singles_vs_crystal);
 
 	}
 
 	hname = "gE_singles_ebis";
 	htitle = "Gamma-ray energy singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(gE_singles_ebis);
 
 	hname = "gE_singles_ebis_on";
 	htitle = "Gamma-ray energy singles EBIS on;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(gE_singles_ebis_on);
 
 	hname = "gE_singles_ebis_off";
 	htitle = "Gamma-ray energy singles EBIS off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(gE_singles_ebis_off);
 
 	hname = "gE_singles_dc";
 	htitle = "Gamma-ray energy singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
 	gE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(gE_singles_dc);
 
 	hname = "gE_singles_dc_ebis";
 	htitle = "Gamma-ray energy singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	gE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(gE_singles_dc_ebis);
 
 	hname = "aE_singles";
 	htitle = "Gamma-ray energy with addback singles;Energy [keV];Counts per 0.5 keV";
 	aE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_singles);
 
 	if( react->HistByCrystal() ) {
 
 		hname = "aE_singles_vs_crystal";
 		htitle = "Gamma-ray energy with addback singles versus crystal ID;Crystal ID;Energy [keV];Counts per 0.5 keV";
 		aE_singles_vs_crystal = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
+		histlist->Add(aE_singles_vs_crystal);
 
 	}
 	hname = "aE_singles_ebis";
 	htitle = "Gamma-ray energy with addback singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_singles_ebis);
 
 	hname = "aE_singles_ebis_on";
 	htitle = "Gamma-ray energy with addback singles EBIS on;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_singles_ebis_on);
 
 	hname = "aE_singles_ebis_off";
 	htitle = "Gamma-ray energy with addback singles EBIS off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_singles_ebis_off);
 
 	hname = "aE_singles_dc";
 	htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
 	aE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_singles_dc);
 
 	hname = "aE_singles_dc_ebis";
 	htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
 	aE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_singles_dc_ebis);
 
 	hname = "gamma_xy_map_forward";
 	htitle = "Gamma-ray X-Y hit map (forward: z > 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xy_map_forward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+	histlist->Add(gamma_xy_map_forward);
 
 	hname = "gamma_xy_map_backward";
 	htitle = "Gamma-ray X-Y hit map (backwards: z < 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xy_map_backward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+	histlist->Add(gamma_xy_map_backward);
 
 	hname = "gamma_xz_map_left";
 	htitle = "Gamma-ray X-Z hit map (left: y < 0);z (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xz_map_left = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+	histlist->Add(gamma_xz_map_left);
 
 	hname = "gamma_xz_map_right";
 	htitle = "Gamma-ray X-Z hit map (right: y > 0);z (horizontal) [mm];x (vertical) [mm];Counts";
 	gamma_xz_map_right = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
+	histlist->Add(gamma_xz_map_right);
 
 	hname = "gamma_theta_phi_map";
 	htitle = "Gamma-ray #theta-#phi hit map;#theta [degrees];#phi [degrees];Counts";
 	gamma_theta_phi_map = new TH2F( hname.data(), htitle.data(), 180, 0., 180., 360, 0., 360. );
+	histlist->Add(gamma_theta_phi_map);
 
 	// Gamma-ray coincidence histograms
 	dirname = "CoincidenceMatrices";
@@ -205,18 +236,22 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "gE_gE";
 		htitle = "Gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		gE_gE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		histlist->Add(gE_gE);
 
 		hname = "gE_gE_ebis_on";
 		htitle = "Gamma-ray coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		gE_gE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		histlist->Add(gE_gE_ebis_on);
 
 		hname = "aE_aE";
 		htitle = "Gamma-ray addback coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		aE_aE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		histlist->Add(aE_aE);
 
 		hname = "aE_aE_ebis_on";
 		htitle = "Gamma-ray addback coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		aE_aE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
+		histlist->Add(aE_aE_ebis_on);
 
 	} // gamma-gamma on
 
@@ -226,10 +261,12 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "eE_eE";
 		htitle = "Electron coincidence matrix;Energy [keV];Energy [keV];Counts per keV";
 		eE_eE = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
+		histlist->Add(eE_eE);
 
 		hname = "eE_eE_ebis_on";
 		htitle = "Electron coincidence matrix EBIS on;Energy [keV];Energy [keV];Counts per keV";
 		eE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, EBIN, EMIN, EMAX );
+		histlist->Add(eE_eE_ebis_on);
 
 		// If electron-gamma histograms are turned on
 		if( react->HistElectronGamma() ) {
@@ -237,18 +274,22 @@ void MiniballHistogrammer::MakeHists() {
 			hname = "gE_eE";
 			htitle = "Gamma-ray and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			gE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			histlist->Add(gE_eE);
 
 			hname = "gE_eE_ebis_on";
 			htitle = "Gamma-ray and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			gE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			histlist->Add(gE_eE_ebis_on);
 
 			hname = "aE_eE";
 			htitle = "Gamma-ray addback and electron coincidence matrix;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			aE_eE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			histlist->Add(aE_eE);
 
 			hname = "aE_eE_ebis_on";
 			htitle = "Gamma-ray addback and electron coincidence matrix EBIS on;#gamma-ray energy [keV];e^{-} energy [keV];Counts per 0.5 keV";
 			aE_eE_ebis_on = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, EBIN, EMIN, EMAX );
+			histlist->Add(aE_eE_ebis_on);
 
 		} // electron-gamma on
 
@@ -260,22 +301,27 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "eE_singles";
 		htitle = "Electron energy singles;Energy [keV];Counts keV";
 		eE_singles = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		histlist->Add(eE_singles);
 
 		hname = "eE_singles_ebis";
 		htitle = "Electron energy singles EBIS on-off;Energy [keV];Counts keV";
 		eE_singles_ebis = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		histlist->Add(eE_singles_ebis);
 
 		hname = "eE_singles_ebis_on";
 		htitle = "Electron energy singles EBIS on;Energy [keV];Counts keV";
 		eE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		histlist->Add(eE_singles_ebis_on);
 
 		hname = "eE_singles_ebis_off";
 		htitle = "Electron energy singles EBIS off;Energy [keV];Counts keV";
 		eE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
+		histlist->Add(eE_singles_ebis_off);
 
 		hname = "electron_xy_map";
 		htitle = "Electron X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
 		electron_xy_map = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
+		histlist->Add(electron_xy_map);
 
 	} // electrons on
 
@@ -287,18 +333,22 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "pE_theta";
 	htitle = "Particle energy singles;Angle [deg];Energy [keV];Counts";
 	pE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	histlist->Add(pE_theta);
 
 	hname = "pE_theta_coinc";
 	htitle = "Particle energy in coincidence with a gamma ray;Angle [deg];Energy [keV];Counts";
 	pE_theta_coinc = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	histlist->Add(pE_theta_coinc);
 
 	hname = "pE_theta_ejectile";
 	htitle = "Particle energy singles, gated on ejectile;Angle [deg];Energy [keV];Counts";
 	pE_theta_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	histlist->Add(pE_theta_ejectile);
 
 	hname = "pE_theta_recoil";
 	htitle = "Particle energy singles, gated on recoil;Angle [deg];Energy [keV];Counts";
 	pE_theta_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+	histlist->Add(pE_theta_recoil);
 
 	// 1p and 2p particle histograms
 	if( react->HistByMultiplicity() ){
@@ -306,18 +356,22 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "pE_theta_1p_ejectile";
 		htitle = "Particle energy singles, gated on ejectile without matching recoil;Angle [deg];Energy [keV];Counts";
 		pE_theta_1p_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+		histlist->Add(pE_theta_1p_ejectile);
 
 		hname = "pE_theta_1p_recoil";
 		htitle = "Particle energy singles, gated on recoil without matching ejectile;Angle [deg];Energy [keV];Counts";
 		pE_theta_1p_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+		histlist->Add(pE_theta_1p_recoil);
 
 		hname = "pE_theta_2p_ejectile";
 		htitle = "Particle energy singles, gated on ejectile with 2-particle condition;Angle [deg];Energy [keV];Counts";
 		pE_theta_2p_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+		histlist->Add(pE_theta_2p_ejectile);
 
 		hname = "pE_theta_2p_recoil";
 		htitle = "Particle energy singles, gated on recoil with 2-particle condition;Angle [deg];Energy [keV];Counts";
 		pE_theta_2p_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+		histlist->Add(pE_theta_2p_recoil);
 
 	}
 
@@ -335,22 +389,26 @@ void MiniballHistogrammer::MakeHists() {
 			htitle = "Particle energy singles for sector " + std::to_string(i);
 			htitle += ";Angle [deg];Energy [keV];Counts";
 			pE_theta_sec[i] = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-			
+			histlist->Add(pE_theta_sec[i]);
+
 			hname = "pE_theta_coinc_sec" + std::to_string(i);
 			htitle = "Particle energy in coincidence with a gamma ray for sector " + std::to_string(i);
 			htitle += ";Angle [deg];Energy [keV];Counts";
 			pE_theta_coinc_sec[i] = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-			
+			histlist->Add(pE_theta_coinc_sec[i]);
+
 			hname = "pE_theta_ejectile_sec" + std::to_string(i);
 			htitle = "Particle energy singles, gated on ejectile for sector " + std::to_string(i);
 			htitle += ";Angle [deg];Energy [keV];Counts";
 			pE_theta_ejectile_sec[i] = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-			
+			histlist->Add(pE_theta_ejectile_sec[i]);
+
 			hname = "pE_theta_recoil_sec" + std::to_string(i);
 			htitle = "Particle energy singles, gated on recoil for sector " + std::to_string(i);
 			htitle += ";Angle [deg];Energy [keV];Counts";
 			pE_theta_recoil_sec[i] = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
-			
+			histlist->Add(pE_theta_recoil_sec[i]);
+
 		} // loop over sectors
 		
 	} // by sector
@@ -372,19 +430,22 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
 		htitle += ";Energy total [keV];Energy loss [keV];Counts";
 		pE_dE[i] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
-		
+		histlist->Add(pE_dE[i]);
+
 		hname = "pE_dE_" + std::to_string(i) + "_coinc";
 		htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
 		htitle += ", coincident with a gamma-ray";
 		htitle += ";Energy total [keV];Energy loss [keV];Counts";
 		pE_dE_coinc[i] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
-		
+		histlist->Add(pE_dE_coinc[i]);
+
 		hname = "pE_dE_" + std::to_string(i) + "_cut";
 		htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
 		htitle += ", after transfer cut applied";
 		htitle += ";Energy total [keV];Energy loss [keV];Counts";
 		pE_dE_cut[i] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
-		
+		histlist->Add(pE_dE_cut[i]);
+
 		// Sector-by-sector particle plots
 		if( react->HistBySector() ) {
 			
@@ -395,19 +456,22 @@ void MiniballHistogrammer::MakeHists() {
 				htitle += ", sector " + std::to_string(j);
 				htitle += ";Energy total [keV];Energy loss [keV];Counts";
 				pE_dE_sec[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
-				
+				histlist->Add(pE_dE_sec[i][j]);
+
 				hname = "pE_dE_" + std::to_string(i) + "_" + std::to_string(j) + "_coinc";
 				htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
 				htitle += ", sector " + std::to_string(j) + ", coincident with a gamma-ray";
 				htitle += ";Energy total [keV];Energy loss [keV];Counts";
 				pE_dE_coinc_sec[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
-				
+				histlist->Add(pE_dE_coinc_sec[i][j]);
+
 				hname = "pE_dE_" + std::to_string(i) + "_" + std::to_string(j) + "_cut";
 				htitle = "Particle energy total versus energy loss for CD " + std::to_string(i);
 				htitle += ", sector " + std::to_string(j) + ", after transfer cut applied";
 				htitle += ";Energy total [keV];Energy loss [keV];Counts";
 				pE_dE_cut_sec[i][j] = new TH2F( hname.data(), htitle.data(), PBIN, PMIN, PMAX, PBIN, PMIN, PMAX );
-				
+				histlist->Add(pE_dE_cut_sec[i][j]);
+
 			}
 			
 		} // by sector
@@ -417,23 +481,28 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "pBeta_theta_ejectile";
 	htitle = "Reconstructed ejectile velocity;Angle [deg];#beta [c];Counts";
 	pBeta_theta_ejectile = new TProfile( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data() );
-	
+	histlist->Add(pBeta_theta_ejectile);
+
 	hname = "pBeta_theta_recoil";
 	htitle = "Reconstructed recoil velocity;Angle [deg];#beta [c];Counts";
 	pBeta_theta_recoil = new TProfile( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data() );
-	
+	histlist->Add(pBeta_theta_recoil);
+
 	hname = "particle_xy_map_forward";
 	htitle = "Particle X-Y hit map (#theta < 90);y (horizontal) [mm];x (vertical) [mm];Counts per mm^2";
 	particle_xy_map_forward = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
-	
+	histlist->Add(particle_xy_map_forward);
+
 	hname = "particle_xy_map_backward";
 	htitle = "Particle X-Y hit map (#theta > 90);y (horizontal) [mm];x (vertical);Counts per mm^2";
 	particle_xy_map_backward = new TH2F( hname.data(), htitle.data(), 361, -45.125, 45.125, 361, -45.125, 45.125 );
-	
+	histlist->Add(particle_xy_map_backward);
+
 	hname = "particle_theta_phi_map";
 	htitle = "Particle #theta-#phi hit map;#theta [deg];#phi [deg];Counts";
 	particle_theta_phi_map = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), 180, -181, 181 );
-	
+	histlist->Add(particle_theta_phi_map);
+
 	// Gamma-particle coincidences without addback
 	dirname = "GammaRayParticleCoincidences";
 	output_file->mkdir( dirname.data() );
@@ -442,57 +511,69 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "gE_prompt";
 	htitle = "Gamma-ray energy in prompt coincide with any particle;Energy [keV];Counts per 0.5 keV";
 	gE_prompt = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_prompt);
+
 	hname = "gE_prompt_1p";
 	htitle = "Gamma-ray energy in prompt coincide with just 1 particle;Energy [keV];Counts per 0.5 keV";
 	gE_prompt_1p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_prompt_1p);
+
 	hname = "gE_prompt_2p";
 	htitle = "Gamma-ray energy in prompt coincide with 2 particles;Energy [keV];Counts per 0.5 keV";
 	gE_prompt_2p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_prompt_2p);
+
 	hname = "gE_random";
 	htitle = "Gamma-ray energy in random coincide with any particle;Energy [keV];Counts per 0.5 keV";
 	gE_random = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_random);
+
 	hname = "gE_random_1p";
 	htitle = "Gamma-ray energy in random coincide with just 1 particle;Energy [keV];Counts per 0.5 keV";
 	gE_random_1p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_random_1p);
+
 	hname = "gE_random_2p";
 	htitle = "Gamma-ray energy in random coincide with 2 particles;Energy [keV];Counts per 0.5 keV";
 	gE_random_2p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_random_2p);
+
 	hname = "gE_ejectile_dc_none";
 	htitle = "Gamma-ray energy, gated on the ejectile with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	gE_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_ejectile_dc_none);
+
 	hname = "gE_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	gE_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_ejectile_dc_ejectile);
+
 	hname = "gE_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	gE_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_ejectile_dc_recoil);
+
 	hname = "gE_recoil_dc_none";
 	htitle = "Gamma-ray energy, gated on the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	gE_recoil_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_recoil_dc_none);
+
 	hname = "gE_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	gE_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_recoil_dc_ejectile);
+
 	hname = "gE_recoil_dc_recoil";
 	htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	gE_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_recoil_dc_recoil);
+
 	// 1p and 2p gamma-ray histograms
 	if( react->HistByMultiplicity() ){
 		
@@ -500,111 +581,134 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_1p_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_1p_ejectile_dc_none);
+
 		hname = "gE_1p_ejectile_dc_ejectile";
 		htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_1p_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_1p_ejectile_dc_ejectile);
+
 		hname = "gE_1p_ejectile_dc_recoil";
 		htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_1p_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_1p_ejectile_dc_recoil);
+
 		hname = "gE_1p_recoil_dc_none";
 		htitle = "Gamma-ray energy, gated on the recoil, 1-particle only with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_1p_recoil_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_1p_recoil_dc_none);
+
 		hname = "gE_1p_recoil_dc_ejectile";
 		htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_1p_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_1p_recoil_dc_ejectile);
+
 		hname = "gE_1p_recoil_dc_recoil";
 		htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_1p_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_1p_recoil_dc_recoil);
+
 		hname = "gE_2p_dc_none";
 		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_2p_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_2p_dc_none);
+
 		hname = "gE_2p_dc_ejectile";
 		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_2p_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_2p_dc_ejectile);
+
 		hname = "gE_2p_dc_recoil";
 		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		gE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_2p_dc_recoil);
+
 	}
 	
 	hname = "gE_vs_costheta_ejectile_dc_none";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta_ejectile_dc_none);
 
 	hname = "gE_vs_costheta2_ejectile_dc_none";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta2_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta2_ejectile_dc_none);
 
 	hname = "gE_vs_costheta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta_ejectile_dc_ejectile);
 
 	hname = "gE_vs_costheta_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray, gated on the ejectile, Doppler corrected for the recoil;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta_ejectile_dc_recoil);
 
 	hname = "gE_vs_costheta_recoil_dc_none";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta_recoil_dc_none);
 
 	hname = "gE_vs_costheta2_recoil_dc_none";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta2_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta2_recoil_dc_none);
 
 	hname = "gE_vs_costheta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta_recoil_dc_ejectile);
 
 	hname = "gE_vs_costheta_recoil_dc_recoil";
 	htitle = "Gamma-ray energy versus cos(#theta) of angle between recoil and gamma-ray, gated on the recoil, Doppler corrected for the recoil;Energy [keV];cos(#theta_p#gamma)";
 	gE_vs_costheta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(gE_vs_costheta_recoil_dc_recoil);
 
 	hname = "gE_vs_theta_ejectile_dc_none";
 	htitle = "Gamma-ray energy, gated on the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_vs_theta_ejectile_dc_none);
+
 	hname = "gE_vs_theta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_vs_theta_ejectile_dc_ejectile);
+
 	hname = "gE_vs_theta_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_vs_theta_ejectile_dc_recoil);
+
 	hname = "gE_vs_theta_recoil_dc_none";
 	htitle = "Gamma-ray energy, gated on the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_vs_theta_recoil_dc_none);
+
 	hname = "gE_vs_theta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_vs_theta_recoil_dc_ejectile);
+
 	hname = "gE_vs_theta_recoil_dc_recoil";
 	htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	gE_vs_theta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(gE_vs_theta_recoil_dc_recoil);
+
 	// 1p and 2p gamma-ray histograms
 	if( react->HistByMultiplicity() ){
 		
@@ -612,47 +716,56 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_1p_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_1p_ejectile_dc_none);
+
 		hname = "gE_vs_theta_1p_ejectile_dc_ejectile";
 		htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_1p_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_1p_ejectile_dc_ejectile);
+
 		hname = "gE_vs_theta_1p_ejectile_dc_recoil";
 		htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_1p_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_1p_ejectile_dc_recoil);
+
 		hname = "gE_vs_theta_1p_recoil_dc_none";
 		htitle = "Gamma-ray energy, gated on the recoil, 1-particle only with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_1p_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_1p_recoil_dc_none);
+
 		hname = "gE_vs_theta_1p_recoil_dc_ejectile";
 		htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_1p_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_1p_recoil_dc_ejectile);
+
 		hname = "gE_vs_theta_1p_recoil_dc_recoil";
 		htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_1p_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_1p_recoil_dc_recoil);
+
 		hname = "gE_vs_theta_2p_dc_none";
 		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_2p_dc_none);
+
 		hname = "gE_vs_theta_2p_dc_ejectile";
 		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_2p_dc_ejectile);
+
 		hname = "gE_vs_theta_2p_dc_recoil";
 		htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_theta_2p_dc_recoil);
+
 	}
 
 	// Per crystal Doppler-corrected spectra
@@ -662,32 +775,38 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-ray energy, gated on the ejectile with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_crystal_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_crystal_ejectile_dc_none);
+
 		hname = "gE_vs_crystal_ejectile_dc_ejectile";
 		htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_crystal_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_crystal_ejectile_dc_ejectile);
+
 		hname = "gE_vs_crystal_ejectile_dc_recoil";
 		htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_crystal_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_crystal_ejectile_dc_recoil);
+
 		hname = "gE_vs_crystal_recoil_dc_none";
 		htitle = "Gamma-ray energy, gated on the recoil with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_crystal_recoil_dc_none = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_crystal_recoil_dc_none);
+
 		hname = "gE_vs_crystal_recoil_dc_ejectile";
 		htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_crystal_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_crystal_recoil_dc_ejectile);
+
 		hname = "gE_vs_crystal_recoil_dc_recoil";
 		htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		gE_vs_crystal_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_vs_crystal_recoil_dc_recoil);
+
 		// 1p and 2p gamma-ray histograms
 		if( react->HistByMultiplicity() ){
 			
@@ -695,47 +814,56 @@ void MiniballHistogrammer::MakeHists() {
 			htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_1p_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_1p_ejectile_dc_none);
+
 			hname = "gE_vs_crystal_1p_ejectile_dc_ejectile";
 			htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_1p_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_1p_ejectile_dc_ejectile);
+
 			hname = "gE_vs_crystal_1p_ejectile_dc_recoil";
 			htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_1p_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_1p_ejectile_dc_recoil);
+
 			hname = "gE_vs_crystal_1p_recoil_dc_none";
 			htitle = "Gamma-ray energy, gated on the recoil, 1-particle only with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_1p_recoil_dc_none = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_1p_recoil_dc_none);
+
 			hname = "gE_vs_crystal_1p_recoil_dc_ejectile";
 			htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_1p_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_1p_recoil_dc_ejectile);
+
 			hname = "gE_vs_crystal_1p_recoil_dc_recoil";
 			htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_1p_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_1p_recoil_dc_recoil);
+
 			hname = "gE_vs_crystal_2p_dc_none";
 			htitle = "Gamma-ray energy, in coincidence with ejectile and recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_2p_dc_none = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_2p_dc_none);
+
 			hname = "gE_vs_crystal_2p_dc_ejectile";
 			htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_2p_dc_ejectile);
+
 			hname = "gE_vs_crystal_2p_dc_recoil";
 			htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			gE_vs_crystal_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_crystal_2p_dc_recoil);
+
 		}
 		
 	} // by crystal
@@ -747,32 +875,38 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-ray energy, gated on the ejectile, with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		gE_ejectile_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_ejectile_dc_none_t1);
+
 		hname = "gE_ejectile_dc_ejectile_t1";
 		htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		gE_ejectile_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_ejectile_dc_ejectile_t1);
+
 		hname = "gE_ejectile_dc_recoil_t1";
 		htitle = "Gamma-ray energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		gE_ejectile_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_ejectile_dc_recoil_t1);
+
 		hname = "gE_recoil_dc_none_t1";
 		htitle = "Gamma-ray energy, gated on the recoil, with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		gE_recoil_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_recoil_dc_none_t1);
+
 		hname = "gE_recoil_dc_ejectile_t1";
 		htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		gE_recoil_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_recoil_dc_ejectile_t1);
+
 		hname = "gE_recoil_dc_recoil_t1";
 		htitle = "Gamma-ray energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per eV";
 		gE_recoil_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(gE_recoil_dc_recoil_t1);
+
 		// 1p and 2p gamma-ray histograms
 		if( react->HistByMultiplicity() ){
 			
@@ -780,47 +914,56 @@ void MiniballHistogrammer::MakeHists() {
 			htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			gE_1p_ejectile_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_1p_ejectile_dc_none_t1);
+
 			hname = "gE_1p_ejectile_dc_ejectile_t1";
 			htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			gE_1p_ejectile_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_1p_ejectile_dc_ejectile_t1);
+
 			hname = "gE_1p_ejectile_dc_recoil_t1";
 			htitle = "Gamma-ray energy, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			gE_1p_ejectile_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_1p_ejectile_dc_recoil_t1);
+
 			hname = "gE_1p_recoil_dc_none_t1";
 			htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			gE_1p_recoil_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_1p_recoil_dc_none_t1);
+
 			hname = "gE_1p_recoil_dc_ejectile_t1";
 			htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			gE_1p_recoil_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_1p_recoil_dc_ejectile_t1);
+
 			hname = "gE_1p_recoil_dc_recoil_t1";
 			htitle = "Gamma-ray energy, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per eV";
 			gE_1p_recoil_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
+			histlist->Add(gE_1p_recoil_dc_recoil_t1);
 
 			hname = "gE_2p_dc_none_t1";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			gE_2p_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_2p_dc_none_t1);
+
 			hname = "gE_2p_dc_ejectile_t1";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			gE_2p_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_2p_dc_ejectile_t1);
+
 			hname = "gE_2p_dc_recoil_t1";
 			htitle = "Gamma-ray energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			gE_2p_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_2p_dc_recoil_t1);
+
 		}
 		
 	}
@@ -831,32 +974,38 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-gamma matrix, gated on the ejectile with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		ggE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(ggE_ejectile_dc_none);
+
 		hname = "ggE_ejectile_dc_ejectile";
 		htitle = "Gamma-gamma matrix, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		ggE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(ggE_ejectile_dc_ejectile);
+
 		hname = "ggE_ejectile_dc_recoil";
 		htitle = "Gamma-gamma matrix, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		ggE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(ggE_ejectile_dc_recoil);
+
 		hname = "ggE_recoil_dc_none";
 		htitle = "Gamma-gamma matrix, gated on the recoil with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		ggE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(ggE_recoil_dc_none);
+
 		hname = "ggE_recoil_dc_ejectile";
 		htitle = "Gamma-gamma matrix, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		ggE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(ggE_recoil_dc_ejectile);
+
 		hname = "ggE_recoil_dc_recoil";
 		htitle = "Gamma-gamma matrix, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		ggE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(ggE_recoil_dc_recoil);
+
 	}
 	
 	// Gamma-particle coincidences with addback
@@ -867,56 +1016,68 @@ void MiniballHistogrammer::MakeHists() {
 	hname = "aE_prompt";
 	htitle = "Gamma-ray energy with addback in prompt coincide with any particle;Energy [keV];Counts per 0.5 keV";
 	aE_prompt = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_prompt);
 
 	hname = "aE_prompt_1p";
 	htitle = "Gamma-ray energy with addback in prompt coincide with just 1 particle;Energy [keV];Counts per 0.5 keV";
 	aE_prompt_1p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_prompt_1p);
 
 	hname = "aE_prompt_2p";
 	htitle = "Gamma-ray energy with addback in prompt coincide with 2 particles;Energy [keV];Counts per 0.5 keV";
 	aE_prompt_2p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_prompt_2p);
 
 	hname = "aE_random";
 	htitle = "Gamma-ray energy with addback in random coincide with any particle;Energy [keV];Counts per 0.5 keV";
 	aE_random = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_random);
 
 	hname = "aE_random_1p";
 	htitle = "Gamma-ray energy with addback in random coincide with just 1 particle;Energy [keV];Counts per 0.5 keV";
 	aE_random_1p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_random_1p);
 
 	hname = "aE_random_2p";
 	htitle = "Gamma-ray energy with addback in random coincide with 2 particles;Energy [keV];Counts per 0.5 keV";
 	aE_random_2p = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_random_2p);
 
 	hname = "aE_ejectile_dc_none";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	aE_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_ejectile_dc_none);
 
 	hname = "aE_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	aE_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_ejectile_dc_ejectile);
 
 	hname = "aE_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	aE_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_ejectile_dc_recoil);
 
 	hname = "aE_recoil_dc_none";
 	htitle = "Gamma-ray energy with addback, gated on the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	aE_recoil_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_recoil_dc_none);
 
 	hname = "aE_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	aE_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_recoil_dc_ejectile);
 
 	hname = "aE_recoil_dc_recoil";
 	htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Energy [keV];Counts per 0.5 keV";
 	aE_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+	histlist->Add(aE_recoil_dc_recoil);
 
 	// 1p and 2p gamma-ray histograms
 	if( react->HistByMultiplicity() ){
@@ -925,111 +1086,134 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_1p_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_1p_ejectile_dc_none);
+
 		hname = "aE_1p_ejectile_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_1p_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_1p_ejectile_dc_ejectile);
+
 		hname = "aE_1p_ejectile_dc_recoil";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_1p_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_1p_ejectile_dc_recoil);
+
 		hname = "aE_1p_recoil_dc_none";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_1p_recoil_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_1p_recoil_dc_none);
+
 		hname = "aE_1p_recoil_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_1p_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_1p_recoil_dc_ejectile);
+
 		hname = "aE_1p_recoil_dc_recoil";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_1p_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_1p_recoil_dc_recoil);
+
 		hname = "aE_2p_dc_none";
 		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_2p_dc_none = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_2p_dc_none);
+
 		hname = "aE_2p_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_2p_dc_ejectile = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_2p_dc_ejectile);
+
 		hname = "aE_2p_dc_recoil";
 		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per 0.5 keV";
 		aE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_2p_dc_recoil);
+
 	}
 
 	hname = "aE_vs_costheta_ejectile_dc_none";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta_ejectile_dc_none);
 
 	hname = "aE_vs_costheta2_ejectile_dc_none";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between recoil and gamma-ray, gated on the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta2_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta2_ejectile_dc_none);
 
 	hname = "aE_vs_costheta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the ejectile, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta_ejectile_dc_ejectile);
 
 	hname = "aE_vs_costheta_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between recoil and gamma-ray, gated on the ejectile, Doppler corrected for the recoil;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta_ejectile_dc_recoil);
 
 	hname = "aE_vs_costheta_recoil_dc_none";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between recoil and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta_recoil_dc_none);
 
 	hname = "aE_vs_costheta2_recoil_dc_none";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, no Doppler correction;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta2_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta2_recoil_dc_none);
 
 	hname = "aE_vs_costheta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between ejectile and gamma-ray, gated on the recoil, Doppler corrected for the ejectile;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta_recoil_dc_ejectile);
 
 	hname = "aE_vs_costheta_recoil_dc_recoil";
 	htitle = "Gamma-ray energy with addback versus cos(#theta) of angle between recoil and gamma-ray, gated on the recoil, Doppler corrected for the recoil;Energy [keV];cos(#theta_p#gamma)";
 	aE_vs_costheta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 100, -1.0, 1.0 );
+	histlist->Add(aE_vs_costheta_recoil_dc_recoil);
 
 	hname = "aE_vs_theta_ejectile_dc_none";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(aE_vs_theta_ejectile_dc_none);
+
 	hname = "aE_vs_theta_ejectile_dc_ejectile";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(aE_vs_theta_ejectile_dc_ejectile);
+
 	hname = "aE_vs_theta_ejectile_dc_recoil";
 	htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(aE_vs_theta_ejectile_dc_recoil);
+
 	hname = "aE_vs_theta_recoil_dc_none";
 	htitle = "Gamma-ray energy with addback, gated on the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(aE_vs_theta_recoil_dc_none);
+
 	hname = "aE_vs_theta_recoil_dc_ejectile";
 	htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(aE_vs_theta_recoil_dc_ejectile);
+
 	hname = "aE_vs_theta_recoil_dc_recoil";
 	htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 	htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 	aE_vs_theta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-	
+	histlist->Add(aE_vs_theta_recoil_dc_recoil);
+
 	// 1p and 2p gamma-ray histograms
 	if( react->HistByMultiplicity() ){
 		
@@ -1037,47 +1221,56 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_1p_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_1p_ejectile_dc_none);
+
 		hname = "aE_vs_theta_1p_ejectile_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_1p_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_1p_ejectile_dc_ejectile);
+
 		hname = "aE_vs_theta_1p_ejectile_dc_recoil";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_1p_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_1p_ejectile_dc_recoil);
+
 		hname = "aE_vs_theta_1p_recoil_dc_none";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_1p_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_1p_recoil_dc_none);
+
 		hname = "aE_vs_theta_1p_recoil_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_1p_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_1p_recoil_dc_ejectile);
+
 		hname = "aE_vs_theta_1p_recoil_dc_recoil";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_1p_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_1p_recoil_dc_recoil);
+
 		hname = "aE_vs_theta_2p_dc_none";
 		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_2p_dc_none);
+
 		hname = "aE_vs_theta_2p_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_2p_dc_ejectile);
+
 		hname = "aE_vs_theta_2p_dc_recoil";
 		htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_theta_2p_dc_recoil);
+
 	}
 	
 	// Per crystal Doppler-corrected spectra
@@ -1088,37 +1281,43 @@ void MiniballHistogrammer::MakeHists() {
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_crystal_ejectile_dc_none = new TH2F( hname.data(), htitle.data(),
 					set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_crystal_ejectile_dc_none);
+
 		hname = "aE_vs_crystal_ejectile_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_crystal_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), 
 													  set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_crystal_ejectile_dc_ejectile);
+
 		hname = "aE_vs_crystal_ejectile_dc_recoil";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_crystal_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), 
 													set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_crystal_ejectile_dc_recoil);
+
 		hname = "aE_vs_crystal_recoil_dc_none";
 		htitle = "Gamma-ray energy with addback, gated on the recoil with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_crystal_recoil_dc_none = new TH2F( hname.data(), htitle.data(), 
 												set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_crystal_recoil_dc_none);
+
 		hname = "aE_vs_crystal_recoil_dc_ejectile";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_crystal_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), 
 													set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_crystal_recoil_dc_ejectile);
+
 		hname = "aE_vs_crystal_recoil_dc_recoil";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 		aE_vs_crystal_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), 
 												  set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_vs_crystal_recoil_dc_recoil);
+
 		// 1p and 2p gamma-ray histograms
 		if( react->HistByMultiplicity() ){
 			
@@ -1127,55 +1326,64 @@ void MiniballHistogrammer::MakeHists() {
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_1p_ejectile_dc_none = new TH2F( hname.data(), htitle.data(),
 													  set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_1p_ejectile_dc_none);
+
 			hname = "aE_vs_crystal_1p_ejectile_dc_ejectile";
 			htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_1p_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(),
 														  set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_1p_ejectile_dc_ejectile);
+
 			hname = "aE_vs_crystal_1p_ejectile_dc_recoil";
 			htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_1p_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(),
 														set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_1p_ejectile_dc_recoil);
+
 			hname = "aE_vs_crystal_1p_recoil_dc_none";
 			htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_1p_recoil_dc_none = new TH2F( hname.data(), htitle.data(),
 													set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_1p_recoil_dc_none);
+
 			hname = "aE_vs_crystal_1p_recoil_dc_ejectile";
 			htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_1p_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(),
 														set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_1p_recoil_dc_ejectile);
+
 			hname = "aE_vs_crystal_1p_recoil_dc_recoil";
 			htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_1p_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(),
 													  set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_1p_recoil_dc_recoil);
+
 			hname = "aE_vs_crystal_2p_dc_none";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_2p_dc_none = new TH2F( hname.data(), htitle.data(),
 												set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_2p_dc_none);
+
 			hname = "aE_vs_crystal_2p_dc_ejectile";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(),
 													set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_2p_dc_ejectile);
+
 			hname = "aE_vs_crystal_2p_dc_recoil";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Crystal ID;Energy [keV];Counts per 0.5 keV per strip";
 			aE_vs_crystal_2p_dc_recoil = new TH2F( hname.data(), htitle.data(),
 												  set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals(), -0.5, set->GetNumberOfMiniballClusters() * set->GetNumberOfMiniballCrystals() - 0.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_vs_crystal_2p_dc_recoil);
+
 		}
 		
 	} // by crystal
@@ -1187,31 +1395,37 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		aE_ejectile_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_ejectile_dc_none_t1);
+
 		hname = "aE_ejectile_dc_ejectile_t1";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		aE_ejectile_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_ejectile_dc_ejectile_t1);
+
 		hname = "aE_ejectile_dc_recoil_t1";
 		htitle = "Gamma-ray energy with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		aE_ejectile_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_ejectile_dc_recoil_t1);
+
 		hname = "aE_recoil_dc_none_t1";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		aE_recoil_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_recoil_dc_none_t1);
+
 		hname = "aE_recoil_dc_ejectile_t1";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per keV";
 		aE_recoil_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aE_recoil_dc_ejectile_t1);
+
 		hname = "aE_recoil_dc_recoil_t1";
 		htitle = "Gamma-ray energy with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "T1 time [ns];Energy [keV];Counts per eV";
 		aE_recoil_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
+		histlist->Add(aE_recoil_dc_recoil_t1);
 
 		// 1p and 2p gamma-ray histograms
 		if( react->HistByMultiplicity() ){
@@ -1220,47 +1434,56 @@ void MiniballHistogrammer::MakeHists() {
 			htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			aE_1p_ejectile_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_1p_ejectile_dc_none_t1);
+
 			hname = "aE_1p_ejectile_dc_ejectile_t1";
 			htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			aE_1p_ejectile_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_1p_ejectile_dc_ejectile_t1);
+
 			hname = "aE_1p_ejectile_dc_recoil_t1";
 			htitle = "Gamma-ray energy with addback, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			aE_1p_ejectile_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_1p_ejectile_dc_recoil_t1);
+
 			hname = "aE_1p_recoil_dc_none_t1";
 			htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			aE_1p_recoil_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_1p_recoil_dc_none_t1);
+
 			hname = "aE_1p_recoil_dc_ejectile_t1";
 			htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per keV";
 			aE_1p_recoil_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_1p_recoil_dc_ejectile_t1);
+
 			hname = "aE_1p_recoil_dc_recoil_t1";
 			htitle = "Gamma-ray energy with addback, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "T1 time [ns];Energy [keV];Counts per eV";
 			aE_1p_recoil_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_1p_recoil_dc_recoil_t1);
+
 			hname = "aE_2p_dc_none_t1";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			aE_2p_dc_none_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_2p_dc_none_t1);
+
 			hname = "aE_2p_dc_ejectile_t1";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			aE_2p_dc_ejectile_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_2p_dc_ejectile_t1);
+
 			hname = "aE_2p_dc_recoil_t1";
 			htitle = "Gamma-ray energy with addback, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			aE_2p_dc_recoil_t1 = new TH2F( hname.data(), htitle.data(), T1BIN, T1MIN, T1MAX, GBIN, GMIN, GMAX );
-			
+			histlist->Add(aE_2p_dc_recoil_t1);
+
 		}
 		
 	}
@@ -1272,32 +1495,38 @@ void MiniballHistogrammer::MakeHists() {
 		htitle = "Gamma-gamma matrix with addback, gated on the ejectile with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		aaE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aaE_ejectile_dc_none);
+
 		hname = "aaE_ejectile_dc_ejectile";
 		htitle = "Gamma-gamma matrix with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		aaE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aaE_ejectile_dc_ejectile);
+
 		hname = "aaE_ejectile_dc_recoil";
 		htitle = "Gamma-gamma matrix with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		aaE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aaE_ejectile_dc_recoil);
+
 		hname = "aaE_recoil_dc_none";
 		htitle = "Gamma-gamma matrix with addback, gated on the recoil with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		aaE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aaE_recoil_dc_none);
+
 		hname = "aaE_recoil_dc_ejectile";
 		htitle = "Gamma-gamma matrix with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		aaE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aaE_recoil_dc_ejectile);
+
 		hname = "aaE_recoil_dc_recoil";
 		htitle = "Gamma-gamma matrix with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Gamma-ray Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		aaE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(aaE_recoil_dc_recoil);
+
 	}
 	
 	// Segment phi determination
@@ -1321,13 +1550,15 @@ void MiniballHistogrammer::MakeHists() {
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Phi angle of segment " + std::to_string(i) + ";Gamma-ray Energy [keV];Counts";
 			gE_vs_phi_dc_ejectile[i] = new TH2F( hname.data(), htitle.data(), 360, -0.5, 359.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_phi_dc_ejectile[i]);
+
 			hname = "gE_vs_phi_dc_recoil_seg";
 			hname += std::to_string(i);
 			htitle = "Gamma-ray energy versus segment phi angle, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Phi angle of segment " + std::to_string(i) + ";Gamma-ray Energy [keV];Counts";
 			gE_vs_phi_dc_recoil[i] = new TH2F( hname.data(), htitle.data(), 360, -0.5, 359.5, GBIN, GMIN, GMAX );
-			
+			histlist->Add(gE_vs_phi_dc_recoil[i]);
+
 		}
 		
 	}
@@ -1342,57 +1573,69 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "eE_prompt";
 		htitle = "Electron energy in prompt coincide with any particle;Energy [keV];Counts per keV";
 		eE_prompt = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_prompt);
+
 		hname = "eE_prompt_1p";
 		htitle = "Electron energy in prompt coincide with just 1 particle;Energy [keV];Counts per keV";
 		eE_prompt_1p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_prompt_1p);
+
 		hname = "eE_prompt_2p";
 		htitle = "Electron energy in prompt coincide with 2 particles;Energy [keV];Counts per keV";
 		eE_prompt_2p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_prompt_2p);
+
 		hname = "eE_random";
 		htitle = "Electron energy in random coincide with any particle;Energy [keV];Counts per keV";
 		eE_random = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_random);
+
 		hname = "eE_random_1p";
 		htitle = "Electron energy in random coincide with just 1 particle;Energy [keV];Counts per keV";
 		eE_random_1p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_random_1p);
+
 		hname = "eE_random_2p";
 		htitle = "Electron energy in random coincide with 2 particles;Energy [keV];Counts per keV";
 		eE_random_2p = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_random_2p);
+
 		hname = "eE_ejectile_dc_none";
 		htitle = "Electron energy, gated on the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per keV";
 		eE_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_ejectile_dc_none);
+
 		hname = "eE_ejectile_dc_ejectile";
 		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per keV";
 		eE_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_ejectile_dc_ejectile);
+
 		hname = "eE_ejectile_dc_recoil";
 		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per keV";
 		eE_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_ejectile_dc_recoil);
+
 		hname = "eE_recoil_dc_none";
 		htitle = "Electron energy, gated on the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per keV";
 		eE_recoil_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_recoil_dc_none);
+
 		hname = "eE_recoil_dc_ejectile";
 		htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Counts per keV";
 		eE_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_recoil_dc_ejectile);
+
 		hname = "eE_recoil_dc_recoil";
 		htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Counts per keV";
 		eE_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_recoil_dc_recoil);
+
 		// 1p and 2p gamma-ray histograms
 		if( react->HistByMultiplicity() ){
 			
@@ -1400,79 +1643,94 @@ void MiniballHistogrammer::MakeHists() {
 			htitle = "Electron energy, gated on the ejectile, 1-particle only with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_1p_ejectile_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_1p_ejectile_dc_none);
+
 			hname = "eE_1p_ejectile_dc_ejectile";
 			htitle = "Electron energy, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_1p_ejectile_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_1p_ejectile_dc_ejectile);
+
 			hname = "eE_1p_ejectile_dc_recoil";
 			htitle = "Electron energy, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_1p_ejectile_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_1p_ejectile_dc_recoil);
+
 			hname = "eE_1p_recoil_dc_none";
 			htitle = "Electron energy, gated on the recoil, 1-particle only with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_1p_recoil_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_1p_recoil_dc_none);
+
 			hname = "eE_1p_recoil_dc_ejectile";
 			htitle = "Electron energy, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_1p_recoil_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_1p_recoil_dc_ejectile);
+
 			hname = "eE_1p_recoil_dc_recoil";
 			htitle = "Electron energy, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_1p_recoil_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_1p_recoil_dc_recoil);
+
 			hname = "eE_2p_dc_none";
 			htitle = "Electron energy, in coincidence with ejectile and recoil with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_2p_dc_none = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_2p_dc_none);
+
 			hname = "eE_2p_dc_ejectile";
 			htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_2p_dc_ejectile = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_2p_dc_ejectile);
+
 			hname = "eE_2p_dc_recoil";
 			htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Energy [keV];Counts per keV";
 			eE_2p_dc_recoil = new TH1F( hname.data(), htitle.data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_2p_dc_recoil);
+
 		}
 
 		hname = "eE_vs_theta_ejectile_dc_none";
 		htitle = "Electron energy, gated on the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 		eE_vs_theta_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_vs_theta_ejectile_dc_none);
+
 		hname = "eE_vs_theta_ejectile_dc_ejectile";
 		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 		eE_vs_theta_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_vs_theta_ejectile_dc_ejectile);
+
 		hname = "eE_vs_theta_ejectile_dc_recoil";
 		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 		eE_vs_theta_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_vs_theta_ejectile_dc_recoil);
+
 		hname = "eE_vs_theta_recoil_dc_none";
 		htitle = "Electron energy, gated on the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 		eE_vs_theta_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_vs_theta_recoil_dc_none);
+
 		hname = "eE_vs_theta_recoil_dc_ejectile";
 		htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 		eE_vs_theta_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_vs_theta_recoil_dc_ejectile);
+
 		hname = "eE_vs_theta_recoil_dc_recoil";
 		htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 		eE_vs_theta_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-		
+		histlist->Add(eE_vs_theta_recoil_dc_recoil);
+
 		// 1p and 2p gamma-ray histograms
 		if( react->HistByMultiplicity() ){
 			
@@ -1480,149 +1738,178 @@ void MiniballHistogrammer::MakeHists() {
 			htitle = "Electron energy, gated on the ejectile, 1-particle only with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_1p_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_1p_ejectile_dc_none);
+
 			hname = "eE_vs_theta_1p_ejectile_dc_ejectile";
 			htitle = "Electron energy, gated on the ejectile, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_1p_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_1p_ejectile_dc_ejectile);
+
 			hname = "eE_vs_theta_1p_ejectile_dc_recoil";
 			htitle = "Electron energy, gated on the ejectile, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_1p_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_1p_ejectile_dc_recoil);
+
 			hname = "eE_vs_theta_1p_recoil_dc_none";
 			htitle = "Electron energy, gated on the recoil, 1-particle only with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_1p_recoil_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_1p_recoil_dc_none);
+
 			hname = "eE_vs_theta_1p_recoil_dc_ejectile";
 			htitle = "Electron energy, gated on the recoil, 1-particle only, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_1p_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_1p_recoil_dc_ejectile);
+
 			hname = "eE_vs_theta_1p_recoil_dc_recoil";
 			htitle = "Electron energy, gated on the recoil, 1-particle only, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_1p_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_1p_recoil_dc_recoil);
+
 			hname = "eE_vs_theta_2p_dc_none";
 			htitle = "Electron energy, in coincidence with ejectile and recoil with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_2p_dc_none = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_2p_dc_none);
+
 			hname = "eE_vs_theta_2p_dc_ejectile";
 			htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the ejectile with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_2p_dc_ejectile = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_2p_dc_ejectile);
+
 			hname = "eE_vs_theta_2p_dc_recoil";
 			htitle = "Electron energy, in coincidence with ejectile and recoil, Doppler corrected for the recoil with random subtraction;";
 			htitle += "Theta [deg];Energy [keV];Counts per keV per strip";
 			eE_vs_theta_2p_dc_recoil = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), EBIN, EMIN, EMAX );
-			
+			histlist->Add(eE_vs_theta_2p_dc_recoil);
+
 		}
 		
 		hname = "eE_costheta_ejectile";
 		htitle = "Electron energy versus cos(#theta) of angle between ejectile and electron;";
 		htitle += "Energy [keV];cos(#theta_pe)";
 		eE_costheta_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
-		
+		histlist->Add(eE_costheta_ejectile);
+
 		hname = "eE_costheta_recoil";
 		htitle = "Electron energy versus cos(#theta) of angle between recoil and electron;";
 		htitle += "Energy [keV];cos(#theta_pe)";
 		eE_costheta_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 100, -1.0, 1.0 );
-		
+		histlist->Add(eE_costheta_recoil);
+
 		hname = "eE_vs_ejectile_dc_none_segment";
 		htitle = "Electron energy, gated on the ejectile with random subtraction;";
 		htitle += "Energy [keV];Ring;Counts per keV per segment";
 		eE_vs_ejectile_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-		
+		histlist->Add(eE_vs_ejectile_dc_none_segment);
+
 		hname = "eE_vs_ejectile_dc_ejectile_segment";
 		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Ring;Counts per keV per ring";
 		eE_vs_ejectile_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-		
+		histlist->Add(eE_vs_ejectile_dc_ejectile_segment);
+
 		hname = "eE_vs_ejectile_dc_recoil_segment";
 		htitle = "Electron energy, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Ring;Counts per keV per ring";
 		eE_vs_ejectile_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-		
+		histlist->Add(eE_vs_ejectile_dc_recoil_segment);
+
 		hname = "eE_vs_recoil_dc_none_segment";
 		htitle = "Electron energy, gated on the recoil with random subtraction;";
 		htitle += "Energy [keV];Ring;Counts per keV per ring";
 		eE_vs_recoil_dc_none_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-		
+		histlist->Add(eE_vs_recoil_dc_none_segment);
+
 		hname = "eE_vs_recoil_dc_ejectile_segment";
 		htitle = "Electron energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Energy [keV];Ring;Counts per keV per ring";
 		eE_vs_recoil_dc_ejectile_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-		
+		histlist->Add(eE_vs_recoil_dc_ejectile_segment);
+
 		hname = "eE_vs_recoil_dc_recoil_segment";
 		htitle = "Electron energy, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Energy [keV];Ring;Counts per keV per ring";
 		eE_vs_recoil_dc_recoil_segment = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, 24, -0.5, 23.5 );
-		
+		histlist->Add(eE_vs_recoil_dc_recoil_segment);
+
 		hname = "egE_ejectile_dc_none";
 		htitle = "Electron-gamma matrix without addback, gated on the ejectile with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		egE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(egE_ejectile_dc_none);
+
 		hname = "egE_ejectile_dc_ejectile";
 		htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		egE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(egE_ejectile_dc_ejectile);
+
 		hname = "egE_ejectile_dc_recoil";
 		htitle = "Electron-gamma matrix without addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		egE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(egE_ejectile_dc_recoil);
+
 		hname = "egE_recoil_dc_none";
 		htitle = "Electron-gamma matrix without addback, gated on the recoil with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		egE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(egE_recoil_dc_none);
+
 		hname = "egE_recoil_dc_ejectile";
 		htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		egE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(egE_recoil_dc_ejectile);
+
 		hname = "egE_recoil_dc_recoil";
 		htitle = "Electron-gamma matrix without addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		egE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(egE_recoil_dc_recoil);
+
 		hname = "eaE_ejectile_dc_none";
 		htitle = "Electron-gamma matrix with addback, gated on the ejectile with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		eaE_ejectile_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(eaE_ejectile_dc_none);
+
 		hname = "eaE_ejectile_dc_ejectile";
 		htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		eaE_ejectile_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(eaE_ejectile_dc_ejectile);
+
 		hname = "eaE_ejectile_dc_recoil";
 		htitle = "Electron-gamma matrix with addback, gated on the ejectile, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		eaE_ejectile_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(eaE_ejectile_dc_recoil);
+
 		hname = "eaE_recoil_dc_none";
 		htitle = "Electron-gamma matrix with addback, gated on the recoil with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		eaE_recoil_dc_none = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(eaE_recoil_dc_none);
+
 		hname = "eaE_recoil_dc_ejectile";
 		htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		eaE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(eaE_recoil_dc_ejectile);
+
 		hname = "eaE_recoil_dc_recoil";
 		htitle = "Electron-gamma matrix with addback, gated on the recoil, Doppler corrected for the recoil with random subtraction;";
 		htitle += "Electron Energy [keV];Gamma-ray Energy [keV];Counts per 0.5 keV";
 		eaE_recoil_dc_recoil = new TH2F( hname.data(), htitle.data(), EBIN, EMIN, EMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(eaE_recoil_dc_recoil);
+
 	} // electrons on
 
 	// Beam dump histograms
@@ -1635,16 +1922,19 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "bdE_singles";
 		htitle = "Beam-dump gamma-ray energy singles;Energy [keV];Counts per 0.5 keV";
 		bdE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		
+		histlist->Add(bdE_singles);
+
 		hname = "bd_bd_td";
 		htitle = "Beam-dump - Beam-dump time difference;#Deltat [ns];Counts per 10 ns";
 		bd_bd_td = new TH1F( hname.data(), htitle.data(),
 							TBIN, TMIN, TMAX );
-		
+		histlist->Add(bd_bd_td);
+
 		hname = "bdE_bdE";
 		htitle = "Beam-dump gamma-ray coincidence matrix;Energy [keV];Energy [keV];Counts per 0.5 keV";
 		bdE_bdE = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, GBIN, GMIN, GMAX );
-		
+		histlist->Add(bdE_bdE);
+
 		bdE_singles_det.resize( set->GetNumberOfBeamDumpDetectors() );
 		for( unsigned int i = 0; i < set->GetNumberOfBeamDumpDetectors(); ++i ){
 			
@@ -1653,7 +1943,8 @@ void MiniballHistogrammer::MakeHists() {
 			htitle += std::to_string(i);
 			htitle += ";Energy [keV];Counts per 0.5 keV";
 			bdE_singles_det[i] = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-			
+			histlist->Add(bdE_singles_det[i]);
+
 		}
 		
 	} // beam dump on
@@ -1668,15 +1959,18 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "ic_dE";
 		htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Counts";
 		ic_dE = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
-		
+		histlist->Add(ic_dE);
+
 		hname = "ic_E";
 		htitle = "Ionisation chamber;Energy loss in rest of the layers (Si) (Gas) (arb. units);Counts";
 		ic_E = new TH1F( hname.data(), htitle.data(), 4096, 0, 10000 );
-		
+		histlist->Add(ic_E);
+
 		hname = "ic_dE_E";
 		htitle = "Ionisation chamber;Energy loss in dE layers (Gas) (arb. units);Energy loss in rest of the layers (Si) (arb. units);Counts";
 		ic_dE_E = new TH2F( hname.data(), htitle.data(), 4096, 0, 10000, 4096, 0, 10000 );
-		
+		histlist->Add(ic_dE_E);
+
 	} // ion-chamber on
 
 	return;
@@ -1689,8 +1983,8 @@ void MiniballHistogrammer::PlotDefaultHists() {
 	if( !hists_ready ) return;
 
 	// Make the canvas
-	c1 = std::make_unique<TCanvas>("c1","Monitor hists");
-	c1->Divide(2,2);
+	c1 = std::make_unique<TCanvas>("Diagnostics","Monitor hists");
+	c1->Divide(2,3);
 
 	// Plot things
 	c1->cd(1);
@@ -1702,6 +1996,12 @@ void MiniballHistogrammer::PlotDefaultHists() {
 	ebis_td_gamma->Draw("hist");
 	c1->cd(4);
 	ebis_td_particle->Draw("hist");
+	c1->cd(5);
+	c1->GetPad(5)->SetLogz();
+	gamma_theta_phi_map->Draw("colz");
+	c1->cd(6);
+	c1->GetPad(6)->SetLogz();
+	particle_xy_map_forward->Draw("colz");
 
 	return;
 
@@ -1738,7 +2038,7 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 	else maxhists = spyhists.size();
 
 	// Make the canvas
-	c2 = std::make_unique<TCanvas>("c2","User hists");
+	c2 = std::make_unique<TCanvas>("Physics","User hists");
 	if( maxhists > 1 && spylayout[0] > 0 && spylayout[1] > 0 )
 		c2->Divide( spylayout[0], spylayout[1] );
 
@@ -1755,7 +2055,7 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 		// Get this histogram of the right type
 		if( spyhists[i][1] == "TH1" || spyhists[i][1] == "TH1F" || spyhists[i][1] == "TH1D" ) {
 
-			ptr_th1 = (TH1F*)gDirectory->Get( spyhists[i][0].data() );
+			ptr_th1 = (TH1F*)output_file->Get( spyhists[i][0].data() );
 			if( ptr_th1 != nullptr )
 				ptr_th1->Draw( spyhists[i][2].data() );
 
@@ -1763,7 +2063,7 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 
 		else if( spyhists[i][1] == "TH2" || spyhists[i][1] == "TH2F" || spyhists[i][1] == "TH2D" ) {
 
-			ptr_th2 = (TH2F*)gDirectory->Get( spyhists[i][0].data() );
+			ptr_th2 = (TH2F*)output_file->Get( spyhists[i][0].data() );
 			if( ptr_th2 != nullptr )
 				ptr_th2->Draw( spyhists[i][2].data() );
 
@@ -1779,50 +2079,18 @@ void MiniballHistogrammer::PlotPhysicsHists() {
 
 
 // Reset histograms in the DataSpy
-void MiniballHistogrammer::ResetHist( TObject *obj ) {
-
-	if( obj == nullptr ) return;
-
-	if( obj->InheritsFrom( "TH2" ) )
-		( (TH2*)obj )->Reset("ICESM");
-	else if( obj->InheritsFrom( "TH1" ) )
-		( (TH1*)obj )->Reset("ICESM");
-
-	return;
-
-}
-
-// Reset histograms in the DataSpy
 void MiniballHistogrammer::ResetHists(){
 
-	TKey *key1, *key2, *key3;
-	TIter keyList1( gDirectory->GetListOfKeys() );
-	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
+	// Loop over the hist list
+	TIter next( histlist->MakeIterator() );
+	while( TObject *obj = next() ) {
 
-		if( key1->ReadObj()->InheritsFrom("TDirectory") ){
+		if( obj->InheritsFrom( "TH2" ) )
+			( (TH2*)obj )->Reset("ICESM");
+		else if( obj->InheritsFrom( "TH1" ) )
+			( (TH1*)obj )->Reset("ICESM");
 
-			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
-			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
-
-				if( key2->ReadObj()->InheritsFrom("TDirectory") ){
-
-					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
-					while( ( key3 = (TKey*)keyList3() ) ) // level 3
-						ResetHist( key3->ReadObj() );
-
-				}
-
-				else
-					ResetHist( key2->ReadObj() );
-
-			} // level 2
-
-		}
-
-		else
-			ResetHist( key1->ReadObj() );
-
-	} // level 1
+	}
 
 	return;
 
@@ -2543,7 +2811,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 	if( n_entries == 0 ){
 		
 		std::cout << " MiniballHistogrammer: Nothing to do..." << std::endl;
-		output_file->Write( nullptr, TObject::kOverwrite );
 		return n_entries;
 		
 	}
@@ -3268,9 +3535,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 		
 	} // all events
 	
-	//output_file->Write( nullptr, TObject::kOverwrite );
-	//output_file->Purge(2);
-
 	return n_entries;
 	
 }

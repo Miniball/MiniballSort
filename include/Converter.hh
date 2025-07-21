@@ -47,7 +47,6 @@ public:
 
 	void MakeHists();
 	void NewBuffer();
-	void ResetHist( TObject *obj );
 	void ResetHists();
 	void MakeTree();
 	void StartFile();
@@ -223,6 +222,9 @@ protected:
 	// Progress bar
 	bool _prog_;
 	std::shared_ptr<TGProgressBar> prog;
+
+	// List of histograms for reset later
+	std::unique_ptr<TList> histlist;
 
 
 

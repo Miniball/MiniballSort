@@ -46,7 +46,6 @@ public:
 	~MiniballHistogrammer() {};
 	
 	void MakeHists();
-	void ResetHist( TObject *obj );
 	void ResetHists();
 	unsigned long FillHists();
 	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );
@@ -285,6 +284,9 @@ private:
 	
 	// Check if histograms are made
 	bool hists_ready = false;
+
+	// List of histograms for reset later
+	std::unique_ptr<TList> histlist;
 
 	// Canvas and hist lists for the spy
 	std::vector<std::vector<std::string>> spyhists;

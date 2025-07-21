@@ -59,7 +59,6 @@ public:
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
-	void	ResetHist( TObject *obj );
 	void	ResetHists();
 	
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){
@@ -141,6 +140,9 @@ private:
 	
 	// Check if histograms are made
 	bool hists_ready = false;
+
+	// List of histograms for reset later
+	std::unique_ptr<TList> histlist;
 
 	// Log file
 	std::ofstream log_file; ///< Log file for recording the results of the MiniballEventBuilder
