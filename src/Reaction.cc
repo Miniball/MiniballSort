@@ -822,6 +822,7 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	else y = TMath::ASin( y );
 
 	Ejectile.SetThetaCoM( GetParticleTheta(p) + y );
+	
 	ejectile_detected = true;
 	
 	// Overwrite energy with kinematics if requested
@@ -1042,28 +1043,60 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	if( stopping ) {
 		eloss = GetEnergyLoss( Beam.GetEnergy(), 0.5 * target_thickness, gStopping[0] ); // beam in target
 	}
-	Ejectile.SetEnergy( Beam.GetEnergy() - eloss ); // eloss is positive
-	Ejectile.SetTheta( 0.0 ); // asume is goes straight for now
+
+	double p4x = Recoil.GetMomentum() * TMath::Cos(Recoil.GetTheta());
+	double p4y = Recoil.GetMomentum() * TMath::Sin(Recoil.GetTheta());
+	double p3x = Beam.GetMomentum() - p4x;
+	double p3y = p4y;
+	double theta3 = TMath::ATan2(p3y, p3x);
+	//double E3 = GetEnergyTotLab() - Recoil.GetEnergyTot();
+	double E3 = (Beam.GetEnergyTot() + Target.GetEnergyTot()) - Recoil.GetEnergyTot(); // Total energy of ejectile
+	
+
+	Ejectile.SetEnergy( E3 - Ejectile.GetMass() ); // eloss is positive // Kinetic energy of ejectile
+	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
 	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
 
-	// Calculate the centre of mass angle
-	// TODO: ALL OF THIS IS WRONG. IT NEEDS FIXING PLEASE THANKS YOU
-	double maxang = TMath::ASin( 1. / GetEpsilon() );
-	double y = GetEpsilon();
-	if( GetParticleTheta(p) > maxang )
-		y *= TMath::Sin( maxang );
-	else
-		y *= TMath::Sin( GetParticleTheta(p) );
-	
-	if( kinflag ) y = TMath::ASin( -y );
-	else y = TMath::ASin( y );
+	//std::cout << "=============================== "<< std::endl;
+	//std::cout << "Sanity check of Ejectile mass: " << Ejectile.GetMass() << " keV" << std::endl;
+	//std::cout << "Recoil kinetic energy in LAB frame: " << std::setprecision(8) << Recoil.GetEnergy() << " keV" << std::endl;
+	//std::cout << "Recoil theta in LAB frame: " << Recoil.GetTheta() << " rad" << std::endl;
+	//std::cout << "Ejectile kinetic energy in LAB frame: " << Ejectile.GetEnergy() << " keV" << std::endl;
+	//std::cout << "Ejectile theta in LAB frame: " << Ejectile.GetTheta() << " rad" << std::endl;
 
-	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
-	Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
+	// Calculate the centre-of-mass energy and angle
+	// Vili's version
+	double E3_CoM = GetGammaCoM()*(E3 - GetBetaCoM() * p3x);
+	double p3x_CoM = GetGammaCoM()*(p3x - GetBetaCoM() * E3);
+	double p3y_CoM = p3y;
+	// double p_CoM = TMath::Sqrt(TMath::Power(p3x_CoM, 2.0) + TMath::Power(p3y_CoM, 2.0));
+	double theta3_CoM = TMath::ATan2(p3y_CoM, p3x_CoM);
+
+	// Lets check E4_CoM also with lorentz transfrom
+	//double E4_CoM = Recoil.GetEnergyTotCM(); This is only calculated from projectile = target -> bad
+	double E4_CoM = GetGammaCoM()*(Recoil.GetEnergyTot() - GetBetaCoM() * p4x);
+	double p4x_CoM = GetGammaCoM()*(p4x - GetBetaCoM() * Recoil.GetEnergyTot());
+	double p4y_CoM = p4y;
+	double theta4_CoM = TMath::ATan2(p4y_CoM, p4x_CoM);
+
+	Ejectile.SetEnergyCoM(E3_CoM - Ejectile.GetMass() ); // Energy of the ejectile in CoM frame
+	Ejectile.SetThetaCoM(theta3_CoM); // theta of ejectile in CoM frame in radians
+	Recoil.SetEnergyCoM(E4_CoM - Recoil.GetMass()); // Set Recoil energy in CoM
+	Recoil.SetThetaCoM( TMath::Pi() - theta3_CoM ); // theta of recoil in CoM frame in radians
+
+	//std::cout << "======= "<< std::endl;
+	//std::cout << "Ejectile kinetic energy in CoM frame: " << Ejectile.GetEnergyCoM() << " keV" << std::endl;
+	//std::cout << "Ejectile theta in CoM frame: " << Ejectile.GetThetaCoM() << " rad" << std::endl;
+	//std::cout << "Recoil kinetic energy in CoM frame: " << Recoil.GetEnergyCoM() << " keV" << std::endl;
+	//std::cout << "Recoil theta in CoM frame: " << Recoil.GetThetaCoM() << " rad" << std::endl;
+	//std::cout << "Recoil theta in CoM from pi - theta3_CoM: " << TMath::Pi() - theta3_CoM << " rad" << std::endl;
+
+	// Recoil.SetThetaCoM( GetParticleTheta(p) + y );
+	// Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
 	transfer_detected = true;
 
-}
 
+}
 
 
 double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g ) {
