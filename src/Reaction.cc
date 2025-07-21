@@ -373,7 +373,7 @@ void MiniballReaction::ReadReaction() {
 
 	if( degrader_thickness > 0 ) {
 
-		std::cout << "A " << degrader_material << " of " << degrader_thickness;
+		std::cout << "A " << degrader_material << " degrader of " << degrader_thickness;
 		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
 		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
 			std::cout << " BEFORE the degrader";
