@@ -220,9 +220,9 @@ void* monitor_run( void* ptr ){
 	unsigned long nbuild = 0;
 
 	// Filenames for spy
-	std::string spyname_singles = datadir_name + "/monitor_singles.root";
-	std::string spyname_events = datadir_name + "/monitor_events.root";
-	std::string spyname_hists = datadir_name + "/monitor_hists.root";
+	std::string spyname_singles = datadir_name + "/singles.root";
+	std::string spyname_events = datadir_name + "/events.root";
+	std::string spyname_hists = datadir_name + "/hists.root";
 
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
