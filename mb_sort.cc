@@ -289,7 +289,7 @@ void* monitor_run( void* ptr ){
 
 				// Keep reading until we have all the data
 				// This could be multi-threaded to process data and go back to read more
-				int wait_time = 100; // ms - between each read
+				int wait_time = 50; // ms - between each read
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
@@ -301,13 +301,14 @@ void* monitor_run( void* ptr ){
 						block_ctr += nblocks;
 						//gSystem->Sleep(1); // wait 1 ms before reading next block
 					}
-					else gSystem->Sleep( wait_time ); // wait for new data in buffer
+					else {
+						gSystem->Sleep( wait_time ); // wait for new data in buffer
+						poll_ctr++;
+					}
 
 					// Read a new block
 					spy_length = myspy.Read( file_id, (char*)buffer, inputptr->myset->GetBlockSize() );
-
 					byte_ctr += spy_length;
-					poll_ctr++;
 
 					//std::cout << block_ctr << " blocks in " << poll_ctr << " polls" << std::endl;
 
