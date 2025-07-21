@@ -68,6 +68,8 @@ public:
 	inline void SetOutput( std::string output_file_name ){
 		output_file = new TFile( output_file_name.data(), "recreate" );
 		MakeHists();
+		hists_ready = true;
+		output_file->Write();
 	};
 	inline void CloseOutput( ){
 		output_file->Write( nullptr, TObject::kOverwrite );

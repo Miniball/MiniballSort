@@ -1679,13 +1679,6 @@ void MiniballHistogrammer::MakeHists() {
 		
 	} // ion-chamber on
 
-
-	// flag to denote that hists are ready (used for spy)
-	hists_ready = true;
-
-	// Write hists once at the start
-	output_file->Write();
-
 	return;
 	
 }

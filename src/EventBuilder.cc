@@ -219,7 +219,10 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 
 	// Hisograms in separate function
 	MakeEventHists();
-	
+
+	// Write once at the start
+	output_file->Write();
+
 }
 
 void MiniballEventBuilder::Initialise(){
@@ -494,9 +497,6 @@ void MiniballEventBuilder::MakeEventHists(){
 
 	// flag to denote that hists are ready (used for spy)
 	hists_ready = true;
-
-	// Write once
-	output_file->Write();
 
 	return;
 	
