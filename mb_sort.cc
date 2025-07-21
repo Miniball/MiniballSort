@@ -289,7 +289,7 @@ void* monitor_run( void* ptr ){
 
 				// Keep reading until we have all the data
 				// This could be multi-threaded to process data and go back to read more
-				int wait_time = 20; // ms - between each read
+				int wait_time = 10; // ms - between each read
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
