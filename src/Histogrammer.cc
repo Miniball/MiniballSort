@@ -164,44 +164,6 @@ void MiniballHistogrammer::MakeHists() {
 		gE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
 		histlist->Add(gE_singles_dc_ebis);
 
-		hname = "aE_singles";
-		htitle = "Gamma-ray energy with addback singles;Energy [keV];Counts per 0.5 keV";
-		aE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		histlist->Add(aE_singles);
-
-		if( react->HistByCrystal() ) {
-
-			hname = "aE_singles_vs_crystal";
-			htitle = "Gamma-ray energy with addback singles versus crystal ID;Crystal ID;Energy [keV];Counts per 0.5 keV";
-			aE_singles_vs_crystal = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
-			histlist->Add(aE_singles_vs_crystal);
-
-		}
-		hname = "aE_singles_ebis";
-		htitle = "Gamma-ray energy with addback singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
-		aE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		histlist->Add(aE_singles_ebis);
-
-		hname = "aE_singles_ebis_on";
-		htitle = "Gamma-ray energy with addback singles EBIS on;Energy [keV];Counts per 0.5 keV";
-		aE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		histlist->Add(aE_singles_ebis_on);
-
-		hname = "aE_singles_ebis_off";
-		htitle = "Gamma-ray energy with addback singles EBIS off;Energy [keV];Counts per 0.5 keV";
-		aE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		histlist->Add(aE_singles_ebis_off);
-
-		hname = "aE_singles_dc";
-		htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
-		aE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		histlist->Add(aE_singles_dc);
-
-		hname = "aE_singles_dc_ebis";
-		htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
-		aE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
-		histlist->Add(aE_singles_dc_ebis);
-
 		hname = "gamma_xy_map_forward";
 		htitle = "Gamma-ray X-Y hit map (forward: z > 0);y (horizontal) [mm];x (vertical) [mm];Counts";
 		gamma_xy_map_forward = new TH2F( hname.data(), htitle.data(), 201, -201., 201., 201, -201., 201. );
@@ -228,6 +190,51 @@ void MiniballHistogrammer::MakeHists() {
 		histlist->Add(gamma_theta_phi_map);
 
 	}
+
+	// Gamma-ray addback singles histograms
+	if( react->HistWithAddback() ) {
+
+		hname = "aE_singles";
+		htitle = "Gamma-ray energy with addback singles;Energy [keV];Counts per 0.5 keV";
+		aE_singles = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		histlist->Add(aE_singles);
+
+		if( react->HistByCrystal() ) {
+
+			hname = "aE_singles_vs_crystal";
+			htitle = "Gamma-ray energy with addback singles versus crystal ID;Crystal ID;Energy [keV];Counts per 0.5 keV";
+			aE_singles_vs_crystal = new TH2F( hname.data(), htitle.data(), ncry, -0.5, ncry-0.5, GBIN, GMIN, GMAX );
+			histlist->Add(aE_singles_vs_crystal);
+
+		}
+
+		hname = "aE_singles_ebis";
+		htitle = "Gamma-ray energy with addback singles EBIS on-off;Energy [keV];Counts per 0.5 keV";
+		aE_singles_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		histlist->Add(aE_singles_ebis);
+
+		hname = "aE_singles_ebis_on";
+		htitle = "Gamma-ray energy with addback singles EBIS on;Energy [keV];Counts per 0.5 keV";
+		aE_singles_ebis_on = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		histlist->Add(aE_singles_ebis_on);
+
+		hname = "aE_singles_ebis_off";
+		htitle = "Gamma-ray energy with addback singles EBIS off;Energy [keV];Counts per 0.5 keV";
+		aE_singles_ebis_off = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		histlist->Add(aE_singles_ebis_off);
+
+		hname = "aE_singles_dc";
+		htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam;Energy [keV];Counts per 0.5 keV";
+		aE_singles_dc = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		histlist->Add(aE_singles_dc);
+
+		hname = "aE_singles_dc_ebis";
+		htitle = "Gamma-ray energy with addback singles, Doppler corrected for unscattered beam, EBIS on-off;Energy [keV];Counts per 0.5 keV";
+		aE_singles_dc_ebis = new TH1F( hname.data(), htitle.data(), GBIN, GMIN, GMAX );
+		histlist->Add(aE_singles_dc_ebis);
+
+	}
+
 
 	// Gamma-ray coincidence histograms
 	dirname = "CoincidenceMatrices";
@@ -2129,8 +2136,10 @@ void MiniballHistogrammer::ResetHists(){
 	TIter next( histlist->MakeIterator() );
 	while( TObject *obj = next() ) {
 
-		if( obj->InheritsFrom( "TH2" ) )
+		if( obj->InheritsFrom( "TH2" ) ) {
 			( (TH2*)obj )->Reset("ICESM");
+			( (TH2*)obj )->GetZaxis()->UnZoom();
+		}
 		else if( obj->InheritsFrom( "TH1" ) )
 			( (TH1*)obj )->Reset("ICESM");
 

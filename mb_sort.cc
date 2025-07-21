@@ -446,7 +446,7 @@ void ReadSpyHistogramList() {
 		physhists.push_back( {"ParticleSpectra/pE_theta_coinc", "TH2", "colz"} );
 		physhists.push_back( {"ParticleSpectra/pE_dE0", "TH2", "colz"} );
 		physhists.push_back( {"GammaRaySingles/gE_singles_ebis", "TH1", "hist"} );
-		physhists.push_back( {"GammaRaySingles/gE_singles_ebis_dc", "TH1", "hist"} );
+		physhists.push_back( {"GammaRaySingles/gE_singles_dc_ebis", "TH1", "hist"} );
 		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_ejectile", "TH1", "hist"} );
 		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_recoil", "TH1", "hist"} );
 
