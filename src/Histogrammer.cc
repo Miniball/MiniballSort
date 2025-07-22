@@ -2018,6 +2018,10 @@ void MiniballHistogrammer::PlotDefaultHists() {
 	// Check that we're ready
 	if( !hists_ready ) return;
 
+	// Because we have the spy, we turn off the error tracking
+	// on the histograms so that the default draw option is "hist"
+	TH1::SetDefaultSumw2(kFALSE);
+
 	// Make the canvas
 	c1 = std::make_unique<TCanvas>("Diagnostics","Monitor hists");
 	c1->Divide(2,3);
