@@ -2,6 +2,7 @@
 #define __REACTION_HH
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -96,15 +97,19 @@ public:
 	inline double		GetBindingEnergy(){ return bindingE; };
 	inline double		GetEnergyTot(){ return GetEnergy() + GetMass(); };
 	inline double		GetBeta(){
-		double beta2 = 0.25 * GetMass() + 1.5 * GetEnergy();
-		beta2  = TMath::Sqrt( beta2 * GetMass() );
-		beta2 -= 0.5 * GetMass();
-		return TMath::Sqrt( beta2 / ( 0.75 * GetMass() ) );
+		return GetMomentum()/GetEnergyTot();
+	};
+	inline double		GetBetaCoM(){
+		return GetMomentum()/(GetEnergyTot() + GetMass()) ;
 	};
 	inline double		GetGamma(){
 		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
 	};
+	inline double		GetGammaCoM(){
+		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBetaCoM(), 2.0 ) );
+	};
 	inline double		GetEnergy(){ return Elab; };
+	inline double		GetEnergyCoM(){ return ECoM; };
 	inline double		GetEx(){ return Ex; };
 	inline double		GetTheta(){ return Theta; };
 	inline double		GetThetaCoM(){ return ThetaCoM; };
@@ -115,13 +120,19 @@ public:
 		vec.SetPhi( GetPhi() );
 		return vec;
 	};
-
+	inline double GetMomentum(){
+	/// Returns the Lab frame momentum of the particle.
+		double E = GetEnergyTot();
+		double m = GetMass();
+		return TMath::Sqrt(TMath::Power(E, 2.0) - TMath::Power(m, 2.0));
+	};
 
 	// Set properties
 	inline void		SetA( int myA ){ A = myA; };
 	inline void		SetZ( int myZ ){ Z = myZ; };
 	inline void		SetBindingEnergy( double myBE ){ bindingE = myBE; };
 	inline void		SetEnergy( double myElab ){ Elab = myElab; };
+	inline void		SetEnergyCoM( double myECoM ){ ECoM = myECoM; };	
 	inline void		SetEx( double myEx ){ Ex = myEx; };
 	inline void		SetTheta( double mytheta ){ Theta = mytheta; };
 	inline void		SetThetaCoM( double mytheta ){ ThetaCoM = mytheta; };
@@ -135,6 +146,7 @@ private:
 	int		Z; 			///< The Z of the particle, obviously
 	double	bindingE;	///< binding energy per nucleon in keV/c^2
 	double	Elab;		///< energy in the laboratory system
+	double	ECoM;		///< energy in the Center-of-Mass system	
 	double	Ex;			///< excitation energy of the nucleus
 	double	Theta;		///< theta in the laboratory system in radians
 	double	ThetaCoM;	///< theta in the centre-of-mass system in radians
@@ -316,6 +328,7 @@ public:
 	void	TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
 
 
+
 	// Reaction calculations
 	inline double GetQvalue(){
 		return Beam.GetMass() + Target.GetMass() -
@@ -332,14 +345,16 @@ public:
 		return etot;
 	};
 	inline double GetBeta(){
-		double beta2 = 0.25 * Beam.GetMass() + 1.5 * Beam.GetEnergy();
-		beta2  = TMath::Sqrt( beta2 * Beam.GetMass() );
-		beta2 -= 0.5 * Beam.GetMass();
-		return TMath::Sqrt( beta2 / ( 0.75 * Beam.GetMass() ) );
-		//return TMath::Sqrt( 2.0 * Beam.GetEnergy() / Beam.GetMass() );
+		return Beam.GetBeta();
+	};
+	inline double GetBetaCoM(){
+		return Beam.GetMomentum()/(Beam.GetEnergyTot() + Target.GetMass());
 	};
 	inline double GetGamma(){
-		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
+		return Beam.GetGamma();
+	};
+	inline double GetGammaCoM(){
+		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBetaCoM(), 2.0 ) );
 	};
 	inline double GetTau(){
 		return Beam.GetMass() / Target.GetMass();
@@ -510,7 +525,8 @@ public:
 
 	// Events tree options
 	inline bool EventsParticleGammaOnly(){ return events_particle_gamma; };
-	inline bool EventsCdPadCoincidence(){ return events_particle_cdpad; };
+	inline bool EventsCdPadCoincidence(){ return events_particle_cdpad_coinc; };
+	inline bool EventsCdPadVeto(){ return events_particle_cdpad_veto; };
 
 	// Histogram options
 	inline bool HistSegmentPhi(){ return hist_segment_phi; };
@@ -620,7 +636,8 @@ private:
 	
 	// Events tree options
 	bool events_particle_gamma;
-	bool events_particle_cdpad;
+	bool events_particle_cdpad_coinc;
+	bool events_particle_cdpad_veto;
 
 	// Histogram options
 	bool hist_segment_phi;

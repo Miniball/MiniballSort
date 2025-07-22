@@ -100,6 +100,7 @@ bool flag_angle_fit = false;
 
 // DataSpy
 bool flag_spy = false;
+bool flag_alive = true;
 int open_spy_data = -1;
 
 // Monitoring input file
@@ -128,6 +129,10 @@ typedef struct thptr {
 // Server and controls for the GUI
 std::unique_ptr<THttpServer> serv;
 int port_num = 8030;
+std::shared_ptr<TCanvas> cspy;
+std::string spy_hists_file;
+std::vector<std::vector<std::string>> physhists;
+short spylayout[2] = {2,2};
 
 // Pointers to the thread events TODO: sort out inhereted class stuff
 std::shared_ptr<MiniballConverter> conv_mon;
@@ -135,6 +140,13 @@ std::shared_ptr<MiniballMbsConverter> conv_mbs_mon;
 std::shared_ptr<MiniballMidasConverter> conv_midas_mon;
 std::shared_ptr<MiniballEventBuilder> eb_mon;
 std::shared_ptr<MiniballHistogrammer> hist_mon;
+
+void plot_physics_hists(){
+	if( hist_mon.get() != nullptr )
+		hist_mon->PlotPhysicsHists( physhists, spylayout );
+	else
+		std::cout << "Not ready yet, try again" << std::endl;
+}
 
 void reset_conv_hists(){
 	conv_mon->ResetHists();
@@ -154,6 +166,11 @@ void stop_monitor(){
 
 void start_monitor(){
 	bRunMon = kTRUE;
+}
+
+void signal_callback_handler( int signum ) {
+	std::cout << "Caught signal " << signum << endl;
+	flag_alive = false;
 }
 
 // Function to call the monitoring loop
@@ -193,14 +210,14 @@ void* monitor_run( void* ptr ){
 	
 	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
-	long long buffer[8*1024];
+	long long buffer[2048*1024];
 	int file_id = 0; ///> TapeServer volume = /dev/file/<id> ... <id> = 0 on issdaqpc2
 	if( flag_spy && flag_midas ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
 	
 	// GSI MBS EventServer
 	MBS mbs;
-	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8030 );
+	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8020 );
 
 	// Data/Event counters
 	int start_block = 0, start_subevt = 0;
@@ -216,6 +233,9 @@ void* monitor_run( void* ptr ){
 	conv_mon->MakeTree();
 	conv_mon->MakeHists();
 
+	// Add canvas for spy
+	hist_mon->AddSpyCanvas( cspy );
+
 	// Update server settings
 	// title of web page
 	std::string toptitle;
@@ -226,8 +246,8 @@ void* monitor_run( void* ptr ){
 	serv->SetItemField("/", "_toptitle", toptitle.data() );
 
 	// While the sort is running
-	while( true ) {
-		
+	while( flag_alive ) {
+
 		// bRunMon can be set by the GUI
 		while( bRunMon ) {
 			
@@ -253,7 +273,10 @@ void* monitor_run( void* ptr ){
 				// Clean up the trees before we start
 				conv_midas_mon->GetSortedTree()->Reset();
 				conv_midas_mon->GetMbsInfo()->Reset();
-				
+
+				// Empty the previous data vector and reset counters
+				conv_midas_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from DataSpy" << std::endl;
 				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
@@ -268,8 +291,8 @@ void* monitor_run( void* ptr ){
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
-				while( block_ctr < 200 && poll_ctr < 1000 ){
-				
+				while( block_ctr < 2048 && poll_ctr < 1000 ){
+
 					//std::cout << "Got some data from DataSpy" << std::endl;
 					if( spy_length > 0 ) {
 						nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
@@ -277,7 +300,7 @@ void* monitor_run( void* ptr ){
 					}
 
 					// Read a new block
-					gSystem->Sleep( 1 ); // wait 1 ms between each read
+					gSystem->Sleep( 2 ); // wait 2 ms between each read
 					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
 					
 					byte_ctr += spy_length;
@@ -296,6 +319,9 @@ void* monitor_run( void* ptr ){
 			// Convert - from MBS event server
 			else if( flag_spy && flag_mbs ){
 				
+				// Empty the previous data vector and reset counters
+				conv_mbs_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from MBSEventServer" << std::endl;
 				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
@@ -354,13 +380,13 @@ void* monitor_run( void* ptr ){
 
 		} // bRunMon
 		
-	} // always running
-	
+	} // always running until ctrl+c
+
 	// Close the dataSpy before exiting (no point really)
 	if( flag_spy && flag_midas ) myspy.Close( file_id );
 	if( flag_spy && flag_mbs ) mbs.CloseEventServer();
 
-	// Close all outputs (we never reach here anyway)
+	// Close all outputs
 	conv_mon->CloseOutput();
 	eb_mon->CloseOutput();
 	hist_mon->CloseOutput();
@@ -387,9 +413,11 @@ void start_http(){
 	// register simple start/stop commands
 	serv->RegisterCommand("/Start", "StartMonitor()");
 	serv->RegisterCommand("/Stop", "StopMonitor()");
+	serv->RegisterCommand("/ResetAll", "ResetAll()");
 	serv->RegisterCommand("/ResetSingles", "ResetConv()");
 	serv->RegisterCommand("/ResetEvents", "ResetEvnt()");
 	serv->RegisterCommand("/ResetHists", "ResetHist()");
+	serv->RegisterCommand("/PlotPhysicsHists", "PlotPhysicsHists()");
 
 	// hide commands so the only show as buttons
 	//serv->Hide("/Start");
@@ -398,6 +426,73 @@ void start_http(){
 
 	return;
 	
+}
+
+// Function to read histogram info from a file into a 2D vector
+void ReadSpyHistogramList() {
+
+	// Check if the user gave a file
+	if( spy_hists_file.length() == 0 ) {
+
+		std::cout << "Default spy hists" << std::endl;
+
+		// If not, just use some defaults
+		spylayout[0] = 2; // x
+		spylayout[1] = 2; // y
+		physhists.push_back( {"gE_singles_ebis", "TH1", "hist"} );
+		physhists.push_back( {"pE_theta", "TH2", "colz"} );
+		physhists.push_back( {"ebis_td_particle", "TH1", "hist"} );
+		physhists.push_back( {"ebis_td_gamma", "TH1", "hist"} );
+
+		return;
+
+	}
+
+	std::ifstream infile( spy_hists_file );
+	std::string line;
+
+	// Check it's open
+	if( !infile.is_open() ) {
+
+		std::cerr << "Error: Could not open file " << spy_hists_file << std::endl;
+		return;
+
+	}
+
+	// Check for comments first
+	std::getline( infile, line );
+	while( line.at(0) == '#' )
+		std::getline( infile, line );
+
+	// Read first line: number of histograms in x direction on canvas
+	std::istringstream iss(line);
+	iss >> spylayout[0];
+
+	// Read second line: number of histograms in y direction on canvas
+	std::getline( infile, line );
+	iss = std::istringstream(line);
+	iss >> spylayout[1];
+
+	// Read the file line by line
+	while( std::getline( infile, line ) ) {
+
+		// skip empty lines
+		if( line.length() == 0 ) continue;
+
+		// Stream the line and check for a new item
+		std::string name, classType = "TH1", drawOption = "hist";
+		iss = std::istringstream(line);
+		iss >> name >> classType >> drawOption;
+
+		// If we got something, add it to the list
+		if( name.length() > 0 )
+			physhists.push_back({name, classType, drawOption});
+
+	}
+
+	infile.close();
+	return;
+
 }
 
 void do_convert() {
@@ -450,6 +545,10 @@ void do_convert() {
 			ftest.close();
 			rtest = new TFile( name_output_file.data() );
 			if( rtest->IsZombie() ) force_convert.at(i) = true;
+			if( rtest->TestBit(TFile::kRecovered) ){
+				std::cout << name_output_file << " possibly corrupted, reconverting" << std::endl;
+				force_convert.at(i) = true;
+			}
 			if( !flag_convert && !force_convert.at(i) )
 				std::cout << name_output_file << " already converted" << std::endl;
 			rtest->Close();
@@ -475,7 +574,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_mbs.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_mbs.NoSortTree();
+						conv_mbs.SortTree(false);
 					else conv_mbs.SortTree();
 				}
 				conv_mbs.CloseOutput();
@@ -493,10 +592,7 @@ void do_convert() {
 				conv_midas.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) {
-					conv_midas.SortTree();
-					//conv_midas.BodgeMidasSort();
-				}
+				if( !flag_source ) conv_midas.SortTree();
 				conv_midas.CloseOutput();
 				
 			}
@@ -515,7 +611,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_med.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_med.NoSortTree();
+						conv_med.SortTree(false);
 					else conv_med.SortTree();
 				}
 				conv_med.CloseOutput();
@@ -588,6 +684,10 @@ bool do_build() {
 				ftest.close();
 				rtest = new TFile( name_output_file.data() );
 				if( rtest->IsZombie() ) force_events = true;
+				if( rtest->TestBit(TFile::kRecovered) ){
+					std::cout << name_output_file << " possibly corrupted, rebuilding" << std::endl;
+					force_events = true;
+				}
 				if( !force_events )
 					std::cout << name_output_file << " already built" << std::endl;
 				rtest->Close();
@@ -767,6 +867,7 @@ int main( int argc, char *argv[] ){
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
+	interface->Add("-spyhists", "File containing histograms for monitoring in the spy", &spy_hists_file );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
 	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
 	interface->Add("-d", "Directory to put the sorted data default is /path/to/data/sorted", &datadir_name );
@@ -848,7 +949,10 @@ int main( int argc, char *argv[] ){
 	
 	// Check if we should be monitoring the input
 	if( flag_spy ) {
-		
+
+		// Register signal and signal handler for DataSpy only
+		signal( SIGINT, signal_callback_handler );
+
 		flag_monitor = true;
 		if( mon_time < 0 ) mon_time = 30;
 		std::cout << "Getting data from shared memory every " << mon_time;
@@ -910,7 +1014,8 @@ int main( int argc, char *argv[] ){
 	gSystem->Exec( cmd.data() );	
 	std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
 
-	
+	ReadSpyHistogramList();
+
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
 
@@ -1072,6 +1177,9 @@ int main( int argc, char *argv[] ){
 		data.myset = myset;
 		data.myreact = myreact;
 
+		// Read the histogram list from the file
+		ReadSpyHistogramList();
+
 		// Start the HTTP server from the main thread (should usually do this)
 		start_http();
 		gSystem->ProcessEvents();
@@ -1081,8 +1189,8 @@ int main( int argc, char *argv[] ){
 		th0->Run();
 
 		// wait until we finish
-		while( true ){
-			
+		while( flag_alive ){
+
 			gSystem->Sleep(10);
 			gSystem->ProcessEvents();
 			
@@ -1091,6 +1199,7 @@ int main( int argc, char *argv[] ){
 		return 0;
 		
 	}
+
 
 
 	//------------------//

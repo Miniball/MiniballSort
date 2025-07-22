@@ -85,6 +85,17 @@ void MiniballConverter::StartFile(){
 	
 	buffer_full = false;	// first buffer not yet assumed to be full
 
+	// Flags for FEBEX data items
+	flag_febex_data0 = false;
+	flag_febex_data1 = false;
+	flag_febex_data2 = false;
+	flag_febex_data3 = false;
+	flag_febex_trace = false;
+
+	// clear the data vectors
+	std::vector<std::shared_ptr<MiniballDataPackets>>().swap(data_vector);
+	std::vector<std::pair<unsigned long,double>>().swap(data_map);
+
 	return;
 	
 }
@@ -104,25 +115,15 @@ void MiniballConverter::MakeTree() {
 	// Create Root tree
 	const int splitLevel = 0; // don't split branches = 0, full splitting = 99
 	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
-	output_tree = new TTree( "mb", "mb" );
+	sorted_tree = new TTree( "mb_sort", "Time sorted, calibrated Miniball data" );
 	mbsinfo_tree = new TTree( "mbsinfo", "mbsinfo" );
-	data_packet = std::make_unique<MiniballDataPackets>();
-	mbsinfo_packet = std::make_unique<MBSInfoPackets>();
-	output_tree->Branch( "data", "MiniballDataPackets", data_packet.get(), bufsize, splitLevel );
+	write_packet = std::make_shared<MiniballDataPackets>();
+	mbsinfo_packet = std::make_shared<MBSInfoPackets>();
+	sorted_tree->Branch( "data", "MiniballDataPackets", write_packet.get(), bufsize, splitLevel );
 	mbsinfo_tree->Branch( "mbsinfo", "MBSInfoPackets", mbsinfo_packet.get(), sizeof(MBSInfoPackets), 0 );
 	
-	sorted_tree = (TTree*)output_tree->CloneTree(0);
-	sorted_tree->SetName("mb_sort");
-	sorted_tree->SetTitle( "Time sorted, calibrated Miniball data" );
 	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
-	output_tree->SetDirectory( output_file->GetDirectory("/") );
 	mbsinfo_tree->SetDirectory( output_file->GetDirectory("/") );
-	
-	output_tree->SetAutoFlush(-10e6);
-	sorted_tree->SetAutoFlush(-10e6);
-	mbsinfo_tree->SetAutoFlush(-10e6);
-	
-	output_tree->SetParallelUnzip();
 
 	dgf_data = std::make_shared<DgfData>();
 	adc_data = std::make_shared<AdcData>();
@@ -574,183 +575,72 @@ void MiniballConverter::BuildMbsIndex(){
 	
 }
 
-void MiniballConverter::NoSortTree(){
+bool MiniballConverter::TimeComparator( const std::shared_ptr<MiniballDataPackets> &lhs,
+									    const std::shared_ptr<MiniballDataPackets> &rhs ) {
 
-	std::cout << "Filtering data, but not time ordering" << std::endl;
-	
-	// Loop on entries and fill sorted tree
-	long long int n_ents = output_tree->GetEntries();
-	for( long long int i = 0; i < n_ents; ++i ) {
+	return lhs->GetTime() < rhs->GetTime();
 
-		// Read entry
-		output_tree->GetEntry(i);
-
-		// Write the data to the sorted tree
-		sorted_tree->Fill();
-
-		// Progress bar
-		bool update_progress = false;
-		if( n_ents < 200 )
-			update_progress = true;
-		else if( i % (n_ents/100) == 0 || i+1 == n_ents )
-			update_progress = true;
-		
-		if( update_progress ) {
-			
-			// Percent complete
-			float percent = (float)(i+1)*100.0/(float)n_ents;
-			
-			// Progress bar in GUI
-			if( _prog_ ) {
-				
-				prog->SetPosition( percent );
-				gSystem->ProcessEvents();
-				
-			}
-			
-			// Progress bar in terminal
-			std::cout << " " << std::setw(6) << std::setprecision(4);
-			std::cout << percent << "%    \r";
-			std::cout.flush();
-			
-		}
-
-		
-	}
-	
-	// Reset the output tree so it's empty after we've finished
-	output_tree->FlushBaskets();
-	output_tree->Reset();
-
-	return;
 }
 
-void MiniballConverter::BodgeMidasSort(){
-	
-	std::cout << "Filtering data, but not time ordering" << std::endl;
-	
-	// Loop on entries and fill sorted tree
-	long long int n_ents = output_tree->GetEntries();
-	for( long long int i = 0; i < n_ents; ++i ) {
+bool MiniballConverter::MapComparator( const std::pair<unsigned long,double> &lhs,
+									   const std::pair<unsigned long,double> &rhs ) {
 
-		// Read entry
-		output_tree->GetEntry(i);
+	return lhs.second < rhs.second;
 
-		// Throw away any dodgy data
-		//if( data_packet->GetSfp() >= set->GetNumberOfFebexSfps() ) continue;
-		//if( data_packet->GetBoard() >= set->GetNumberOfFebexBoards() ) continue;
-		//if( data_packet->GetChannel() >= set->GetNumberOfFebexChannels() ) continue;
-
-		// Bodge the time maybe?
-		//if( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] != 0 &&
-		//   TMath::Abs( tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] - data_packet->GetTime() ) > 300e9 ) {
-					
-			//std::cout << "Timestamp jump on SFP " << (int)my_sfp_id << ", board ";
-			//std::cout << (int)my_board_id << ", channel " << (int)my_ch_id << std::endl;
-			//continue;
-			
-		//}
-		//tm_stp_febex[data_packet->GetSfp()][data_packet->GetBoard()] = data_packet->GetTime();
-
-		// Write the data to the sorted tree
-		sorted_tree->Fill();
-
-		// Progress bar
-		bool update_progress = false;
-		if( n_ents < 200 )
-			update_progress = true;
-		else if( i % (n_ents/100) == 0 || i+1 == n_ents )
-			update_progress = true;
-		
-		if( update_progress ) {
-			
-			// Percent complete
-			float percent = (float)(i+1)*100.0/(float)n_ents;
-			
-			// Progress bar in GUI
-			if( _prog_ ) {
-				
-				prog->SetPosition( percent );
-				gSystem->ProcessEvents();
-				
-			}
-			
-			// Progress bar in terminal
-			std::cout << " " << std::setw(6) << std::setprecision(4);
-			std::cout << percent << "%    \r";
-			std::cout.flush();
-			
-		}
-
-		
-	}
-	
-	// Reset the output tree so it's empty after we've finished
-	output_tree->FlushBaskets();
-	output_tree->Reset();
-
-	return;
-	
 }
 
-unsigned long long int MiniballConverter::SortTree(){
-	
+void MiniballConverter::SortDataVector() {
+
+	// Sort the data vector as we go along
+	std::sort( data_vector.begin(), data_vector.end(), TimeComparator );
+
+}
+
+void MiniballConverter::SortDataMap() {
+
+	// Sort the data vector as we go along
+	std::sort( data_map.begin(), data_map.end(), MapComparator );
+
+}
+
+unsigned long long int MiniballConverter::SortTree( bool do_sort ){
+
 	// Reset the sorted tree so it's empty before we start
 	sorted_tree->Reset();
 
-	// Load the full tree if possible
-	//output_tree->SetMaxVirtualSize(200e6); // 200 MB
-	//sorted_tree->SetMaxVirtualSize(200e6); // 200 MB
-	//output_tree->LoadBaskets(200e6); 	 // Load 6 MB of data to memory
-	
+	// Get number of data packets
+	long long int n_ents = data_vector.size();	// std::vector method
+
 	// Check we have entries and build time-ordered index
-	if( output_tree->GetEntries() ){
-
-		std::cout << "Building time-ordered index of events..." << std::endl;
-		output_tree->BuildIndex( "data.GetTime()" );
-
+	if( n_ents && do_sort ) {
+		std::cout << "Time ordering " << n_ents << " data items..." << std::endl;
+		SortDataMap();
 	}
 	else return 0;
-	
-	// Get index and prepare for sorting
-	TTreeIndex *att_index = (TTreeIndex*)output_tree->GetTreeIndex();
-	unsigned long long int nb_idx = att_index->GetN();
-	std::cout << " Sorting: size of the sorted index = " << nb_idx << std::endl;
 
 	// Loop on t_raw entries and fill t
-	for( unsigned long i = 0; i < nb_idx; ++i ) {
-		
-		// Clean up old data
-		data_packet->ClearData();
-		
-		// Get time-ordered event index
-		unsigned long long int idx = att_index->GetIndex()[i];
-		
-		// Check if the input or output trees are filling
-		//if( output_tree->MemoryFull(30e6) )
-		//	output_tree->DropBaskets();
-		//if( sorted_tree->MemoryFull(30e6) )
-		//	sorted_tree->FlushBaskets();
-		
-		// Get entry from unsorted tree and fill to sorted tree
-		output_tree->GetEntry( idx );
-		sorted_tree->Fill();
+	std::cout << "Writing time-ordered data items to the output tree..." << std::endl;
+	for( long long int i = 0; i < n_ents; ++i ) {
 
-		// Optimise filling tree
-		//if( i == 100 ) sorted_tree->OptimizeBaskets(30e6);	 // sorted tree basket size max 30 MB
+		// Get the data item back from the vector
+		unsigned long idx = data_map[i].first;
+		write_packet->SetData( data_vector[idx] );
+
+		// Fill the sorted tree
+		sorted_tree->Fill();
 
 		// Progress bar
 		bool update_progress = false;
-		if( nb_idx < 200 )
+		if( n_ents < 200 )
 			update_progress = true;
-		else if( i % (nb_idx/100) == 0 || i+1 == nb_idx )
+		else if( i % (n_ents/100) == 0 || i+1 == n_ents )
 			update_progress = true;
 		
 		if( update_progress ) {
 			
 			// Percent complete
-			float percent = (float)(i+1)*100.0/(float)nb_idx;
-			
+			float percent = (float)(i+1)*100.0/(float)n_ents;
+
 			// Progress bar in GUI
 			if( _prog_ ) {
 				
@@ -764,16 +654,12 @@ unsigned long long int MiniballConverter::SortTree(){
 			std::cout << percent << "%    \r";
 			std::cout.flush();
 
-		}
+		} // progress bar
 
-	}
-	
-	// Reset the output tree so it's empty after we've finished
-	output_tree->FlushBaskets();
-	output_tree->Reset();
+	} // i
 
-	return nb_idx;
-	
+	return n_ents;
+
 }
 
 

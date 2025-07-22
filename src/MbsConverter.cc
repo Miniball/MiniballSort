@@ -414,8 +414,14 @@ void MiniballMbsConverter::FinishFebexData(){
 		info_data->SetSfp( febex_data->GetSfp() );
 		info_data->SetBoard( febex_data->GetBoard() );
 		info_data->SetCode( my_info_code );
-		data_packet->SetData( info_data );
-		output_tree->Fill();
+
+		if( !flag_source ) {
+			std::shared_ptr<MiniballDataPackets> data_packet =
+				std::make_shared<MiniballDataPackets>( info_data );
+			data_vector.emplace_back( data_packet );
+			data_map.push_back( std::make_pair<unsigned long,double>(
+				 data_vector.size()-1, data_packet->GetTime() ) );
+		}
 
 	}
 	
@@ -437,8 +443,13 @@ void MiniballMbsConverter::FinishFebexData(){
 		// Set this data and fill event to tree
 		// Also add the time offset when we do this
 		febex_data->SetTime( time_corr );
-		data_packet->SetData( febex_data );
-		output_tree->Fill();
+		if( !flag_source ) {
+			std::shared_ptr<MiniballDataPackets> data_packet =
+				std::make_shared<MiniballDataPackets>( febex_data );
+			data_vector.emplace_back( data_packet );
+			data_map.push_back( std::make_pair<unsigned long,double>(
+				data_vector.size()-1, data_packet->GetTime() ) );
+		}
 
 	}
 	
@@ -460,7 +471,7 @@ void MiniballMbsConverter::FinishFebexData(){
 	ctr_febex_hit[febex_data->GetSfp()][febex_data->GetBoard()]++;
 	
 	// Clean up.
-	data_packet->ClearData();
+	write_packet->ClearData();
 	febex_data->ClearData();
 	info_data->ClearData();
 
