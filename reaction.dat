@@ -141,7 +141,7 @@
 #Events.CdPadVeto: false			# only include particle events without CD-Pad coincidences (veto) when reading from events tree
 
 ## Histogram options
-#Histograms.WithoutAddback: false	# turn on/off the making of histograms for gamma-rays without addback (default true = on)
+#Histograms.WithoutAddback: true	# turn on/off the making of histograms for gamma-rays without addback (default true = on)
 #Histograms.WithAddback: false		# turn on/off the making of histograms for gamma-rays with addback (default false = off)
 #Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)
 #Histograms.ByCrystal: false		# turn on/off the individual crystal by crystal Doppler corrected spectra (default false = off)
