@@ -1026,43 +1026,56 @@ void MiniballReaction::CalculateRecoil(){
 }
 
 void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag ){
-	
+
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	double eloss = 0;
-	if( stopping ) {
+
+	//this assumes the reaction product is emitted at the centre of the target
+	double En = p->GetEnergy(); //get energy of the reaction product
+	double eloss = 0.0;
+	double after_target_recoil_energy = p->GetEnergy();
+	double after_degrader_recoil_energy = p->GetEnergy();
+
+	// Correcting energy loss in CD dead layer
+	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
 		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[4] ); // transfer product in dead layers
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
+		En -= eloss;
+		after_target_recoil_energy = En;
+		after_degrader_recoil_energy = En;
 	}
-	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
+
+	// Correction for energy loss in the degrader
+	if( stopping && degrader_thickness > 0 ) {
+		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
+		En -= eloss;
+		after_target_recoil_energy = En;
+	}
+
+	// Correction for energy loss through half of the target material
+	if( stopping ) {
+		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[2] ); // recoil in target
+		En -= eloss;
+	}
+
+	// Set observables
+	Recoil.SetEnergy( En );
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
 
-	// TODO: ALL OF THIS IS WRONG. IT NEEDS FIXING PLEASE THANKS YOU
-	// Do something for the ejectile too, this needs some work
-	if( stopping ) {
-		eloss = GetEnergyLoss( Beam.GetEnergy(), 0.5 * target_thickness, gStopping[0] ); // beam in target
-	}
-
+	// Kinematics calculations assuming this energy
 	double p4x = Recoil.GetMomentum() * TMath::Cos(Recoil.GetTheta());
 	double p4y = Recoil.GetMomentum() * TMath::Sin(Recoil.GetTheta());
 	double p3x = Beam.GetMomentum() - p4x;
 	double p3y = p4y;
 	double theta3 = TMath::ATan2(p3y, p3x);
 	//double E3 = GetEnergyTotLab() - Recoil.GetEnergyTot();
-	double E3 = (Beam.GetEnergyTot() + Target.GetEnergyTot()) - Recoil.GetEnergyTot(); // Total energy of ejectile
-	
+	double E3 = Beam.GetEnergyTot() + Target.GetEnergyTot() - Recoil.GetEnergyTot(); // Total energy of ejectile
 
-	Ejectile.SetEnergy( E3 - Ejectile.GetMass() ); // eloss is positive // Kinetic energy of ejectile
-	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
-	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
-
-	//std::cout << "=============================== "<< std::endl;
-	//std::cout << "Sanity check of Ejectile mass: " << Ejectile.GetMass() << " keV" << std::endl;
-	//std::cout << "Recoil kinetic energy in LAB frame: " << std::setprecision(8) << Recoil.GetEnergy() << " keV" << std::endl;
-	//std::cout << "Recoil theta in LAB frame: " << Recoil.GetTheta() << " rad" << std::endl;
-	//std::cout << "Ejectile kinetic energy in LAB frame: " << Ejectile.GetEnergy() << " keV" << std::endl;
-	//std::cout << "Ejectile theta in LAB frame: " << Ejectile.GetTheta() << " rad" << std::endl;
+	// Kinetic energy at the reaction position in the centre of the target
+	double beam_kinetic_energy = E3 - Ejectile.GetMass();
 
 	// Calculate the centre-of-mass energy and angle
 	// Vili's version
@@ -1084,19 +1097,44 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	Recoil.SetEnergyCoM(E4_CoM - Recoil.GetMass()); // Set Recoil energy in CoM
 	Recoil.SetThetaCoM( TMath::Pi() - theta3_CoM ); // theta of recoil in CoM frame in radians
 
-	//std::cout << "======= "<< std::endl;
-	//std::cout << "Ejectile kinetic energy in CoM frame: " << Ejectile.GetEnergyCoM() << " keV" << std::endl;
-	//std::cout << "Ejectile theta in CoM frame: " << Ejectile.GetThetaCoM() << " rad" << std::endl;
-	//std::cout << "Recoil kinetic energy in CoM frame: " << Recoil.GetEnergyCoM() << " keV" << std::endl;
-	//std::cout << "Recoil theta in CoM frame: " << Recoil.GetThetaCoM() << " rad" << std::endl;
-	//std::cout << "Recoil theta in CoM from pi - theta3_CoM: " << TMath::Pi() - theta3_CoM << " rad" << std::endl;
+	// Calculate the ejectile stopping
+	if( stopping && doppler_mode > 0 ) {
 
-	// Recoil.SetThetaCoM( GetParticleTheta(p) + y );
-	// Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
+		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos(theta3) );
+		eloss = GetEnergyLoss( beam_kinetic_energy, eff_thick, gStopping[1] );
+		beam_kinetic_energy -= eloss;
+
+		// Do energy loss through the full degrader if requested
+		if( doppler_mode >= 2 && doppler_mode <= 4 && degrader_thickness > 0 ) {
+
+			eff_thick = degrader_thickness / TMath::Abs( TMath::Cos(theta3) );
+			eloss = GetEnergyLoss( beam_kinetic_energy, eff_thick, gStopping[5] );
+			beam_kinetic_energy -= eloss;
+
+		}
+
+	}
+
+	// Set the ejectile energy
+	Ejectile.SetEnergy( beam_kinetic_energy );  // Kinetic energy of ejectile
+	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
+	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
+
+	// Calculate also the energy loss of the recoil as requested
+	if( doppler_mode == 2 )
+		Recoil.SetEnergy( p->GetEnergy() );
+	else if( doppler_mode == 1 || doppler_mode == 3 )
+		Recoil.SetEnergy( after_target_recoil_energy );
+	else if( doppler_mode == 4 )
+		Recoil.SetEnergy( after_degrader_recoil_energy );
+
+	// Flag that we have a transfer product
 	transfer_detected = true;
 
+	return;
 
 }
+
 
 
 double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g ) {
