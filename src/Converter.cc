@@ -42,7 +42,13 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	
 	// No progress bar by default
 	_prog_ = false;
-	
+
+	// Histogrammer options
+	//TH1::AddDirectory(kFALSE);
+
+	// Intialise the hist list
+	histlist = std::make_unique<TList>();
+
 }
 
 void MiniballConverter::NewBuffer(){
@@ -64,6 +70,8 @@ void MiniballConverter::StartFile(){
 		// Start counters at zero
 		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
 					
+			first_data[i] = true;
+
 			ctr_febex_hit[i][j] = 0;	// hits on each module
 			ctr_febex_pause[i][j] = 0;
 			ctr_febex_resume[i][j] = 0;
@@ -201,21 +209,11 @@ void MiniballConverter::MakeHists() {
 				htitle = "Raw FEBEX spectra for SFP " + std::to_string(i);
 				htitle += ", board " + std::to_string(j);
 				htitle += ", channel " + std::to_string(k);
-				
 				htitle += ";Charge value;Counts";
 
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_qshort[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_qshort[i][j][k] = new TH1F( hname.data(), htitle.data(),
-													16384, 0, (unsigned long long)1<<16 );
-					
-					hfebex_qshort[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
+				hfebex_qshort[i][j][k] = new TH1F( hname.data(), htitle.data(), 16384, 0, (unsigned long long)1<<16 );
+				histlist->Add(hfebex_qshort[i][j][k]);
+
 				// Uncalibrated energy 32-bit value
 				hname = "febex_" + std::to_string(i);
 				hname += "_" + std::to_string(j);
@@ -225,21 +223,11 @@ void MiniballConverter::MakeHists() {
 				htitle = "Raw FEBEX spectra for SFP " + std::to_string(i);
 				htitle += ", board " + std::to_string(j);
 				htitle += ", channel " + std::to_string(k);
-				
 				htitle += ";Charge value;Counts";
 				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_qint[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_qint[i][j][k] = new TH1F( hname.data(), htitle.data(),
-													16384, 0, qmax_default );
-					
-					hfebex_qint[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
+				hfebex_qint[i][j][k] = new TH1F( hname.data(), htitle.data(), 16384, 0, qmax_default );
+				histlist->Add(hfebex_qint[i][j][k]);
+
 				// Calibrated energy
 				hname = "febex_" + std::to_string(i);
 				hname += "_" + std::to_string(j);
@@ -249,7 +237,6 @@ void MiniballConverter::MakeHists() {
 				htitle = "Calibrated FEBEX spectra for SFP " + std::to_string(i);
 				htitle += ", board " + std::to_string(j);
 				htitle += ", channel " + std::to_string(k);
-
 				htitle += ";Energy (keV);Counts per 0.5 keV";
 				
 				// Assume gamma-ray spectrum
@@ -277,18 +264,10 @@ void MiniballConverter::MakeHists() {
 					
 				}
 				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_cal[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_cal[i][j][k] = new TH1F( hname.data(), htitle.data(),
+				hfebex_cal[i][j][k] = new TH1F( hname.data(), htitle.data(),
 												ebins, emin, emax );
-					
-					hfebex_cal[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
+				histlist->Add(hfebex_cal[i][j][k]);
+
 				// MWD energy
 				hname = "febex_" + std::to_string(i);
 				hname += "_" + std::to_string(j);
@@ -298,21 +277,11 @@ void MiniballConverter::MakeHists() {
 				htitle = "MWD FEBEX spectra for SFP " + std::to_string(i);
 				htitle += ", board " + std::to_string(j);
 				htitle += ", channel " + std::to_string(k);
-
 				htitle += ";Energy (keV);Counts per 0.5 keV";
 				
-				if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-					hfebex_mwd[i][j][k] = (TH1F*)output_file->Get( hname.data() );
-				
-				else {
-					
-					hfebex_mwd[i][j][k] = new TH1F( hname.data(), htitle.data(),
-												32768, -0.25, 16383.75 );
-					
-					hfebex_mwd[i][j][k]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-					
-				}
-				
+				hfebex_mwd[i][j][k] = new TH1F( hname.data(), htitle.data(), 32768, -0.25, 16383.75 );
+				histlist->Add(hfebex_mwd[i][j][k]);
+
 			} // k - channel
 
 			// Hit ID vs timestamp
@@ -320,64 +289,31 @@ void MiniballConverter::MakeHists() {
 			hname += "_" + std::to_string(j);
 			htitle = "Profile of ts versus hit_id in SFP " + std::to_string(i);
 			htitle += ", board " + std::to_string(j);
-
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_hit[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_hit[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
-				hfebex_hit[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
+			hfebex_hit[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
+			histlist->Add(hfebex_hit[i][j]);
 
 			// Pause events vs timestamp
 			hname = "hfebex_pause_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			htitle = "Profile of ts versus pause events in SFP " + std::to_string(i);
 			htitle += ", board " + std::to_string(j);
+			hfebex_pause[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
+			histlist->Add(hfebex_pause[i][j]);
 
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_pause[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_pause[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
-				hfebex_pause[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-			
 			// Resume events vs timestamp
 			hname = "hfebex_resume_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			htitle = "Profile of ts versus resume events in SFP " + std::to_string(i);
 			htitle += ", board " + std::to_string(j);
+			hfebex_resume[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
+			histlist->Add(hfebex_resume[i][j]);
 
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_resume[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_resume[i][j] = new TProfile( hname.data(), htitle.data(), 1000, 0., 10000., "" );
-				hfebex_resume[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-			
 			// External sync trigger vs timestamp
-			output_file->cd( maindirname.data() );
 			hname = "hfebex_sync_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
 			htitle = "Profile of external sync trigger ts versus hit_id";
-			
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hfebex_sync[i][j] = (TProfile*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hfebex_sync[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
-				hfebex_sync[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
+			hfebex_sync[i][j] = new TProfile( hname.data(), htitle.data(), 10800, 0., 108000., "" );
+			histlist->Add(hfebex_sync[i][j]);
 
 				
 		} // j - board
@@ -411,21 +347,11 @@ void MiniballConverter::MakeHists() {
 			
 			htitle = "Raw DGF spectra for module " + std::to_string(i);
 			htitle += ", channel " + std::to_string(j);
-			
 			htitle += ";Charge value;Counts";
 			
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hdgf_qshort[i][j] = (TH1F*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hdgf_qshort[i][j] = new TH1F( hname.data(), htitle.data(),
-												16384, 0, 65536 );
-				
-				hdgf_qshort[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-			
+			hdgf_qshort[i][j] = new TH1F( hname.data(), htitle.data(), 16384, 0, 65536 );
+			histlist->Add(hdgf_qshort[i][j]);
+
 			// Calibrated energy
 			hname = "dgf_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
@@ -433,7 +359,6 @@ void MiniballConverter::MakeHists() {
 
 			htitle = "Calibrated DGF spectra for module " + std::to_string(i);
 			htitle += ", channel " + std::to_string(j);
-			
 			htitle += ";Energy (keV);Counts per 0.5 keV";
 			
 			// Assume gamma-ray spectrum
@@ -441,17 +366,8 @@ void MiniballConverter::MakeHists() {
 			float emin = -0.25;
 			float emax = 4000.0 + emin; // 4 MeV range
 
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hdgf_cal[i][j] = (TH1F*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hdgf_cal[i][j] = new TH1F( hname.data(), htitle.data(),
-											   ebins, emin, emax );
-				
-				hdgf_cal[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
+			hdgf_cal[i][j] = new TH1F( hname.data(), htitle.data(), ebins, emin, emax );
+			histlist->Add(hdgf_cal[i][j]);
 
 		} // j - channels
 		
@@ -478,21 +394,11 @@ void MiniballConverter::MakeHists() {
 			
 			htitle = "Raw ADC spectra for module " + std::to_string(i);
 			htitle += ", channel " + std::to_string(j);
-			
 			htitle += ";Charge value;Counts";
 			
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hadc_qshort[i][j] = (TH1F*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hadc_qshort[i][j] = new TH1F( hname.data(), htitle.data(),
-											 8192, 0, 8192 );
-				
-				hadc_qshort[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-			
+			hadc_qshort[i][j] = new TH1F( hname.data(), htitle.data(), 8192, 0, 8192 );
+			histlist->Add(hadc_qshort[i][j]);
+
 			// Calibrated energy
 			hname = "adc_" + std::to_string(i);
 			hname += "_" + std::to_string(j);
@@ -500,7 +406,6 @@ void MiniballConverter::MakeHists() {
 			
 			htitle = "Calibrated ADC spectra for module " + std::to_string(i);
 			htitle += ", channel " + std::to_string(j);
-			
 			htitle += ";Energy (keV);Counts per 0.5 keV";
 			
 			// Assume particle spectrum
@@ -508,18 +413,8 @@ void MiniballConverter::MakeHists() {
 			float emin = -1e3;
 			float emax = 1.2e6 + emin; // 1.2 GeV range
 			
-			if( output_file->GetListOfKeys()->Contains( hname.data() ) )
-				hadc_cal[i][j] = (TH1F*)output_file->Get( hname.data() );
-			
-			else {
-				
-				hadc_cal[i][j] = new TH1F( hname.data(), htitle.data(),
-											   ebins, emin, emax );
-				
-				hadc_cal[i][j]->SetDirectory( output_file->GetDirectory( dirname.data() ) );
-				
-			}
-			
+			hadc_cal[i][j] = new TH1F( hname.data(), htitle.data(), ebins, emin, emax );
+			histlist->Add(hadc_cal[i][j]);
 
 		} // j - channels
 		
@@ -527,43 +422,31 @@ void MiniballConverter::MakeHists() {
 	
 	
 	// Hit time plot
+	output_file->cd( maindirname.data() );
 	hhit_time = new TH1F( "hhit_time", "Hit time distribution", 3200, -16000, 16000 );
+	histlist->Add(hhit_time);
+
+	// Write once
+	output_file->Write();
 
 	return;
 	
 }
 
-void MiniballConverter::ResetHists() {
+// Reset histograms in the DataSpy
+void MiniballConverter::ResetHists(){
 
-	// Loop over FEBEX SFPs
-	for( unsigned int i = 0; i < set->GetNumberOfFebexSfps(); ++i ) {
+	// Loop over the hist list
+	TIter next( histlist->MakeIterator() );
+	while( TObject *obj = next() ) {
 
-		// Loop over each FEBEX board
-		for( unsigned int j = 0; j < set->GetNumberOfFebexBoards(); ++j ) {
-			
-			// Loop over channels of each FEBEX board
-			for( unsigned int k = 0; k < set->GetNumberOfFebexChannels(); ++k ) {
-				
-				hfebex_qshort[i][j][k]->Reset( "ICEMS" );
-				hfebex_qint[i][j][k]->Reset( "ICEMS" );
-				hfebex_cal[i][j][k]->Reset( "ICEMS" );
-				hfebex_mwd[i][j][k]->Reset( "ICEMS" );
-				
-			} // k - channel
+		if( obj->InheritsFrom( "TH2" ) )
+			( (TH2*)obj )->Reset("ICESM");
+		else if( obj->InheritsFrom( "TH1" ) )
+			( (TH1*)obj )->Reset("ICESM");
 
-			hfebex_hit[i][j]->Reset( "ICEMS" );
-			hfebex_pause[i][j]->Reset( "ICEMS" );
-			hfebex_resume[i][j]->Reset( "ICEMS" );
-			hfebex_sync[i][j]->Reset( "ICEMS" );
+	}
 
-		} // j - board
-		
-	} // i - SFP
-	
-	hhit_time->Reset( "ICEMS" );
-	
-	return;
-	
 }
 
 void MiniballConverter::BuildMbsIndex(){

@@ -19,6 +19,8 @@
 #include <TProfile.h>
 #include <TGProgressBar.h>
 #include <TSystem.h>
+#include <TKey.h>
+#include <TROOT.h>
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -62,11 +64,11 @@ public:
 
 	inline void CloseOutput(){
 		std::cout << "\n Writing data and closing the file" << std::endl;
+		output_file->Write( nullptr, TObject::kOverwrite );
 		PurgeOutput();
 		output_file->Close();
 	};
 	inline void PurgeOutput(){
-		output_file->Write( nullptr, TObject::kOverwrite );
 		output_file->Purge(2);
 	}
 	inline TFile* GetFile(){ return output_file; };
@@ -220,6 +222,9 @@ protected:
 	// Progress bar
 	bool _prog_;
 	std::shared_ptr<TGProgressBar> prog;
+
+	// List of histograms for reset later
+	std::unique_ptr<TList> histlist;
 
 
 

@@ -64,7 +64,13 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 			febex_time_ch[i][j].resize( set->GetNumberOfFebexChannels(), 0 );
 			
 	}
-		
+
+	// Histogrammer options
+	//TH1::AddDirectory(kFALSE);
+
+	// Intialise the hist list
+	histlist = std::make_unique<TList>();
+
 }
 
 void MiniballEventBuilder::StartFile(){
@@ -216,7 +222,10 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 
 	// Hisograms in separate function
 	MakeEventHists();
-	
+
+	// Write once at the start
+	output_file->Write();
+
 }
 
 void MiniballEventBuilder::Initialise(){
@@ -280,6 +289,8 @@ void MiniballEventBuilder::MakeEventHists(){
 
 	tdiff = new TH1F( "tdiff", "Time difference to first trigger;#Delta t [ns]", 1e3, -10, 1e5 );
 	tdiff_clean = new TH1F( "tdiff_clean", "Time difference to first trigger without noise;#Delta t [ns]", 1e3, -10, 1e5 );
+	histlist->Add(tdiff);
+	histlist->Add(tdiff_clean);
 
 	pulser_freq = new TProfile( "pulser_freq", "Frequency of pulser in FEBEX DAQ as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	pulser_period = new TH1F( "pulser_period", "Period of pulser in FEBEX DAQ;T [ns]", 10e3, 0, 10e9 );
@@ -293,6 +304,15 @@ void MiniballEventBuilder::MakeEventHists(){
 	t1_period = new TH1F( "t1_period", "Period of T1 events (p+ on ISOLDE target);T [ns]", 10e3, 0, 10e9 );
 	sc_freq = new TProfile( "sc_freq", "Frequency of SuperCycle events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	sc_period = new TH1F( "sc_period", "Period of SuperCycle events;T [ns]", 10e3, 0, 10e9 );
+	histlist->Add(pulser_freq);
+	histlist->Add(pulser_period);
+	histlist->Add(pulser_tdiff);
+	histlist->Add(ebis_freq);
+	histlist->Add(ebis_period);
+	histlist->Add(t1_freq);
+	histlist->Add(t1_period);
+	histlist->Add(sc_freq);
+	histlist->Add(sc_period);
 
 	// ------------------- //
 	// Miniball histograms //
@@ -304,6 +324,8 @@ void MiniballEventBuilder::MakeEventHists(){
 	
 	mb_td_core_seg  = new TH1F( "mb_td_core_seg",  "Time difference between core and segment in same crystal;#Delta t [ns]", 499, -2495, 2495 );
 	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 499, -2495, 2495 );
+	histlist->Add(mb_td_core_seg);
+	histlist->Add(mb_td_core_core);
 
 	mb_en_core_seg.resize( set->GetNumberOfMiniballClusters() );
 	mb_en_core_seg_ebis_on.resize( set->GetNumberOfMiniballClusters() );
@@ -320,20 +342,22 @@ void MiniballEventBuilder::MakeEventHists(){
 
 		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
 
-				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
-				hname += std::to_string(j);
-				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
-				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += " (multiplicity = 1 only);segment ID;Energy (keV)";
-				mb_en_core_seg[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
-				
-				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
-				hname += std::to_string(j) + "_ebis_on";
-				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
-				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += " (multiplicity = 1 only) gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
-				mb_en_core_seg_ebis_on[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
-			
+			hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
+			hname += std::to_string(j);
+			htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
+			htitle += " core " + std::to_string(j) + ", gated by segment ";
+			htitle += " (multiplicity = 1 only);segment ID;Energy (keV)";
+			mb_en_core_seg[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
+			histlist->Add(mb_en_core_seg[i][j]);
+
+			hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
+			hname += std::to_string(j) + "_ebis_on";
+			htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
+			htitle += " core " + std::to_string(j) + ", gated by segment ";
+			htitle += " (multiplicity = 1 only) gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
+			mb_en_core_seg_ebis_on[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
+			histlist->Add(mb_en_core_seg_ebis_on[i][j]);
+
 		} // j
 		
 	} // i
@@ -384,7 +408,8 @@ void MiniballEventBuilder::MakeEventHists(){
 			cd_pen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips() - 0.5,
 									   4000, 0, 2000e3 );
-			
+			histlist->Add(cd_pen_id[i][j]);
+
 			hname  = "cd_nen_id_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD n-side energy for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
@@ -392,77 +417,88 @@ void MiniballEventBuilder::MakeEventHists(){
 			cd_nen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDNStrips(), -0.5, set->GetNumberOfCDNStrips() - 0.5,
 									   4000, 0, 2000e3 );
-			
+			histlist->Add(cd_nen_id[i][j]);
+
 			hname  = "cd_pn_1v1_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 1v1";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_1v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_1v1[i][j]);
+
 			hname  = "cd_pn_1v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 1v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_1v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_1v2[i][j]);
+
 			hname  = "cd_pn_2v1_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v1";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_2v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_2v1[i][j]);
+
 			hname  = "cd_pn_2v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_2v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_2v2[i][j]);
+
 			hname  = "cd_pn_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_pn_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_pn_td[i][j]);
+
 			hname  = "cd_pp_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs p-side time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_pp_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_pp_td[i][j]);
+
 			hname  = "cd_nn_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD n-side vs n-side time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_nn_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_nn_td[i][j]);
+
 			hname  = "cd_ppad_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs pad time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_ppad_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_ppad_td[i][j]);
+
 			hname  = "cd_pn_mult_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side multiplicity ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side multiplicity;n-side multiplicity";
 			cd_pn_mult[i][j] = new TH2F( hname.data(), htitle.data(), 10, -0.5, 9.5, 10, -0.5, 9.5 );
-			
+			histlist->Add(cd_pn_mult[i][j]);
+
 			hname  = "cd_ppad_mult_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD vs Pad multiplicity ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";CD multiplicity;Pad multiplicity";
 			cd_ppad_mult[i][j] = new TH2F( hname.data(), htitle.data(), 10, -0.5, 9.5, 10, -0.5, 9.5 );
-			
+			histlist->Add(cd_ppad_mult[i][j]);
+
 		} // j
 		
 		hname  = "pad_en_" + std::to_string(i);
@@ -471,7 +507,8 @@ void MiniballEventBuilder::MakeEventHists(){
 		pad_en_id[i] = new TH2F( hname.data(), htitle.data(),
 				set->GetNumberOfCDSectors(), -0.5, set->GetNumberOfCDSectors() - 0.5,
 								8000, 0, 200e3 );
-		
+		histlist->Add(pad_en_id[i]);
+
 	} // i
 	
 	
@@ -487,6 +524,10 @@ void MiniballEventBuilder::MakeEventHists(){
 	ic_dE = new TH1F( "ic_dE", "Ionisation chamber;Energy in first layer (Gas) (arb. units);Counts", 4096, 0, 10000 );
 	ic_E = new TH1F( "ic_E", "Ionisation chamber;Energy in final layer (Si) (arb. units);Counts", 4096, 0, 10000 );
 	ic_dE_E = new TH2F( "ic_dE_E", "Ionisation chamber;Rest energy, E (arb. units);Energy Loss, dE (arb. units);Counts", 4096, 0, 10000, 4096, 0, 10000 );
+	histlist->Add(ic_td);
+	histlist->Add(ic_dE);
+	histlist->Add(ic_E);
+	histlist->Add(ic_dE_E);
 
 
 	// flag to denote that hists are ready (used for spy)
@@ -497,52 +538,18 @@ void MiniballEventBuilder::MakeEventHists(){
 }
 
 // Reset histograms in the DataSpy
-void MiniballEventBuilder::ResetHist( TObject *obj, std::string cls ) {
-
-	if( obj == nullptr ) return;
-
-	if( cls == "TH1" )
-		( (TH1*)obj )->Reset("ICESM");
-	else if( cls ==  "TH2" )
-		( (TH2*)obj )->Reset("ICESM");
-	else if( cls ==  "TProfile" )
-		( (TProfile*)obj )->Reset("ICESM");
-
-	return;
-
-}
-
-// Reset histograms in the DataSpy
 void MiniballEventBuilder::ResetHists(){
 
-	TKey *key1, *key2, *key3;
-	TIter keyList1( output_file->GetListOfKeys() );
-	while( ( key1 = (TKey*)keyList1() ) ){ // level 1
+	// Loop over the hist list
+	TIter next( histlist->MakeIterator() );
+	while( TObject *obj = next() ) {
 
-		if( std::strcmp( key1->GetClassName(), "TDirectory" ) == 0 ){
+		if( obj->InheritsFrom( "TH2" ) )
+			( (TH2*)obj )->Reset("ICESM");
+		else if( obj->InheritsFrom( "TH1" ) )
+			( (TH1*)obj )->Reset("ICESM");
 
-			TIter keyList2( ( (TDirectory*)key1->ReadObj() )->GetListOfKeys() );
-			while( ( key2 = (TKey*)keyList2() ) ){ // level 2
-
-				if( std::strcmp( key2->GetClassName(), "TDirectory" ) == 0 ){
-
-					TIter keyList3( ( (TDirectory*)key2->ReadObj() )->GetListOfKeys() );
-					while( ( key3 = (TKey*)keyList3() ) ) // level 3
-						ResetHist( key3->ReadObj(), key3->GetClassName() );
-
-				}
-
-				else
-					ResetHist( key2->ReadObj(), key2->GetClassName() );
-
-			} // level 2
-
-		}
-
-		else
-			ResetHist( key1->ReadObj(), key1->GetClassName() );
-
-	} // level 1
+	}
 
 	return;
 
@@ -1431,7 +1438,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	if( input_tree->LoadTree(0) < 0 ){
 		
 		std::cout << " Event Building: nothing to do" << std::endl;
-		output_file->Write( nullptr, TObject::kOverwrite );
 		return 0;
 		
 	}
@@ -2348,12 +2354,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 	std::cout << ss_log.str();
 	if( log_file.is_open() && flag_input_file ) log_file << ss_log.str();
-
-	std::cout << "Writing output file...\r";
-	std::cout.flush();
-	output_file->Write( nullptr, TObject::kOverwrite );
-	
-	std::cout << "Writing output file... Done!" << std::endl << std::endl;
 
 	return n_entries;
 	

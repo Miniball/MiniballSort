@@ -39,13 +39,15 @@ void calculate_alpha_energies( std::string reactionfile = "default", std::string
 
 
 	// Loop over angles
-	std::vector<double> thetas = myreact->GetParticleThetas();
-	for( unsigned int i = 0; i < thetas.size()-1; i++ ){
+	for( unsigned int i = 0; i <  myset->GetNumberOfCDPStrips(); i++ ){
+
+		// Get theta
+		double theta = myreact->GetParticleTheta( 0, 0, i, 0 );
 
 		// Effective thickness
-		double thick = cd_dead / TMath::Abs( TMath::Cos( thetas[i]*TMath::DegToRad() ) );
+		double thick = cd_dead / TMath::Abs( TMath::Cos( theta ) );
 
-		std::cout << "Ring " << i << ", theta = " << thetas[i] << std::endl;
+		std::cout << "Ring " << i << ", theta = " << theta*TMath::RadToDeg() << std::endl;
 
 		// Loop over alpha energies
 		for( unsigned int j = 0; j < AlphaEnergy.size(); j++ ){

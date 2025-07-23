@@ -46,7 +46,6 @@ public:
 	~MiniballHistogrammer() {};
 	
 	void MakeHists();
-	void ResetHist( TObject *obj, std::string cls );
 	void ResetHists();
 	unsigned long FillHists();
 	void FillParticleGammaHists( std::shared_ptr<GammaRayEvt> g );
@@ -57,7 +56,9 @@ public:
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayEvt> g );
 	void FillParticleElectronGammaHists( std::shared_ptr<SpedeEvt> s, std::shared_ptr<GammaRayAddbackEvt> g );
 
-	void PlotPhysicsHists( std::vector<std::vector<std::string>> hists, short layout[2] );
+	void PlotDefaultHists();
+	void PlotPhysicsHists();
+	void SetSpyHists( std::vector<std::vector<std::string>> hists, short layout[2] );
 
 	void SetInputFile( std::vector<std::string> input_file_names );
 	void SetInputFile( std::string input_file_name );
@@ -66,8 +67,11 @@ public:
 	inline void SetOutput( std::string output_file_name ){
 		output_file = new TFile( output_file_name.data(), "recreate" );
 		MakeHists();
+		hists_ready = true;
+		output_file->Write();
 	};
 	inline void CloseOutput( ){
+		output_file->Write( nullptr, TObject::kOverwrite );
 		PurgeOutput();
 		output_file->Close();
 		input_tree->ResetBranchAddresses();
@@ -84,10 +88,6 @@ public:
 		prog = myprog;
 		_prog_ = true;
 	};
-
-	inline void AddSpyCanvas( std::shared_ptr<TCanvas> cin ){
-		cspy = cin;
-	}; ///< Adds the canvas for the DataSpy
 
 	// Coincidence conditions (to be put in settings file eventually?)
 	inline bool	PromptCoincidence( std::shared_ptr<GammaRayEvt> g, std::shared_ptr<ParticleEvt> p ){
@@ -285,8 +285,13 @@ private:
 	// Check if histograms are made
 	bool hists_ready = false;
 
-	// Canvas for the spy
-	std::shared_ptr<TCanvas> cspy;
+	// List of histograms for reset later
+	std::unique_ptr<TList> histlist;
+
+	// Canvas and hist lists for the spy
+	std::vector<std::vector<std::string>> spyhists;
+	short spylayout[2];
+	std::unique_ptr<TCanvas> c1, c2;
 
 	// Counters
 	unsigned long n_entries;

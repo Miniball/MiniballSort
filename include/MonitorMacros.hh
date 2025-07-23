@@ -4,12 +4,6 @@
 
 #include <iostream>
 
-int PlotPhysicsHists(){
-	plot_physics_hists();
-	std::cout << "Plotting physics histograms in Canvas" << std::endl;
-	return 0;
-}
-
 int ResetAll(){
 	reset_conv_hists();
 	reset_evnt_hists();
@@ -26,7 +20,7 @@ int ResetConv(){
 
 int ResetEvnt(){
 	reset_evnt_hists();
-	std::cout << "Reset event builder stage histograms (not working yet)" << std::endl;
+	std::cout << "Reset event builder stage histograms" << std::endl;
 	return 0;
 }
 

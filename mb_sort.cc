@@ -117,22 +117,25 @@ bool overwrite_cal = false;
 // Reaction file
 std::shared_ptr<MiniballReaction> myreact;
 
-// Struct for passing to the thread
-typedef struct thptr {
-	
-	std::shared_ptr<MiniballCalibration> mycal;
-	std::shared_ptr<MiniballSettings> myset;
-	std::shared_ptr<MiniballReaction> myreact;
-	
-} thread_data;
-
 // Server and controls for the GUI
 std::unique_ptr<THttpServer> serv;
 int port_num = 8030;
-std::shared_ptr<TCanvas> cspy;
 std::string spy_hists_file;
 std::vector<std::vector<std::string>> physhists;
 short spylayout[2] = {2,2};
+
+// Struct for passing to the thread
+typedef struct thptr {
+
+	std::shared_ptr<MiniballCalibration> mycal;
+	std::shared_ptr<MiniballSettings> myset;
+	std::shared_ptr<MiniballReaction> myreact;
+	std::vector<std::vector<std::string>> physhists;
+	short spylayout[2];
+	bool flag_alive;
+
+} thread_data;
+
 
 // Pointers to the thread events TODO: sort out inhereted class stuff
 std::shared_ptr<MiniballConverter> conv_mon;
@@ -140,13 +143,6 @@ std::shared_ptr<MiniballMbsConverter> conv_mbs_mon;
 std::shared_ptr<MiniballMidasConverter> conv_midas_mon;
 std::shared_ptr<MiniballEventBuilder> eb_mon;
 std::shared_ptr<MiniballHistogrammer> hist_mon;
-
-void plot_physics_hists(){
-	if( hist_mon.get() != nullptr )
-		hist_mon->PlotPhysicsHists( physhists, spylayout );
-	else
-		std::cout << "Not ready yet, try again" << std::endl;
-}
 
 void reset_conv_hists(){
 	conv_mon->ResetHists();
@@ -178,27 +174,26 @@ void* monitor_run( void* ptr ){
 	
 	// This doesn't make sense for MED data which is historical
 	if( flag_med ) return 0;
-	
+
 	// Get the settings, file etc.
-	thptr *calfiles = (thptr*)ptr;
-	
+	thptr *inputptr = (thptr*)ptr;
+
 	// Load macros in thread
 	std::string rootline = ".L " + std::string(CUR_DIR) + "include/MonitorMacros.hh";
 	gROOT->ProcessLine( rootline.data() );
 
 	// This function is called to run when monitoring
 	if( flag_mbs ){
-		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( calfiles->myset );
+		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( inputptr->myset );
 		conv_mon.reset( conv_mbs_mon.get() );
 	}
 	else if( flag_midas ) {
-		conv_midas_mon = std::make_shared<MiniballMidasConverter>( calfiles->myset );
+		conv_midas_mon = std::make_shared<MiniballMidasConverter>( inputptr->myset );
 		conv_mon.reset( conv_midas_mon.get() );
 	}
-	eb_mon = std::make_shared<MiniballEventBuilder>( calfiles->myset );
-	hist_mon = std::make_shared<MiniballHistogrammer>( calfiles->myreact, calfiles->myset );
+	eb_mon = std::make_shared<MiniballEventBuilder>( inputptr->myset );
+	hist_mon = std::make_shared<MiniballHistogrammer>( inputptr->myreact, inputptr->myset );
 
-	
 	// Data blocks for Data spy
 	if( flag_spy && ( myset->GetBlockSize() != 0x10000 && flag_midas ) ) {
 	
@@ -210,7 +205,7 @@ void* monitor_run( void* ptr ){
 	
 	// Daresbury MIDAS DataSpy
 	DataSpy myspy;
-	long long buffer[2048*1024];
+	long long buffer[8*1024];
 	int file_id = 0; ///> TapeServer volume = /dev/file/<id> ... <id> = 0 on issdaqpc2
 	if( flag_spy && flag_midas ) myspy.Open( file_id ); /// open the data spy
 	int spy_length = 0;
@@ -224,17 +219,22 @@ void* monitor_run( void* ptr ){
 	int nblocks = 0, nsubevts = 0;
 	unsigned long nbuild = 0;
 
+	// Filenames for spy
+	std::string spyname_singles = datadir_name + "/singles.root";
+	std::string spyname_events = datadir_name + "/events.root";
+	std::string spyname_hists = datadir_name + "/hists.root";
+
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
 	if( flag_source ) conv_mon->SourceOnly();
 	if( flag_ebis ) conv_mon->EBISOnly();
-	conv_mon->AddCalibration( calfiles->mycal );
-	conv_mon->SetOutput( "monitor_singles.root" );
+	conv_mon->AddCalibration( inputptr->mycal );
+	conv_mon->SetOutput( spyname_singles );
 	conv_mon->MakeTree();
 	conv_mon->MakeHists();
 
-	// Add canvas for spy
-	hist_mon->AddSpyCanvas( cspy );
+	// Add canvas and hists for spy
+	hist_mon->SetSpyHists( inputptr->physhists, inputptr->spylayout );
 
 	// Update server settings
 	// title of web page
@@ -246,7 +246,8 @@ void* monitor_run( void* ptr ){
 	serv->SetItemField("/", "_toptitle", toptitle.data() );
 
 	// While the sort is running
-	while( flag_alive ) {
+	while( inputptr->flag_alive ) {
+	//while( true ) {
 
 		// bRunMon can be set by the GUI
 		while( bRunMon ) {
@@ -279,7 +280,7 @@ void* monitor_run( void* ptr ){
 
 				// First check if we have data
 				std::cout << "Looking for data from DataSpy" << std::endl;
-				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
+				spy_length = myspy.Read( file_id, (char*)buffer, inputptr->myset->GetBlockSize() );
 				if( spy_length == 0 && bFirstRun ) {
 					  std::cout << "No data yet on first pass" << std::endl;
 					  gSystem->Sleep( 2e3 );
@@ -288,27 +289,38 @@ void* monitor_run( void* ptr ){
 
 				// Keep reading until we have all the data
 				// This could be multi-threaded to process data and go back to read more
+				int wait_time = 50; // ms - between each read
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
-				while( block_ctr < 2048 && poll_ctr < 1000 ){
+				while( block_ctr < 1024 && poll_ctr < 1000 * mon_time / wait_time ){
 
-					//std::cout << "Got some data from DataSpy" << std::endl;
+					//std::cout << "Got " << spy_length << " bytes of data from DataSpy" << std::endl;
 					if( spy_length > 0 ) {
 						nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
 						block_ctr += nblocks;
+						//gSystem->Sleep(1); // wait 1 ms before reading next block
+					}
+					else {
+						gSystem->Sleep( wait_time ); // wait for new data in buffer
+						poll_ctr++;
 					}
 
 					// Read a new block
-					gSystem->Sleep( 2 ); // wait 2 ms between each read
-					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
-					
+					spy_length = myspy.Read( file_id, (char*)buffer, inputptr->myset->GetBlockSize() );
 					byte_ctr += spy_length;
-					poll_ctr++;
+
+					//std::cout << block_ctr << " blocks in " << poll_ctr << " polls" << std::endl;
 
 				}
-				
-				std::cout << "Got " << byte_ctr << " bytes of data from DataSpy" << std::endl;
+
+				// Finish the last block
+				if( spy_length > 0 ) {
+					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
+					block_ctr += nblocks;
+				}
+
+				std::cout << "Got " << byte_ctr << " bytes of data in " << block_ctr << " blocks from DataSpy" << std::endl;
 
 				// Sort the packets we just got, then do the rest of the analysis
 				conv_midas_mon->SortTree();
@@ -337,7 +349,7 @@ void* monitor_run( void* ptr ){
 			
 				// Event builder
 				if( bFirstRun ) {
-					eb_mon->SetOutput( "monitor_events.root" );
+					eb_mon->SetOutput( spyname_events );
 					eb_mon->StartFile();
 
 				}
@@ -354,7 +366,7 @@ void* monitor_run( void* ptr ){
 
 				// Histogrammer
 				if( bFirstRun ) {
-					hist_mon->SetOutput( "monitor_hists.root" );
+					hist_mon->SetOutput( spyname_hists );
 				}
 				if( nbuild ) {
 					// TODO: This could be done better with smart pointers
@@ -368,6 +380,8 @@ void* monitor_run( void* ptr ){
 				// If this was the first time we ran, do stuff?
 				if( bFirstRun ) {
 					
+					hist_mon->PlotDefaultHists();
+					hist_mon->PlotPhysicsHists();
 					bFirstRun = kFALSE;
 					
 				}
@@ -417,7 +431,6 @@ void start_http(){
 	serv->RegisterCommand("/ResetSingles", "ResetConv()");
 	serv->RegisterCommand("/ResetEvents", "ResetEvnt()");
 	serv->RegisterCommand("/ResetHists", "ResetHist()");
-	serv->RegisterCommand("/PlotPhysicsHists", "PlotPhysicsHists()");
 
 	// hide commands so the only show as buttons
 	//serv->Hide("/Start");
@@ -438,11 +451,13 @@ void ReadSpyHistogramList() {
 
 		// If not, just use some defaults
 		spylayout[0] = 2; // x
-		spylayout[1] = 2; // y
-		physhists.push_back( {"gE_singles_ebis", "TH1", "hist"} );
-		physhists.push_back( {"pE_theta", "TH2", "colz"} );
-		physhists.push_back( {"ebis_td_particle", "TH1", "hist"} );
-		physhists.push_back( {"ebis_td_gamma", "TH1", "hist"} );
+		spylayout[1] = 3; // y
+		physhists.push_back( {"ParticleSpectra/pE_theta_coinc", "TH2", "colz"} );
+		physhists.push_back( {"ParticleSpectra/pE_dE0", "TH2", "colz"} );
+		physhists.push_back( {"GammaRaySingles/gE_singles_ebis", "TH1", "hist"} );
+		physhists.push_back( {"GammaRaySingles/gE_singles_dc_ebis", "TH1", "hist"} );
+		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_ejectile", "TH1", "hist"} );
+		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_recoil", "TH1", "hist"} );
 
 		return;
 
@@ -951,7 +966,7 @@ int main( int argc, char *argv[] ){
 	if( flag_spy ) {
 
 		// Register signal and signal handler for DataSpy only
-		signal( SIGINT, signal_callback_handler );
+		//std::signal( SIGINT, signal_callback_handler );
 
 		flag_monitor = true;
 		if( mon_time < 0 ) mon_time = 30;
@@ -1003,18 +1018,16 @@ int main( int argc, char *argv[] ){
 			
 		}
 		
-		else if( flag_spy ) datadir_name = "dataspy";
-		else if( flag_angle_fit ) datadir_name = "positions";
-		else datadir_name = "mb_sort_outputs";
-				
+		else if( flag_spy ) datadir_name = "./dataspy";
+		else if( flag_angle_fit ) datadir_name = "./positions";
+		else datadir_name = "./mb_sort_outputs";
+
 	}
 	
 	// Create the directory if it doesn't exist (not Windows compliant)
 	std::string cmd = "mkdir -p " + datadir_name;
 	gSystem->Exec( cmd.data() );	
 	std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
-
-	ReadSpyHistogramList();
 
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
@@ -1170,22 +1183,26 @@ int main( int argc, char *argv[] ){
 			return 0;
 			
 		}
-		
+
+		// Read the histogram list from the file
+		ReadSpyHistogramList();
+
 		// Make some data for the thread
 		thread_data data;
 		data.mycal = mycal;
 		data.myset = myset;
 		data.myreact = myreact;
-
-		// Read the histogram list from the file
-		ReadSpyHistogramList();
+		data.flag_alive = flag_alive;
+		data.physhists = physhists;
+		data.spylayout[0] = spylayout[0];
+		data.spylayout[1] = spylayout[1];
 
 		// Start the HTTP server from the main thread (should usually do this)
 		start_http();
 		gSystem->ProcessEvents();
 
 		// Thread for the monitor process
-		TThread *th0 = new TThread( "monitor", monitor_run, &data );
+		TThread *th0 = new TThread( "monitor", monitor_run, (void*)&data );
 		th0->Run();
 
 		// wait until we finish
@@ -1193,7 +1210,7 @@ int main( int argc, char *argv[] ){
 
 			gSystem->Sleep(10);
 			gSystem->ProcessEvents();
-			
+
 		}
 		
 		return 0;

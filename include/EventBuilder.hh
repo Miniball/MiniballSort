@@ -59,7 +59,6 @@ public:
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
-	void	ResetHist( TObject *obj, std::string cls );
 	void	ResetHists();
 	
 	inline void AddCalibration( std::shared_ptr<MiniballCalibration> mycal ){
@@ -83,6 +82,10 @@ public:
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
 	inline void CloseOutput(){
+		std::cout << "Writing output file...\r";
+		std::cout.flush();
+		output_file->Write( nullptr, TObject::kOverwrite );
+		std::cout << "Writing output file... Done!" << std::endl << std::endl;
 		output_tree->ResetBranchAddresses();
 		PurgeOutput();
 		output_file->Close();
@@ -137,6 +140,9 @@ private:
 	
 	// Check if histograms are made
 	bool hists_ready = false;
+
+	// List of histograms for reset later
+	std::unique_ptr<TList> histlist;
 
 	// Log file
 	std::ofstream log_file; ///< Log file for recording the results of the MiniballEventBuilder

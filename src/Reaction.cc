@@ -202,6 +202,8 @@ void MiniballReaction::ReadReaction() {
 	events_particle_cdpad_veto  = config->GetValue( "Events.CdPadVeto", false );			// only do histogramming for particles without CD-Pad coincidences (Pad as veto)
 
 	// Histogram options
+	hist_wo_addback = config->GetValue( "Histograms.WithoutAddback", true );	// turn on histograms for gamma-rays without addback
+	hist_w_addback = config->GetValue( "Histograms.WithAddback", false );	// turn on histograms for gamma-rays with addback
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
 	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", false );	// turn on histograms for gamma-gamma
 	hist_by_pmult = config->GetValue( "Histograms.ByMultiplicity", false );	// turn on particle-gamma(-electron) spectra by multiplicity, i.e. 1p and 2p spectra
@@ -371,7 +373,7 @@ void MiniballReaction::ReadReaction() {
 
 	if( degrader_thickness > 0 ) {
 
-		std::cout << "A " << degrader_material << " of " << degrader_thickness;
+		std::cout << "A " << degrader_material << " degrader of " << degrader_thickness;
 		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
 		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
 			std::cout << " BEFORE the degrader";
