@@ -1029,20 +1029,40 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	double eloss = 0;
-	if( stopping ) {
-		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[4] ); // transfer product in dead layers
-	}
-	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
-	Recoil.SetTheta( GetParticleTheta(p) );
-	Recoil.SetPhi( GetParticlePhi(p) );
+//	double eloss = 0;
+//	if( stopping ) {
+//		//correct energy loss in CD dead layer
+//		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+//		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[4] ); // transfer product in dead layers
 
-	// TODO: ALL OF THIS IS WRONG. IT NEEDS FIXING PLEASE THANKS YOU
-	// Do something for the ejectile too, this needs some work
-	if( stopping ) {
-		eloss = GetEnergyLoss( Beam.GetEnergy(), 0.5 * target_thickness, gStopping[0] ); // beam in target
-	}
+//	}
+		
+		//this assumes the reaction product is emitted at the centre of the target
+		double En = p->GetEnergy(); //get energy of the reaction product
+		double eloss = 0.0;
+		if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
+				//correcting energy loss in CD dead layer
+				double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+				eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
+				En -= eloss;
+
+				// Correction for energy loss in the degrader
+				if( degrader_thickness > 0 ) {
+						//if( degrader_thickness > 0 ) {
+						eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+						eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
+						En -= eloss;
+				}
+				
+				//energy loss through half of the target material
+				eloss = GetEnergyLoss( En, -1 * 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[2] );
+				En -= eloss;
+		}
+		// Set observables
+		Recoil.SetEnergy( En ); // eloss is negative to add back the dead layer energy
+		Recoil.SetTheta( GetParticleTheta(p) );
+		Recoil.SetPhi( GetParticlePhi(p) );
+
 
 	double p4x = Recoil.GetMomentum() * TMath::Cos(Recoil.GetTheta());
 	double p4y = Recoil.GetMomentum() * TMath::Sin(Recoil.GetTheta());
@@ -1052,8 +1072,21 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	//double E3 = GetEnergyTotLab() - Recoil.GetEnergyTot();
 	double E3 = (Beam.GetEnergyTot() + Target.GetEnergyTot()) - Recoil.GetEnergyTot(); // Total energy of ejectile
 	
+		double beam_kinetic_energy = E3 - Ejectile.GetMass();
+		eloss = 0.0;
+		if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
 
-	Ejectile.SetEnergy( E3 - Ejectile.GetMass() ); // eloss is positive // Kinetic energy of ejectile
+				eloss = GetEnergyLoss( beam_kinetic_energy, 0.5 * target_thickness / theta3, gStopping[1] );
+				beam_kinetic_energy -= eloss;
+				
+				// Do energy loss through the full degrader if requested
+				if( doppler_mode == 3 && degrader_thickness > 0 ) {
+						eloss = GetEnergyLoss( beam_kinetic_energy, degrader_thickness / theta3, gStopping[5] );
+						beam_kinetic_energy -= eloss;
+				}
+
+		}
+	Ejectile.SetEnergy( beam_kinetic_energy );  // Kinetic energy of ejectile
 	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
 	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
 
