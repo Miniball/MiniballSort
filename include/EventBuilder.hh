@@ -142,7 +142,7 @@ private:
 	bool hists_ready = false;
 
 	// List of histograms for reset later
-	std::unique_ptr<TList> histlist;
+	TList *histlist;
 
 	// Log file
 	std::ofstream log_file; ///< Log file for recording the results of the MiniballEventBuilder

@@ -224,9 +224,7 @@ protected:
 	std::shared_ptr<TGProgressBar> prog;
 
 	// List of histograms for reset later
-	std::unique_ptr<TList> histlist;
-
-
+	TList *histlist;
 
 };
 
