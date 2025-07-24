@@ -49,7 +49,7 @@ var searchData=
   ['filestatus_46',['filestatus',['../classMiniballGUI.html#a92895ae4ef56161ce3b98ba930c56de0',1,'MiniballGUI']]],
   ['finputfile_47',['fInputFile',['../classMiniballCalibration.html#a9a2e1eea89ec5794f8a951e58cc63204',1,'MiniballCalibration']]],
   ['first_5fdata_48',['first_data',['../classMiniballConverter.html#ae71eb9cce5202393eb06cfb5d459d04c',1,'MiniballConverter']]],
-  ['flag_5falive_49',['flag_alive',['../mb__sort_8cc.html#a5328d2378558c01ec007e61a8e0d100c',1,'mb_sort.cc']]],
+  ['flag_5falive_49',['flag_alive',['../structthptr.html#aee388b2cfebeafb702c523e88ba84494',1,'thptr::flag_alive'],['../mb__sort_8cc.html#a5328d2378558c01ec007e61a8e0d100c',1,'flag_alive:&#160;mb_sort.cc']]],
   ['flag_5fangle_5ffit_50',['flag_angle_fit',['../mb__sort_8cc.html#a565a79df3255da68969d1ebe0769cfcd',1,'mb_sort.cc']]],
   ['flag_5fclose_5fevent_51',['flag_close_event',['../classMiniballEventBuilder.html#a6b4be1aba59b1a06f8d82d095b08f1f2',1,'MiniballEventBuilder']]],
   ['flag_5fconvert_52',['flag_convert',['../classMiniballGUI.html#a3949d55c56aa48d93d2fdc20c0a59d74',1,'MiniballGUI::flag_convert'],['../mb__sort_8cc.html#a985fef1e481004770256d46745047e88',1,'flag_convert:&#160;mb_sort.cc']]],

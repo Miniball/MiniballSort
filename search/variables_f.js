@@ -64,7 +64,7 @@ var searchData=
   ['phic_61',['phic',['../classMiniballAngleFunction.html#a4a8a65d0b2f9c56b51d9fc56410d9223',1,'MiniballAngleFunction']]],
   ['phiconst_62',['phiconst',['../classMiniballAngleFunction.html#a51c326f8bd1135f3ca0c52ea9e5b9b03',1,'MiniballAngleFunction']]],
   ['phie_63',['phie',['../classMiniballAngleFunction.html#acb40993593f049518dfce116e2cddc6d',1,'MiniballAngleFunction']]],
-  ['physhists_64',['physhists',['../mb__sort_8cc.html#adc2d264126e78aacd068b13c2a2b98bd',1,'mb_sort.cc']]],
+  ['physhists_64',['physhists',['../structthptr.html#a114b130327b04d6142951ac8296cb893',1,'thptr::physhists'],['../mb__sort_8cc.html#adc2d264126e78aacd068b13c2a2b98bd',1,'physhists:&#160;mb_sort.cc']]],
   ['pileup_65',['pileup',['../classFebexData.html#a1cff22519d3faa4575927fe52d541a70',1,'FebexData']]],
   ['pileup_5freject_66',['pileup_reject',['../classMiniballSettings.html#a8889096c69e3d4f7118f05d53e55b6fc',1,'MiniballSettings']]],
   ['pmax_67',['PMAX',['../classMiniballHistogrammer.html#a10887861499e20a31add994af3fff241',1,'MiniballHistogrammer']]],

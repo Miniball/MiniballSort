@@ -67,7 +67,7 @@ var searchData=
   ['fitfunc_64',['FitFunc',['../classFitFunc.html',1,'FitFunc'],['../classFitFunc.html#a8754fee0ae1ee94010d45099b811611b',1,'FitFunc::FitFunc()'],['../classFitFunc.html#a93319d5a45f7526f7c8d1fe8534fc730',1,'FitFunc::FitFunc(std::string settings_file, std::string reaction_file)']]],
   ['fitpeak_65',['FitPeak',['../classMiniballAngleFunction.html#a8974515de45be60b4f37e60980bdc450',1,'MiniballAngleFunction']]],
   ['fitsegmentenergies_66',['FitSegmentEnergies',['../classMiniballAngleFunction.html#a9595070d0d8b363554055b0af11afb7b',1,'MiniballAngleFunction']]],
-  ['flag_5falive_67',['flag_alive',['../mb__sort_8cc.html#a5328d2378558c01ec007e61a8e0d100c',1,'mb_sort.cc']]],
+  ['flag_5falive_67',['flag_alive',['../structthptr.html#aee388b2cfebeafb702c523e88ba84494',1,'thptr::flag_alive'],['../mb__sort_8cc.html#a5328d2378558c01ec007e61a8e0d100c',1,'flag_alive:&#160;mb_sort.cc']]],
   ['flag_5fangle_5ffit_68',['flag_angle_fit',['../mb__sort_8cc.html#a565a79df3255da68969d1ebe0769cfcd',1,'mb_sort.cc']]],
   ['flag_5fclose_5fevent_69',['flag_close_event',['../classMiniballEventBuilder.html#a6b4be1aba59b1a06f8d82d095b08f1f2',1,'MiniballEventBuilder']]],
   ['flag_5fconvert_70',['flag_convert',['../classMiniballGUI.html#a3949d55c56aa48d93d2fdc20c0a59d74',1,'MiniballGUI::flag_convert'],['../mb__sort_8cc.html#a985fef1e481004770256d46745047e88',1,'flag_convert:&#160;mb_sort.cc']]],

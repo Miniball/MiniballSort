@@ -20,5 +20,7 @@ var searchData=
   ['histparticlebins_17',['HistParticleBins',['../classMiniballReaction.html#a5881869ec48d044c576544974c99cc38',1,'MiniballReaction']]],
   ['histparticlemax_18',['HistParticleMax',['../classMiniballReaction.html#acc9e19d8bfe5b5c3231e96ed3c3bbd2f',1,'MiniballReaction']]],
   ['histparticlemin_19',['HistParticleMin',['../classMiniballReaction.html#a675023f898d69bde27b86779f77ead8c',1,'MiniballReaction']]],
-  ['histsegmentphi_20',['HistSegmentPhi',['../classMiniballReaction.html#a4ea2dbb49347ea4685343f39f743af2a',1,'MiniballReaction']]]
+  ['histsegmentphi_20',['HistSegmentPhi',['../classMiniballReaction.html#a4ea2dbb49347ea4685343f39f743af2a',1,'MiniballReaction']]],
+  ['histwithaddback_21',['HistWithAddback',['../classMiniballReaction.html#af75da10b3ac8a6aba2436272ed096cba',1,'MiniballReaction']]],
+  ['histwithoutaddback_22',['HistWithoutAddback',['../classMiniballReaction.html#a2fe3118726d0ef8f85bbcf08e4159905',1,'MiniballReaction']]]
 ];
