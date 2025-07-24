@@ -811,7 +811,9 @@ void MiniballEventBuilder::ParticleFinder() {
 					
 						pad_coinc_en = pad_en_list.at(k);
 						pad_coinc_ts = pad_ts_list.at(k);
-					
+
+						pad_en_id[i]->Fill( j, pad_coinc_en );
+
 					}
 				
 				}
@@ -887,7 +889,7 @@ void MiniballEventBuilder::ParticleFinder() {
 									  cd_en_list.at( nindex[0] ) );
 				cd_pn_1v1[i][j]->Fill( cd_en_list.at( pindex[0] ),
 									  cd_en_list.at( nindex[0] ) );
-				cd_ppad_mult[i][i]->Fill( 1, padmult );
+				cd_ppad_mult[i][j]->Fill( 1, padmult );
 
 			} // 1 vs 1
 			
