@@ -887,7 +887,7 @@ void MiniballEventBuilder::ParticleFinder() {
 									  cd_en_list.at( nindex[0] ) );
 				cd_pn_1v1[i][j]->Fill( cd_en_list.at( pindex[0] ),
 									  cd_en_list.at( nindex[0] ) );
-				cd_ppad_mult[i][i]->Fill( 1, padmult );
+				cd_ppad_mult[i][j]->Fill( 1, padmult );
 
 			} // 1 vs 1
 			
