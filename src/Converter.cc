@@ -47,7 +47,7 @@ MiniballConverter::MiniballConverter( std::shared_ptr<MiniballSettings> myset ) 
 	//TH1::AddDirectory(kFALSE);
 
 	// Intialise the hist list
-	histlist = std::make_unique<TList>();
+	histlist = new TList();
 
 }
 

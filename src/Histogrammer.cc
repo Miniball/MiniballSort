@@ -29,7 +29,7 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 	TH1::SetDefaultSumw2(kTRUE);
 
 	// Intialise the hist list
-	histlist = std::make_unique<TList>();
+	histlist = new TList();
 
 }
 

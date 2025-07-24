@@ -286,7 +286,7 @@ private:
 	bool hists_ready = false;
 
 	// List of histograms for reset later
-	std::unique_ptr<TList> histlist;
+	TList *histlist;
 
 	// Canvas and hist lists for the spy
 	std::vector<std::vector<std::string>> spyhists;
