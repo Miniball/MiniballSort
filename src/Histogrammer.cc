@@ -24,16 +24,16 @@ MiniballHistogrammer::MiniballHistogrammer( std::shared_ptr<MiniballReaction> my
 	PMIN = react->HistParticleMin();
 	PMAX = react->HistParticleMax();
 
-	// Make the histograms track the sum of the weights for correctly
-	// performing the error propagation when subtracting
-	TH1::SetDefaultSumw2(kTRUE);
-
 	// Intialise the hist list
 	histlist = new TList();
 
 }
 
 void MiniballHistogrammer::MakeHists() {
+
+	// Make the histograms track the sum of the weights for correctly
+	// performing the error propagation when subtracting
+	if( !spymode ) TH1::SetDefaultSumw2(kTRUE);
 
 	std::string hname, htitle;
 	std::string dirname;
@@ -2018,10 +2018,6 @@ void MiniballHistogrammer::PlotDefaultHists() {
 	// Check that we're ready
 	if( !hists_ready ) return;
 
-	// Because we have the spy, we turn off the error tracking
-	// on the histograms so that the default draw option is "hist"
-	TH1::SetDefaultSumw2(kFALSE);
-
 	// Make the canvas
 	c1 = std::make_unique<TCanvas>("Diagnostics","Monitor hists");
 	c1->Divide(2,3);
@@ -2070,6 +2066,9 @@ void MiniballHistogrammer::SetSpyHists( std::vector<std::vector<std::string>> hi
 	spyhists = hists;
 	spylayout[0] = layout[0];
 	spylayout[1] = layout[1];
+
+	// Flag that we have spy mode
+	spymode = true;
 
 }
 
