@@ -292,6 +292,7 @@ private:
 	std::vector<std::vector<std::string>> spyhists;
 	short spylayout[2];
 	std::unique_ptr<TCanvas> c1, c2;
+	bool spymode = false;
 
 	// Counters
 	unsigned long n_entries;
