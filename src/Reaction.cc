@@ -200,6 +200,7 @@ void MiniballReaction::ReadReaction() {
 	events_particle_gamma       = config->GetValue( "Events.ParticleGammaOnly", false );			// only do histogramming for particle-gamma coincidences to speed things up
 	events_particle_cdpad_coinc = config->GetValue( "Events.CdPadCoincidence", false );				// only do histogramming for particles with CD-Pad coincidences
 	events_particle_cdpad_veto  = config->GetValue( "Events.CdPadVeto", false );					// only do histogramming for particles without CD-Pad coincidences (Pad as veto)
+	events_gamma_seg_energy     = config->GetValue( "Events.GammaUseSegmentEnergy", false );		// use the segment energy instead of the core energy for gamma-rays
 	events_gamma_demand_seg     = config->GetValue( "Events.GammaWithSegment", false );				// only do histogramming for gamma-rays that have a segment, i.e. reject core-only gammas
 	events_gamma_max_seg_mult   = config->GetValue( "Events.GammaMaxSegmentMultiplicity", 99 );		// only do histogramming for gamma-rays with a maximum segment multiplicity (all segments of a cluster = 18)
 	events_gamma_seg_ediff      = config->GetValue( "Events.GammaCoreSegmentEnergyDifference", 9.9e9 );	// only do histogramming for gamma-rays where the core and sgement energies are less than this

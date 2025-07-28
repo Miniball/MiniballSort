@@ -139,6 +139,7 @@
 #Events.ParticleGammaOnly: false				# only include events with particle-gamma coincidences when reading from events tree
 #Events.CdPadCoincidence: false					# only include particle events with CD-Pad coincidences when reading from events tree
 #Events.CdPadVeto: false						# only include particle events without CD-Pad coincidences (veto) when reading from events tree
+#Events.GammaUseSegmentEnergy: false			# use the segment sum energy rather than the core energy for the gamma-rays
 #Events.GammaWithSegment: false					# only include gamma-ray events with a matching segment, i.e. reject core-only gammas
 #Events.GammaMaxSegmentMultiplicity: 99			# only include gamma-ray events with a segment multiplicty less than or equal to this (all segments of a cluster = 18)
 #Events.GammaCoreSegmentEnergyDifference: 9.9e9	# only include gamma-ray events with a segment-core energy difference less than this
