@@ -3199,6 +3199,11 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( gamma_evt->GetSegmentMultiplicity() > react->EventsGammaMaxSegmentMultiplicity() )
 					continue;
 
+				// Check user condition for segment-core energy difference
+				if( TMath::Abs( gamma_evt->GetSegmentSumEnergy() - gamma_evt->GetEnergy() )
+				   > react->EventsGammaCoreSegmentEnergyDifference() )
+					continue;
+
 				// Singles
 				int cry = gamma_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_evt->GetCluster();
 				gE_singles->Fill( gamma_evt->GetEnergy() );

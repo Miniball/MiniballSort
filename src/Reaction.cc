@@ -202,6 +202,7 @@ void MiniballReaction::ReadReaction() {
 	events_particle_cdpad_veto  = config->GetValue( "Events.CdPadVeto", false );					// only do histogramming for particles without CD-Pad coincidences (Pad as veto)
 	events_gamma_demand_seg     = config->GetValue( "Events.GammaWithSegment", false );				// only do histogramming for gamma-rays that have a segment, i.e. reject core-only gammas
 	events_gamma_max_seg_mult   = config->GetValue( "Events.GammaMaxSegmentMultiplicity", 99 );		// only do histogramming for gamma-rays with a maximum segment multiplicity (all segments of a cluster = 18)
+	events_gamma_seg_ediff      = config->GetValue( "Events.GammaCoreSegmentEnergyDifference", 9.9e9 );	// only do histogramming for gamma-rays where the core and sgement energies are less than this
 
 	// Histogram options
 	hist_wo_addback = config->GetValue( "Histograms.WithoutAddback", true );	// turn on histograms for gamma-rays without addback
