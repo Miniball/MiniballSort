@@ -197,9 +197,11 @@ void MiniballReaction::ReadReaction() {
 	t1_time[1] = config->GetValue( "T1.Max", 1.2e9 );	// maximum T1 time for cut (ns), default 1.2 seconds
 
 	// Events tree options
-	events_particle_gamma       = config->GetValue( "Events.ParticleGammaOnly", false );	// only do histogramming for particle-gamma coincidences to speed things up
-	events_particle_cdpad_coinc = config->GetValue( "Events.CdPadCoincidence", false );		// only do histogramming for particles with CD-Pad coincidences
-	events_particle_cdpad_veto  = config->GetValue( "Events.CdPadVeto", false );			// only do histogramming for particles without CD-Pad coincidences (Pad as veto)
+	events_particle_gamma       = config->GetValue( "Events.ParticleGammaOnly", false );			// only do histogramming for particle-gamma coincidences to speed things up
+	events_particle_cdpad_coinc = config->GetValue( "Events.CdPadCoincidence", false );				// only do histogramming for particles with CD-Pad coincidences
+	events_particle_cdpad_veto  = config->GetValue( "Events.CdPadVeto", false );					// only do histogramming for particles without CD-Pad coincidences (Pad as veto)
+	events_gamma_demand_seg     = config->GetValue( "Events.GammaWithSegment", false );				// only do histogramming for gamma-rays that have a segment, i.e. reject core-only gammas
+	events_gamma_max_seg_mult   = config->GetValue( "Events.GammaMaxSegmentMultiplicity", 99 );		// only do histogramming for gamma-rays with a maximum segment multiplicity (all segments of a cluster = 18)
 
 	// Histogram options
 	hist_wo_addback = config->GetValue( "Histograms.WithoutAddback", true );	// turn on histograms for gamma-rays without addback

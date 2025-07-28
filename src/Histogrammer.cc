@@ -3191,6 +3191,14 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Get gamma-ray event
 				gamma_evt = read_evts->GetGammaRayEvt(j);
 
+				// Check user condition for matching a segment
+				if( react->EventsGammaDemandSegment() && gamma_evt->GetSegmentMultiplicity() == 0 )
+					continue;
+
+				// Check user condition for maximum segment multiplicity
+				if( gamma_evt->GetSegmentMultiplicity() > react->EventsGammaMaxSegmentMultiplicity() )
+					continue;
+
 				// Singles
 				int cry = gamma_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_evt->GetCluster();
 				gE_singles->Fill( gamma_evt->GetEnergy() );
@@ -3294,6 +3302,14 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 				// Get gamma-ray event
 				gamma_ab_evt = read_evts->GetGammaRayAddbackEvt(j);
+
+				// Check user condition for matching a segment
+				if( react->EventsGammaDemandSegment() && gamma_ab_evt->GetSegmentMultiplicity() == 0 )
+					continue;
+
+				// Check user condition for maximum segment multiplicity
+				if( gamma_ab_evt->GetSegmentMultiplicity() > react->EventsGammaMaxSegmentMultiplicity() )
+					continue;
 
 				// Singles
 				int cry = gamma_ab_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_ab_evt->GetCluster();

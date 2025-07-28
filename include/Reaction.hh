@@ -527,6 +527,8 @@ public:
 	inline bool EventsParticleGammaOnly(){ return events_particle_gamma; };
 	inline bool EventsCdPadCoincidence(){ return events_particle_cdpad_coinc; };
 	inline bool EventsCdPadVeto(){ return events_particle_cdpad_veto; };
+	inline bool EventsGammaDemandSegment(){ return events_gamma_demand_seg; };
+	inline unsigned int EventsGammaMaxSegmentMultiplicity(){ return events_gamma_max_seg_mult; };
 
 	// Histogram options
 	inline bool HistWithoutAddback(){ return hist_wo_addback; };
@@ -640,6 +642,8 @@ private:
 	bool events_particle_gamma;
 	bool events_particle_cdpad_coinc;
 	bool events_particle_cdpad_veto;
+	bool events_gamma_demand_seg; // must have a matching segment
+	unsigned int events_gamma_max_seg_mult;
 
 	// Histogram options
 	bool hist_wo_addback;

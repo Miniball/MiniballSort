@@ -136,9 +136,11 @@
 
 
 ## Read events
-#Events.ParticleGammaOnly: false	# only include events with particle-gamma coincidences when reading from events tree
-#Events.CdPadCoincidence: false		# only include particle events with CD-Pad coincidences when reading from events tree
-#Events.CdPadVeto: false			# only include particle events without CD-Pad coincidences (veto) when reading from events tree
+#Events.ParticleGammaOnly: false			# only include events with particle-gamma coincidences when reading from events tree
+#Events.CdPadCoincidence: false				# only include particle events with CD-Pad coincidences when reading from events tree
+#Events.CdPadVeto: false					# only include particle events without CD-Pad coincidences (veto) when reading from events tree
+#Events.GammaWithSegment: false				# only include gamma-ray events with a matching segment, i.e. reject core-only gammas
+#Events.GammaMaxSegmentMultiplicity: 99		# only include gamma-ray events with a segment multiplicty less than or equal to this (all segments of a cluster = 18)
 
 ## Histogram options
 #Histograms.WithoutAddback: true	# turn on/off the making of histograms for gamma-rays without addback (default true = on)
