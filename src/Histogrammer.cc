@@ -3204,11 +3204,16 @@ unsigned long MiniballHistogrammer::FillHists() {
 				   > react->EventsGammaCoreSegmentEnergyDifference() )
 					continue;
 
+				// Get the energy from the core or the segment as the user requests
+				double gamma_energy = gamma_evt->GetEnergy();
+				if( react->EventsGammaSegmentEnergy() )
+					gamma_energy = gamma_evt->GetSegmentSumEnergy();
+
 				// Singles
 				int cry = gamma_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_evt->GetCluster();
-				gE_singles->Fill( gamma_evt->GetEnergy() );
+				gE_singles->Fill( gamma_energy );
 				if( react->HistByCrystal() )
-					gE_singles_vs_crystal->Fill( cry, gamma_evt->GetEnergy() );
+					gE_singles_vs_crystal->Fill( cry, gamma_energy );
 
 				// Singles - Doppler corrected
 				gE_singles_dc->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
@@ -3219,16 +3224,16 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Check for events in the EBIS on-beam window
 				if( OnBeam( gamma_evt ) ){
 
-					gE_singles_ebis->Fill( gamma_evt->GetEnergy() );
-					gE_singles_ebis_on->Fill( gamma_evt->GetEnergy() );
+					gE_singles_ebis->Fill( gamma_energy );
+					gE_singles_ebis_on->Fill( gamma_energy );
 					gE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
 
 				} // ebis on
 
 				else if( OffBeam( gamma_evt ) ){
 
-					gE_singles_ebis->Fill( gamma_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
-					gE_singles_ebis_off->Fill( gamma_evt->GetEnergy() );
+					gE_singles_ebis->Fill( gamma_energy, -1.0 * react->GetEBISFillRatio() );
+					gE_singles_ebis_off->Fill( gamma_energy );
 					gE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_evt, react->GetBeam()->GetBeta(), 0, 0 ), -1.0 * react->GetEBISFillRatio() );
 
 				} // ebis off
@@ -3261,6 +3266,11 @@ unsigned long MiniballHistogrammer::FillHists() {
 					// Get gamma-ray event
 					gamma_evt2 = read_evts->GetGammaRayEvt(k);
 
+					// Get the energy from the core or the segment as the user requests
+					double gamma_energy2 = gamma_evt2->GetEnergy();
+					if( react->EventsGammaSegmentEnergy() )
+						gamma_energy2 = gamma_evt2->GetSegmentSumEnergy();
+
 					// Time differences - symmetrise
 					gamma_gamma_td->Fill( (double)gamma_evt->GetTime() - (double)gamma_evt2->GetTime() );
 					gamma_gamma_td->Fill( (double)gamma_evt2->GetTime() - (double)gamma_evt->GetTime() );
@@ -3272,15 +3282,15 @@ unsigned long MiniballHistogrammer::FillHists() {
 						if( PromptCoincidence( gamma_evt, gamma_evt2 ) ) {
 
 							// Fill and symmetrise
-							gE_gE->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
-							gE_gE->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+							gE_gE->Fill( gamma_energy, gamma_energy2 );
+							gE_gE->Fill( gamma_energy2, gamma_energy );
 
 							// Apply EBIS condition
 							if( OnBeam( gamma_evt ) && OnBeam( gamma_evt2 ) ) {
 
 								// Fill and symmetrise
-								gE_gE_ebis_on->Fill( gamma_evt->GetEnergy(), gamma_evt2->GetEnergy() );
-								gE_gE_ebis_on->Fill( gamma_evt2->GetEnergy(), gamma_evt->GetEnergy() );
+								gE_gE_ebis_on->Fill( gamma_energy, gamma_energy2 );
+								gE_gE_ebis_on->Fill( gamma_energy2, gamma_energy );
 
 							} // On Beam
 
@@ -3316,11 +3326,16 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( gamma_ab_evt->GetSegmentMultiplicity() > react->EventsGammaMaxSegmentMultiplicity() )
 					continue;
 
+				// Get the energy from the core or the segment as the user requests
+				double gamma_energy = gamma_ab_evt->GetEnergy();
+				if( react->EventsGammaSegmentEnergy() )
+					gamma_energy = gamma_ab_evt->GetSegmentSumEnergy();
+
 				// Singles
 				int cry = gamma_ab_evt->GetCrystal() + set->GetNumberOfMiniballCrystals() * gamma_ab_evt->GetCluster();
-				aE_singles->Fill( gamma_ab_evt->GetEnergy() );
+				aE_singles->Fill( gamma_energy );
 				if( react->HistByCrystal() )
-					aE_singles_vs_crystal->Fill( cry, gamma_ab_evt->GetEnergy() );
+					aE_singles_vs_crystal->Fill( cry, gamma_energy );
 
 				// Singles - Doppler corrected
 				aE_singles_dc->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
@@ -3328,16 +3343,16 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Check for events in the EBIS on-beam window
 				if( OnBeam( gamma_ab_evt ) ){
 
-					aE_singles_ebis->Fill( gamma_ab_evt->GetEnergy() );
-					aE_singles_ebis_on->Fill( gamma_ab_evt->GetEnergy() );
+					aE_singles_ebis->Fill( gamma_energy );
+					aE_singles_ebis_on->Fill( gamma_energy );
 					aE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ) );
 
 				} // ebis on
 
 				else if( OffBeam( gamma_ab_evt ) ){
 
-					aE_singles_ebis->Fill( gamma_ab_evt->GetEnergy(), -1.0 * react->GetEBISFillRatio() );
-					aE_singles_ebis_off->Fill( gamma_ab_evt->GetEnergy() );
+					aE_singles_ebis->Fill( gamma_energy, -1.0 * react->GetEBISFillRatio() );
+					aE_singles_ebis_off->Fill( gamma_energy );
 					aE_singles_dc_ebis->Fill( react->DopplerCorrection( gamma_ab_evt, react->GetBeam()->GetBeta(), 0, 0 ), -1.0 * react->GetEBISFillRatio() );
 
 				} // ebis off
@@ -3354,19 +3369,24 @@ unsigned long MiniballHistogrammer::FillHists() {
 						// Get gamma-ray event
 						gamma_ab_evt2 = read_evts->GetGammaRayAddbackEvt(k);
 
+						// Get the energy from the core or the segment as the user requests
+						double gamma_energy2 = gamma_ab_evt2->GetEnergy();
+						if( react->EventsGammaSegmentEnergy() )
+							gamma_energy2 = gamma_ab_evt2->GetSegmentSumEnergy();
+
 						// Check for prompt gamma-gamma coincidences
 						if( PromptCoincidence( gamma_ab_evt, gamma_ab_evt2 ) ) {
 
 							// Fill and symmetrise
-							aE_aE->Fill( gamma_ab_evt->GetEnergy(), gamma_ab_evt2->GetEnergy() );
-							aE_aE->Fill( gamma_ab_evt2->GetEnergy(), gamma_ab_evt->GetEnergy() );
+							aE_aE->Fill( gamma_energy, gamma_energy2 );
+							aE_aE->Fill( gamma_energy2, gamma_energy );
 
 							// Apply EBIS condition
 							if( OnBeam( gamma_ab_evt ) && OnBeam( gamma_ab_evt2 ) ) {
 
 								// Fill and symmetrise
-								aE_aE_ebis_on->Fill( gamma_ab_evt->GetEnergy(), gamma_ab_evt2->GetEnergy() );
-								aE_aE_ebis_on->Fill( gamma_ab_evt2->GetEnergy(), gamma_ab_evt->GetEnergy() );
+								aE_aE_ebis_on->Fill( gamma_energy, gamma_energy2 );
+								aE_aE_ebis_on->Fill( gamma_energy2, gamma_energy );
 
 							} // On Beam
 
@@ -3469,6 +3489,11 @@ unsigned long MiniballHistogrammer::FillHists() {
 						if( gamma_evt->GetSegmentMultiplicity() > react->EventsGammaMaxSegmentMultiplicity() )
 							continue;
 
+						// Get the energy from the core or the segment as the user requests
+						double gamma_energy = gamma_evt->GetEnergy();
+						if( react->EventsGammaSegmentEnergy() )
+							gamma_energy = gamma_evt->GetSegmentSumEnergy();
+
 						// Time differences
 						gamma_electron_td->Fill( (double)spede_evt->GetTime() - (double)gamma_evt->GetTime() );
 						gamma_electron_td->Fill( (double)gamma_evt->GetTime() - (double)spede_evt->GetTime() );
@@ -3480,13 +3505,13 @@ unsigned long MiniballHistogrammer::FillHists() {
 							if( PromptCoincidence( gamma_evt, spede_evt ) ) {
 
 								// Fill
-								gE_eE->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
+								gE_eE->Fill( gamma_energy, spede_evt->GetEnergy() );
 
 								// Apply EBIS condition
 								if( OnBeam( gamma_evt ) && OnBeam( spede_evt ) ) {
 
 									// Fill
-									gE_eE_ebis_on->Fill( gamma_evt->GetEnergy(), spede_evt->GetEnergy() );
+									gE_eE_ebis_on->Fill( gamma_energy, spede_evt->GetEnergy() );
 
 								} // On Beam
 
@@ -3518,17 +3543,22 @@ unsigned long MiniballHistogrammer::FillHists() {
 						if( gamma_ab_evt->GetSegmentMultiplicity() > react->EventsGammaMaxSegmentMultiplicity() )
 							continue;
 
+						// Get the energy from the core or the segment as the user requests
+						double gamma_energy = gamma_ab_evt->GetEnergy();
+						if( react->EventsGammaSegmentEnergy() )
+							gamma_energy = gamma_ab_evt->GetSegmentSumEnergy();
+
 						// Check for prompt gamma-electron coincidences
 						if( PromptCoincidence( gamma_ab_evt, spede_evt ) ) {
 
 							// Fill
-							aE_eE->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
+							aE_eE->Fill( gamma_energy, spede_evt->GetEnergy() );
 
 							// Apply EBIS condition
 							if( OnBeam( gamma_ab_evt ) && OnBeam( spede_evt ) ) {
 
 								// Fill
-								aE_eE_ebis_on->Fill( gamma_ab_evt->GetEnergy(), spede_evt->GetEnergy() );
+								aE_eE_ebis_on->Fill( gamma_energy, spede_evt->GetEnergy() );
 
 							} // On Beam
 
