@@ -738,9 +738,12 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, doub
 	double gamma = 1.0 / TMath::Sqrt( 1.0 - TMath::Power( pbeta, 2.0 ) );
 	double corr = 1.0 - pbeta * TMath::Cos( gvec.Angle( pvec ) );
 	corr *= gamma;
-	
-	return corr * g->GetEnergy();
-	
+
+	if( events_gamma_seg_energy )
+		return corr * g->GetSegmentSumEnergy();
+	else
+		return corr * g->GetEnergy();
+
 }
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
@@ -754,8 +757,11 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool
 	double corr = 1.0 - p.GetBeta() * CosTheta( g, ejectile );
 	corr *= p.GetGamma();
 	
-	return corr * g->GetEnergy();
-	
+	if( events_gamma_seg_energy )
+		return corr * g->GetSegmentSumEnergy();
+	else
+		return corr * g->GetEnergy();
+
 }
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
