@@ -142,84 +142,108 @@
 #Miniball_0_0_1.Sfp: 0			# Location of Cluster 0, Crystal 0
 #Miniball_0_0_1.Board: 0		# Segment 1 in the DAQ
 #Miniball_0_0_1.Channel: 1		#
+#Miniball_0_0_1.Veto: false		# use segment as a veto
 #Miniball_0_0_2.Sfp: 0			# Location of Cluster 0, Crystal 0
 #Miniball_0_0_2.Board: 0		# Segment 2 in the DAQ
 #Miniball_0_0_2.Channel: 2		#
+#Miniball_0_0_2.Veto: false		# use segment as a veto
 #Miniball_0_0_3.Sfp: 0			# Location of Cluster 0, Crystal 0
 #Miniball_0_0_3.Board: 0		# Segment 3 in the DAQ
 #Miniball_0_0_3.Channel: 3		#
+#Miniball_0_0_3.Veto: false		# use segment as a veto
 #Miniball_0_0_4.Sfp: 0			# Location of Cluster 0, Crystal 0
 #Miniball_0_0_4.Board: 0		# Segment 4 in the DAQ
 #Miniball_0_0_4.Channel: 4		#
+#Miniball_0_0_4.Veto: false		# use segment as a veto
 #Miniball_0_0_5.Sfp: 0			# Location of Cluster 0, Crystal 0
 #Miniball_0_0_5.Board: 0		# Segment 5 in the DAQ
 #Miniball_0_0_5.Channel: 5		#
+#Miniball_0_0_5.Veto: false		# use segment as a veto
 #Miniball_0_0_6.Sfp: 0			# Location of Cluster 0, Crystal 0
 #Miniball_0_0_6.Board: 0		# Segment 6 in the DAQ
 #Miniball_0_0_6.Channel: 6		#
+#Miniball_0_0_6.Veto: false		# use segment as a veto
 #Miniball_0_1_0.Sfp: 0			# Location of Cluster 0, Crystal 1
 #Miniball_0_1_0.Board: 0		# Segment 0 (core) in the DAQ
 #Miniball_0_1_0.Channel: 8		#
 #Miniball_0_1_1.Sfp: 0			# Location of Cluster 0, Crystal 1
 #Miniball_0_1_1.Board: 0		# Segment 1 in the DAQ
 #Miniball_0_1_1.Channel: 9		#
+#Miniball_0_1_1.Veto: false		# use segment as a veto
 #Miniball_0_1_2.Sfp: 0			# Location of Cluster 0, Crystal 1
 #Miniball_0_1_2.Board: 0		# Segment 2 in the DAQ
 #Miniball_0_1_2.Channel: 10		#
+#Miniball_0_1_2.Veto: false		# use segment as a veto
 #Miniball_0_1_3.Sfp: 0			# Location of Cluster 0, Crystal 1
 #Miniball_0_1_3.Board: 0		# Segment 3 in the DAQ
 #Miniball_0_1_3.Channel: 11		#
+#Miniball_0_1_3.Veto: false		# use segment as a veto
 #Miniball_0_1_4.Sfp: 0			# Location of Cluster 0, Crystal 1
 #Miniball_0_1_4.Board: 0		# Segment 4 in the DAQ
 #Miniball_0_1_4.Channel: 12		#
+#Miniball_0_1_4.Veto: false		# use segment as a veto
 #Miniball_0_1_5.Sfp: 0			# Location of Cluster 0, Crystal 1
 #Miniball_0_1_5.Board: 0		# Segment 5 in the DAQ
 #Miniball_0_1_5.Channel: 13		#
+#Miniball_0_1_5.Veto: false		# use segment as a veto
 #Miniball_0_1_6.Sfp: 0			# Location of Cluster 0, Crystal 1
 #Miniball_0_1_6.Board: 0		# Segment 6 in the DAQ
 #Miniball_0_1_6.Channel: 14		#
+#Miniball_0_1_6.Veto: false		# use segment as a veto
 #Miniball_0_2_0.Sfp: 0			# Location of Cluster 0, Crystal 2
 #Miniball_0_2_0.Board: 1		# Segment 0 (core) in the DAQ
 #Miniball_0_2_0.Channel: 0		#
 #Miniball_0_2_1.Sfp: 0			# Location of Cluster 0, Crystal 2
 #Miniball_0_2_1.Board: 1		# Segment 1 in the DAQ
 #Miniball_0_2_1.Channel: 1		#
+#Miniball_0_2_1.Veto: false		# use segment as a veto
 #Miniball_0_2_2.Sfp: 0			# Location of Cluster 0, Crystal 2
 #Miniball_0_2_2.Board: 1		# Segment 2 in the DAQ
 #Miniball_0_2_2.Channel: 2		#
+#Miniball_0_2_2.Veto: false		# use segment as a veto
 #Miniball_0_2_3.Sfp: 0			# Location of Cluster 0, Crystal 2
 #Miniball_0_2_3.Board: 1		# Segment 3 in the DAQ
 #Miniball_0_2_3.Channel: 3		#
+#Miniball_0_2_3.Veto: false		# use segment as a veto
 #Miniball_0_2_4.Sfp: 0			# Location of Cluster 0, Crystal 2
 #Miniball_0_2_4.Board: 1		# Segment 4 in the DAQ
 #Miniball_0_2_4.Channel: 4		#
+#Miniball_0_2_4.Veto: false		# use segment as a veto
 #Miniball_0_2_5.Sfp: 0			# Location of Cluster 0, Crystal 2
 #Miniball_0_2_5.Board: 1		# Segment 5 in the DAQ
 #Miniball_0_2_5.Channel: 5		#
+#Miniball_0_2_5.Veto: false		# use segment as a veto
 #Miniball_0_2_6.Sfp: 0			# Location of Cluster 0, Crystal 2
 #Miniball_0_2_6.Board: 1		# Segment 6 in the DAQ
 #Miniball_0_2_6.Channel: 6		#
+#Miniball_0_2_6.Veto: false		# use segment as a veto
 #Miniball_1_0_0.Sfp: 0			# Location of Cluster 1, Crystal 0
 #Miniball_1_0_0.Board: 1		# Segment 0 (core) in the DAQ
 #Miniball_1_0_0.Channel: 8		#
 #Miniball_1_0_1.Sfp: 0			# Location of Cluster 1, Crystal 0
 #Miniball_1_0_1.Board: 1		# Segment 1 in the DAQ
 #Miniball_1_0_1.Channel: 9		#
+#Miniball_1_0_1.Veto: false		# use segment as a veto
 #Miniball_1_0_2.Sfp: 0			# Location of Cluster 1, Crystal 0
 #Miniball_1_0_2.Board: 1		# Segment 2 in the DAQ
 #Miniball_1_0_2.Channel: 10		#
+#Miniball_1_0_2.Veto: false		# use segment as a veto
 #Miniball_1_0_3.Sfp: 0			# Location of Cluster 1, Crystal 0
 #Miniball_1_0_3.Board: 1		# Segment 3 in the DAQ
 #Miniball_1_0_3.Channel: 11		#
+#Miniball_1_0_3.Veto: false		# use segment as a veto
 #Miniball_1_0_4.Sfp: 0			# Location of Cluster 1, Crystal 0
 #Miniball_1_0_4.Board: 1		# Segment 4 in the DAQ
 #Miniball_1_0_4.Channel: 12		#
+#Miniball_1_0_4.Veto: false		# use segment as a veto
 #Miniball_1_0_5.Sfp: 0			# Location of Cluster 1, Crystal 0
 #Miniball_1_0_5.Board: 1		# Segment 5 in the DAQ
 #Miniball_1_0_5.Channel: 13		#
+#Miniball_1_0_5.Veto: false		# use segment as a veto
 #Miniball_1_0_6.Sfp: 0			# Location of Cluster 1, Crystal 0
 #Miniball_1_0_6.Board: 1		# Segment 6 in the DAQ
 #Miniball_1_0_6.Channel: 14		#
+#Miniball_1_0_6.Veto: false		# use segment as a veto
 # ...
 #Miniball_7_2_0.Sfp: 1			# Location of Cluster 7, Crystal 2
 #Miniball_7_2_0.Board: 5		# Segment 0 (core) in the DAQ
@@ -227,21 +251,27 @@
 #Miniball_7_2_1.Sfp: 1			# Location of Cluster 7, Crystal 2
 #Miniball_7_2_1.Board: 5		# Segment 1 in the DAQ
 #Miniball_7_2_1.Channel: 9		#
+#Miniball_7_2_1.Veto: false		# use segment as a veto
 #Miniball_7_2_2.Sfp: 1			# Location of Cluster 7, Crystal 2
 #Miniball_7_2_2.Board: 5		# Segment 2 in the DAQ
 #Miniball_7_2_2.Channel: 10		#
+#Miniball_7_2_2.Veto: false		# use segment as a veto
 #Miniball_7_2_3.Sfp: 1			# Location of Cluster 7, Crystal 2
 #Miniball_7_2_3.Board: 5		# Segment 3 in the DAQ
 #Miniball_7_2_3.Channel: 11		#
+#Miniball_7_2_3.Veto: false		# use segment as a veto
 #Miniball_7_2_4.Sfp: 1			# Location of Cluster 7, Crystal 2
 #Miniball_7_2_4.Board: 5		# Segment 4 in the DAQ
 #Miniball_7_2_4.Channel: 12		#
+#Miniball_7_2_4.Veto: false		# use segment as a veto
 #Miniball_7_2_5.Sfp: 1			# Location of Cluster 7, Crystal 2
 #Miniball_7_2_5.Board: 5		# Segment 5 in the DAQ
 #Miniball_7_2_5.Channel: 13		#
+#Miniball_7_2_5.Veto: false		# use segment as a veto
 #Miniball_7_2_6.Sfp: 1			# Location of Cluster 7, Crystal 2
 #Miniball_7_2_6.Board: 5		# Segment 6 in the DAQ
 #Miniball_7_2_6.Channel: 14		#
+#Miniball_7_2_6.Veto: false		# use segment as a veto
 
 
 #---------------------#
