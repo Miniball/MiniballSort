@@ -575,7 +575,10 @@ void MiniballEventBuilder::GammaRayFinder() {
 	
 		// Check if it's a core event
 		if( mb_seg_list.at(i) != 0 ) continue;
-		
+
+		// Segment veto start as false
+		bool segment_veto = false;
+
 		// Reset addback variables
 		MaxSegId = 0; // initialise as core (if no segment hit (dead), use core!)
 		MaxSegEnergy = 0.;
@@ -601,6 +604,14 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
 			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
 
+			// Check for a vetoed segment
+			if( set->IsMiniballSegmentVetoed( mb_clu_list.at(i), mb_cry_list.at(i), mb_seg_list.at(j) ) ) {
+
+				segment_veto = true;
+				continue;
+
+			}
+
 			// Fill the time difference spectrum
 			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
 			
@@ -621,7 +632,11 @@ void MiniballEventBuilder::GammaRayFinder() {
 			}
 			
 		} // j: matching segments
-		
+
+
+		// If anyone of the segments that triggered are being vetoed, skip this gamma ray
+		if( segment_veto ) continue;
+
 		// Fill the segment spectra with core energies
 		mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( MaxSegId, mb_en_list.at(i) );
 		if( mb_ts_list.at(i) - ebis_time < 1.5e6 )
