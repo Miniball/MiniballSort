@@ -608,7 +608,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( set->IsMiniballSegmentVetoed( mb_clu_list.at(i), mb_cry_list.at(i), mb_seg_list.at(j) ) ) {
 
 				segment_veto = true;
-				continue;
+				break;
 
 			}
 
@@ -634,7 +634,7 @@ void MiniballEventBuilder::GammaRayFinder() {
 		} // j: matching segments
 
 
-		// If anyone of the segments that triggered are being vetoed, skip this gamma ray
+		// If any one of the segments that triggered are being vetoed, skip this gamma ray
 		if( segment_veto ) continue;
 
 		// Fill the segment spectra with core energies
