@@ -382,13 +382,15 @@ void MiniballSettings::ReadSettings() {
 	mb_board.resize( n_mb_cluster );
 	mb_dgf.resize( n_mb_cluster );
 	mb_ch.resize( n_mb_cluster );
-	
+	mb_veto.resize( n_mb_cluster );
+
 	for( unsigned int i = 0; i < n_mb_cluster; ++i ){
 
 		mb_sfp[i].resize( n_mb_crystal );
 		mb_board[i].resize( n_mb_crystal );
 		mb_dgf[i].resize( n_mb_crystal );
 		mb_ch[i].resize( n_mb_crystal );
+		mb_veto[i].resize( n_mb_crystal );
 
 		for( unsigned int j = 0; j < n_mb_crystal; ++j ){
 
@@ -396,6 +398,7 @@ void MiniballSettings::ReadSettings() {
 			mb_board[i][j].resize( n_mb_segment );
 			mb_dgf[i][j].resize( n_mb_segment );
 			mb_ch[i][j].resize( n_mb_segment );
+			mb_veto[i][j].resize( n_mb_segment );
 
 			for( unsigned int k = 0; k < n_mb_segment; ++k ){
 
@@ -409,6 +412,7 @@ void MiniballSettings::ReadSettings() {
 				mb_board[i][j][k]	= config->GetValue( Form( "Miniball_%d_%d_%d.Board", i, j, k ), b );
 				mb_dgf[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Dgf", i, j, k ), g );
 				mb_ch[i][j][k]		= config->GetValue( Form( "Miniball_%d_%d_%d.Channel", i, j, k ), c );
+				mb_veto[i][j][k]	= config->GetValue( Form( "Miniball_%d_%d_%d.Veto", i, j, k ), false );
 
 				// Check FEBEX inputs aren't overlapped
 				if( mb_sfp[i][j][k] < n_febex_sfp && n_febex_sfp > 0 &&
@@ -922,41 +926,58 @@ void MiniballSettings::ReadSettings() {
 
 
 bool MiniballSettings::IsMiniball( unsigned int dgf, unsigned int ch ) {
-	
+
 	/// Return true if this is a Miniball event
 	if( dgf < n_dgf_mod && ch < n_dgf_ch ) {
-		
+
 		if( mb_cluster[0][dgf][ch] >= 0 ) return true;
 		else return false;
 	}
-	
+
 	else {
-		
+
 		std::cerr << "Bad Miniball event: dgf = " << dgf;
 		std::cerr << ", channel = " << ch << std::endl;
 		return false;
-		
+
 	}
 
 }
 
 bool MiniballSettings::IsMiniball( unsigned int sfp, unsigned int board, unsigned int ch ) {
-	
+
 	/// Return true if this is a Miniball event
 	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch ) {
-		
+
 		if( mb_cluster[sfp][board][ch] >= 0 ) return true;
 		else return false;
-		
+
 	}
-	
+
 	else {
-		
+
 		std::cerr << "Bad Miniball event: sfp = " << sfp;
 		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
 		return false;
-		
+
+	}
+
+}
+
+bool MiniballSettings::IsMiniballSegmentVetoed( unsigned int clu, unsigned int cry, unsigned int seg ) {
+
+	/// Check we have a good Miniball segment
+	if( clu < n_mb_cluster && cry < n_mb_crystal && seg < n_mb_segment )
+		return mb_veto[clu][cry][seg];
+
+	else {
+
+		std::cerr << "Bad Miniball detector: Cluster = " << clu;
+		std::cerr << ", Crystal = " << cry;
+		std::cerr << ", Segment = " << seg << std::endl;
+		return false;
+
 	}
 
 }

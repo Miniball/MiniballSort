@@ -219,6 +219,7 @@ public:
 	inline int GetMiniballSegment( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetMiniballID( sfp, board, ch, mb_segment );
 	};
+	bool IsMiniballSegmentVetoed( unsigned int clu, unsigned int cry, unsigned int seg );
 	inline double GetMiniballCrystalHitWindow(){ return mb_hit_window; };
 	inline double GetMiniballAddbackHitWindow(){ return ab_hit_window; };
 
@@ -346,6 +347,7 @@ private:
 	std::vector<std::vector<std::vector<unsigned int>>> mb_board;	///< A list of board numbers for each  MB cluster, crystal and segment
 	std::vector<std::vector<std::vector<unsigned int>>> mb_dgf;		///< A list of DGF module numbers for each MB cluster, crystal and segment
 	std::vector<std::vector<std::vector<unsigned int>>> mb_ch;		///< A list of channel numbers for each MB cluster, crystal and segment
+	std::vector<std::vector<std::vector<bool>>> mb_veto;			///< A boolean to check if we need to veto any segments
 	std::vector<std::vector<std::vector<int>>> mb_cluster;			///< A channel map for the Miniball cluster IDs (-1 if not Miniball)
 	std::vector<std::vector<std::vector<int>>> mb_crystal;			///< A channel map for the Miniball crystal IDs (-1 if not Miniball)
 	std::vector<std::vector<std::vector<int>>> mb_segment;			///< A channel map for the Miniball segment IDs (-1 if not Miniball)

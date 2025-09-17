@@ -34,7 +34,10 @@ void MiniballEvts::AddEvt( std::shared_ptr<GammaRayEvt> event ) {
 	// Make a copy of the event and push it back
 	GammaRayEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
-	fill_evt.SetSegmentEnergy( event->GetEnergy() );
+	fill_evt.SetSegmentMaxEnergy( event->GetSegmentMaxEnergy() );
+	fill_evt.SetSegmentSumEnergy( event->GetSegmentSumEnergy() );
+	fill_evt.SetSegmentMultiplicity( event->GetSegmentMultiplicity() );
+	fill_evt.SetAddbackMultiplicity( event->GetAddbackMultiplicity() );
 	fill_evt.SetTime( event->GetTime() );
 	fill_evt.SetCluster( event->GetCluster() );
 	fill_evt.SetCrystal( event->GetCrystal() );
@@ -49,7 +52,10 @@ void MiniballEvts::AddEvt( std::shared_ptr<GammaRayAddbackEvt> event ) {
 	// Make a copy of the event and push it back
 	GammaRayAddbackEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
-	fill_evt.SetSegmentEnergy( event->GetEnergy() );
+	fill_evt.SetSegmentMaxEnergy( event->GetSegmentMaxEnergy() );
+	fill_evt.SetSegmentSumEnergy( event->GetSegmentSumEnergy() );
+	fill_evt.SetSegmentMultiplicity( event->GetSegmentMultiplicity() );
+	fill_evt.SetAddbackMultiplicity( event->GetAddbackMultiplicity() );
 	fill_evt.SetTime( event->GetTime() );
 	fill_evt.SetCluster( event->GetCluster() );
 	fill_evt.SetCrystal( event->GetCrystal() );

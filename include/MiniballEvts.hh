@@ -20,7 +20,10 @@ public:
 
 	// Event set functions
 	inline void SetEnergy( float e ){ energy = e; };
-	inline void SetSegmentEnergy( float e ){ seg_energy = e; };
+	inline void SetSegmentSumEnergy( float e ){ seg_sum_energy = e; };
+	inline void SetSegmentMaxEnergy( float e ){ seg_max_energy = e; };
+	inline void SetSegmentMultiplicity( unsigned int m ){ seg_mult = m; };
+	inline void SetAddbackMultiplicity( unsigned int m ){ ab_mult = m; };
 	inline void SetTime( unsigned long long t ){ time = t; };
 	inline void SetCluster( unsigned char c ){ clu = c; };
 	inline void SetCrystal( unsigned char c ){ cry = c; };
@@ -28,7 +31,10 @@ public:
 	
 	// Return functions
 	inline float 				GetEnergy(){ return energy; };
-	inline float 				GetSegmentEnergy(){ return seg_energy; };
+	inline float 				GetSegmentSumEnergy(){ return seg_sum_energy; };
+	inline float 				GetSegmentMaxEnergy(){ return seg_max_energy; };
+	inline unsigned int			GetSegmentMultiplicity(){ return seg_mult; };
+	inline unsigned int			GetAddbackMultiplicity(){ return ab_mult; };
 	inline unsigned long long	GetTime(){ return time; };
 	inline unsigned char		GetCluster(){ return clu; };
 	inline unsigned char		GetCrystal(){ return cry; };
@@ -37,15 +43,18 @@ public:
 private:
 
 	// variables for gamma-ray event
-	float				energy;		///< energy in keV
-	float				seg_energy;	///< energy in keV for the hit segment
-	unsigned long long	time;		///< timestamp of event
-	unsigned char		clu;		///< cluster ID
-	unsigned char		cry;		///< crystal ID
-	unsigned char		seg;		///< segment ID
+	float				energy;			///< energy in keV
+	float				seg_max_energy;	///< energy in keV for the hit segment
+	float				seg_sum_energy;	///< energy in keV for the hit segment
+	unsigned long long	time;			///< timestamp of event
+	unsigned char		seg_mult;		///< segment multiplicity
+	unsigned char		ab_mult;		///< add-back multiplicity
+	unsigned char		clu;			///< cluster ID
+	unsigned char		cry;			///< crystal ID
+	unsigned char		seg;			///< segment ID
 
 
-	ClassDef( GammaRayEvt, 1 )
+	ClassDef( GammaRayEvt, 2 )
 
 };
 
@@ -59,7 +68,7 @@ public:
 
 private:
 
-	ClassDef( GammaRayAddbackEvt, 1 )
+	ClassDef( GammaRayAddbackEvt, 2 )
 
 };
 
