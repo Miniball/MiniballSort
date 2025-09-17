@@ -116,11 +116,15 @@ var searchData=
   ['event_5ftypes_113',['event_types',['../classMBS.html#a8bb80c96e38cff11fd990b58d07c6807',1,'MBS']]],
   ['event_5fwindow_114',['event_window',['../classMiniballSettings.html#adf79358fe71a153e950db31eab09035e',1,'MiniballSettings']]],
   ['eventid_115',['eventid',['../classAdcData.html#ab90b743e0c5711b9fa5c422cbb3bb3d2',1,'AdcData::eventid'],['../classDgfData.html#a69b69fb7c528c9131ce2e33568643514',1,'DgfData::eventid'],['../classFebexData.html#a561ccfac7e5d389b67fa23db78fa2aae',1,'FebexData::eventid'],['../classInfoData.html#a85e68dfbee0f31fa67dc9020cb01dc6b',1,'InfoData::eventid'],['../classMBSInfoPackets.html#a5b325f9815d357e48abb60e2ed9ad331',1,'MBSInfoPackets::eventid'],['../classMBSEvent.html#a50e0fd52916b32a5094a0755abdf914c',1,'MBSEvent::eventid']]],
-  ['events_5fparticle_5fcdpad_5fcoinc_116',['events_particle_cdpad_coinc',['../classMiniballReaction.html#ac0e952aab02cae40c1d5488249c10003',1,'MiniballReaction']]],
-  ['events_5fparticle_5fcdpad_5fveto_117',['events_particle_cdpad_veto',['../classMiniballReaction.html#afadef0919b30f48cae4e3ff8deb9c9ee',1,'MiniballReaction']]],
-  ['events_5fparticle_5fgamma_118',['events_particle_gamma',['../classMiniballReaction.html#a988baa36f6958024d3ad126a4a792d9e',1,'MiniballReaction']]],
-  ['eventtime_119',['EventTime',['../classDgfData.html#a3af57bf2fdba43b426c3ede5930e1d7d',1,'DgfData']]],
-  ['evt_120',['evt',['../classMBS.html#aae35353ced438271437e51739edae977',1,'MBS']]],
-  ['evtsiz_121',['evtsiz',['../classMBS.html#a9d9a0329d6dec2bf6afeabf2e59a4992',1,'MBS']]],
-  ['ex_122',['Ex',['../classMiniballParticle.html#a7b2b49f7b7aadf7ca10eae724f3183a5',1,'MiniballParticle']]]
+  ['events_5fgamma_5fdemand_5fseg_116',['events_gamma_demand_seg',['../classMiniballReaction.html#adc25d5881db001de202400306f24392f',1,'MiniballReaction']]],
+  ['events_5fgamma_5fmax_5fseg_5fmult_117',['events_gamma_max_seg_mult',['../classMiniballReaction.html#a5f6bec212d28d2a4eb9055cd4371970c',1,'MiniballReaction']]],
+  ['events_5fgamma_5fseg_5fediff_118',['events_gamma_seg_ediff',['../classMiniballReaction.html#a38cb7082920d855e110250fbd121a14b',1,'MiniballReaction']]],
+  ['events_5fgamma_5fseg_5fenergy_119',['events_gamma_seg_energy',['../classMiniballReaction.html#a7027c40c6b47cacd19b9bda4463280f9',1,'MiniballReaction']]],
+  ['events_5fparticle_5fcdpad_5fcoinc_120',['events_particle_cdpad_coinc',['../classMiniballReaction.html#ac0e952aab02cae40c1d5488249c10003',1,'MiniballReaction']]],
+  ['events_5fparticle_5fcdpad_5fveto_121',['events_particle_cdpad_veto',['../classMiniballReaction.html#afadef0919b30f48cae4e3ff8deb9c9ee',1,'MiniballReaction']]],
+  ['events_5fparticle_5fgamma_122',['events_particle_gamma',['../classMiniballReaction.html#a988baa36f6958024d3ad126a4a792d9e',1,'MiniballReaction']]],
+  ['eventtime_123',['EventTime',['../classDgfData.html#a3af57bf2fdba43b426c3ede5930e1d7d',1,'DgfData']]],
+  ['evt_124',['evt',['../classMBS.html#aae35353ced438271437e51739edae977',1,'MBS']]],
+  ['evtsiz_125',['evtsiz',['../classMBS.html#a9d9a0329d6dec2bf6afeabf2e59a4992',1,'MBS']]],
+  ['ex_126',['Ex',['../classMiniballParticle.html#a7b2b49f7b7aadf7ca10eae724f3183a5',1,'MiniballParticle']]]
 ];
