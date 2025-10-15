@@ -23,10 +23,10 @@ endif
 
 PLATFORM:=$(shell uname)
 ifeq ($(PLATFORM),Darwin)
-SHAREDSWITCH = -Qunused-arguments -shared -undefined dynamic_lookup -dynamiclib -Wl,-install_name,'@executable_path/../lib/'# NO ENDING SPACE
+SHAREDSWITCH = -Qunused-arguments -shared -undefined dynamic_lookup -dynamiclib
 OSDEF = -DMACOSX
 else
-SHAREDSWITCH = -shared -Wl,-soname,# NO ENDING SPACE
+SHAREDSWITCH = -shared
 OSDEF = -DLINUX
 LIBEXTRA = -lrt
 endif
@@ -103,7 +103,7 @@ all: $(BIN_DIR)/mb_sort $(LIB_DIR)/libmb_sort.so
  
 $(LIB_DIR)/libmb_sort.so: mb_sort.o $(OBJECTS) mb_sortDict.o
 	mkdir -p $(LIB_DIR)
-	$(LD) mb_sort.o $(OBJECTS) mb_sortDict.o $(SHAREDSWITCH)$@ $(LIBS) -o $@
+	$(LD) mb_sort.o $(OBJECTS) mb_sortDict.o $(SHAREDSWITCH) $(LIBS) -o $@
 
 $(BIN_DIR)/mb_sort: mb_sort.o $(OBJECTS) mb_sortDict.o
 	mkdir -p $(BIN_DIR)
