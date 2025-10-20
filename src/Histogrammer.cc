@@ -122,7 +122,7 @@ void MiniballHistogrammer::MakeHists() {
 									TBIN, TMIN, TMAX );
 	histlist->Add(particle_particle_td);
 	
-	// Added by H.K. on the 10.10.25
+	
     if( react->HistPromptTiming() ) {
 	hname = "gamma_particle_td_prompt";
 	htitle = "Gamma-ray - Particle time difference in prompt time window;#Deltat;Counts";
@@ -3117,7 +3117,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Time differences
 				electron_particle_td->Fill( (double)particle_evt->GetTime() - (double)spede_evt->GetTime() );
 				
-				// added by H. K. 10.10.25
+				
 				if( PromptCoincidence( spede_evt, particle_evt ) ){
 					if( react->HistPromptTiming() ) {
 						electron_particle_td_prompt->Fill( (double)particle_evt->GetTime() - (double)spede_evt->GetTime() );
@@ -3197,7 +3197,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 						pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 						
 						if( react->HistPromptTiming() ) {
-						//added by H.K. on the 10.10.25
+						
 							ejectile_recoil_td_prompt->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
 						}
 					}
@@ -3234,7 +3234,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 						pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 						
 						if( react->HistPromptTiming() ) {
-						//added by H.K. at 10.10.25
+						
 							recoil_ejectile_td_prompt->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
 						}
 					}
@@ -3408,7 +3408,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 							gE_gE->Fill( gamma_energy2, gamma_energy );
 							
 							if( react->HistPromptTiming() ) {
-							//added by H.K. 10.10.25
+							
 								gamma_gamma_td_prompt->Fill( (double)gamma_evt->GetTime() - (double)gamma_evt2->GetTime() );
 								gamma_gamma_td_prompt->Fill( (double)gamma_evt2->GetTime() - (double)gamma_evt->GetTime() );
 							}
@@ -3587,7 +3587,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 						eE_eE->Fill( spede_evt->GetEnergy(), spede_evt2->GetEnergy() );
 						eE_eE->Fill( spede_evt2->GetEnergy(), spede_evt->GetEnergy() );
 						
-						//added by H.K. on 10.10.25
+						
 						if( react->HistPromptTiming() ) {
 							electron_electron_td_prompt->Fill( (double)spede_evt->GetTime() - (double)spede_evt2->GetTime() );
 							electron_electron_td_prompt->Fill( (double)spede_evt2->GetTime() - (double)spede_evt->GetTime() );
@@ -3639,7 +3639,7 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 								// Fill
 								gE_eE->Fill( gamma_energy, spede_evt->GetEnergy() ); 
-								// added by H.K. on 10.10.25
+								
 								if( react->HistPromptTiming() ) {
 									gamma_electron_td_prompt->Fill( (double)spede_evt->GetTime() - (double)gamma_evt->GetTime() );
 								}

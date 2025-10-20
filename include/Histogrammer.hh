@@ -341,15 +341,18 @@ private:
 
 	// Gamma-ray coincidence matrices with and without addback
 	TH1F *gamma_gamma_td;
+	TH1F *gamma_gamma_td_prompt;
 	TH2F *gE_gE, *gE_gE_ebis_on;
 	TH2F *aE_aE, *aE_aE_ebis_on;
 
 	// Electron coincidence matrices
 	TH1F *electron_electron_td;
+	TH1F *electron_electron_td_prompt;
 	TH2F *eE_eE, *eE_eE_ebis_on;
 
 	// Gamma-Electron coincidence matrices
 	TH1F *gamma_electron_td;
+	TH1F *gamma_electron_td_prompt;
 	TH2F *gE_eE, *gE_eE_ebis_on;
 	TH2F *aE_eE, *aE_eE_ebis_on;
 
@@ -363,10 +366,14 @@ private:
 	std::vector<std::vector<TH2F*>> pE_dE_sec, pE_dE_coinc_sec, pE_dE_cut_sec;
 	TProfile *pBeta_theta_ejectile, *pBeta_theta_recoil;
 	TH1F *particle_particle_td;
+	TH1F *particle_particle_td_prompt;
+	TH1F *ejectile_recoil_td_prompt;
+	TH1F *recoil_ejectile_td_prompt;
 	TH2F *particle_xy_map_forward, *particle_xy_map_backward, *particle_theta_phi_map;
 
 	// Particle-gamma coincidences with and without addback
 	TH1F *gamma_particle_td;
+	TH1F *gamma_particle_td_prompt;
 	TH2F *gamma_particle_E_vs_td;
 	std::vector<TH1F*> gamma_particle_td_sec;
 	std::vector<TH2F*> gamma_particle_E_vs_td_sec;
@@ -377,6 +384,7 @@ private:
 
 	// Particle-electron coincidences
 	TH1F *electron_particle_td;
+	TH1F *electron_particle_td_prompt;
 	TH1F *eE_prompt, *eE_prompt_1p, *eE_prompt_2p;
 	TH1F *eE_random, *eE_random_1p, *eE_random_2p;
 

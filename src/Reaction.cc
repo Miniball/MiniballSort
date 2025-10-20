@@ -206,6 +206,7 @@ void MiniballReaction::ReadReaction() {
 	events_gamma_seg_ediff      = config->GetValue( "Events.GammaCoreSegmentEnergyDifference", 9.9e9 );	// only do histogramming for gamma-rays where the core and sgement energies are less than this
 
 	// Histogram options
+	hist_timing_prompt = config->GetValue( "Histograms.PromptTime", false );	// turn on histograms for timing only the prompt events
 	hist_wo_addback = config->GetValue( "Histograms.WithoutAddback", true );	// turn on histograms for gamma-rays without addback
 	hist_w_addback = config->GetValue( "Histograms.WithAddback", false );	// turn on histograms for gamma-rays with addback
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
