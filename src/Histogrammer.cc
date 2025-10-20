@@ -93,6 +93,7 @@ void MiniballHistogrammer::MakeHists() {
 	gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
 							  TBIN, TMIN, TMAX );
 	histlist->Add(gamma_gamma_td);
+	
 
 	hname = "gamma_electron_td";
 	htitle = "Gamma-ray - Electron time difference;#Deltat [ns];Counts per 10 ns";
@@ -100,23 +101,78 @@ void MiniballHistogrammer::MakeHists() {
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_electron_td);
 
+
 	hname = "electron_electron_td";
 	htitle = "Electron - Electron time difference;#Deltat [ns];Counts per 10 ns";
 	electron_electron_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
 	histlist->Add(electron_electron_td);
+	
 
 	hname = "electron_particle_td";
 	htitle = "Electron - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	electron_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
 	histlist->Add(electron_particle_td);
+	
 
 	hname = "particle_particle_td";
 	htitle = "Particle - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	particle_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
 	histlist->Add(particle_particle_td);
+	
+	// Added by H.K. on the 10.10.25
+    if( react->HistPromptTiming() ) {
+	hname = "gamma_particle_td_prompt";
+	htitle = "Gamma-ray - Particle time difference in prompt time window;#Deltat;Counts";
+	gamma_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
+								 TBIN, TMIN, TMAX );
+	histlist->Add(gamma_particle_td_prompt);
+	
+	hname = "gamma_gamma_td_prompt";
+	htitle = "Gamma-ray - Gamma-ray time difference in prompt time window;#Deltat [ns];Counts";
+	gamma_gamma_td_prompt = new TH1F( hname.data(), htitle.data(),
+							  TBIN, TMIN, TMAX );
+	histlist->Add(gamma_gamma_td_prompt);
+	
+	hname = "gamma_electron_td_prompt";
+	htitle = "Gamma-ray - Electron time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	gamma_electron_td_prompt = new TH1F( hname.data(), htitle.data(),
+								 TBIN, TMIN, TMAX );
+	histlist->Add(gamma_electron_td_prompt);
+	
+	hname = "electron_electron_td_prompt";
+	htitle = "Electron - Electron time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	electron_electron_td_prompt = new TH1F( hname.data(), htitle.data(),
+									TBIN, TMIN, TMAX );
+	histlist->Add(electron_electron_td_prompt);
+	
+	hname = "electron_particle_td_prompt";
+	htitle = "Electron - Particle time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	electron_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
+									TBIN, TMIN, TMAX );
+	histlist->Add(electron_particle_td_prompt);
+	
+	hname = "particle_particle_td_prompt";
+	htitle = "Particle - Particle time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	particle_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
+									TBIN, TMIN, TMAX );
+	histlist->Add(particle_particle_td_prompt);
+	
+	hname = "ejectile_recoil_td_prompt";
+	htitle = "Ejectile - Recoil time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	ejectile_recoil_td_prompt = new TH1F( hname.data(), htitle.data(),
+									TBIN, TMIN, TMAX );
+	histlist->Add(ejectile_recoil_td_prompt);
+	
+	hname = "recoil_ejectile_td_prompt";
+	htitle = "Recoil - Ejectile time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	recoil_ejectile_td_prompt = new TH1F( hname.data(), htitle.data(),
+									TBIN, TMIN, TMAX );
+	histlist->Add(recoil_ejectile_td_prompt);
+    }
+	
 
 	// Gamma-ray singles histograms
 	if( react->HistWithoutAddback() ) {
@@ -2998,6 +3054,15 @@ unsigned long MiniballHistogrammer::FillHists() {
 				// Time differences and fill symmetrically
 				particle_particle_td->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
 				particle_particle_td->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
+				
+				if( PromptCoincidence( particle_evt, particle_evt2) ) {
+					if( react->HistPromptTiming() ) {
+						particle_particle_td_prompt->Fill((double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
+						particle_particle_td_prompt->Fill((double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
+					}
+				
+				} 
+				
 
 			}
 
@@ -3023,6 +3088,10 @@ unsigned long MiniballHistogrammer::FillHists() {
 				if( PromptCoincidence( gamma_evt, particle_evt ) ){
 
 					// Energy vs Angle plot with gamma-ray coincidence
+					if( react->HistPromptTiming() ) {
+						gamma_particle_td_prompt->Fill( (double)particle_evt->GetTime() - (double)gamma_evt->GetTime() );
+					}
+					
 					pE_theta_coinc->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 					pE_dE_coinc[particle_evt->GetDetector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
 
@@ -3047,6 +3116,13 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 				// Time differences
 				electron_particle_td->Fill( (double)particle_evt->GetTime() - (double)spede_evt->GetTime() );
+				
+				// added by H. K. 10.10.25
+				if( PromptCoincidence( spede_evt, particle_evt ) ){
+					if( react->HistPromptTiming() ) {
+						electron_particle_td_prompt->Fill( (double)particle_evt->GetTime() - (double)spede_evt->GetTime() );
+					}
+				} // if prompt
 
 			} // k: electrons
 
@@ -3119,6 +3195,11 @@ unsigned long MiniballHistogrammer::FillHists() {
 					if( react->HistByMultiplicity() ){
 						pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 						pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
+						
+						if( react->HistPromptTiming() ) {
+						//added by H.K. on the 10.10.25
+							ejectile_recoil_td_prompt->Fill( (double)particle_evt->GetTime() - (double)particle_evt2->GetTime() );
+						}
 					}
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
@@ -3151,6 +3232,11 @@ unsigned long MiniballHistogrammer::FillHists() {
 					if( react->HistByMultiplicity() ){
 						pE_theta_2p_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), particle_evt2->GetDeltaEnergy() );
 						pE_theta_2p_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
+						
+						if( react->HistPromptTiming() ) {
+						//added by H.K. at 10.10.25
+							recoil_ejectile_td_prompt->Fill( (double)particle_evt2->GetTime() - (double)particle_evt->GetTime() );
+						}
 					}
 					pBeta_theta_ejectile->Fill( react->GetParticleTheta( particle_evt2 ) * TMath::RadToDeg(), react->GetEjectile()->GetBeta() );
 					pBeta_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetBeta() );
@@ -3320,6 +3406,12 @@ unsigned long MiniballHistogrammer::FillHists() {
 							// Fill and symmetrise
 							gE_gE->Fill( gamma_energy, gamma_energy2 );
 							gE_gE->Fill( gamma_energy2, gamma_energy );
+							
+							if( react->HistPromptTiming() ) {
+							//added by H.K. 10.10.25
+								gamma_gamma_td_prompt->Fill( (double)gamma_evt->GetTime() - (double)gamma_evt2->GetTime() );
+								gamma_gamma_td_prompt->Fill( (double)gamma_evt2->GetTime() - (double)gamma_evt->GetTime() );
+							}
 
 							// Apply EBIS condition
 							if( OnBeam( gamma_evt ) && OnBeam( gamma_evt2 ) ) {
@@ -3494,6 +3586,12 @@ unsigned long MiniballHistogrammer::FillHists() {
 						// Fill and symmetrise
 						eE_eE->Fill( spede_evt->GetEnergy(), spede_evt2->GetEnergy() );
 						eE_eE->Fill( spede_evt2->GetEnergy(), spede_evt->GetEnergy() );
+						
+						//added by H.K. on 10.10.25
+						if( react->HistPromptTiming() ) {
+							electron_electron_td_prompt->Fill( (double)spede_evt->GetTime() - (double)spede_evt2->GetTime() );
+							electron_electron_td_prompt->Fill( (double)spede_evt2->GetTime() - (double)spede_evt->GetTime() );
+						}
 
 						// Apply EBIS condition
 						if( OnBeam( spede_evt ) && OnBeam( spede_evt2 ) ) {
@@ -3532,7 +3630,6 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 						// Time differences
 						gamma_electron_td->Fill( (double)spede_evt->GetTime() - (double)gamma_evt->GetTime() );
-						gamma_electron_td->Fill( (double)gamma_evt->GetTime() - (double)spede_evt->GetTime() );
 
 						// If electron-gamma histograms are turned on
 						if( react->HistElectronGamma() ) {
@@ -3541,7 +3638,11 @@ unsigned long MiniballHistogrammer::FillHists() {
 							if( PromptCoincidence( gamma_evt, spede_evt ) ) {
 
 								// Fill
-								gE_eE->Fill( gamma_energy, spede_evt->GetEnergy() );
+								gE_eE->Fill( gamma_energy, spede_evt->GetEnergy() ); 
+								// added by H.K. on 10.10.25
+								if( react->HistPromptTiming() ) {
+									gamma_electron_td_prompt->Fill( (double)spede_evt->GetTime() - (double)gamma_evt->GetTime() );
+								}
 
 								// Apply EBIS condition
 								if( OnBeam( gamma_evt ) && OnBeam( spede_evt ) ) {
