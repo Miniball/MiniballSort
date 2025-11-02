@@ -884,7 +884,15 @@ void do_cdcal(){
 	std::vector<std::string> name_hist_files;
 
 	// Update calibration file if given
-	if( overwrite_cal ) cdcal.AddCalibration( mycal );
+	if( overwrite_cal )
+		cdcal.AddCalibration( mycal );
+
+	else {
+
+		std::cout << "Please provide a calibration file to run cdcal... Exiting;" << std::endl;
+		return;
+
+	}
 
 	// We are going to chain all the event files now
 	for( unsigned int i = 0; i < input_names.size(); i++ ){

@@ -160,7 +160,7 @@ void MiniballCDCalibrator::MakeHists(){
 	}
 	else if( set->GetNumberOfFebexSfps() > 1 &&
 			set->GetNumberOfFebexBoards() > 0 &&
-			set->GetNumberOfFebexBoards() > 0 ) {
+			set->GetNumberOfFebexChannels() > 0 ) {
 		if( cal->FebexType( 1, 0, 0 ) == "Qshort" )
 			maxQ = 65536;
 	}
@@ -185,7 +185,8 @@ void MiniballCDCalibrator::MakeHists(){
 
 				for( unsigned int l = 0; l < set->GetNumberOfCDNStrips(); ++l ) {
 
-					hname  = "cd_pen_nen" + std::to_string(i) + "_" + std::to_string(j);
+					hname   = "cd_pen_nen_" + std::to_string(i) + "_" + std::to_string(j);
+					hname  += "_" + std::to_string(k) + "_" + std::to_string(l);
 					htitle  = "CD p-side energy vs n-side energy for detector " + std::to_string(i);
 					htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 					htitle += ", nid " + std::to_string(l);
@@ -195,7 +196,8 @@ void MiniballCDCalibrator::MakeHists(){
 													  8000, 0, 2000e3 );
 					histlist->Add(cd_pen_nen[i][j][k][l]);
 
-					hname  = "cd_pQ_nen" + std::to_string(i) + "_" + std::to_string(j);
+					hname  = "cd_pQ_nen_" + std::to_string(i) + "_" + std::to_string(j);
+					hname  += "_" + std::to_string(k) + "_" + std::to_string(l);
 					htitle  = "CD p-side raw charge vs n-side energy for detector " + std::to_string(i);
 					htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 					htitle += ", nid " + std::to_string(l);
@@ -205,7 +207,8 @@ void MiniballCDCalibrator::MakeHists(){
 													  8000, 0, 2000e3 );
 					histlist->Add(cd_pQ_nen[i][j][k][l]);
 
-					hname  = "cd_pen_nQ" + std::to_string(i) + "_" + std::to_string(j);
+					hname  = "cd_pen_nQ_" + std::to_string(i) + "_" + std::to_string(j);
+					hname  += "_" + std::to_string(k) + "_" + std::to_string(l);
 					htitle  = "CD p-side energy vs n-side raw charge for detector " + std::to_string(i);
 					htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 					htitle += ", nid " + std::to_string(l);
