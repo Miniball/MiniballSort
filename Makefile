@@ -59,6 +59,7 @@ LDFLAGS 	+= $(ROOTLDFLAGS)
 
 # The object files.
 OBJECTS =  		$(SRC_DIR)/Calibration.o \
+				$(SRC_DIR)/CDCalibrator.o \
 				$(SRC_DIR)/CommandLineInterface.o \
 				$(SRC_DIR)/Converter.o \
 				$(SRC_DIR)/DataPackets.o \
@@ -78,6 +79,7 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 
 # The header files.
 DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
+				$(INC_DIR)/CDCalibrator.hh \
 				$(INC_DIR)/CommandLineInterface.hh \
 				$(INC_DIR)/Converter.hh \
 				$(INC_DIR)/DataPackets.hh \

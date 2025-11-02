@@ -57,6 +57,12 @@
 # include "MiniballAngleFitter.hh"
 #endif
 
+// MiniballCDCalibrator header
+#ifndef __CDCALIBRATOR_HH
+# include "CDCalibrator.hh"
+#endif
+
+
 // Command line interface
 #ifndef __COMMAND_LINE_INTERFACE_HH
 # include "CommandLineInterface.hh"
@@ -73,10 +79,11 @@ std::string name_react_file;
 std::string name_angle_file = "";
 std::vector<std::string> input_names;
 
-// a flag at the input to force the conversion
+// a flag at the input to force the conversion and other things
 bool flag_convert = false;
 bool flag_events = false;
 bool flag_source = false;
+bool flag_cdcal = false;
 bool flag_ebis = false;
 
 // select what steps of the analysis to be forced
@@ -862,6 +869,59 @@ void do_angle_fit(){
 	
 }
 
+
+void do_cdcal(){
+
+	//-----------------------//
+	// Physics event builder //
+	//-----------------------//
+	MiniballCDCalibrator cdcal( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing CD Calibrator +++" << std::endl;
+
+	std::ifstream ftest;
+	std::string name_input_file;
+	std::string name_output_file;
+	std::vector<std::string> name_hist_files;
+
+	// Update calibration file if given
+	if( overwrite_cal ) cdcal.AddCalibration( mycal );
+
+	// We are going to chain all the event files now
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+
+		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
+												   input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
+		name_input_file = name_input_file.substr( 0,
+												 name_input_file.find_last_of(".") );
+		name_input_file = datadir_name + "/" + name_input_file + ".root";
+
+		ftest.open( name_input_file.data() );
+		if( !ftest.is_open() ) {
+
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+
+		}
+		else ftest.close();
+
+		name_hist_files.push_back( name_input_file );
+
+	}
+
+	// Only do something if there are valid files
+	if( name_hist_files.size() ) {
+
+		cdcal.SetOutput( output_name );
+		cdcal.SetInputFile( name_hist_files );
+		cdcal.FillHists();
+		cdcal.CloseOutput();
+
+	}
+
+	return;
+
+}
+
 int main( int argc, char *argv[] ){
 	
 	// Command line interface, stolen from MiniballCoulexSort
@@ -881,6 +941,7 @@ int main( int argc, char *argv[] ){
 	interface->Add("-med", "Flag to define input as MED data type (DGF and MADC)", &flag_med );
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
+	interface->Add("-cdcal", "Flag to make the CD calibration plots", &flag_cdcal );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-spyhists", "File containing histograms for monitoring in the spy", &spy_hists_file );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
@@ -1046,12 +1107,12 @@ int main( int argc, char *argv[] ){
 			}
 			
 			else if( input_names.size() > 1 ) {
-				
+
 				output_name = datadir_name + "/" + name_input_file + "_hists_";
 				output_name += std::to_string(input_names.size()) + "_subruns.root";
-			
+
 			}
-			
+
 			else
 				output_name = datadir_name + "/" + name_input_file + "_hists.root";
 				
@@ -1226,6 +1287,9 @@ int main( int argc, char *argv[] ){
 	if( flag_angle_fit ){
 		do_build();
 		do_angle_fit();
+	}
+	else if( flag_cdcal ) {
+		do_cdcal();
 	}
 	else if( !flag_source ) {
 		if( do_build() )
