@@ -153,19 +153,21 @@ void MiniballCDCalibrator::MakeHists(){
 	cd_nen_pQ.resize( set->GetNumberOfCDDetectors() );
 
 	// Get sizes and scales
-	double maxQ = 4294967296;
-	unsigned int Qbins = 4096;
+	double maxQ = 1073741824;
+	unsigned int Qbins = 8192;
 
-	if( set->GetNumberOfCaenAdcModules() > 0 )
+	if( set->GetNumberOfCaenAdcModules() > 0 ) {
 		maxQ = 4096;
+		Qbins = 4096;
+	}
 
 	else if( set->GetNumberOfFebexSfps() > 1 &&
 			set->GetNumberOfFebexBoards() > 0 &&
 			set->GetNumberOfFebexChannels() > 0 ) {
 
-		if( cal->FebexType( 1, 0, 0 ) == "Qshort" )
+		if( cal->FebexType( 1, 0, 0 ) == "Qshort" ) {
 			maxQ = 65536;
-
+		}
 	}
 
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
