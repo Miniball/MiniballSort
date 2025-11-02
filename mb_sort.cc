@@ -885,7 +885,6 @@ void do_cdcal(){
 
 	std::ifstream ftest;
 	std::string name_input_file;
-	std::string name_output_file;
 	std::vector<std::string> name_hist_files;
 
 	// Update calibration file if given
@@ -1133,11 +1132,17 @@ int main( int argc, char *argv[] ){
 													 name_input_file.find_last_of(".") );
 			
 			if( flag_angle_fit ) {
-				
+
 				output_name = datadir_name + "/" + name_input_file + "_results.root";
 
 			}
-			
+
+			else if( flag_cdcal ) {
+
+				output_name = datadir_name + "/" + name_input_file + "_cdcal.root";
+
+			}
+
 			else if( input_names.size() > 1 ) {
 
 				output_name = datadir_name + "/" + name_input_file + "_hists_";
