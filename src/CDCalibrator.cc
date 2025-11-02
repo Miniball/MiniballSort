@@ -129,6 +129,7 @@ void MiniballCDCalibrator::Initialise(){
 	hit_ctr = 0;
 	
 	std::vector<float>().swap(cd_en_list);
+	std::vector<unsigned int>().swap(cd_Q_list);
 	std::vector<unsigned long long>().swap(cd_ts_list);
 	std::vector<unsigned char>().swap(cd_det_list);
 	std::vector<unsigned char>().swap(cd_sec_list);
