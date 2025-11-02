@@ -104,7 +104,7 @@ void MiniballCDCalibrator::SetMBSInfoTree( TTree *user_tree ){
 
 }
 
-void MiniballCDCalibrator::SetOutput( std::string output_file_name ) {
+void MiniballCDCalibrator::SetOutput( std::string output_file_name, bool cWrite ) {
 
 	// ------------------------------------------------------------------------ //
 	// Create output file and create events tree
@@ -114,8 +114,8 @@ void MiniballCDCalibrator::SetOutput( std::string output_file_name ) {
 	// Hisograms in separate function
 	MakeHists();
 
-	// Write once at the start
-	output_file->Write();
+	// Write once at the start if in spy
+	if( cWrite ) output_file->Write();
 
 }
 

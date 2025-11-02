@@ -51,7 +51,7 @@ public:
 	void	SetInputFile( std::string input_file_name );
 	void	SetInputTree( TTree *user_tree );
 	void	SetMBSInfoTree( TTree *user_tree );
-	void	SetOutput( std::string output_file_name );
+	void	SetOutput( std::string output_file_name, bool cWrite = false );
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeHists();

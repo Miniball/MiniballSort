@@ -64,11 +64,11 @@ public:
 	void SetInputFile( std::string input_file_name );
 	void SetInputTree( TTree *user_tree );
 
-	inline void SetOutput( std::string output_file_name ){
+	inline void SetOutput( std::string output_file_name, bool cWrite = false ){
 		output_file = new TFile( output_file_name.data(), "recreate" );
 		MakeHists();
 		hists_ready = true;
-		output_file->Write();
+		if( cWrite ) output_file->Write();
 	};
 	inline void CloseOutput( ){
 		output_file->Write( nullptr, TObject::kOverwrite );

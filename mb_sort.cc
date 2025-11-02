@@ -361,7 +361,7 @@ void* monitor_run( void* ptr ){
 			
 				// Event builder
 				if( bFirstRun ) {
-					eb_mon->SetOutput( spyname_events );
+					eb_mon->SetOutput( spyname_events, true );
 					eb_mon->StartFile();
 
 				}
@@ -378,7 +378,7 @@ void* monitor_run( void* ptr ){
 
 				// Histogrammer
 				if( bFirstRun ) {
-					hist_mon->SetOutput( spyname_hists );
+					hist_mon->SetOutput( spyname_hists, true );
 				}
 				if( nbuild ) {
 					// TODO: This could be done better with smart pointers
