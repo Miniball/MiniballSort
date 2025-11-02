@@ -83,7 +83,6 @@ std::vector<std::string> input_names;
 bool flag_convert = false;
 bool flag_events = false;
 bool flag_source = false;
-bool flag_cdcal = false;
 bool flag_ebis = false;
 
 // select what steps of the analysis to be forced
@@ -104,6 +103,12 @@ bool flag_med = false;
 
 // Do we want to fit the 22Ne angle data?
 bool flag_angle_fit = false;
+
+// Do we want to do the CD calibration
+bool flag_cdcal = false;
+std::string cdcal_strips;
+unsigned char cdcal_pid = 12;
+unsigned char cdcal_nid = 2;
 
 // DataSpy
 bool flag_spy = false;
@@ -919,8 +924,10 @@ void do_cdcal(){
 	// Only do something if there are valid files
 	if( name_hist_files.size() ) {
 
-		cdcal.SetOutput( output_name );
+		cdcal.SetPsideTagId( cdcal_pid );
+		cdcal.SetNsideTagId( cdcal_nid );
 		cdcal.SetInputFile( name_hist_files );
+		cdcal.SetOutput( output_name );
 		cdcal.FillHists();
 		cdcal.CloseOutput();
 
@@ -949,7 +956,7 @@ int main( int argc, char *argv[] ){
 	interface->Add("-med", "Flag to define input as MED data type (DGF and MADC)", &flag_med );
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
-	interface->Add("-cdcal", "Flag to make the CD calibration plots", &flag_cdcal );
+	interface->Add("-cdcal", "Make the CD calibration plots with pid nid as the tag strips, given in the string format p<pid>n<nid>", &cdcal_strips );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-spyhists", "File containing histograms for monitoring in the spy", &spy_hists_file );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
@@ -996,7 +1003,7 @@ int main( int argc, char *argv[] ){
 		}
 		
 	}
-	
+
 	// Check we have data files
 	else if( !input_names.size() && !flag_spy ) {
 			
@@ -1004,7 +1011,24 @@ int main( int argc, char *argv[] ){
 		return 1;
 			
 	}
-	
+
+	// Check if we are doing the CD calibration
+	if( cdcal_strips.length() > 0 ) {
+
+		flag_cdcal = true;
+		std::stringstream ss(cdcal_strips);
+		unsigned char str1, str2;
+		unsigned int id1, id2;
+		ss >> str1 >> id1 >> str2 >> id2;
+
+		if( str1 == 'p' ) cdcal_pid = id1;
+		if( str2 == 'p' ) cdcal_pid = id2;
+		if( str1 == 'n' ) cdcal_nid = id1;
+		if( str2 == 'n' ) cdcal_nid = id2;
+
+	}
+
+
 	// Check if it should be MIDAS, MBS or MED format
 	if( !flag_midas && !flag_mbs && !flag_med && !flag_spy && !name_angle_file.length() ){
 

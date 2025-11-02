@@ -66,6 +66,9 @@ public:
 		_prog_ = true;
 	};
 
+	inline void SetPsideTagId( unsigned char id ) { ptag = id; };
+	inline void SetNsideTagId( unsigned char id ) { ntag = id; };
+
 	unsigned long	FillHists();
 	void			FillPixelHists();
 
@@ -163,6 +166,9 @@ private:
 	std::vector<unsigned char>			cd_side_list;	///< list of CD side IDs; 0 = p, 1 = n
 	std::vector<unsigned char>			cd_strip_list;	///< list of CD strip IDs
 
+	// Tag strips for calibration
+	unsigned char ptag = 0;
+	unsigned char ntag = 0;
 
 	// Counters
 	unsigned long				hit_ctr;
@@ -170,9 +176,10 @@ private:
 	unsigned long				n_mbs_entries;
 
 	// CD histograms
-	std::vector<std::vector<std::vector<std::vector<TH2F*>>>> cd_pen_nen;
-	std::vector<std::vector<std::vector<std::vector<TH2F*>>>> cd_pQ_nen;
-	std::vector<std::vector<std::vector<std::vector<TH2F*>>>> cd_pen_nQ;
+	std::vector<std::vector<std::vector<TH2F*>>> cd_pen_nen;
+	std::vector<std::vector<std::vector<TH2F*>>> cd_nen_pen;
+	std::vector<std::vector<std::vector<TH2F*>>> cd_pen_nQ;
+	std::vector<std::vector<std::vector<TH2F*>>> cd_nen_pQ;
 
 
 };
