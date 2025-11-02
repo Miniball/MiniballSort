@@ -80,11 +80,6 @@ public:
 		std::cout << "Writing output file... Done!" << std::endl << std::endl;
 		PurgeOutput();
 		output_file->Close();
-		input_tree->ResetBranchAddresses();
-		mbsinfo_tree->ResetBranchAddresses();
-		input_file->Close();
-		delete in_data;
-		delete mbs_info;
 	}; ///< Closes the output files from this class
 	inline void PurgeOutput(){
 		input_tree->Reset();
@@ -99,8 +94,8 @@ private:
 	TFile *input_file;
 	TChain *input_tree;
 	TChain *mbsinfo_tree;
-	MiniballDataPackets *in_data;
-	MBSInfoPackets *mbs_info;
+	MiniballDataPackets *in_data = nullptr;
+	MBSInfoPackets *mbs_info = nullptr;
 	std::shared_ptr<DgfData> dgf_data;
 	std::shared_ptr<AdcData> adc_data;
 	std::shared_ptr<FebexData> febex_data;

@@ -926,8 +926,8 @@ void do_cdcal(){
 
 		cdcal.SetPsideTagId( cdcal_pid );
 		cdcal.SetNsideTagId( cdcal_nid );
-		cdcal.SetInputFile( name_hist_files );
 		cdcal.SetOutput( output_name );
+		cdcal.SetInputFile( name_hist_files );
 		cdcal.FillHists();
 		cdcal.CloseOutput();
 
