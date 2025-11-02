@@ -151,6 +151,20 @@ void MiniballCDCalibrator::MakeHists(){
 	cd_pQ_nen.resize( set->GetNumberOfCDDetectors() );
 	cd_pen_nQ.resize( set->GetNumberOfCDDetectors() );
 
+	// Get sizes and scales
+	double maxQ = 4294967296;
+	unsigned int Qbins = 8192;
+	if( set->GetNumberOfCaenAdcModules() > 0 ) {
+		maxQ = 4096;
+		Qbins = 4096;
+	}
+	else if( set->GetNumberOfFebexSfps() > 1 &&
+			set->GetNumberOfFebexBoards() > 0 &&
+			set->GetNumberOfFebexBoards() > 0 ) {
+		if( cal->FebexType( 1, 0, 0 ) == "Qshort" )
+			maxQ = 65536;
+	}
+
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 		
 		cd_pen_nen[i].resize( set->GetNumberOfCDSectors() );
@@ -187,7 +201,7 @@ void MiniballCDCalibrator::MakeHists(){
 					htitle += ", nid " + std::to_string(l);
 					htitle += ";p-side raw charge (ADC units);n-side energy (keV);Counts";
 					cd_pQ_nen[i][j][k][l] = new TH2F( hname.data(), htitle.data(),
-													  8000, 0, 2000e3,
+													  Qbins, 0, maxQ,
 													  8000, 0, 2000e3 );
 					histlist->Add(cd_pQ_nen[i][j][k][l]);
 
@@ -198,7 +212,7 @@ void MiniballCDCalibrator::MakeHists(){
 					htitle += ";p-side energy (keV);n-side raw charge (ADC units);Counts";
 					cd_pen_nQ[i][j][k][l] = new TH2F( hname.data(), htitle.data(),
 													  8000, 0, 2000e3,
-													  8000, 0, 2000e3 );
+													  Qbins, 0, maxQ );
 					histlist->Add(cd_pen_nQ[i][j][k][l]);
 
 				} // l
