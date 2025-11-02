@@ -151,7 +151,7 @@ void MiniballCDCalibrator::MakeHists(){
 	cd_pen_nen.resize( set->GetNumberOfCDDetectors() );
 	cd_nen_pen.resize( set->GetNumberOfCDDetectors() );
 	cd_pen_nQ.resize( set->GetNumberOfCDDetectors() );
-	cd_nen_pQ.resize( set->GetNumberOfCDDetectors() );
+	cd_nQ_pQ.resize( set->GetNumberOfCDDetectors() );
 
 	// Get sizes and scales
 	double maxQ = 1073741824;
@@ -176,12 +176,12 @@ void MiniballCDCalibrator::MakeHists(){
 		cd_pen_nen[i].resize( set->GetNumberOfCDSectors() );
 		cd_nen_pen[i].resize( set->GetNumberOfCDSectors() );
 		cd_pen_nQ[i].resize( set->GetNumberOfCDSectors() );
-		cd_nen_pQ[i].resize( set->GetNumberOfCDSectors() );
+		cd_nQ_pQ[i].resize( set->GetNumberOfCDSectors() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
 			cd_nen_pen[i][j].resize( set->GetNumberOfCDPStrips() );
-			cd_nen_pQ[i][j].resize( set->GetNumberOfCDPStrips() );
+			cd_nQ_pQ[i][j].resize( set->GetNumberOfCDPStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
@@ -196,14 +196,14 @@ void MiniballCDCalibrator::MakeHists(){
 				histlist->Add(cd_nen_pen[i][j][k]);
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_nen_" + std::to_string(ptag) + "_pQ_" + std::to_string(k);
+				hname  += "_nQ_" + std::to_string(ptag) + "_pQ_" + std::to_string(k);
 				htitle  = "CD n-side energy vs p-side raw charge for detector " + std::to_string(i);
 				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 				htitle += ", nid " + std::to_string(ntag);
-				htitle += ";n-side energy (keV);p-side raw charge (ADC units);Counts";
-				cd_nen_pQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											  4000, 0, 2000e3, Qbins, 0, maxQ );
-				histlist->Add(cd_nen_pQ[i][j][k]);
+				htitle += ";n-side raw charge (ADC units);p-side raw charge (ADC units);Counts";
+				cd_nQ_pQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
+											  Qbins, 0, maxQ, Qbins, 0, maxQ );
+				histlist->Add(cd_nQ_pQ[i][j][k]);
 
 			} // k
 
@@ -264,6 +264,14 @@ void MiniballCDCalibrator::ResetHists(){
 
 }
 
+void MiniballCDCalibrator::CalibratePsides() {
+	
+}
+
+void MiniballCDCalibrator::CalibrateNsides() {
+
+}
+
 void MiniballCDCalibrator::FillPixelHists() {
 
 	// Variables for the finder algorithm
@@ -321,7 +329,7 @@ void MiniballCDCalibrator::FillPixelHists() {
 			if( nid == ntag ) {
 
 				cd_nen_pen[i][j][pid]->Fill( nen, pen );
-				cd_nen_pQ[i][j][pid]->Fill( nen, pQ );
+				cd_nQ_pQ[i][j][pid]->Fill( nQ, pQ );
 
 			}
 
@@ -650,7 +658,17 @@ unsigned long MiniballCDCalibrator::FillHists() {
 		}		
 		
 	} // End of main loop over TTree to process raw FEBEX data entries (for n_entries)
-	
+
+
+	//--------------------------
+	// Do the fitting to get calibration coefficients
+	//--------------------------
+
+	std::cout << "\n\nUsing p-side strip " << ptag << " as reference for calibrating n-sides" << std::endl;
+	CalibrateNsides();
+	std::cout << "\n\nUsing n-side strip " << ntag << " as reference for calibrating p-sides" << std::endl;
+	CalibratePsides();
+
 	//--------------------------
 	// Clean up
 	//--------------------------

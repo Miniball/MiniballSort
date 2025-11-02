@@ -69,6 +69,9 @@ public:
 	inline void SetPsideTagId( unsigned char id ) { ptag = id; };
 	inline void SetNsideTagId( unsigned char id ) { ntag = id; };
 
+	void CalibratePsides();
+	void CalibrateNsides();
+
 	unsigned long	FillHists();
 	void			FillPixelHists();
 
@@ -174,7 +177,7 @@ private:
 	std::vector<std::vector<std::vector<TH2F*>>> cd_pen_nen;
 	std::vector<std::vector<std::vector<TH2F*>>> cd_nen_pen;
 	std::vector<std::vector<std::vector<TH2F*>>> cd_pen_nQ;
-	std::vector<std::vector<std::vector<TH2F*>>> cd_nen_pQ;
+	std::vector<std::vector<std::vector<TH2F*>>> cd_nQ_pQ;
 
 
 };
