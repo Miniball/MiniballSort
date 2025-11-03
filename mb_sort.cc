@@ -955,7 +955,7 @@ int main( int argc, char *argv[] ){
 	interface->Add("-med", "Flag to define input as MED data type (DGF and MADC)", &flag_med );
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
-	interface->Add("-cdcal", "Make the CD calibration plots with pid nid as the tag strips, given in the string format p<pid>n<nid>", &cdcal_strips );
+	interface->Add("-cdcal", "Make the CD calibration plots with pid and nid as the reference strips, given in the string format p<pid>n<nid>", &cdcal_strips );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-spyhists", "File containing histograms for monitoring in the spy", &spy_hists_file );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
