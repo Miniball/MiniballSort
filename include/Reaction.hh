@@ -533,6 +533,7 @@ public:
 	inline double EventsGammaCoreSegmentEnergyDifference(){ return events_gamma_seg_ediff; };
 
 	// Histogram options
+	inline bool HistPromptTiming(){return hist_timing_prompt; };
 	inline bool HistWithoutAddback(){ return hist_wo_addback; };
 	inline bool HistWithAddback(){ return hist_w_addback; };
 	inline bool HistSegmentPhi(){ return hist_segment_phi; };
@@ -650,6 +651,7 @@ private:
 	double events_gamma_seg_ediff;
 
 	// Histogram options
+	bool hist_timing_prompt;
 	bool hist_wo_addback;
 	bool hist_w_addback;
 	bool hist_segment_phi;

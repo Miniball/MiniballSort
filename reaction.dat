@@ -145,6 +145,7 @@
 #Events.GammaCoreSegmentEnergyDifference: 9.9e9	# only include gamma-ray events with a segment-core energy difference less than this
 
 ## Histogram options
+#Histograms.PromptTime: false		# turn on/off the making of the timing histograms for the events in the prompt time window only (default false = off) 
 #Histograms.WithoutAddback: true	# turn on/off the making of histograms for gamma-rays without addback (default true = on)
 #Histograms.WithAddback: false		# turn on/off the making of histograms for gamma-rays with addback (default false = off)
 #Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)
