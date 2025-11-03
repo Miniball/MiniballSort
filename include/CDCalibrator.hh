@@ -21,6 +21,7 @@
 #include <TSystem.h>
 #include <TKey.h>
 #include <TCanvas.h>
+#include <TF1.h>
 #include <TROOT.h>
 
 // Settings header
@@ -71,6 +72,8 @@ public:
 
 	void CalibratePsides();
 	void CalibrateNsides();
+	bool FindCDChannels( int det, int sec, int side, int strip, int &adc, int &ch );
+	bool FindCDChannels( int det, int sec, int side, int strip, int &sfp, int &board, int &ch );
 
 	unsigned long	FillHists();
 	void			FillPixelHists();
@@ -83,6 +86,7 @@ public:
 		std::cout << "Writing output file... Done!" << std::endl << std::endl;
 		PurgeOutput();
 		output_file->Close();
+		output_cal.close();
 	}; ///< Closes the output files from this class
 	inline void PurgeOutput(){
 		input_tree->Reset();
@@ -106,6 +110,7 @@ private:
 
 	/// Outputs
 	TFile *output_file;
+	std::ofstream output_cal;
 
 	// Do calibration
 	std::shared_ptr<MiniballCalibration> cal;
@@ -168,10 +173,16 @@ private:
 	unsigned char ptag = 0;
 	unsigned char ntag = 0;
 
+	// Reference calibration coefficients
+	double noffset = 0.0;
+	double ngain = 1.0;
+	double poffset = 0.0;
+	double pgain = 1.0;
+
 	// Counters
-	unsigned long				hit_ctr;
-	unsigned long				n_entries;
-	unsigned long				n_mbs_entries;
+	unsigned long hit_ctr;
+	unsigned long n_entries;
+	unsigned long n_mbs_entries;
 
 	// CD histograms
 	std::vector<std::vector<std::vector<TH2F*>>> cd_pen_nen;

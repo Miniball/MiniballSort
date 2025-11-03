@@ -114,6 +114,11 @@ void MiniballCDCalibrator::SetOutput( std::string output_file_name, bool cWrite 
 	// Hisograms in separate function
 	MakeHists();
 
+	// Output the calibration coefficients
+	std::string cal_file_name = output_file_name.substr( 0, output_file_name.find_last_of(".") );
+	cal_file_name += ".cal";
+	output_cal.open( cal_file_name.data(), std::ios::trunc );
+
 	// Write once at the start if in spy
 	if( cWrite ) output_file->Write();
 
@@ -264,11 +269,232 @@ void MiniballCDCalibrator::ResetHists(){
 
 }
 
+bool MiniballCDCalibrator::FindCDChannels( int det, int sec, int side, int strip, int &adc, int &ch ) {
+
+	// Loop over ADCs
+	for( unsigned int m = 0; m < set->GetNumberOfCaenAdcModules(); ++m ) {
+
+		// Loop over channels
+		for( unsigned int c = 0; c < set->GetNumberOfCaenAdcChannels(); ++c ) {
+
+			// Check that it's a CD
+			if( !set->IsCD(m,c) ) continue;
+
+			// Check we have the correct CD detector
+			if( set->GetCDDetector(m,c) != det ) continue;
+
+			// Check we have the correct sector
+			if( set->GetCDSector(m,c) != sec ) continue;
+
+			// Check we have an P side (==0)
+			if( set->GetCDSide(m,c) != side ) continue;
+
+			// Check we have the correct strip
+			if( set->GetCDStrip(m,c) != strip ) continue;
+
+			// Then we got the right channel
+			adc = m;
+			ch = c;
+			return true;
+
+		} // c
+
+	} // m
+
+	std::cerr << "CD strip not found, det=" << det << ", sec=" << sec;
+	std::cerr << ", side=" << side << ", strip=" << strip << std::endl;
+	return false;
+
+}
+
+bool MiniballCDCalibrator::FindCDChannels( int det, int sec, int side, int strip, int &sfp, int &board, int &ch ) {
+
+	// Loop over SFPs
+	for( unsigned int s = 0; s < set->GetNumberOfFebexSfps(); ++s ) {
+
+		// Loop over boards
+		for( unsigned int m = 0; m < set->GetNumberOfFebexBoards(); ++m ) {
+
+			// Loop over channels
+			for( unsigned int c = 0; c < set->GetNumberOfFebexChannels(); ++c ) {
+
+				// Check that it's a CD
+				if( !set->IsCD(s,m,c) ) continue;
+
+				// Check we have the correct CD detector
+				if( set->GetCDDetector(s,m,c) != det ) continue;
+
+				// Check we have the correct sector
+				if( set->GetCDSector(s,m,c) != sec ) continue;
+
+				// Check we have the right side
+				if( set->GetCDSide(s,m,c) != side ) continue;
+
+				// Check we have the correct strip
+				if( set->GetCDStrip(s,m,c) != strip ) continue;
+
+				// Then we got the right channel
+				sfp = s;
+				board = m;
+				ch = c;
+				return true;
+
+			} // c
+
+		} // m
+
+	} // s
+
+	std::cerr << "CD strip not found, det=" << det << ", sec=" << sec;
+	std::cerr << ", side=" << side << ", strip=" << strip << std::endl;
+	return false;
+
+}
+
 void MiniballCDCalibrator::CalibratePsides() {
-	
+
+	// Check if we have old or new DAQ
+	bool oldDAQ = false;
+	if( set->GetNumberOfCaenAdcModules() > 0 )
+		oldDAQ = true;
+
+	// Create a TF1 for the linear fit
+	TF1 *pfit = new TF1( "pfit", "[0]+[1]*x", 0, 1e9 );
+
+	// Loop over detectors
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
+
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
+
+			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
+
+				// Get the right histogram to do the fit
+				cd_nQ_pQ[i][j][k]->Fit( pfit, "QW" );
+				double fit_gain = ngain / pfit->GetParameter(1);
+				double fit_offset = noffset - pfit->GetParameter(0) * fit_gain;
+
+				// If we have the n-side tag, set the gain and offset
+				if( k == ptag ) {
+					std::cout << "!! This is the p-side tag channel, cross-check check the parameters below !!" << std::endl;
+					pgain = fit_gain;
+					poffset = fit_offset;
+				}
+
+				// Get the output names for the calibration file
+				std::string cal_base;
+				std::string modchstr;
+				int fsfp, fmod, fch;
+				if( oldDAQ ) {
+
+					// Search for the correct ADC and channel combination
+					cal_base = "adc_";
+					if( !FindCDChannels( i, j, 0, k, fmod, fch ) )
+					   continue;
+					modchstr = std::to_string(fmod) + "_" + std::to_string(fch);
+
+				} // old DAQ
+
+				else {
+
+					// Search for the correct ADC and channel combination
+					cal_base = "febex_";
+					if( !FindCDChannels( i, j, 0, k, fsfp, fmod, fch ) )
+						continue;
+					modchstr  = std::to_string(fsfp) + "_" + std::to_string(fmod);
+					modchstr += "_" + std::to_string(fch);
+
+				} // new DAQ
+
+				// Add gain and offset
+				std::string gainstr = cal_base + modchstr + ".Gain: " + std::to_string( fit_gain );
+				std::string offsetstr = cal_base + modchstr + ".Offset: " + std::to_string( fit_offset );
+
+				// Write them to the file
+				std::cout << gainstr << std::endl;
+				std::cout << offsetstr << std::endl;
+				output_cal << gainstr << std::endl;
+				output_cal << offsetstr << std::endl;
+
+			} // k
+
+		} // j
+
+	} // i
+
+	return;
+
 }
 
 void MiniballCDCalibrator::CalibrateNsides() {
+
+	// Check if we have old or new DAQ
+	bool oldDAQ = false;
+	if( set->GetNumberOfCaenAdcModules() > 0 )
+		oldDAQ = true;
+
+	// Create a TF1 for the linear fit
+	TF1 *nfit = new TF1( "nfit", "[0]+[1]*x", 0, 1e9 );
+
+	// Loop over detectors
+	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
+
+		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
+
+			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
+
+				// Get the right histogram to do the fit
+				cd_pen_nQ[i][j][k]->Fit( nfit, "QW" );
+				double fit_gain = 1.0 / nfit->GetParameter(1);
+				double fit_offset = -1.0 * nfit->GetParameter(0) * fit_gain;
+
+				// If we have the n-side tag, set the gain and offset
+				if( k == ntag ) {
+					ngain = fit_gain;
+					noffset = fit_offset;
+				}
+
+				// Get the output names for the calibration file
+				std::string cal_base;
+				std::string modchstr;
+				int fsfp, fmod, fch;
+				if( oldDAQ ) {
+
+					// Search for the correct ADC and channel combination
+					cal_base = "adc_";
+					if( !FindCDChannels( i, j, 1, k, fmod, fch ) )
+					   continue;
+					   modchstr = std::to_string(fmod) + "_" + std::to_string(fch);
+
+					   } // old DAQ
+
+					   else {
+
+						// Search for the correct ADC and channel combination
+						cal_base = "febex_";
+						if( !FindCDChannels( i, j, 1, k, fsfp, fmod, fch ) )
+							continue;
+						modchstr  = std::to_string(fsfp) + "_" + std::to_string(fmod);
+						modchstr += "_" + std::to_string(fch);
+
+					} // new DAQ
+
+				// Add gain and offset
+				std::string gainstr = cal_base + modchstr + ".Gain: " + std::to_string( fit_gain );
+				std::string offsetstr = cal_base + modchstr + ".Offset: " + std::to_string( fit_offset );
+
+				// Write them to the file
+				std::cout << gainstr << std::endl;
+				std::cout << offsetstr << std::endl;
+				output_cal << gainstr << std::endl;
+				output_cal << offsetstr << std::endl;
+
+			} // k
+
+		} // j
+
+	} // i
+
+	return;
 
 }
 
