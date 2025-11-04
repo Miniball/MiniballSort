@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: write
       pages: write
+      id-token: write
       pull-requests: write
     steps:
       - uses: DenverCoder1/doxygen-github-pages-action@v2.0.0
