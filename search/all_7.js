@@ -73,7 +73,7 @@ var searchData=
   ['ge_5fsingles_5fdc_5febis_70',['gE_singles_dc_ebis',['../classMiniballHistogrammer.html#a17f3f6439f38239d3911b127aa95796a',1,'MiniballHistogrammer']]],
   ['ge_5fsingles_5febis_71',['gE_singles_ebis',['../classMiniballHistogrammer.html#aef73b64d4b3a5397adc4673b4c25ab45',1,'MiniballHistogrammer']]],
   ['ge_5fsingles_5febis_5foff_72',['gE_singles_ebis_off',['../classMiniballHistogrammer.html#ac40d38abbbc4e5d1eadc00eaf3b5f769',1,'MiniballHistogrammer']]],
-  ['ge_5fsingles_5febis_5fon_73',['gE_singles_ebis_on',['../classMiniballHistogrammer.html#aad9784d2d0029df56a89f7ba229c80bc',1,'MiniballHistogrammer']]],
+  ['ge_5fsingles_5febis_5fon_73',['gE_singles_ebis_on',['../classMiniballHistogrammer.html#a5f956c2b032e03cd13db2ff17cd8f0dc',1,'MiniballHistogrammer']]],
   ['ge_5fsingles_5fvs_5fcrystal_74',['gE_singles_vs_crystal',['../classMiniballHistogrammer.html#a2623b9707882bba4cbdc909a156bdfef',1,'MiniballHistogrammer']]],
   ['ge_5fvs_5fcostheta2_5fejectile_5fdc_5fnone_75',['gE_vs_costheta2_ejectile_dc_none',['../classMiniballHistogrammer.html#aa68fc167ce18cecbd54f86cca1fc72d3',1,'MiniballHistogrammer']]],
   ['ge_5fvs_5fcostheta2_5frecoil_5fdc_5fnone_76',['gE_vs_costheta2_recoil_dc_none',['../classMiniballHistogrammer.html#a147a4a112f20939604877ef04bc7cbef',1,'MiniballHistogrammer']]],
