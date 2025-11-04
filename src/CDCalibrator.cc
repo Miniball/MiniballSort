@@ -359,17 +359,30 @@ void MiniballCDCalibrator::CalibratePsides() {
 		oldDAQ = true;
 
 	// Create a TF1 for the linear fit
-	TF1 *pfit = new TF1( "pfit", "[0]+[1]*x", 0, 1e9 );
+	auto pfit = std::make_unique<TF1>( "pfit", "[0]+[1]*x", 0, 1e9 );
+
+	// Some canvases to check fits
+	gErrorIgnoreLevel = kError;
+	std::vector<std::vector<std::unique_ptr<TCanvas>>> canv;
+	canv.resize( set->GetNumberOfCDDetectors() );
 
 	// Loop over detectors
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 
+		canv[i].resize( set->GetNumberOfCDSectors() );
+
+		// Loop over the sectors
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
+			std::string cname = "cdcal_p_" + std::to_string(i) + "_" + std::to_string(j);
+			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
+
+			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
 				// Get the right histogram to do the fit
-				cd_nQ_pQ[i][j][k]->Fit( pfit, "QW" );
+				auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QW" );
+				if( res != 0 ) continue;
 				double fit_gain = ngain / pfit->GetParameter(1);
 				double fit_offset = noffset - pfit->GetParameter(0) * fit_gain;
 
@@ -415,11 +428,22 @@ void MiniballCDCalibrator::CalibratePsides() {
 				output_cal << gainstr << std::endl;
 				output_cal << offsetstr << std::endl;
 
+				// Print to a file
+				std::string pdfname = cname + ".pdf";
+				if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
+					pdfname += "(";
+				else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
+					pdfname += ")";
+				canv[i][j]->Print( pdfname.data(), "pdf" );
+
 			} // k
 
 		} // j
 
 	} // i
+
+	// Reset warning level
+	gErrorIgnoreLevel = kInfo;
 
 	return;
 
@@ -433,19 +457,34 @@ void MiniballCDCalibrator::CalibrateNsides() {
 		oldDAQ = true;
 
 	// Create a TF1 for the linear fit
-	TF1 *nfit = new TF1( "nfit", "[0]+[1]*x", 0, 1e9 );
+	auto nfit = std::make_unique<TF1>( "nfit", "[0]+[1]*x", 0, 1e9 );
+
+	// Some canvases to check fits
+	gErrorIgnoreLevel = kError;
+	std::vector<std::vector<std::unique_ptr<TCanvas>>> canv;
+	canv.resize( set->GetNumberOfCDDetectors() );
 
 	// Loop over detectors
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 
+		canv[i].resize( set->GetNumberOfCDSectors() );
+
+		// Loop over the sectors
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
+			std::string cname = "n_" + std::to_string(i) + "_" + std::to_string(j);
+			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
+
+			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
 
 				// Get the right histogram to do the fit
-				cd_pen_nQ[i][j][k]->Fit( nfit, "QW" );
+				auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QW" );
+				if( res != 0 ) continue;
 				double fit_gain = 1.0 / nfit->GetParameter(1);
 				double fit_offset = -1.0 * nfit->GetParameter(0) * fit_gain;
+				//double fit_gain = 1.0;
+				//double fit_offset = 0.0;
 
 				// If we have the n-side tag, set the gain and offset
 				if( k == ntag ) {
@@ -488,11 +527,22 @@ void MiniballCDCalibrator::CalibrateNsides() {
 				output_cal << gainstr << std::endl;
 				output_cal << offsetstr << std::endl;
 
+				// Print to a file
+				std::string pdfname = cname + ".pdf";
+				if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
+					pdfname += "(";
+				else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
+					pdfname += ")";
+				canv[i][j]->Print( pdfname.data(), "pdf" );
+
 			} // k
 
 		} // j
 
 	} // i
+
+	// Reset warning level
+	gErrorIgnoreLevel = kInfo;
 
 	return;
 
