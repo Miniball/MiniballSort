@@ -23,10 +23,10 @@ endif
 
 PLATFORM:=$(shell uname)
 ifeq ($(PLATFORM),Darwin)
-SHAREDSWITCH = -Qunused-arguments -shared -undefined dynamic_lookup -dynamiclib -Wl,-install_name,'@executable_path/../lib/'# NO ENDING SPACE
+SHAREDSWITCH = -Qunused-arguments -shared -undefined dynamic_lookup -dynamiclib
 OSDEF = -DMACOSX
 else
-SHAREDSWITCH = -shared -Wl,-soname,# NO ENDING SPACE
+SHAREDSWITCH = -shared
 OSDEF = -DLINUX
 LIBEXTRA = -lrt
 endif
@@ -59,6 +59,7 @@ LDFLAGS 	+= $(ROOTLDFLAGS)
 
 # The object files.
 OBJECTS =  		$(SRC_DIR)/Calibration.o \
+				$(SRC_DIR)/CDCalibrator.o \
 				$(SRC_DIR)/CommandLineInterface.o \
 				$(SRC_DIR)/Converter.o \
 				$(SRC_DIR)/DataPackets.o \
@@ -78,6 +79,7 @@ OBJECTS =  		$(SRC_DIR)/Calibration.o \
 
 # The header files.
 DEPENDENCIES =  $(INC_DIR)/Calibration.hh \
+				$(INC_DIR)/CDCalibrator.hh \
 				$(INC_DIR)/CommandLineInterface.hh \
 				$(INC_DIR)/Converter.hh \
 				$(INC_DIR)/DataPackets.hh \
@@ -103,7 +105,7 @@ all: $(BIN_DIR)/mb_sort $(LIB_DIR)/libmb_sort.so
  
 $(LIB_DIR)/libmb_sort.so: mb_sort.o $(OBJECTS) mb_sortDict.o
 	mkdir -p $(LIB_DIR)
-	$(LD) mb_sort.o $(OBJECTS) mb_sortDict.o $(SHAREDSWITCH)$@ $(LIBS) -o $@
+	$(LD) mb_sort.o $(OBJECTS) mb_sortDict.o $(SHAREDSWITCH) $(LIBS) -o $@
 
 $(BIN_DIR)/mb_sort: mb_sort.o $(OBJECTS) mb_sortDict.o
 	mkdir -p $(BIN_DIR)

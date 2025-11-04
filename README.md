@@ -55,6 +55,7 @@ use mb_sort with following flags:
         [-med                       : Flag to define input as MED data type (DGF and MADC)]
         [-anglefit                  : Flag to run the angle fit]
         [-angledata <string        >: File containing 22Ne segment energies]
+        [-cdcal     <string        >: Make the CD calibration plots with pid and nid as the referece strips, given in the string format p<pid>n<nid>]
         [-spy                       : Flag to run the DataSpy]
         [-m         <int           >: Monitor input file every X seconds]
         [-p         <int           >: Port number for web server (default 8030)]
