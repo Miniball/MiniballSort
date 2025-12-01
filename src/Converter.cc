@@ -499,7 +499,7 @@ unsigned long long int MiniballConverter::SortTree( bool do_sort ){
 		std::cout << "Time ordering " << n_ents << " data items..." << std::endl;
 		SortDataMap();
 	}
-	else return 0;
+	else if( n_ents == 0 ) return 0;
 
 	// Loop on t_raw entries and fill t
 	std::cout << "Writing time-ordered data items to the output tree..." << std::endl;
