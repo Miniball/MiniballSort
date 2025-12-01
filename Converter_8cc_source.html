@@ -619,7 +619,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>        std::cout &lt;&lt; <span class="stringliteral">&quot;Time ordering &quot;</span> &lt;&lt; n_ents &lt;&lt; <span class="stringliteral">&quot; data items...&quot;</span> &lt;&lt; std::endl;</div>
 <div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>        <a class="code hl_function" href="classMiniballConverter.html#a229fa0b768d7f8e083176073d11cc003">SortDataMap</a>();</div>
 <div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>    }</div>
-<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>    <span class="keywordflow">else</span> <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span>( n_ents == 0 ) <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span> </div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>    <span class="comment">// Loop on t_raw entries and fill t</span></div>
 <div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>    std::cout &lt;&lt; <span class="stringliteral">&quot;Writing time-ordered data items to the output tree...&quot;</span> &lt;&lt; std::endl;</div>
