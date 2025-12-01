@@ -516,7 +516,7 @@ const UChar_t* MBS::GetBuffer( UInt_t i ) {
 	
 	// Check buffer type for med files
 	for( unsigned int i = 0; i < buffer_types.size(); i++ ){
-		if( buffer_types[i].GetType() == bh->i_subtype ){
+		if( buffer_types[i].GetType() == (unsigned int)((bh->i_subtype << 16) | bh->i_type) ){
 			current_btype = &buffer_types[i];
 			current_btype->IncrementHit();
 			break;
