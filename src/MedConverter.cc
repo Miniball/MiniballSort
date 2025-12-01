@@ -584,9 +584,8 @@ void MiniballMedConverter::ProcessDgfData() {
 			EventTime |= (long long)EventTimeLow & 0x0000ffff;
 
 			// Check for overflow and build full event time
-			if( EventTime <= BufferTime )
-				EventTime |= (( (long long)RunTimeA ) << 32) & 0xffff00000000;
-			else EventTime |= (( (long long)(RunTimeA+1) ) << 32) & 0xffff00000000;
+			if( EventTime <= BufferTime ) RunTimeA++;
+			EventTime |= (( (long long)RunTimeA ) << 32) & 0xffff00000000;
 
 
 			// check hitpattern: at least one channel bit has to be set
