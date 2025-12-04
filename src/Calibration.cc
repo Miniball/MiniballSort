@@ -634,8 +634,8 @@ std::string MiniballCalibration::FebexType( unsigned char sfp, unsigned char boa
 		
 	}
 	
-	return 0;
-	
+	return "";
+
 }
 
 double MiniballCalibration::DgfOffset( unsigned char mod, unsigned char ch ) {
