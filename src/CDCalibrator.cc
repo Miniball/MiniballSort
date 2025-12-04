@@ -941,9 +941,9 @@ unsigned long MiniballCDCalibrator::FillHists() {
 	// Do the fitting to get calibration coefficients
 	//--------------------------
 
-	std::cout << "\n\nUsing p-side strip " << ptag << " as reference for calibrating n-sides" << std::endl;
+	std::cout << "\n\nUsing p-side strip " << (int)ptag << " as reference for calibrating n-sides" << std::endl;
 	CalibrateNsides();
-	std::cout << "\n\nUsing n-side strip " << ntag << " as reference for calibrating p-sides" << std::endl;
+	std::cout << "\n\nUsing n-side strip " << (int)ntag << " as reference for calibrating p-sides" << std::endl;
 	CalibratePsides();
 
 	//--------------------------
