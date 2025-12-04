@@ -473,7 +473,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 		// Loop over the sectors
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
-			std::string cname = "n_" + std::to_string(i) + "_" + std::to_string(j);
+			std::string cname = "cdcal_n_" + std::to_string(i) + "_" + std::to_string(j);
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
 
 			// Loop over all the strips
