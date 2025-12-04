@@ -507,16 +507,16 @@ void MiniballCDCalibrator::CalibrateNsides() {
 
 					   } // old DAQ
 
-					   else {
-
-						// Search for the correct ADC and channel combination
-						cal_base = "febex_";
-						if( !FindCDChannels( i, j, 1, k, fsfp, fmod, fch ) )
-							continue;
-						modchstr  = std::to_string(fsfp) + "_" + std::to_string(fmod);
-						modchstr += "_" + std::to_string(fch);
-
-					} // new DAQ
+				else {
+					
+					// Search for the correct ADC and channel combination
+					cal_base = "febex_";
+					if( !FindCDChannels( i, j, 1, k, fsfp, fmod, fch ) )
+						continue;
+					modchstr  = std::to_string(fsfp) + "_" + std::to_string(fmod);
+					modchstr += "_" + std::to_string(fch);
+					
+				} // new DAQ
 
 				// Add gain and offset
 				std::string gainstr = cal_base + modchstr + ".Gain: " + std::to_string( fit_gain );
