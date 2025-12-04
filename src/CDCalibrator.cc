@@ -55,6 +55,7 @@ void MiniballCDCalibrator::SetInputFile( std::vector<std::string> input_file_nam
 
 	input_tree->SetBranchAddress( "data", &in_data );
 	mbsinfo_tree->SetBranchAddress( "mbsinfo", &mbs_info );
+	mbsinfo_tree->BuildIndex("GetEventID()");
 
 	return;
 
