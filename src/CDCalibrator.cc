@@ -381,7 +381,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
 				// Get the right histogram to do the fit
-				auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QW" );
+				auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QWL" );
 				if( res != 0 ) continue;
 				double fit_gain = ngain / pfit->GetParameter(1);
 				double fit_offset = noffset - pfit->GetParameter(0) * fit_gain;
@@ -479,7 +479,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
 
 				// Get the right histogram to do the fit
-				auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QW" );
+				auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QWL" );
 				if( res != 0 ) continue;
 				double fit_gain = 1.0 / nfit->GetParameter(1);
 				double fit_offset = -1.0 * nfit->GetParameter(0) * fit_gain;
