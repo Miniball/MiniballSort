@@ -431,9 +431,9 @@ void MiniballCDCalibrator::CalibratePsides() {
 
 				// Print to a file
 				std::string pdfname = cname + ".pdf";
-				if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
+				if( k == 0 && set->GetNumberOfCDPStrips() != 1 )
 					pdfname += "(";
-				else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
+				else if( k > 0 && k == set->GetNumberOfCDPStrips() - 1 )
 					pdfname += ")";
 				canv[i][j]->Print( pdfname.data(), "pdf" );
 
