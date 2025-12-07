@@ -594,6 +594,9 @@ void MiniballCDCalibrator::FillPixelHists() {
 			unsigned int pQ = cd_Q_list[pindex[0]];
 			unsigned int nQ = cd_Q_list[nindex[0]];
 
+			// skip events with very diiferent energies
+			if( nQ / pQ > 1.5 || pQ / nQ > 1.5 ) continue;
+
 			// For p-side tags
 			if( pid == ptag ) {
 
