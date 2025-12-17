@@ -50,14 +50,14 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(ebis_td_particle);
 
 	hname = "gamma_particle_td";
-	htitle = "Gamma-ray - Particle time difference;#Deltat;Counts";
+	htitle = "Particle - Gamma-ray time difference;#Deltat (p-#gamma) [ns];Counts";
 	gamma_particle_td = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_particle_td);
 
 
 	hname = "gamma_particle_E_vs_td";
-	htitle = "Gamma-ray - Particle time difference versus gamma-ray energy;#Deltat;Gamma-ray energy (keV);Counts";
+	htitle = "Particle - Gamma-ray time difference versus gamma-ray energy;#Deltat (p-#gamma) [ns];Gamma-ray energy (keV);Counts";
 	gamma_particle_E_vs_td = new TH2F( hname.data(), htitle.data(),
 									  TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
 	histlist->Add(gamma_particle_E_vs_td);
@@ -71,15 +71,15 @@ void MiniballHistogrammer::MakeHists() {
 		for( unsigned int i = 0; i < set->GetNumberOfCDSectors(); ++i ) {
 
 			hname = "gamma_particle_td_sec" + std::to_string(i);
-			htitle = "Gamma-ray - Particle time difference for CD sector ";
-			htitle += std::to_string(i) + ";#Deltat;Counts";
+			htitle = "Particle - Gamma-ray time difference for CD sector ";
+			htitle += std::to_string(i) + ";#Deltat (p-#gamma) [ns];Counts";
 			gamma_particle_td_sec[i] = new TH1F( hname.data(), htitle.data(),
 												TBIN, TMIN, TMAX );
 			histlist->Add(gamma_particle_td_sec[i]);
 
 			hname = "gamma_particle_E_vs_td_sec" + std::to_string(i);
-			htitle = "Gamma-ray - Particle time difference versus gamma-ray energy for CD sector ";
-			htitle += std::to_string(i) + ";#Deltat;Gamma-ray energy (keV);Counts";
+			htitle = "Particle - Gamma-ray time difference versus gamma-ray energy for CD sector ";
+			htitle += std::to_string(i) + ";#Deltat (p-#gamma) [ns];Gamma-ray energy (keV);Counts";
 			gamma_particle_E_vs_td_sec[i] = new TH2F( hname.data(), htitle.data(),
 													 TBIN, TMIN, TMAX, GBIN/4., 0., 2000. );
 			histlist->Add(gamma_particle_E_vs_td_sec[i]);
@@ -95,7 +95,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(gamma_gamma_td);
 
 	hname = "gamma_electron_td";
-	htitle = "Gamma-ray - Electron time difference;#Deltat [ns];Counts per 10 ns";
+	htitle = "Electron - Gamma-ray time difference;#Deltat (e-#gamma) [ns];Counts per 10 ns";
 	gamma_electron_td = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_electron_td);
@@ -107,7 +107,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(electron_electron_td);
 
 	hname = "electron_particle_td";
-	htitle = "Electron - Particle time difference;#Deltat [ns];Counts per 10 ns";
+	htitle = "Particle - Electron time difference;#Deltat (p-e) [ns];Counts per 10 ns";
 	electron_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
 	histlist->Add(electron_particle_td);
@@ -119,7 +119,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(particle_particle_td);
 	
 	hname = "gamma_particle_td_prompt";
-	htitle = "Gamma-ray - Particle time difference in prompt time window;#Deltat;Counts";
+	htitle = "Particle - Gamma-ray time difference in prompt time window;#Deltat (p-#gamma) [ns];Counts";
 	gamma_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_particle_td_prompt);
@@ -131,7 +131,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(gamma_gamma_td_prompt);
 	
 	hname = "gamma_electron_td_prompt";
-	htitle = "Gamma-ray - Electron time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	htitle = "Electron - Gamma-ray time difference in prompt time window;#Deltat (e-#gamma) [ns];Counts per 10 ns";
 	gamma_electron_td_prompt = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_electron_td_prompt);
@@ -143,7 +143,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(electron_electron_td_prompt);
 	
 	hname = "electron_particle_td_prompt";
-	htitle = "Electron - Particle time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	htitle = "Particle - Electron time difference in prompt time window;#Deltat (p-e) [ns];Counts per 10 ns";
 	electron_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
 	histlist->Add(electron_particle_td_prompt);
@@ -155,7 +155,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(particle_particle_td_prompt);
 	
 	hname = "gamma_particle_td_random";
-	htitle = "Gamma-ray - Particle time difference in random time window;#Deltat;Counts";
+	htitle = "Particle - Gamma-ray time difference in random time window;#Deltat (p-#gamma) [ns];Counts";
 	gamma_particle_td_random = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_particle_td_random);
@@ -167,7 +167,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(gamma_gamma_td_random);
 	
 	hname = "gamma_electron_td_random";
-	htitle = "Gamma-ray - Electron time difference in random time window;#Deltat [ns];Counts per 10 ns";
+	htitle = "Electron - Gamma-ray time difference in random time window;#Deltat (e-#gamma) [ns];Counts per 10 ns";
 	gamma_electron_td_random = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_electron_td_random);
@@ -179,7 +179,7 @@ void MiniballHistogrammer::MakeHists() {
 	histlist->Add(electron_electron_td_random);
 	
 	hname = "electron_particle_td_random";
-	htitle = "Electron - Particle time difference in random time window;#Deltat [ns];Counts per 10 ns";
+	htitle = "Particle - Electron time difference in random time window;#Deltat (p-e) [ns];Counts per 10 ns";
 	electron_particle_td_random = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
 	histlist->Add(electron_particle_td_random);
