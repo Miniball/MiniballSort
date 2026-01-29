@@ -57,6 +57,12 @@
 # include "MiniballAngleFitter.hh"
 #endif
 
+// MiniballCDCalibrator header
+#ifndef __CDCALIBRATOR_HH
+# include "CDCalibrator.hh"
+#endif
+
+
 // Command line interface
 #ifndef __COMMAND_LINE_INTERFACE_HH
 # include "CommandLineInterface.hh"
@@ -73,7 +79,7 @@ std::string name_react_file;
 std::string name_angle_file = "";
 std::vector<std::string> input_names;
 
-// a flag at the input to force the conversion
+// a flag at the input to force the conversion and other things
 bool flag_convert = false;
 bool flag_events = false;
 bool flag_source = false;
@@ -97,6 +103,12 @@ bool flag_med = false;
 
 // Do we want to fit the 22Ne angle data?
 bool flag_angle_fit = false;
+
+// Do we want to do the CD calibration
+bool flag_cdcal = false;
+std::string cdcal_strips;
+unsigned char cdcal_pid = 12;
+unsigned char cdcal_nid = 2;
 
 // DataSpy
 bool flag_spy = false;
@@ -349,7 +361,7 @@ void* monitor_run( void* ptr ){
 			
 				// Event builder
 				if( bFirstRun ) {
-					eb_mon->SetOutput( spyname_events );
+					eb_mon->SetOutput( spyname_events, true );
 					eb_mon->StartFile();
 
 				}
@@ -366,7 +378,7 @@ void* monitor_run( void* ptr ){
 
 				// Histogrammer
 				if( bFirstRun ) {
-					hist_mon->SetOutput( spyname_hists );
+					hist_mon->SetOutput( spyname_hists, true );
 				}
 				if( nbuild ) {
 					// TODO: This could be done better with smart pointers
@@ -862,6 +874,68 @@ void do_angle_fit(){
 	
 }
 
+
+void do_cdcal(){
+
+	//-----------------------//
+	// Physics event builder //
+	//-----------------------//
+	MiniballCDCalibrator cdcal( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing CD Calibrator +++" << std::endl;
+
+	std::ifstream ftest;
+	std::string name_input_file;
+	std::vector<std::string> name_hist_files;
+
+	// Update calibration file if given
+	if( overwrite_cal )
+		cdcal.AddCalibration( mycal );
+
+	else {
+
+		std::cout << "Please provide a calibration file to run cdcal... Exiting;" << std::endl;
+		return;
+
+	}
+
+	// We are going to chain all the event files now
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+
+		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
+												   input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
+		name_input_file = name_input_file.substr( 0,
+												 name_input_file.find_last_of(".") );
+		name_input_file = datadir_name + "/" + name_input_file + ".root";
+
+		ftest.open( name_input_file.data() );
+		if( !ftest.is_open() ) {
+
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+
+		}
+		else ftest.close();
+
+		name_hist_files.push_back( name_input_file );
+
+	}
+
+	// Only do something if there are valid files
+	if( name_hist_files.size() ) {
+
+		cdcal.SetPsideTagId( cdcal_pid );
+		cdcal.SetNsideTagId( cdcal_nid );
+		cdcal.SetOutput( output_name );
+		cdcal.SetInputFile( name_hist_files );
+		cdcal.FillHists();
+		cdcal.CloseOutput();
+
+	}
+
+	return;
+
+}
+
 int main( int argc, char *argv[] ){
 	
 	// Command line interface, stolen from MiniballCoulexSort
@@ -881,6 +955,7 @@ int main( int argc, char *argv[] ){
 	interface->Add("-med", "Flag to define input as MED data type (DGF and MADC)", &flag_med );
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
+	interface->Add("-cdcal", "Make the CD calibration plots with pid and nid as the reference strips, given in the string format p<pid>n<nid>", &cdcal_strips );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
 	interface->Add("-spyhists", "File containing histograms for monitoring in the spy", &spy_hists_file );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
@@ -927,7 +1002,7 @@ int main( int argc, char *argv[] ){
 		}
 		
 	}
-	
+
 	// Check we have data files
 	else if( !input_names.size() && !flag_spy ) {
 			
@@ -935,7 +1010,24 @@ int main( int argc, char *argv[] ){
 		return 1;
 			
 	}
-	
+
+	// Check if we are doing the CD calibration
+	if( cdcal_strips.length() > 0 ) {
+
+		flag_cdcal = true;
+		std::stringstream ss(cdcal_strips);
+		unsigned char str1, str2;
+		unsigned int id1, id2;
+		ss >> str1 >> id1 >> str2 >> id2;
+
+		if( str1 == 'p' ) cdcal_pid = id1;
+		if( str2 == 'p' ) cdcal_pid = id2;
+		if( str1 == 'n' ) cdcal_nid = id1;
+		if( str2 == 'n' ) cdcal_nid = id2;
+
+	}
+
+
 	// Check if it should be MIDAS, MBS or MED format
 	if( !flag_midas && !flag_mbs && !flag_med && !flag_spy && !name_angle_file.length() ){
 
@@ -1040,18 +1132,24 @@ int main( int argc, char *argv[] ){
 													 name_input_file.find_last_of(".") );
 			
 			if( flag_angle_fit ) {
-				
+
 				output_name = datadir_name + "/" + name_input_file + "_results.root";
 
 			}
-			
+
+			else if( flag_cdcal ) {
+
+				output_name = datadir_name + "/" + name_input_file + "_cdcal.root";
+
+			}
+
 			else if( input_names.size() > 1 ) {
-				
+
 				output_name = datadir_name + "/" + name_input_file + "_hists_";
 				output_name += std::to_string(input_names.size()) + "_subruns.root";
-			
+
 			}
-			
+
 			else
 				output_name = datadir_name + "/" + name_input_file + "_hists.root";
 				
@@ -1226,6 +1324,9 @@ int main( int argc, char *argv[] ){
 	if( flag_angle_fit ){
 		do_build();
 		do_angle_fit();
+	}
+	else if( flag_cdcal ) {
+		do_cdcal();
 	}
 	else if( !flag_source ) {
 		if( do_build() )

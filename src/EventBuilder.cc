@@ -196,7 +196,7 @@ void MiniballEventBuilder::SetMBSInfoTree( TTree *user_tree ){
 
 }
 
-void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
+void MiniballEventBuilder::SetOutput( std::string output_file_name, bool cWrite ) {
 
 	// These are the branches we need
 	write_evts = std::make_unique<MiniballEvts>();
@@ -224,7 +224,7 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 	MakeEventHists();
 
 	// Write once at the start
-	output_file->Write();
+	if( cWrite ) output_file->Write();
 
 }
 
