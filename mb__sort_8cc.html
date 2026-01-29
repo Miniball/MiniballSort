@@ -106,6 +106,7 @@ $(function(){ initResizable(false); });
 <code>#include &quot;<a class="el" href="Histogrammer_8hh_source.html">Histogrammer.hh</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="DataSpy_8hh_source.html">DataSpy.hh</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="MiniballAngleFitter_8hh_source.html">MiniballAngleFitter.hh</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="CDCalibrator_8hh_source.html">CDCalibrator.hh</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="CommandLineInterface_8hh_source.html">CommandLineInterface.hh</a>&quot;</code><br />
 </div>
 <p><a href="mb__sort_8cc_source.html">Go to the source code of this file.</a></p>
@@ -148,6 +149,8 @@ Functions</h2></td></tr>
 <tr class="separator:aab6b0506267cf908785df7061640da3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b4e2b4de6aeb5701dd7d06fb8c108d0" id="r_a4b4e2b4de6aeb5701dd7d06fb8c108d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4b4e2b4de6aeb5701dd7d06fb8c108d0">do_angle_fit</a> ()</td></tr>
 <tr class="separator:a4b4e2b4de6aeb5701dd7d06fb8c108d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab87a21bd702d13ada574c71f037a18d0" id="r_ab87a21bd702d13ada574c71f037a18d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab87a21bd702d13ada574c71f037a18d0">do_cdcal</a> ()</td></tr>
+<tr class="separator:ab87a21bd702d13ada574c71f037a18d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ddf1224851353fc92bfbff6f499fa97" id="r_a0ddf1224851353fc92bfbff6f499fa97"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ddf1224851353fc92bfbff6f499fa97">main</a> (int argc, char *argv[])</td></tr>
 <tr class="separator:a0ddf1224851353fc92bfbff6f499fa97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -193,6 +196,14 @@ Variables</h2></td></tr>
 <tr class="separator:a2b544d22e2414ac7930eb6e0f7341e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a565a79df3255da68969d1ebe0769cfcd" id="r_a565a79df3255da68969d1ebe0769cfcd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a565a79df3255da68969d1ebe0769cfcd">flag_angle_fit</a> = false</td></tr>
 <tr class="separator:a565a79df3255da68969d1ebe0769cfcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8e3847388e79ddb193de785d2953fd4" id="r_af8e3847388e79ddb193de785d2953fd4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af8e3847388e79ddb193de785d2953fd4">flag_cdcal</a> = false</td></tr>
+<tr class="separator:af8e3847388e79ddb193de785d2953fd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8066ca395e1e0f2b013c6cb91d40c1fd" id="r_a8066ca395e1e0f2b013c6cb91d40c1fd"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8066ca395e1e0f2b013c6cb91d40c1fd">cdcal_strips</a></td></tr>
+<tr class="separator:a8066ca395e1e0f2b013c6cb91d40c1fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab226762b511251dc24804fff55a3d193" id="r_ab226762b511251dc24804fff55a3d193"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab226762b511251dc24804fff55a3d193">cdcal_pid</a> = 12</td></tr>
+<tr class="separator:ab226762b511251dc24804fff55a3d193"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33b78c560c7d75f3a92a0b2a26d1e548" id="r_a33b78c560c7d75f3a92a0b2a26d1e548"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a33b78c560c7d75f3a92a0b2a26d1e548">cdcal_nid</a> = 2</td></tr>
+<tr class="separator:a33b78c560c7d75f3a92a0b2a26d1e548"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfc4310b631d6d8bcfc7086cc6bef35d" id="r_acfc4310b631d6d8bcfc7086cc6bef35d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acfc4310b631d6d8bcfc7086cc6bef35d">flag_spy</a> = false</td></tr>
 <tr class="separator:acfc4310b631d6d8bcfc7086cc6bef35d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5328d2378558c01ec007e61a8e0d100c" id="r_a5328d2378558c01ec007e61a8e0d100c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5328d2378558c01ec007e61a8e0d100c">flag_alive</a> = true</td></tr>
@@ -263,9 +274,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00783">783</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00795">795</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -284,9 +295,30 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00644">644</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00656">656</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
+
+</div>
+</div>
+<a id="ab87a21bd702d13ada574c71f037a18d0" name="ab87a21bd702d13ada574c71f037a18d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab87a21bd702d13ada574c71f037a18d0">&#9670;&#160;</a></span>do_cdcal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void do_cdcal </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00878">878</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -305,9 +337,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00513">513</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00525">525</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -326,9 +358,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00734">734</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00746">746</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -351,7 +383,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00865">865</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00939">939</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="MiniballGUI_8cc_source.html#l00927">MyDialog::MyDialog()</a>.</p>
 
@@ -376,9 +408,9 @@ Variables</h2></td></tr>
 </blockquote>
 <p>open the data spy</p>
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00173">173</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00185">185</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -397,9 +429,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00445">445</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00457">457</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -418,7 +450,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00147">147</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00159">159</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="MonitorMacros_8hh_source.html#l00007">ResetAll()</a>, and <a class="el" href="MonitorMacros_8hh_source.html#l00015">ResetConv()</a>.</p>
 
@@ -439,7 +471,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00151">151</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00163">163</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="MonitorMacros_8hh_source.html#l00007">ResetAll()</a>, and <a class="el" href="MonitorMacros_8hh_source.html#l00021">ResetEvnt()</a>.</p>
 
@@ -460,7 +492,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00155">155</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00167">167</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="MonitorMacros_8hh_source.html#l00007">ResetAll()</a>, and <a class="el" href="MonitorMacros_8hh_source.html#l00027">ResetHist()</a>.</p>
 
@@ -481,7 +513,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00167">167</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00179">179</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 </div>
 </div>
@@ -500,9 +532,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00413">413</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00425">425</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -521,7 +553,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00163">163</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00175">175</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="MonitorMacros_8hh_source.html#l00039">StartMonitor()</a>.</p>
 
@@ -542,13 +574,67 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00159">159</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00171">171</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="MonitorMacros_8hh_source.html#l00033">StopMonitor()</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a33b78c560c7d75f3a92a0b2a26d1e548" name="a33b78c560c7d75f3a92a0b2a26d1e548"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33b78c560c7d75f3a92a0b2a26d1e548">&#9670;&#160;</a></span>cdcal_nid</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned char cdcal_nid = 2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00111">111</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
+
+</div>
+</div>
+<a id="ab226762b511251dc24804fff55a3d193" name="ab226762b511251dc24804fff55a3d193"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab226762b511251dc24804fff55a3d193">&#9670;&#160;</a></span>cdcal_pid</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned char cdcal_pid = 12</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00110">110</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
+
+</div>
+</div>
+<a id="a8066ca395e1e0f2b013c6cb91d40c1fd" name="a8066ca395e1e0f2b013c6cb91d40c1fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8066ca395e1e0f2b013c6cb91d40c1fd">&#9670;&#160;</a></span>cdcal_strips</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string cdcal_strips</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00109">109</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
+
+</div>
+</div>
 <a id="a4ad542645b372bab503c7967b5dae9c4" name="a4ad542645b372bab503c7967b5dae9c4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4ad542645b372bab503c7967b5dae9c4">&#9670;&#160;</a></span>conv_mbs_mon</h2>
 
@@ -561,9 +647,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00142">142</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00154">154</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -579,9 +665,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00143">143</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00155">155</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -597,9 +683,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00141">141</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00153">153</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00147">reset_conv_hists()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00159">reset_conv_hists()</a>.</p>
 
 </div>
 </div>
@@ -615,9 +701,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00069">69</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00075">75</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00783">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00734">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00795">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00746">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -633,9 +719,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00144">144</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00156">156</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00151">reset_evnt_hists()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00163">reset_evnt_hists()</a>.</p>
 
 </div>
 </div>
@@ -651,9 +737,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00103">103</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00115">115</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00167">signal_callback_handler()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00179">signal_callback_handler()</a>.</p>
 
 </div>
 </div>
@@ -669,9 +755,27 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00099">99</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00105">105</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
+
+</div>
+</div>
+<a id="af8e3847388e79ddb193de785d2953fd4" name="af8e3847388e79ddb193de785d2953fd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af8e3847388e79ddb193de785d2953fd4">&#9670;&#160;</a></span>flag_cdcal</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool flag_cdcal = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00108">108</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -687,9 +791,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00077">77</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00083">83</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -705,9 +809,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00080">80</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00086">86</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -723,9 +827,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00078">78</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00084">84</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -741,9 +845,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00095">95</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00101">101</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -759,9 +863,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00096">96</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00102">102</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -777,9 +881,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00094">94</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00100">100</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -795,9 +899,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00107">107</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00119">119</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -813,9 +917,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00079">79</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00085">85</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -831,9 +935,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00102">102</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00114">114</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -849,9 +953,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00083">83</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00089">89</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>.</p>
 
 </div>
 </div>
@@ -867,9 +971,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00085">85</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00091">91</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>.</p>
 
 </div>
 </div>
@@ -885,7 +989,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00084">84</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00090">90</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 </div>
 </div>
@@ -901,9 +1005,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00091">91</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00097">97</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -919,9 +1023,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00088">88</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00094">94</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -937,9 +1041,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00145">145</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00157">157</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00155">reset_phys_hists()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00167">reset_phys_hists()</a>.</p>
 
 </div>
 </div>
@@ -955,9 +1059,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00074">74</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00080">80</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00783">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00734">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00795">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00746">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -973,9 +1077,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00108">108</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00120">120</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -991,9 +1095,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00114">114</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00126">126</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Converter_8hh_source.html#l00079">MiniballConverter::AddCalibration()</a>, <a class="el" href="EventBuilder_8hh_source.html#l00064">MiniballEventBuilder::AddCalibration()</a>, <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="CDCalibrator_8hh_source.html#l00061">MiniballCDCalibrator::AddCalibration()</a>, <a class="el" href="Converter_8hh_source.html#l00079">MiniballConverter::AddCalibration()</a>, <a class="el" href="EventBuilder_8hh_source.html#l00064">MiniballEventBuilder::AddCalibration()</a>, <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -1009,9 +1113,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00118">118</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00130">130</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00783">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00734">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="Histogrammer_8cc_source.html#l00003">MiniballHistogrammer::MiniballHistogrammer()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00795">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00746">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="Histogrammer_8cc_source.html#l00003">MiniballHistogrammer::MiniballHistogrammer()</a>.</p>
 
 </div>
 </div>
@@ -1027,9 +1131,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00111">111</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00123">123</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l00003">ClassImp()</a>, <a class="el" href="mb__sort_8cc_source.html#l00783">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00513">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00734">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, <a class="el" href="Calibration_8cc_source.html#l00205">MiniballCalibration::MiniballCalibration()</a>, <a class="el" href="Converter_8cc_source.html#l00004">MiniballConverter::MiniballConverter()</a>, <a class="el" href="EventBuilder_8cc_source.html#l00003">MiniballEventBuilder::MiniballEventBuilder()</a>, <a class="el" href="Histogrammer_8cc_source.html#l00003">MiniballHistogrammer::MiniballHistogrammer()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l00003">ClassImp()</a>, <a class="el" href="mb__sort_8cc_source.html#l00795">do_angle_fit()</a>, <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, <a class="el" href="mb__sort_8cc_source.html#l00525">do_convert()</a>, <a class="el" href="mb__sort_8cc_source.html#l00746">do_hist()</a>, <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, <a class="el" href="Calibration_8cc_source.html#l00205">MiniballCalibration::MiniballCalibration()</a>, <a class="el" href="CDCalibrator_8cc_source.html#l00003">MiniballCDCalibrator::MiniballCDCalibrator()</a>, <a class="el" href="Converter_8cc_source.html#l00004">MiniballConverter::MiniballConverter()</a>, <a class="el" href="EventBuilder_8cc_source.html#l00003">MiniballEventBuilder::MiniballEventBuilder()</a>, <a class="el" href="Histogrammer_8cc_source.html#l00003">MiniballHistogrammer::MiniballHistogrammer()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>.</p>
 
 </div>
 </div>
@@ -1045,9 +1149,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00073">73</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00079">79</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00783">do_angle_fit()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00795">do_angle_fit()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -1063,9 +1167,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00071">71</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00077">77</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="MiniballGUI_8cc_source.html#l00891">MiniballGUI::on_sort_clicked()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="MiniballGUI_8cc_source.html#l00891">MiniballGUI::on_sort_clicked()</a>.</p>
 
 </div>
 </div>
@@ -1081,9 +1185,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00072">72</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00078">78</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -1099,9 +1203,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00070">70</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00076">76</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="MiniballGUI_8cc_source.html#l00891">MiniballGUI::on_sort_clicked()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="MiniballGUI_8cc_source.html#l00891">MiniballGUI::on_sort_clicked()</a>.</p>
 
 </div>
 </div>
@@ -1117,7 +1221,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00104">104</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00116">116</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
 </div>
 </div>
@@ -1133,9 +1237,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00068">68</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00074">74</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00734">do_hist()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, <a class="el" href="mb__sort_8cc_source.html#l00746">do_hist()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -1151,9 +1255,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00115">115</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00127">127</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00644">do_build()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00656">do_build()</a>, <a class="el" href="mb__sort_8cc_source.html#l00878">do_cdcal()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>.</p>
 
 </div>
 </div>
@@ -1169,9 +1273,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00124">124</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00136">136</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00445">ReadSpyHistogramList()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00457">ReadSpyHistogramList()</a>.</p>
 
 </div>
 </div>
@@ -1187,9 +1291,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00122">122</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00134">134</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00413">start_http()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00425">start_http()</a>.</p>
 
 </div>
 </div>
@@ -1205,9 +1309,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00121">121</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00133">133</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00173">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00413">start_http()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00185">monitor_run()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00425">start_http()</a>.</p>
 
 </div>
 </div>
@@ -1223,9 +1327,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00123">123</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00135">135</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00445">ReadSpyHistogramList()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00457">ReadSpyHistogramList()</a>.</p>
 
 </div>
 </div>
@@ -1241,9 +1345,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00125">125</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mb__sort_8cc_source.html#l00137">137</a> of file <a class="el" href="mb__sort_8cc_source.html">mb_sort.cc</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00865">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00445">ReadSpyHistogramList()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="mb__sort_8cc_source.html#l00939">main()</a>, and <a class="el" href="mb__sort_8cc_source.html#l00457">ReadSpyHistogramList()</a>.</p>
 
 </div>
 </div>

@@ -27,7 +27,7 @@ var searchData=
   ['descr_24',['descr',['../classMBSBufferElem.html#a46a1ee4aea4c753edfbc85a3d2b55bff',1,'MBSBufferElem']]],
   ['det_25',['det',['../classParticleEvt.html#a0cfed2e194cb43ef268c8679633f4f91',1,'ParticleEvt::det'],['../classBeamDumpEvt.html#add3812be1946fd29ad56f025aa29b9e0',1,'BeamDumpEvt::det']]],
   ['detime_26',['detime',['../classIonChamberEvt.html#a020254a7680f7c59f5b0dd8fdb7bee48',1,'IonChamberEvt']]],
-  ['dgf_5fdata_27',['dgf_data',['../classMiniballConverter.html#a7ec2abbf0a1160ccea705c1665e72456',1,'MiniballConverter::dgf_data'],['../classMiniballEventBuilder.html#a62a1b4bd1acbc2389e3fe4a882e9c4d4',1,'MiniballEventBuilder::dgf_data']]],
+  ['dgf_5fdata_27',['dgf_data',['../classMiniballCDCalibrator.html#ae6774b25e2fa2f78df73eac3d9d557f0',1,'MiniballCDCalibrator::dgf_data'],['../classMiniballConverter.html#a7ec2abbf0a1160ccea705c1665e72456',1,'MiniballConverter::dgf_data'],['../classMiniballEventBuilder.html#a62a1b4bd1acbc2389e3fe4a882e9c4d4',1,'MiniballEventBuilder::dgf_data']]],
   ['dgf_5fmod_5foffset_28',['dgf_mod_offset',['../classMiniballSettings.html#a002859f00a25f7ff0d04ea1d5caad94c',1,'MiniballSettings']]],
   ['dgf_5fpackets_29',['dgf_packets',['../classMiniballDataPackets.html#a6d513788ef883a705111b067b3213791',1,'MiniballDataPackets']]],
   ['dgf_5fts_5fdelay_30',['dgf_ts_delay',['../classMiniballSettings.html#a1fdc158694ee3dbf1bcffecbd8fae6a3',1,'MiniballSettings']]],

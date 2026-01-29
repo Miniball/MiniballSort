@@ -55,7 +55,7 @@ var searchData=
   ['buffers_5foffset_52',['buffers_offset',['../classDataSpy.html#a85d9934e8f57b13fa90d69a3f325c530',1,'DataSpy']]],
   ['bufheadlen_53',['BUFHEADLEN',['../MbsDefines_8hh.html#aaeadd33f227704b6d779eaa40b4dd80d',1,'MbsDefines.hh']]],
   ['bufsize_54',['bufsize',['../classMBS.html#a95470a749f267f4065df14f7401f46c5',1,'MBS']]],
-  ['build_5fwindow_55',['build_window',['../classMiniballEventBuilder.html#a61142f6506586402640a782accd1e33f',1,'MiniballEventBuilder']]],
+  ['build_5fwindow_55',['build_window',['../classMiniballCDCalibrator.html#a6b22dc6214b732efa05b534a8bde4d21',1,'MiniballCDCalibrator::build_window'],['../classMiniballEventBuilder.html#a61142f6506586402640a782accd1e33f',1,'MiniballEventBuilder::build_window']]],
   ['buildevents_56',['BuildEvents',['../classMiniballEventBuilder.html#a2df89ac690fb2348200512fc8196c105',1,'MiniballEventBuilder']]],
   ['buildmbsindex_57',['BuildMbsIndex',['../classMiniballConverter.html#a399e0bb4e1be7918bb5d54f6f6688f6e',1,'MiniballConverter']]],
   ['but_5fadd_58',['but_add',['../classMiniballGUI.html#a68f182d268ac6abacc5420ae1624cffe',1,'MiniballGUI']]],

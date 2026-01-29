@@ -9,7 +9,7 @@ var searchData=
   ['aae_5frecoil_5fdc_5frecoil_6',['aaE_recoil_dc_recoil',['../classMiniballHistogrammer.html#ac410b7e9607c6bb7f7cc7218ac22b454',1,'MiniballHistogrammer']]],
   ['ab_5fhit_5fwindow_7',['ab_hit_window',['../classMiniballSettings.html#a3b7f17ef249d5bc64ec0d46e53546b14',1,'MiniballSettings']]],
   ['ab_5fmult_8',['ab_mult',['../classGammaRayEvt.html#a0d61a99e09d4f06aaf4ab315bf145096',1,'GammaRayEvt']]],
-  ['adc_5fdata_9',['adc_data',['../classMiniballConverter.html#ab0e7cbf387e85653785810b4feb01228',1,'MiniballConverter::adc_data'],['../classMiniballEventBuilder.html#a51f3208e91c751c5fcd2bf221bf7dda7',1,'MiniballEventBuilder::adc_data']]],
+  ['adc_5fdata_9',['adc_data',['../classMiniballCDCalibrator.html#aed18a3b99847ef2d4277414c58559a9b',1,'MiniballCDCalibrator::adc_data'],['../classMiniballConverter.html#ab0e7cbf387e85653785810b4feb01228',1,'MiniballConverter::adc_data'],['../classMiniballEventBuilder.html#a51f3208e91c751c5fcd2bf221bf7dda7',1,'MiniballEventBuilder::adc_data']]],
   ['adc_5fpackets_10',['adc_packets',['../classMiniballDataPackets.html#a739c3281f47ad0ee6488f4b4d9da1690',1,'MiniballDataPackets']]],
   ['adc_5fvme_5ffirst_11',['adc_vme_first',['../classMiniballSettings.html#a1a896179570430c49886f848bd276fd7',1,'MiniballSettings']]],
   ['adc_5fvme_5flast_12',['adc_vme_last',['../classMiniballSettings.html#aee506279b8dcd8ea71278ba65df0f6b7',1,'MiniballSettings']]],

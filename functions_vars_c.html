@@ -98,20 +98,24 @@ $(function(){ initResizable(false); });
 <li>c_user&#160;:&#160;<a class="el" href="structs__filhe.html#ad7c4478bf56530f78c1db92a45a247c3">s_filhe</a></li>
 <li>caen_mod_offset&#160;:&#160;<a class="el" href="classMiniballSettings.html#a02c4dc4b45036b5293ddfd9e45e5aa8e">MiniballSettings</a></li>
 <li>caen_ts_units&#160;:&#160;<a class="el" href="classMiniballSettings.html#a927c2e5f50aef92b2fbf6bb703d2e585">MiniballSettings</a></li>
-<li>cal&#160;:&#160;<a class="el" href="classMiniballConverter.html#a7a4812eb0c3facbbe5e02578014d5725">MiniballConverter</a>, <a class="el" href="classMiniballEventBuilder.html#a13428b4d88dfea89d0b0399f1499b1fc">MiniballEventBuilder</a></li>
+<li>cal&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#a94e118a258bdd50e5956bebdad830fb6">MiniballCDCalibrator</a>, <a class="el" href="classMiniballConverter.html#a7a4812eb0c3facbbe5e02578014d5725">MiniballConverter</a>, <a class="el" href="classMiniballEventBuilder.html#a13428b4d88dfea89d0b0399f1499b1fc">MiniballEventBuilder</a></li>
 <li>cd_adc&#160;:&#160;<a class="el" href="classMiniballSettings.html#a2b065b787b821052b65ec0a48017abed">MiniballSettings</a></li>
 <li>cd_board&#160;:&#160;<a class="el" href="classMiniballSettings.html#a9587e4bfde55e6867299b05da15bb214">MiniballSettings</a></li>
 <li>cd_ch&#160;:&#160;<a class="el" href="classMiniballSettings.html#a345dec9ffbc7925659679407ea17380f">MiniballSettings</a></li>
 <li>cd_ctr&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a4f7fbb3af33278cd3b91e5720e5eb67d">MiniballEventBuilder</a></li>
 <li>cd_det&#160;:&#160;<a class="el" href="classMiniballSettings.html#a07ecc4ba8924c559afe3f4e37914e019">MiniballSettings</a></li>
-<li>cd_det_list&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a38a3b92b102fa626a47056ac04d997ef">MiniballEventBuilder</a></li>
+<li>cd_det_list&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#a9a3f130d6c9d42f5e49e32fe6022166b">MiniballCDCalibrator</a>, <a class="el" href="classMiniballEventBuilder.html#a38a3b92b102fa626a47056ac04d997ef">MiniballEventBuilder</a></li>
 <li>cd_dist&#160;:&#160;<a class="el" href="classMiniballReaction.html#a04052a3439f7e9ded036272993d1a6fe">MiniballReaction</a></li>
-<li>cd_en_list&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#ae7a2812a766012c249a9d1b1bdaff9ba">MiniballEventBuilder</a></li>
+<li>cd_en_list&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#aa0dc3879536be377f824d8986783f58f">MiniballCDCalibrator</a>, <a class="el" href="classMiniballEventBuilder.html#ae7a2812a766012c249a9d1b1bdaff9ba">MiniballEventBuilder</a></li>
 <li>cd_hit_window&#160;:&#160;<a class="el" href="classMiniballSettings.html#a84b02c2a57622c8e60280036b975185b">MiniballSettings</a></li>
 <li>cd_nen_id&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#aca6d74eb997d224bfd9a17f521c6f8f1">MiniballEventBuilder</a></li>
+<li>cd_nen_pen&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#aee67b3df7abcc940fb0dbf5d6c58bda4">MiniballCDCalibrator</a></li>
 <li>cd_nn_td&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#aaa2185964a7d83daf7cb6bbf46d336df">MiniballEventBuilder</a></li>
+<li>cd_nQ_pQ&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#a9338d041095b3eef18332e2121b70c36">MiniballCDCalibrator</a></li>
 <li>cd_offset&#160;:&#160;<a class="el" href="classMiniballReaction.html#aa4205aa95913d7c8e7be3e88d42f37c7">MiniballReaction</a></li>
 <li>cd_pen_id&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a2e3480abc316e3cac506269a0bb5d8e5">MiniballEventBuilder</a></li>
+<li>cd_pen_nen&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#a79327eaebcc78c537e63b978cd2a5656">MiniballCDCalibrator</a></li>
+<li>cd_pen_nQ&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#a46c674ddbf66591769ff40a466c4b684">MiniballCDCalibrator</a></li>
 <li>cd_pn_1v1&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a3304bc8df58a46d84d235676f051bfff">MiniballEventBuilder</a></li>
 <li>cd_pn_1v2&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a1d41bbbc328091354027dc7408675fa2">MiniballEventBuilder</a></li>
 <li>cd_pn_2v1&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a71bfa7fb20a7e58e4bf7f70ba1c327f7">MiniballEventBuilder</a></li>
@@ -121,14 +125,15 @@ $(function(){ initResizable(false); });
 <li>cd_pp_td&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#ab493a6a918d88dbf4b1c5e705ad1308f">MiniballEventBuilder</a></li>
 <li>cd_ppad_mult&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a6303cb599f45478299d4b6417276bc17">MiniballEventBuilder</a></li>
 <li>cd_ppad_td&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#af1e83530a23a93b21fb92927f5533c70">MiniballEventBuilder</a></li>
-<li>cd_sec_list&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a2e58dfc82974883be44a89ccf08adf4f">MiniballEventBuilder</a></li>
+<li>cd_Q_list&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#a35a25cdbaabc412cbc062eb7d0360b45">MiniballCDCalibrator</a></li>
+<li>cd_sec_list&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#aaee148b00f9d17184bb26633ddd875f0">MiniballCDCalibrator</a>, <a class="el" href="classMiniballEventBuilder.html#a2e58dfc82974883be44a89ccf08adf4f">MiniballEventBuilder</a></li>
 <li>cd_sector&#160;:&#160;<a class="el" href="classMiniballSettings.html#ab76c30d98dec9150c6e91ebba5e43483">MiniballSettings</a></li>
 <li>cd_sfp&#160;:&#160;<a class="el" href="classMiniballSettings.html#aacc7a20d2fc43868d88267ab66a402cc">MiniballSettings</a></li>
 <li>cd_side&#160;:&#160;<a class="el" href="classMiniballSettings.html#ac491b2a56b4931672f91e6152880110b">MiniballSettings</a></li>
-<li>cd_side_list&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#aacb14f860dd66c555c4ba8c09ac60304">MiniballEventBuilder</a></li>
+<li>cd_side_list&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#a6756ca207cf0886fa19a2f9f82f2e78a">MiniballCDCalibrator</a>, <a class="el" href="classMiniballEventBuilder.html#aacb14f860dd66c555c4ba8c09ac60304">MiniballEventBuilder</a></li>
 <li>cd_strip&#160;:&#160;<a class="el" href="classMiniballSettings.html#aa76c3cc16c171685c14c45b6fea9f09f">MiniballSettings</a></li>
-<li>cd_strip_list&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a0262825ace407e3da2c9473645209e39">MiniballEventBuilder</a></li>
-<li>cd_ts_list&#160;:&#160;<a class="el" href="classMiniballEventBuilder.html#a334cb0cca2f16fe0eff6cbf7f311e3c5">MiniballEventBuilder</a></li>
+<li>cd_strip_list&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#aa342db84476db1a527f1fd730ecff450">MiniballCDCalibrator</a>, <a class="el" href="classMiniballEventBuilder.html#a0262825ace407e3da2c9473645209e39">MiniballEventBuilder</a></li>
+<li>cd_ts_list&#160;:&#160;<a class="el" href="classMiniballCDCalibrator.html#ae2aef0f59c91b012d021fe8782278071">MiniballCDCalibrator</a>, <a class="el" href="classMiniballEventBuilder.html#a334cb0cca2f16fe0eff6cbf7f311e3c5">MiniballEventBuilder</a></li>
 <li>centre_button&#160;:&#160;<a class="el" href="classMiniballGUI.html#a3aa1da7bf421a2f889475a554436e056">MiniballGUI</a></li>
 <li>centre_files&#160;:&#160;<a class="el" href="classMiniballGUI.html#af9e947a6836ec4d997247c5daaf1154a">MiniballGUI</a></li>
 <li>centre_frame&#160;:&#160;<a class="el" href="classMiniballGUI.html#aa8686cdd991a4231bd140feeeb3da655">MiniballGUI</a></li>
