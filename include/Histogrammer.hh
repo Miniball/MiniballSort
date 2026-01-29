@@ -343,18 +343,18 @@ private:
 	TH2F *electron_xy_map = nullptr;
 
 	// Gamma-ray coincidence matrices with and without addback
-	TH1F *gamma_gamma_td, *gamma_gamma_td_prompt, *gamma_gamma_td_random = nullptr;
-	TH2F *gE_gE, *gE_gE_ebis_on = nullptr;
-	TH2F *aE_aE, *aE_aE_ebis_on = nullptr;
+	TH1F *gamma_gamma_td = nullptr, *gamma_gamma_td_prompt = nullptr, *gamma_gamma_td_random = nullptr;
+	TH2F *gE_gE = nullptr, *gE_gE_ebis_on = nullptr;
+	TH2F *aE_aE = nullptr, *aE_aE_ebis_on = nullptr;
 
 	// Electron coincidence matrices
-	TH1F *electron_electron_td, *electron_electron_td_prompt, *electron_electron_td_random = nullptr;
-	TH2F *eE_eE, *eE_eE_ebis_on = nullptr;
+	TH1F *electron_electron_td = nullptr, *electron_electron_td_prompt = nullptr, *electron_electron_td_random = nullptr;
+	TH2F *eE_eE = nullptr, *eE_eE_ebis_on = nullptr;
 
 	// Gamma-Electron coincidence matrices
-	TH1F *gamma_electron_td, *gamma_electron_td_prompt, *gamma_electron_td_random = nullptr;
-	TH2F *gE_eE, *gE_eE_ebis_on = nullptr;
-	TH2F *aE_eE, *aE_eE_ebis_on = nullptr;
+	TH1F *gamma_electron_td = nullptr, *gamma_electron_td_prompt = nullptr, *gamma_electron_td_random = nullptr;
+	TH2F *gE_eE = nullptr, *gE_eE_ebis_on = nullptr;
+	TH2F *aE_eE = nullptr, *aE_eE_ebis_on = nullptr;
 
 	// Particles
 	TH2F *pE_theta = nullptr, *pE_theta_coinc = nullptr;
@@ -366,12 +366,12 @@ private:
 	std::vector<TH2F*> pE_theta_ejectile_sec, pE_theta_recoil_sec;
 	std::vector<std::vector<TH2F*>> pE_dE_sec, pE_dE_coinc_sec, pE_dE_cut_sec;
 	TProfile *pBeta_theta_ejectile = nullptr, *pBeta_theta_recoil = nullptr;
-	TH1F *particle_particle_td, *particle_particle_td_prompt, *particle_particle_td_random = nullptr;
+	TH1F *particle_particle_td = nullptr, *particle_particle_td_prompt = nullptr, *particle_particle_td_random = nullptr;
 	TH2F *particle_xy_map_forward = nullptr, *particle_xy_map_backward = nullptr;
 	TH2F *particle_theta_phi_map = nullptr;
 	
 	// Particle-gamma coincidences with and without addback
-	TH1F *gamma_particle_td, *gamma_particle_td_prompt, *gamma_particle_td_random = nullptr;
+	TH1F *gamma_particle_td = nullptr, *gamma_particle_td_prompt = nullptr, *gamma_particle_td_random = nullptr;
 	TH2F *gamma_particle_E_vs_td = nullptr;
 	std::vector<TH1F*> gamma_particle_td_sec;
 	std::vector<TH2F*> gamma_particle_E_vs_td_sec;
@@ -381,7 +381,7 @@ private:
 	TH1F *aE_random = nullptr, *aE_random_1p = nullptr, *aE_random_2p = nullptr;
 
 	// Particle-electron coincidences
-	TH1F *electron_particle_td, *electron_particle_td_prompt, *electron_particle_td_random = nullptr;
+	TH1F *electron_particle_td = nullptr, *electron_particle_td_prompt = nullptr, *electron_particle_td_random = nullptr;
 	TH1F *eE_prompt = nullptr, *eE_prompt_1p = nullptr, *eE_prompt_2p = nullptr;
 	TH1F *eE_random = nullptr, *eE_random_1p = nullptr, *eE_random_2p = nullptr;
 
