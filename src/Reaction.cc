@@ -490,7 +490,7 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 		double gamma = 180.0 - bphi - delta; // angle between r_d and r_lab
 
 		double r_body;
-		if (fabs(TMath::Sin( bphi * TMath::DegToRad() ) < 1e-5)) r_body = r_lab - r_d;
+		if (TMath::Abs(TMath::Sin( bphi * TMath::DegToRad() ) < 1e-5)) r_body = r_lab - r_d;
 		else r_body = TMath::Sin( gamma * TMath::DegToRad() ) / ( TMath::Sin( bphi * TMath::DegToRad() ) / r_lab ); // between sector center and point of interest
 
 		double x_body = r_body * TMath::Cos( phi_body * TMath::DegToRad() ); //in sector "body" coordinates
