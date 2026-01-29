@@ -470,32 +470,35 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 
 		// CD phi calculation using method from Tim Gray
 		double alpha = 82.0;
-		double offset = 1.625;
+		double offset_x = 1.6728;
+		double offset_y = 1.5751;
 		double grouping = 24.0 / (double)set->GetNumberOfCDNStrips();
 
-		double phi_body = ( grouping * nid + 1.0 ) * alpha / 24.;
+		double phi_body = grouping * ( nid + 0.5 ) * alpha / 24.;
 
 		double r_lab = 9.0;
 		r_lab += ( 15.5 - pid ) * 2.0; // pid = 0 is outer ring and pid = 15 is inner ring
 		  
-		double beta = 180.0 - alpha / 2.0;
+		double beta = 180.0 - TMath::ATan(offset_y/offset_x) * TMath::RadToDeg();
 		double bphi = beta + phi_body;
 		if( bphi > 180.0) bphi = 360.0 - bphi;
 
-		double r_d = offset / TMath::Sin( alpha * TMath::DegToRad() / 2.0 );  // from center of rings to center of sectors
+		double r_d = TMath::Sqrt( offset_x * offset_x + offset_y * offset_y ); // from center of rings to center of sectors
 		double delta = TMath::ASin( r_d * TMath::Sin( bphi * TMath::DegToRad() ) / r_lab );
 		delta *= TMath::RadToDeg(); // angle between r_body and r_lab
 		  
 		double gamma = 180.0 - bphi - delta; // angle between r_d and r_lab
 
-		double r_body = TMath::Sin( gamma * TMath::DegToRad() ) / ( TMath::Sin( bphi * TMath::DegToRad() ) / r_lab ); // between sector center and point of interest
+		double r_body;
+		if (TMath::Abs(TMath::Sin( bphi * TMath::DegToRad() ) < 1e-5)) r_body = r_lab - r_d;
+		else r_body = TMath::Sin( gamma * TMath::DegToRad() ) / ( TMath::Sin( bphi * TMath::DegToRad() ) / r_lab ); // between sector center and point of interest
 
 		double x_body = r_body * TMath::Cos( phi_body * TMath::DegToRad() ); //in sector "body" coordinates
 		double y_body = r_body * TMath::Sin( phi_body * TMath::DegToRad() );
 
 		//transform back to ring "lab" coordinates
-		double y = y_body + offset;
-		double x = x_body + TMath::Sqrt( r_d*r_d - offset*offset );
+		double y = y_body + offset_y;
+		double x = x_body + offset_x;
 
 		//should have sqrt(x*x + y*y) = r_lab at this point
 		vec.SetX(x);
