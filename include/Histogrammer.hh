@@ -322,166 +322,159 @@ private:
 	float T1MAX = 20e9;				// upper limit of T1 time difference
 
 	// EBIS
-	TH1F *ebis_td_particle, *ebis_td_gamma;
-	
+	TH1F *ebis_td_particle = nullptr, *ebis_td_gamma = nullptr;
+
 	// Gamma-rays with and without addback
-	TH1F *gE_singles, *gE_singles_ebis, *gE_singles_ebis_on, *gE_singles_ebis_off;
-	TH1F *aE_singles, *aE_singles_ebis, *aE_singles_ebis_on, *aE_singles_ebis_off;
-	TH1F *gE_singles_dc, *gE_singles_dc_ebis;
-	TH1F *aE_singles_dc, *aE_singles_dc_ebis;
-	TH2F *gE_singles_vs_crystal;
-	TH2F *aE_singles_vs_crystal;
-	TH2F *gamma_xy_map_forward, *gamma_xy_map_backward;
-	TH2F *gamma_xz_map_left, *gamma_xz_map_right;
-	TH2F *gamma_theta_phi_map;
+	TH1F *gE_singles = nullptr, *gE_singles_ebis = nullptr;
+	TH1F *gE_singles_ebis_on = nullptr, *gE_singles_ebis_off = nullptr;
+	TH1F *aE_singles = nullptr, *aE_singles_ebis = nullptr;
+	TH1F *aE_singles_ebis_on = nullptr, *aE_singles_ebis_off = nullptr;
+	TH1F *gE_singles_dc = nullptr, *gE_singles_dc_ebis = nullptr;
+	TH1F *aE_singles_dc = nullptr, *aE_singles_dc_ebis = nullptr;
+	TH2F *gE_singles_vs_crystal = nullptr;
+	TH2F *aE_singles_vs_crystal = nullptr;
+	TH2F *gamma_xy_map_forward = nullptr, *gamma_xy_map_backward = nullptr;
+	TH2F *gamma_xz_map_left = nullptr, *gamma_xz_map_right = nullptr;
+	TH2F *gamma_theta_phi_map = nullptr;
 
 	// Electron singles
-	TH1F *eE_singles, *eE_singles_ebis, *eE_singles_ebis_on, *eE_singles_ebis_off;
-	TH2F *electron_xy_map;
+	TH1F *eE_singles = nullptr, *eE_singles_ebis = nullptr;
+	TH1F *eE_singles_ebis_on = nullptr, *eE_singles_ebis_off = nullptr;
+	TH2F *electron_xy_map = nullptr;
 
 	// Gamma-ray coincidence matrices with and without addback
-	TH1F *gamma_gamma_td;
-	TH1F *gamma_gamma_td_prompt;
-	TH1F *gamma_gamma_td_random;
-	TH2F *gE_gE, *gE_gE_ebis_on;
-	TH2F *aE_aE, *aE_aE_ebis_on;
+	TH1F *gamma_gamma_td, *gamma_gamma_td_prompt, *gamma_gamma_td_random = nullptr;
+	TH2F *gE_gE, *gE_gE_ebis_on = nullptr;
+	TH2F *aE_aE, *aE_aE_ebis_on = nullptr;
 
 	// Electron coincidence matrices
-	TH1F *electron_electron_td;
-	TH1F *electron_electron_td_prompt;
-	TH1F *electron_electron_td_random;
-	TH2F *eE_eE, *eE_eE_ebis_on;
+	TH1F *electron_electron_td, *electron_electron_td_prompt, *electron_electron_td_random = nullptr;
+	TH2F *eE_eE, *eE_eE_ebis_on = nullptr;
 
 	// Gamma-Electron coincidence matrices
-	TH1F *gamma_electron_td;
-	TH1F *gamma_electron_td_prompt;
-	TH1F *gamma_electron_td_random;
-	TH2F *gE_eE, *gE_eE_ebis_on;
-	TH2F *aE_eE, *aE_eE_ebis_on;
+	TH1F *gamma_electron_td, *gamma_electron_td_prompt, *gamma_electron_td_random = nullptr;
+	TH2F *gE_eE, *gE_eE_ebis_on = nullptr;
+	TH2F *aE_eE, *aE_eE_ebis_on = nullptr;
 
 	// Particles
-	TH2F *pE_theta, *pE_theta_coinc, *pE_theta_ejectile, *pE_theta_recoil;
-	TH2F *pE_theta_1p_ejectile, *pE_theta_1p_recoil;
-	TH2F *pE_theta_2p_ejectile, *pE_theta_2p_recoil;
+	TH2F *pE_theta = nullptr, *pE_theta_coinc = nullptr;
+	TH2F *pE_theta_ejectile = nullptr, *pE_theta_recoil = nullptr;
+	TH2F *pE_theta_1p_ejectile = nullptr, *pE_theta_1p_recoil = nullptr;
+	TH2F *pE_theta_2p_ejectile = nullptr, *pE_theta_2p_recoil = nullptr;
 	std::vector<TH2F*> pE_dE, pE_dE_coinc, pE_dE_cut;
 	std::vector<TH2F*> pE_theta_sec, pE_theta_coinc_sec;
 	std::vector<TH2F*> pE_theta_ejectile_sec, pE_theta_recoil_sec;
 	std::vector<std::vector<TH2F*>> pE_dE_sec, pE_dE_coinc_sec, pE_dE_cut_sec;
-	TProfile *pBeta_theta_ejectile, *pBeta_theta_recoil;
-	TH1F *particle_particle_td;
-	TH1F *particle_particle_td_prompt;
-	TH1F *particle_particle_td_random;
-	TH2F *particle_xy_map_forward, *particle_xy_map_backward, *particle_theta_phi_map;
-
+	TProfile *pBeta_theta_ejectile = nullptr, *pBeta_theta_recoil = nullptr;
+	TH1F *particle_particle_td, *particle_particle_td_prompt, *particle_particle_td_random = nullptr;
+	TH2F *particle_xy_map_forward = nullptr, *particle_xy_map_backward = nullptr;
+	TH2F *particle_theta_phi_map = nullptr;
+	
 	// Particle-gamma coincidences with and without addback
-	TH1F *gamma_particle_td;
-	TH1F *gamma_particle_td_prompt;
-	TH1F *gamma_particle_td_random;
-	TH2F *gamma_particle_E_vs_td;
+	TH1F *gamma_particle_td, *gamma_particle_td_prompt, *gamma_particle_td_random = nullptr;
+	TH2F *gamma_particle_E_vs_td = nullptr;
 	std::vector<TH1F*> gamma_particle_td_sec;
 	std::vector<TH2F*> gamma_particle_E_vs_td_sec;
-	TH1F *gE_prompt, *gE_prompt_1p, *gE_prompt_2p;
-	TH1F *gE_random, *gE_random_1p, *gE_random_2p;
-	TH1F *aE_prompt, *aE_prompt_1p, *aE_prompt_2p;
-	TH1F *aE_random, *aE_random_1p, *aE_random_2p;
+	TH1F *gE_prompt = nullptr, *gE_prompt_1p = nullptr, *gE_prompt_2p = nullptr;
+	TH1F *gE_random = nullptr, *gE_random_1p = nullptr, *gE_random_2p = nullptr;
+	TH1F *aE_prompt = nullptr, *aE_prompt_1p = nullptr, *aE_prompt_2p = nullptr;
+	TH1F *aE_random = nullptr, *aE_random_1p = nullptr, *aE_random_2p = nullptr;
 
 	// Particle-electron coincidences
-	TH1F *electron_particle_td;
-	TH1F *electron_particle_td_prompt;
-	TH1F *electron_particle_td_random;
-	TH1F *eE_prompt, *eE_prompt_1p, *eE_prompt_2p;
-	TH1F *eE_random, *eE_random_1p, *eE_random_2p;
+	TH1F *electron_particle_td, *electron_particle_td_prompt, *electron_particle_td_random = nullptr;
+	TH1F *eE_prompt = nullptr, *eE_prompt_1p = nullptr, *eE_prompt_2p = nullptr;
+	TH1F *eE_random = nullptr, *eE_random_1p = nullptr, *eE_random_2p = nullptr;
 
 	// Doppler-corrected gamma-rays without addback
-	TH1F *gE_ejectile_dc_none,               *gE_ejectile_dc_ejectile,               *gE_ejectile_dc_recoil;
-	TH1F *gE_recoil_dc_none,                 *gE_recoil_dc_ejectile,                 *gE_recoil_dc_recoil;
-	TH1F *gE_1p_ejectile_dc_none,            *gE_1p_ejectile_dc_ejectile,            *gE_1p_ejectile_dc_recoil;
-	TH1F *gE_1p_recoil_dc_none,              *gE_1p_recoil_dc_ejectile,              *gE_1p_recoil_dc_recoil;
-	TH1F *gE_2p_dc_none,                     *gE_2p_dc_ejectile,                     *gE_2p_dc_recoil;
-	TH2F *gE_ejectile_dc_none_t1,            *gE_ejectile_dc_ejectile_t1,            *gE_ejectile_dc_recoil_t1;
-	TH2F *gE_recoil_dc_none_t1,              *gE_recoil_dc_ejectile_t1,              *gE_recoil_dc_recoil_t1;
-	TH2F *gE_1p_ejectile_dc_none_t1,         *gE_1p_ejectile_dc_ejectile_t1,         *gE_1p_ejectile_dc_recoil_t1;
-	TH2F *gE_1p_recoil_dc_none_t1,           *gE_1p_recoil_dc_ejectile_t1,           *gE_1p_recoil_dc_recoil_t1;
-	TH2F *gE_2p_dc_none_t1,                  *gE_2p_dc_ejectile_t1,                  *gE_2p_dc_recoil_t1;
-	TH2F *gE_vs_theta_ejectile_dc_none,      *gE_vs_theta_ejectile_dc_ejectile,      *gE_vs_theta_ejectile_dc_recoil;
-	TH2F *gE_vs_theta_recoil_dc_none,        *gE_vs_theta_recoil_dc_ejectile,        *gE_vs_theta_recoil_dc_recoil;
-	TH2F *gE_vs_theta_1p_ejectile_dc_none,   *gE_vs_theta_1p_ejectile_dc_ejectile,   *gE_vs_theta_1p_ejectile_dc_recoil;
-	TH2F *gE_vs_theta_1p_recoil_dc_none,     *gE_vs_theta_1p_recoil_dc_ejectile,     *gE_vs_theta_1p_recoil_dc_recoil;
-	TH2F *gE_vs_theta_2p_dc_none,            *gE_vs_theta_2p_dc_ejectile,            *gE_vs_theta_2p_dc_recoil;
-	TH2F *gE_vs_costheta_ejectile_dc_none,   *gE_vs_costheta_ejectile_dc_ejectile,   *gE_vs_costheta_ejectile_dc_recoil;
-	TH2F *gE_vs_costheta2_ejectile_dc_none;
-	TH2F *gE_vs_costheta_recoil_dc_none,     *gE_vs_costheta_recoil_dc_ejectile,     *gE_vs_costheta_recoil_dc_recoil;
-	TH2F *gE_vs_costheta2_recoil_dc_none;
-	TH2F *gE_vs_crystal_ejectile_dc_none,    *gE_vs_crystal_ejectile_dc_ejectile,    *gE_vs_crystal_ejectile_dc_recoil;
-	TH2F *gE_vs_crystal_recoil_dc_none,      *gE_vs_crystal_recoil_dc_ejectile,      *gE_vs_crystal_recoil_dc_recoil;
-	TH2F *gE_vs_crystal_1p_ejectile_dc_none, *gE_vs_crystal_1p_ejectile_dc_ejectile, *gE_vs_crystal_1p_ejectile_dc_recoil;
-	TH2F *gE_vs_crystal_1p_recoil_dc_none,   *gE_vs_crystal_1p_recoil_dc_ejectile,   *gE_vs_crystal_1p_recoil_dc_recoil;
-	TH2F *gE_vs_crystal_2p_dc_none,          *gE_vs_crystal_2p_dc_ejectile,          *gE_vs_crystal_2p_dc_recoil;
-	TH2F *ggE_ejectile_dc_none,              *ggE_ejectile_dc_ejectile,              *ggE_ejectile_dc_recoil;
-	TH2F *ggE_recoil_dc_none,                *ggE_recoil_dc_ejectile,                *ggE_recoil_dc_recoil;
+	TH1F *gE_ejectile_dc_none = nullptr,               *gE_ejectile_dc_ejectile = nullptr,               *gE_ejectile_dc_recoil = nullptr;
+	TH1F *gE_recoil_dc_none = nullptr,                 *gE_recoil_dc_ejectile = nullptr,                 *gE_recoil_dc_recoil = nullptr;
+	TH1F *gE_1p_ejectile_dc_none = nullptr,            *gE_1p_ejectile_dc_ejectile = nullptr,            *gE_1p_ejectile_dc_recoil = nullptr;
+	TH1F *gE_1p_recoil_dc_none = nullptr,              *gE_1p_recoil_dc_ejectile = nullptr,              *gE_1p_recoil_dc_recoil = nullptr;
+	TH1F *gE_2p_dc_none = nullptr,                     *gE_2p_dc_ejectile = nullptr,                     *gE_2p_dc_recoil = nullptr;
+	TH2F *gE_ejectile_dc_none_t1 = nullptr,            *gE_ejectile_dc_ejectile_t1 = nullptr,            *gE_ejectile_dc_recoil_t1 = nullptr;
+	TH2F *gE_recoil_dc_none_t1 = nullptr,              *gE_recoil_dc_ejectile_t1 = nullptr,              *gE_recoil_dc_recoil_t1 = nullptr;
+	TH2F *gE_1p_ejectile_dc_none_t1 = nullptr,         *gE_1p_ejectile_dc_ejectile_t1 = nullptr,         *gE_1p_ejectile_dc_recoil_t1 = nullptr;
+	TH2F *gE_1p_recoil_dc_none_t1 = nullptr,           *gE_1p_recoil_dc_ejectile_t1 = nullptr,           *gE_1p_recoil_dc_recoil_t1 = nullptr;
+	TH2F *gE_2p_dc_none_t1 = nullptr,                  *gE_2p_dc_ejectile_t1 = nullptr,                  *gE_2p_dc_recoil_t1 = nullptr;
+	TH2F *gE_vs_theta_ejectile_dc_none = nullptr,      *gE_vs_theta_ejectile_dc_ejectile = nullptr,      *gE_vs_theta_ejectile_dc_recoil = nullptr;
+	TH2F *gE_vs_theta_recoil_dc_none = nullptr,        *gE_vs_theta_recoil_dc_ejectile = nullptr,        *gE_vs_theta_recoil_dc_recoil = nullptr;
+	TH2F *gE_vs_theta_1p_ejectile_dc_none = nullptr,   *gE_vs_theta_1p_ejectile_dc_ejectile = nullptr,   *gE_vs_theta_1p_ejectile_dc_recoil = nullptr;
+	TH2F *gE_vs_theta_1p_recoil_dc_none = nullptr,     *gE_vs_theta_1p_recoil_dc_ejectile = nullptr,     *gE_vs_theta_1p_recoil_dc_recoil = nullptr;
+	TH2F *gE_vs_theta_2p_dc_none = nullptr,            *gE_vs_theta_2p_dc_ejectile = nullptr,            *gE_vs_theta_2p_dc_recoil = nullptr;
+	TH2F *gE_vs_costheta_ejectile_dc_none = nullptr,   *gE_vs_costheta_ejectile_dc_ejectile = nullptr,   *gE_vs_costheta_ejectile_dc_recoil = nullptr;
+	TH2F *gE_vs_costheta2_ejectile_dc_none = nullptr;
+	TH2F *gE_vs_costheta_recoil_dc_none = nullptr,     *gE_vs_costheta_recoil_dc_ejectile = nullptr,     *gE_vs_costheta_recoil_dc_recoil = nullptr;
+	TH2F *gE_vs_costheta2_recoil_dc_none = nullptr;
+	TH2F *gE_vs_crystal_ejectile_dc_none = nullptr,    *gE_vs_crystal_ejectile_dc_ejectile = nullptr,    *gE_vs_crystal_ejectile_dc_recoil = nullptr;
+	TH2F *gE_vs_crystal_recoil_dc_none = nullptr,      *gE_vs_crystal_recoil_dc_ejectile = nullptr,      *gE_vs_crystal_recoil_dc_recoil = nullptr;
+	TH2F *gE_vs_crystal_1p_ejectile_dc_none = nullptr, *gE_vs_crystal_1p_ejectile_dc_ejectile = nullptr, *gE_vs_crystal_1p_ejectile_dc_recoil = nullptr;
+	TH2F *gE_vs_crystal_1p_recoil_dc_none = nullptr,   *gE_vs_crystal_1p_recoil_dc_ejectile = nullptr,   *gE_vs_crystal_1p_recoil_dc_recoil = nullptr;
+	TH2F *gE_vs_crystal_2p_dc_none = nullptr,          *gE_vs_crystal_2p_dc_ejectile = nullptr,          *gE_vs_crystal_2p_dc_recoil = nullptr;
+	TH2F *ggE_ejectile_dc_none = nullptr,              *ggE_ejectile_dc_ejectile = nullptr,              *ggE_ejectile_dc_recoil = nullptr;
+	TH2F *ggE_recoil_dc_none = nullptr,                *ggE_recoil_dc_ejectile = nullptr,                *ggE_recoil_dc_recoil = nullptr;
 
 	// Doppler-corrected gamma-rays with addback
-	TH1F *aE_ejectile_dc_none,               *aE_ejectile_dc_ejectile,               *aE_ejectile_dc_recoil;
-	TH1F *aE_recoil_dc_none,                 *aE_recoil_dc_ejectile,                 *aE_recoil_dc_recoil;
-	TH1F *aE_1p_ejectile_dc_none,            *aE_1p_ejectile_dc_ejectile,            *aE_1p_ejectile_dc_recoil;
-	TH1F *aE_1p_recoil_dc_none,              *aE_1p_recoil_dc_ejectile,              *aE_1p_recoil_dc_recoil;
-	TH1F *aE_2p_dc_none,                     *aE_2p_dc_ejectile,                     *aE_2p_dc_recoil;
-	TH2F *aE_ejectile_dc_none_t1,            *aE_ejectile_dc_ejectile_t1,            *aE_ejectile_dc_recoil_t1;
-	TH2F *aE_recoil_dc_none_t1,              *aE_recoil_dc_ejectile_t1,              *aE_recoil_dc_recoil_t1;
-	TH2F *aE_1p_ejectile_dc_none_t1,         *aE_1p_ejectile_dc_ejectile_t1,         *aE_1p_ejectile_dc_recoil_t1;
-	TH2F *aE_1p_recoil_dc_none_t1,           *aE_1p_recoil_dc_ejectile_t1,           *aE_1p_recoil_dc_recoil_t1;
-	TH2F *aE_2p_dc_none_t1,                  *aE_2p_dc_ejectile_t1,                  *aE_2p_dc_recoil_t1;
-	TH2F *aE_vs_theta_ejectile_dc_none,      *aE_vs_theta_ejectile_dc_ejectile,      *aE_vs_theta_ejectile_dc_recoil;
-	TH2F *aE_vs_theta_recoil_dc_none,        *aE_vs_theta_recoil_dc_ejectile,        *aE_vs_theta_recoil_dc_recoil;
-	TH2F *aE_vs_theta_1p_ejectile_dc_none,   *aE_vs_theta_1p_ejectile_dc_ejectile,   *aE_vs_theta_1p_ejectile_dc_recoil;
-	TH2F *aE_vs_theta_1p_recoil_dc_none,     *aE_vs_theta_1p_recoil_dc_ejectile,     *aE_vs_theta_1p_recoil_dc_recoil;
-	TH2F *aE_vs_theta_2p_dc_none,            *aE_vs_theta_2p_dc_ejectile,            *aE_vs_theta_2p_dc_recoil;
-	TH2F *aE_vs_costheta_ejectile_dc_none,   *aE_vs_costheta_ejectile_dc_ejectile,   *aE_vs_costheta_ejectile_dc_recoil;
-	TH2F *aE_vs_costheta2_ejectile_dc_none;
-	TH2F *aE_vs_costheta_recoil_dc_none,     *aE_vs_costheta_recoil_dc_ejectile,     *aE_vs_costheta_recoil_dc_recoil;
-	TH2F *aE_vs_costheta2_recoil_dc_none;
-	TH2F *aE_vs_crystal_ejectile_dc_none,    *aE_vs_crystal_ejectile_dc_ejectile,    *aE_vs_crystal_ejectile_dc_recoil;
-	TH2F *aE_vs_crystal_recoil_dc_none,      *aE_vs_crystal_recoil_dc_ejectile,      *aE_vs_crystal_recoil_dc_recoil;
-	TH2F *aE_vs_crystal_1p_ejectile_dc_none, *aE_vs_crystal_1p_ejectile_dc_ejectile, *aE_vs_crystal_1p_ejectile_dc_recoil;
-	TH2F *aE_vs_crystal_1p_recoil_dc_none,   *aE_vs_crystal_1p_recoil_dc_ejectile,   *aE_vs_crystal_1p_recoil_dc_recoil;
-	TH2F *aE_vs_crystal_2p_dc_none,          *aE_vs_crystal_2p_dc_ejectile,          *aE_vs_crystal_2p_dc_recoil;
-	TH2F *aaE_ejectile_dc_none,              *aaE_ejectile_dc_ejectile,              *aaE_ejectile_dc_recoil;
-	TH2F *aaE_recoil_dc_none,                *aaE_recoil_dc_ejectile,                *aaE_recoil_dc_recoil;
+	TH1F *aE_ejectile_dc_none = nullptr,               *aE_ejectile_dc_ejectile = nullptr,               *aE_ejectile_dc_recoil = nullptr;
+	TH1F *aE_recoil_dc_none = nullptr,                 *aE_recoil_dc_ejectile = nullptr,                 *aE_recoil_dc_recoil = nullptr;
+	TH1F *aE_1p_ejectile_dc_none = nullptr,            *aE_1p_ejectile_dc_ejectile = nullptr,            *aE_1p_ejectile_dc_recoil = nullptr;
+	TH1F *aE_1p_recoil_dc_none = nullptr,              *aE_1p_recoil_dc_ejectile = nullptr,              *aE_1p_recoil_dc_recoil = nullptr;
+	TH1F *aE_2p_dc_none = nullptr,                     *aE_2p_dc_ejectile = nullptr,                     *aE_2p_dc_recoil = nullptr;
+	TH2F *aE_ejectile_dc_none_t1 = nullptr,            *aE_ejectile_dc_ejectile_t1 = nullptr,            *aE_ejectile_dc_recoil_t1 = nullptr;
+	TH2F *aE_recoil_dc_none_t1 = nullptr,              *aE_recoil_dc_ejectile_t1 = nullptr,              *aE_recoil_dc_recoil_t1 = nullptr;
+	TH2F *aE_1p_ejectile_dc_none_t1 = nullptr,         *aE_1p_ejectile_dc_ejectile_t1 = nullptr,         *aE_1p_ejectile_dc_recoil_t1 = nullptr;
+	TH2F *aE_1p_recoil_dc_none_t1 = nullptr,           *aE_1p_recoil_dc_ejectile_t1 = nullptr,           *aE_1p_recoil_dc_recoil_t1 = nullptr;
+	TH2F *aE_2p_dc_none_t1 = nullptr,                  *aE_2p_dc_ejectile_t1 = nullptr,                  *aE_2p_dc_recoil_t1 = nullptr;
+	TH2F *aE_vs_theta_ejectile_dc_none = nullptr,      *aE_vs_theta_ejectile_dc_ejectile = nullptr,      *aE_vs_theta_ejectile_dc_recoil = nullptr;
+	TH2F *aE_vs_theta_recoil_dc_none = nullptr,        *aE_vs_theta_recoil_dc_ejectile = nullptr,        *aE_vs_theta_recoil_dc_recoil = nullptr;
+	TH2F *aE_vs_theta_1p_ejectile_dc_none = nullptr,   *aE_vs_theta_1p_ejectile_dc_ejectile = nullptr,   *aE_vs_theta_1p_ejectile_dc_recoil = nullptr;
+	TH2F *aE_vs_theta_1p_recoil_dc_none = nullptr,     *aE_vs_theta_1p_recoil_dc_ejectile = nullptr,     *aE_vs_theta_1p_recoil_dc_recoil = nullptr;
+	TH2F *aE_vs_theta_2p_dc_none = nullptr,            *aE_vs_theta_2p_dc_ejectile = nullptr,            *aE_vs_theta_2p_dc_recoil = nullptr;
+	TH2F *aE_vs_costheta_ejectile_dc_none = nullptr,   *aE_vs_costheta_ejectile_dc_ejectile = nullptr,   *aE_vs_costheta_ejectile_dc_recoil = nullptr;
+	TH2F *aE_vs_costheta2_ejectile_dc_none = nullptr;
+	TH2F *aE_vs_costheta_recoil_dc_none = nullptr,     *aE_vs_costheta_recoil_dc_ejectile = nullptr,     *aE_vs_costheta_recoil_dc_recoil = nullptr;
+	TH2F *aE_vs_costheta2_recoil_dc_none = nullptr;
+	TH2F *aE_vs_crystal_ejectile_dc_none = nullptr,    *aE_vs_crystal_ejectile_dc_ejectile = nullptr,    *aE_vs_crystal_ejectile_dc_recoil = nullptr;
+	TH2F *aE_vs_crystal_recoil_dc_none = nullptr,      *aE_vs_crystal_recoil_dc_ejectile = nullptr,      *aE_vs_crystal_recoil_dc_recoil = nullptr;
+	TH2F *aE_vs_crystal_1p_ejectile_dc_none = nullptr, *aE_vs_crystal_1p_ejectile_dc_ejectile = nullptr, *aE_vs_crystal_1p_ejectile_dc_recoil = nullptr;
+	TH2F *aE_vs_crystal_1p_recoil_dc_none = nullptr,   *aE_vs_crystal_1p_recoil_dc_ejectile = nullptr,   *aE_vs_crystal_1p_recoil_dc_recoil = nullptr;
+	TH2F *aE_vs_crystal_2p_dc_none = nullptr,          *aE_vs_crystal_2p_dc_ejectile = nullptr,          *aE_vs_crystal_2p_dc_recoil = nullptr;
+	TH2F *aaE_ejectile_dc_none = nullptr,              *aaE_ejectile_dc_ejectile = nullptr,              *aaE_ejectile_dc_recoil = nullptr;
+	TH2F *aaE_recoil_dc_none = nullptr,                *aaE_recoil_dc_ejectile = nullptr,                *aaE_recoil_dc_recoil = nullptr;
 
 	// Segment phi determination
 	std::vector<TH2F*> gE_vs_phi_dc_ejectile;
 	std::vector<TH2F*> gE_vs_phi_dc_recoil;
 	
 	// Electron energy versus cos(theta)
-	TH2F *eE_costheta_ejectile, *eE_costheta_recoil;
-  
+	TH2F *eE_costheta_ejectile = nullptr, *eE_costheta_recoil = nullptr;
+
 	// Doppler-corrected electrons
-	TH1F *eE_ejectile_dc_none,             *eE_ejectile_dc_ejectile,             *eE_ejectile_dc_recoil;
-	TH1F *eE_recoil_dc_none,               *eE_recoil_dc_ejectile,               *eE_recoil_dc_recoil;
-	TH1F *eE_1p_ejectile_dc_none,          *eE_1p_ejectile_dc_ejectile,          *eE_1p_ejectile_dc_recoil;
-	TH1F *eE_1p_recoil_dc_none,            *eE_1p_recoil_dc_ejectile,            *eE_1p_recoil_dc_recoil;
-	TH1F *eE_2p_dc_none,                   *eE_2p_dc_ejectile,                   *eE_2p_dc_recoil;
-	TH2F *eE_vs_theta_ejectile_dc_none,    *eE_vs_theta_ejectile_dc_ejectile,    *eE_vs_theta_ejectile_dc_recoil;
-	TH2F *eE_vs_theta_recoil_dc_none,      *eE_vs_theta_recoil_dc_ejectile,      *eE_vs_theta_recoil_dc_recoil;
-	TH2F *eE_vs_theta_1p_ejectile_dc_none, *eE_vs_theta_1p_ejectile_dc_ejectile, *eE_vs_theta_1p_ejectile_dc_recoil;
-	TH2F *eE_vs_theta_1p_recoil_dc_none,   *eE_vs_theta_1p_recoil_dc_ejectile,   *eE_vs_theta_1p_recoil_dc_recoil;
-	TH2F *eE_vs_theta_2p_dc_none,          *eE_vs_theta_2p_dc_ejectile,          *eE_vs_theta_2p_dc_recoil;
-	TH2F *eE_vs_ejectile_dc_none_segment,  *eE_vs_ejectile_dc_ejectile_segment,  *eE_vs_ejectile_dc_recoil_segment;
-	TH2F *eE_vs_recoil_dc_none_segment,    *eE_vs_recoil_dc_ejectile_segment,    *eE_vs_recoil_dc_recoil_segment;
-	TH2F *egE_ejectile_dc_none,            *egE_ejectile_dc_ejectile,            *egE_ejectile_dc_recoil;
-	TH2F *egE_recoil_dc_none,              *egE_recoil_dc_ejectile,              *egE_recoil_dc_recoil;
-	TH2F *eaE_ejectile_dc_none,            *eaE_ejectile_dc_ejectile,            *eaE_ejectile_dc_recoil;
-	TH2F *eaE_recoil_dc_none,              *eaE_recoil_dc_ejectile,              *eaE_recoil_dc_recoil;
+	TH1F *eE_ejectile_dc_none = nullptr,             *eE_ejectile_dc_ejectile = nullptr,             *eE_ejectile_dc_recoil = nullptr;
+	TH1F *eE_recoil_dc_none = nullptr,               *eE_recoil_dc_ejectile = nullptr,               *eE_recoil_dc_recoil = nullptr;
+	TH1F *eE_1p_ejectile_dc_none = nullptr,          *eE_1p_ejectile_dc_ejectile = nullptr,          *eE_1p_ejectile_dc_recoil = nullptr;
+	TH1F *eE_1p_recoil_dc_none = nullptr,            *eE_1p_recoil_dc_ejectile = nullptr,            *eE_1p_recoil_dc_recoil = nullptr;
+	TH1F *eE_2p_dc_none = nullptr,                   *eE_2p_dc_ejectile = nullptr,                   *eE_2p_dc_recoil = nullptr;
+	TH2F *eE_vs_theta_ejectile_dc_none = nullptr,    *eE_vs_theta_ejectile_dc_ejectile = nullptr,    *eE_vs_theta_ejectile_dc_recoil = nullptr;
+	TH2F *eE_vs_theta_recoil_dc_none = nullptr,      *eE_vs_theta_recoil_dc_ejectile = nullptr,      *eE_vs_theta_recoil_dc_recoil = nullptr;
+	TH2F *eE_vs_theta_1p_ejectile_dc_none = nullptr, *eE_vs_theta_1p_ejectile_dc_ejectile = nullptr, *eE_vs_theta_1p_ejectile_dc_recoil = nullptr;
+	TH2F *eE_vs_theta_1p_recoil_dc_none = nullptr,   *eE_vs_theta_1p_recoil_dc_ejectile = nullptr,   *eE_vs_theta_1p_recoil_dc_recoil = nullptr;
+	TH2F *eE_vs_theta_2p_dc_none = nullptr,          *eE_vs_theta_2p_dc_ejectile = nullptr,          *eE_vs_theta_2p_dc_recoil = nullptr;
+	TH2F *eE_vs_ejectile_dc_none_segment = nullptr,  *eE_vs_ejectile_dc_ejectile_segment = nullptr,  *eE_vs_ejectile_dc_recoil_segment = nullptr;
+	TH2F *eE_vs_recoil_dc_none_segment = nullptr,    *eE_vs_recoil_dc_ejectile_segment = nullptr,    *eE_vs_recoil_dc_recoil_segment = nullptr;
+	TH2F *egE_ejectile_dc_none = nullptr,            *egE_ejectile_dc_ejectile = nullptr,            *egE_ejectile_dc_recoil = nullptr;
+	TH2F *egE_recoil_dc_none = nullptr,              *egE_recoil_dc_ejectile = nullptr,              *egE_recoil_dc_recoil = nullptr;
+	TH2F *eaE_ejectile_dc_none = nullptr,            *eaE_ejectile_dc_ejectile = nullptr,            *eaE_ejectile_dc_recoil = nullptr;
+	TH2F *eaE_recoil_dc_none = nullptr,              *eaE_recoil_dc_ejectile = nullptr,              *eaE_recoil_dc_recoil = nullptr;
 
 	// Beam-dump histograms
-	TH1F *bdE_singles;
+	TH1F *bdE_singles = nullptr;
 	std::vector<TH1F*> bdE_singles_det;
-	TH1F *bd_bd_td;
-	TH2F *bdE_bdE;
-	
+	TH1F *bd_bd_td = nullptr;
+	TH2F *bdE_bdE = nullptr;
+
 	// IonChamber histograms
-	TH1F *ic_dE, *ic_E;
-	TH2F *ic_dE_E;
+	TH1F *ic_dE = nullptr, *ic_E = nullptr;
+	TH2F *ic_dE_E = nullptr;
 
 };
 
