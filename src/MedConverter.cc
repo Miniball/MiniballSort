@@ -105,12 +105,6 @@ void MiniballMedConverter::ProcessMesytecAdcData() {
 		// If format is fine, we have the word count in here
 		int wc = (header & MESYTEC_MADC_WORD_COUNT);
 
-		// Is module number ok? If not, get next item
-		if( mod < 0 ) {
-			i += wc * 2; // skip rest of event (2 shorts per word)
-			continue;
-		}
-
 		// check number of Channels (MESYTEC_MADC_NBOFCHAN=32 + 1 word End of Event + 1 extended timestamp)
 		// -> skip TOTAL subevent if wrong number of Channels
 		if( wc <= 0 || wc > (int)set->GetNumberOfMesytecAdcChannels() + 2 ) {
@@ -564,7 +558,6 @@ void MiniballMedConverter::ProcessDgfData() {
 		// beam dump module has format 'COMP3_LM_BUFFORMAT'
 		// determine corrected module number
 		mod = set->GetDgfModuleNumber( mod );
-		if( mod < 0 ) return;
 
 		// Work out what type of DGF event we have
 		int DgfType = mbs_sevt->GetSubEventType() - XIA_EVENT;
