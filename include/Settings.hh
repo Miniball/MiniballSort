@@ -198,9 +198,9 @@ public:
 	bool IsMiniball( unsigned int dgf, unsigned int ch );
 	bool IsMiniball( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetMiniballID( unsigned int dgf, unsigned int ch,
-					  std::vector<std::vector<std::vector<int>>> vector );
+					  const std::vector<std::vector<std::vector<int>>> &vector );
 	int GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
-					  std::vector<std::vector<std::vector<int>>> vector );
+					  const std::vector<std::vector<std::vector<int>>> &vector );
 	inline int GetMiniballCluster( unsigned int dgf, unsigned int ch ){
 		return GetMiniballID( dgf, ch, mb_cluster );
 	};
@@ -233,9 +233,9 @@ public:
 	bool IsCD( unsigned int adc, unsigned int ch );
 	bool IsCD( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetCDID( unsigned int adc, unsigned int ch,
-				std::vector<std::vector<std::vector<int>>> vector );
+				const std::vector<std::vector<std::vector<int>>> &vector );
 	int GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
-				std::vector<std::vector<std::vector<int>>> vector );
+				const std::vector<std::vector<std::vector<int>>> &vector );
 	inline int GetCDDetector( unsigned int adc, unsigned int ch ){
 		return GetCDID( adc, ch, cd_det );
 	};

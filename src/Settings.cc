@@ -983,7 +983,7 @@ bool MiniballSettings::IsMiniballSegmentVetoed( unsigned int clu, unsigned int c
 }
 
 int MiniballSettings::GetMiniballID( unsigned int dgf, unsigned int ch,
-							 std::vector<std::vector<std::vector<int>>> vector ) {
+							 const std::vector<std::vector<std::vector<int>>> &vector ) {
 	
 	/// Return the Miniball ID by the DGF module number and Channel number
 	if( dgf < n_dgf_mod && ch < n_dgf_ch )
@@ -1000,7 +1000,7 @@ int MiniballSettings::GetMiniballID( unsigned int dgf, unsigned int ch,
 }
 
 int MiniballSettings::GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
-							 std::vector<std::vector<std::vector<int>>> vector ) {
+							 const std::vector<std::vector<std::vector<int>>> &vector ) {
 	
 	/// Return the Miniball ID by the FEBEX SFP, Board number and Channel number
 	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
@@ -1060,7 +1060,7 @@ bool MiniballSettings::IsCD( unsigned int sfp, unsigned int board, unsigned int 
 }
 
 int MiniballSettings::GetCDID( unsigned int adc, unsigned int ch,
-					  std::vector<std::vector<std::vector<int>>> vector ) {
+					  const std::vector<std::vector<std::vector<int>>> &vector ) {
 	
 	/// Return the CD ID by the FEBEX SFP, Board number and Channel number
 	if( adc < GetNumberOfAdcModules() && ch < GetMaximumNumberOfAdcChannels() )
@@ -1077,7 +1077,7 @@ int MiniballSettings::GetCDID( unsigned int adc, unsigned int ch,
 }
 
 int MiniballSettings::GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
-					  std::vector<std::vector<std::vector<int>>> vector ) {
+					  const std::vector<std::vector<std::vector<int>>> &vector ) {
 	
 	/// Return the CD ID by the FEBEX SFP, Board number and Channel number
 	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
