@@ -1437,24 +1437,25 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l01324" name="l01324"></a><span class="lineno"> 1324</span>        g-&gt;SetPoint( i, En, total*conv );</div>
 <div class="line"><a id="l01325" name="l01325"></a><span class="lineno"> 1325</span>        </div>
 <div class="line"><a id="l01326" name="l01326"></a><span class="lineno"> 1326</span>    }</div>
-<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>    </div>
-<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>    <span class="comment">// Draw the plot and save it somewhere</span></div>
-<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span>    TCanvas *c = <span class="keyword">new</span> TCanvas();</div>
-<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span>    c-&gt;SetLogx();</div>
-<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>    <span class="comment">//c-&gt;SetLogy();</span></div>
-<div class="line"><a id="l01332" name="l01332"></a><span class="lineno"> 1332</span>    g-&gt;Draw(<span class="stringliteral">&quot;A*&quot;</span>);</div>
-<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>    std::string pdfname = srimfilename.substr( 0, srimfilename.find_last_of(<span class="stringliteral">&quot;.&quot;</span>) ) + <span class="stringliteral">&quot;.pdf&quot;</span>;</div>
-<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span>    c-&gt;SaveAs( pdfname.c_str() );</div>
-<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span>    </div>
-<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span>    <span class="keyword">delete</span> c;</div>
-<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"> 1337</span>    input_file.close();</div>
-<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"> 1338</span>    </div>
-<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>    <span class="comment">// ROOT can be noisey again</span></div>
-<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span>    gErrorIgnoreLevel = kInfo;</div>
-<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span> </div>
-<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span>     </div>
-<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span>}</div>
+<div class="line"><a id="l01327" name="l01327"></a><span class="lineno"> 1327</span>    g-&gt;Sort();</div>
+<div class="line"><a id="l01328" name="l01328"></a><span class="lineno"> 1328</span>    </div>
+<div class="line"><a id="l01329" name="l01329"></a><span class="lineno"> 1329</span>    <span class="comment">// Draw the plot and save it somewhere</span></div>
+<div class="line"><a id="l01330" name="l01330"></a><span class="lineno"> 1330</span>    TCanvas *c = <span class="keyword">new</span> TCanvas();</div>
+<div class="line"><a id="l01331" name="l01331"></a><span class="lineno"> 1331</span>    c-&gt;SetLogx();</div>
+<div class="line"><a id="l01332" name="l01332"></a><span class="lineno"> 1332</span>    <span class="comment">//c-&gt;SetLogy();</span></div>
+<div class="line"><a id="l01333" name="l01333"></a><span class="lineno"> 1333</span>    g-&gt;Draw(<span class="stringliteral">&quot;A*&quot;</span>);</div>
+<div class="line"><a id="l01334" name="l01334"></a><span class="lineno"> 1334</span>    std::string pdfname = srimfilename.substr( 0, srimfilename.find_last_of(<span class="stringliteral">&quot;.&quot;</span>) ) + <span class="stringliteral">&quot;.pdf&quot;</span>;</div>
+<div class="line"><a id="l01335" name="l01335"></a><span class="lineno"> 1335</span>    c-&gt;SaveAs( pdfname.c_str() );</div>
+<div class="line"><a id="l01336" name="l01336"></a><span class="lineno"> 1336</span>    </div>
+<div class="line"><a id="l01337" name="l01337"></a><span class="lineno"> 1337</span>    <span class="keyword">delete</span> c;</div>
+<div class="line"><a id="l01338" name="l01338"></a><span class="lineno"> 1338</span>    input_file.close();</div>
+<div class="line"><a id="l01339" name="l01339"></a><span class="lineno"> 1339</span>    </div>
+<div class="line"><a id="l01340" name="l01340"></a><span class="lineno"> 1340</span>    <span class="comment">// ROOT can be noisey again</span></div>
+<div class="line"><a id="l01341" name="l01341"></a><span class="lineno"> 1341</span>    gErrorIgnoreLevel = kInfo;</div>
+<div class="line"><a id="l01342" name="l01342"></a><span class="lineno"> 1342</span> </div>
+<div class="line"><a id="l01343" name="l01343"></a><span class="lineno"> 1343</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l01344" name="l01344"></a><span class="lineno"> 1344</span>     </div>
+<div class="line"><a id="l01345" name="l01345"></a><span class="lineno"> 1345</span>}</div>
 </div>
 <div class="ttc" id="aReaction_8cc_html_a8c916cc223e6ef179aadab3d2f2f3544"><div class="ttname"><a href="Reaction_8cc.html#a8c916cc223e6ef179aadab3d2f2f3544">ClassImp</a></div><div class="ttdeci">ClassImp(MiniballParticle) ClassImp(MiniballReaction) MiniballReaction</div><div class="ttdef"><b>Definition</b> <a href="#l00003">Reaction.cc:3</a></div></div>
 <div class="ttc" id="aReaction_8hh_html"><div class="ttname"><a href="Reaction_8hh.html">Reaction.hh</a></div></div>
