@@ -955,7 +955,7 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 		En *= GetEnergyPrime();
 
 		// Do energy loss out the back of target if requested
-		if( stopping && doppler_mode == 1 ) {
+		if( stopping && ( doppler_mode == 1 || doppler_mode == 4 ) ) {
 
 			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[2] );
 			En -= eloss;
