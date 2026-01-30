@@ -212,7 +212,7 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name, bool cWrite 
 	// ------------------------------------------------------------------------ //
 	output_file = new TFile( output_file_name.data(), "recreate" );
 	output_tree = new TTree( "evt_tree", "evt_tree" );
-	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get() );
+	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get(), 256000, 0 );
 	output_tree->SetAutoFlush();
 
 	// Create log file.
