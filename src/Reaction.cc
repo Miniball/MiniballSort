@@ -1324,6 +1324,7 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 		g->SetPoint( i, En, total*conv );
 		
 	}
+	g->Sort();
 	
 	// Draw the plot and save it somewhere
 	TCanvas *c = new TCanvas();
