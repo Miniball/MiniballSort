@@ -406,6 +406,24 @@ void MiniballMbsConverter::FinishFebexData(){
 		
 	}
 	
+	else if( febex_data->GetSfp()     == set->GetSCSfp()     &&
+			 febex_data->GetBoard()   == set->GetSCBoard()   &&
+ 			 febex_data->GetChannel() == set->GetSCChannel() ){
+
+		flag_febex_info = true;
+		my_info_code = 23; // SC is always 23 (defined here)
+		
+	}
+	
+	else if( febex_data->GetSfp()     == set->GetRILISSfp()     &&
+			 febex_data->GetBoard()   == set->GetRILISBoard()   &&
+ 			 febex_data->GetChannel() == set->GetRILISChannel() ){
+
+		flag_febex_info = true;
+		my_info_code = 24; // RILIS is always 24 (defined here)
+		
+	}
+	
 	// If this is a timestamp, fill an info event
 	if( flag_febex_info ) {
 		
