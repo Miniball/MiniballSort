@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "MbsFormat.hh"
 
 MBS::MBS() {
