@@ -122,13 +122,13 @@ void MiniballConverter::MakeTree() {
 
 	// Create Root tree
 	const int splitLevel = 0; // don't split branches = 0, full splitting = 99
-	const int bufsize = sizeof(FebexData) + sizeof(InfoData);
+	const int bufsize = 256000;
 	sorted_tree = new TTree( "mb_sort", "Time sorted, calibrated Miniball data" );
 	mbsinfo_tree = new TTree( "mbsinfo", "mbsinfo" );
 	write_packet = std::make_shared<MiniballDataPackets>();
 	mbsinfo_packet = std::make_shared<MBSInfoPackets>();
 	sorted_tree->Branch( "data", "MiniballDataPackets", write_packet.get(), bufsize, splitLevel );
-	mbsinfo_tree->Branch( "mbsinfo", "MBSInfoPackets", mbsinfo_packet.get(), sizeof(MBSInfoPackets), 0 );
+	mbsinfo_tree->Branch( "mbsinfo", "MBSInfoPackets", mbsinfo_packet.get(), bufsize, 0 );
 	
 	sorted_tree->SetDirectory( output_file->GetDirectory("/") );
 	mbsinfo_tree->SetDirectory( output_file->GetDirectory("/") );
