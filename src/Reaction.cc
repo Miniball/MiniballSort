@@ -896,13 +896,14 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	double En = p->GetEnergy();
+	double En = p->GetEnergy(), Eemit = En;
 	double eloss = 0.0;
 	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
 
 		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
 		En -= eloss;
+		Eemit = En;
 
 		// Correction for degrader, so we get energy after target
 		if( doppler_mode == 5 && degrader_thickness > 0 ) {
@@ -910,11 +911,18 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 			eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 			eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
 			En -= eloss;
-
+			if( doppler_mode == 5 ) Eemit = En;
 		}
 
 	}
 
+	// Correction for energy loss in second half of target, so we get energy in the centre of the target
+	if( stopping && ( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 5 ) ) {
+		double eff_thick = target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( En, -0.5 * eff_thick, gStopping[2] ); // recoil in target
+		En -= eloss;
+	}
+	
 	// Set observables
 	Recoil.SetEnergy( En ); // eloss is negative to add back the dead layer energy
 	Recoil.SetTheta( GetParticleTheta(p) );
@@ -934,6 +942,9 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
 	recoil_detected = true;
 
+	// Now restore the energy to the value at the point of gamma-ray emission
+	Recoil.SetEnergy(Eemit);
+	
 	// Overwrite energy with kinematics if requested
 	if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 4 ) {
 
@@ -994,7 +1005,7 @@ void MiniballReaction::CalculateEjectile(){
 		En -= eloss;
 
 		// Do energy loss through the full degrader if requested
-		if( doppler_mode == 4 && degrader_thickness > 0 ) {
+		if( ( doppler_mode == 3 || doppler_mode == 4 ) && degrader_thickness > 0 ) {
 
 			eloss = GetEnergyLoss( En, degrader_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[5] );
 			En -= eloss;
