@@ -222,8 +222,8 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    std::string hname, folder = <span class="stringliteral">&quot;/miniball/cluster_&quot;</span>, base = <span class="stringliteral">&quot;mb_en_core_seg_&quot;</span>;</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    </div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="comment">// Histogram objects</span></div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    TH1D *h1;</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    TH2D *h2;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    TH1D *h1 = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    TH2D *h2 = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    </div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="comment">// Open the pdf file for peak fits</span></div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keyword">auto</span> c1 = std::make_unique&lt;TCanvas&gt;();</div>
@@ -288,8 +288,8 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    c1-&gt;Print(<span class="stringliteral">&quot;peak_fits.pdf)&quot;</span>);</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="comment">// Clean up</span></div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keyword">delete</span> h1;</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keyword">delete</span> h2;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">if</span> (h1) <span class="keyword">delete</span> h1;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordflow">if</span> (h2) <span class="keyword">delete</span> h2;</div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    gErrorIgnoreLevel = kInfo;</div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
