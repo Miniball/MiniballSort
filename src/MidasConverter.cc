@@ -712,7 +712,7 @@ void MiniballMidasConverter::FinishFebexData( long nblock ){
 
 }
 
-void MiniballMidasConverter::ProcessInfoData( long nblock ){
+void MiniballMidasConverter::ProcessInfoData( long /* nblock */ ){
 
 	// Module number from MIDAS
 	my_sfp_id	= (word_0 >> 28) & 0x0003; // bits 28:29

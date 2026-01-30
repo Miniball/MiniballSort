@@ -285,7 +285,7 @@ void MiniballReaction::ReadReaction() {
 	cd_dist.resize( set->GetNumberOfCDDetectors() );
 	cd_offset.resize( set->GetNumberOfCDDetectors() );
 	dead_layer.resize( set->GetNumberOfCDDetectors() );
-	double d_tmp;
+	double d_tmp = 0;
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 
 		if( i == 0 ) d_tmp = 32.0; // standard CD
@@ -1067,7 +1067,7 @@ void MiniballReaction::CalculateRecoil(){
 
 }
 
-void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag ){
+void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* kinflag */ ){
 
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
@@ -1130,9 +1130,9 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kin
 	// Lets check E4_CoM also with lorentz transfrom
 	//double E4_CoM = Recoil.GetEnergyTotCM(); This is only calculated from projectile = target -> bad
 	double E4_CoM = GetGammaCoM()*(Recoil.GetEnergyTot() - GetBetaCoM() * p4x);
-	double p4x_CoM = GetGammaCoM()*(p4x - GetBetaCoM() * Recoil.GetEnergyTot());
-	double p4y_CoM = p4y;
-	double theta4_CoM = TMath::ATan2(p4y_CoM, p4x_CoM);
+//	double p4x_CoM = GetGammaCoM()*(p4x - GetBetaCoM() * Recoil.GetEnergyTot());
+//	double p4y_CoM = p4y;
+//	double theta4_CoM = TMath::ATan2(p4y_CoM, p4x_CoM);
 
 	Ejectile.SetEnergyCoM(E3_CoM - Ejectile.GetMass() ); // Energy of the ejectile in CoM frame
 	Ejectile.SetThetaCoM(theta3_CoM); // theta of ejectile in CoM frame in radians

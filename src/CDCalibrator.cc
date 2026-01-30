@@ -503,9 +503,9 @@ void MiniballCDCalibrator::CalibrateNsides() {
 					cal_base = "adc_";
 					if( !FindCDChannels( i, j, 1, k, fmod, fch ) )
 					   continue;
-					   modchstr = std::to_string(fmod) + "_" + std::to_string(fch);
+					modchstr = std::to_string(fmod) + "_" + std::to_string(fch);
 
-					   } // old DAQ
+				} // old DAQ
 
 				else {
 					
