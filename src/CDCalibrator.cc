@@ -55,7 +55,7 @@ void MiniballCDCalibrator::SetInputFile( std::vector<std::string> input_file_nam
 
 	input_tree->SetBranchAddress( "data", &in_data );
 	mbsinfo_tree->SetBranchAddress( "mbsinfo", &mbs_info );
-	mbsinfo_tree->BuildIndex("GetEventID()");
+	if (mbsinfo_tree->GetEntries()) mbsinfo_tree->BuildIndex("GetEventID()");
 
 	return;
 
@@ -154,8 +154,6 @@ void MiniballCDCalibrator::MakeHists(){
 	// ------------- //
 	// CD histograms //
 	// ------------- //
-	cd_pen_nen.resize( set->GetNumberOfCDDetectors() );
-	cd_nen_pen.resize( set->GetNumberOfCDDetectors() );
 	cd_pen_nQ.resize( set->GetNumberOfCDDetectors() );
 	cd_nQ_pQ.resize( set->GetNumberOfCDDetectors() );
 
@@ -179,30 +177,17 @@ void MiniballCDCalibrator::MakeHists(){
 
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 		
-		cd_pen_nen[i].resize( set->GetNumberOfCDSectors() );
-		cd_nen_pen[i].resize( set->GetNumberOfCDSectors() );
 		cd_pen_nQ[i].resize( set->GetNumberOfCDSectors() );
 		cd_nQ_pQ[i].resize( set->GetNumberOfCDSectors() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
-			cd_nen_pen[i][j].resize( set->GetNumberOfCDPStrips() );
 			cd_nQ_pQ[i][j].resize( set->GetNumberOfCDPStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_nen_" + std::to_string(ptag) + "_pen_" + std::to_string(k);
-				htitle  = "CD n-side energy vs p-side energy for detector " + std::to_string(i);
-				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
-				htitle += ", nid " + std::to_string(ntag);
-				htitle += ";n-side energy (keV);p-side energy (keV);Counts";
-				cd_nen_pen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											   4000, 0, 2000e3, 4000, 0, 2000e3 );
-				histlist->Add(cd_nen_pen[i][j][k]);
-
-				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_nQ_" + std::to_string(ptag) + "_pQ_" + std::to_string(k);
+				hname  += "_nQ_" + std::to_string(ntag) + "_pQ_" + std::to_string(k);
 				htitle  = "CD n-side energy vs p-side raw charge for detector " + std::to_string(i);
 				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 				htitle += ", nid " + std::to_string(ntag);
@@ -213,20 +198,9 @@ void MiniballCDCalibrator::MakeHists(){
 
 			} // k
 
-			cd_pen_nen[i][j].resize( set->GetNumberOfCDNStrips() );
 			cd_pen_nQ[i][j].resize( set->GetNumberOfCDNStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
-
-				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_pen_" + std::to_string(ptag) + "_nen_" + std::to_string(k);
-				htitle  = "CD p-side energy vs n-side energy for detector " + std::to_string(i);
-				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(ptag);
-				htitle += ", nid " + std::to_string(k);
-				htitle += ";p-side energy (keV);n-side energy (keV);Counts";
-				cd_pen_nen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											   4000, 0, 2000e3, 4000, 0, 2000e3 );
-				histlist->Add(cd_pen_nen[i][j][k]);
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
 				hname  += "_pen_" + std::to_string(ptag) + "_nQ_" + std::to_string(k);
@@ -600,7 +574,6 @@ void MiniballCDCalibrator::FillPixelHists() {
 			// For p-side tags
 			if( pid == ptag ) {
 
-				cd_pen_nen[i][j][nid]->Fill( pen, nen );
 				cd_pen_nQ[i][j][nid]->Fill( pen, nQ );
 				
 			}
@@ -608,7 +581,6 @@ void MiniballCDCalibrator::FillPixelHists() {
 			// For n-side tags
 			if( nid == ntag ) {
 
-				cd_nen_pen[i][j][pid]->Fill( nen, pen );
 				cd_nQ_pQ[i][j][pid]->Fill( nQ, pQ );
 
 			}
