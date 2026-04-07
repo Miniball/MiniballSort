@@ -1,3 +1,11 @@
+// To run this code you need to do the following in ROOT:
+// root [0]: .L fit_CD_distance.cc
+// root [1]: fit_CD_distance( "RXXX_X.root", <numberNstrips> )
+// where RXXX_X.root is the filename produced by the first step
+// of mb_sort and <numberNstrips> is the number of N strips that
+// were active during your experiment (either 12, for experiments
+// up to 2024; or 24, for experiments from 2025 onwards).
+
 #include <fstream>
 #include <iostream>
 #include "TH1.h"
@@ -38,7 +46,7 @@ double intensity_func( double *x, double *par ) {
 	
 }
 
-void fit_CD_distance( std::string filename ) {
+void fit_CD_distance( std::string filename, int numberOfNstrips ) {
 	
 	TFile *fin = new TFile( filename.data() );
 	TH1F *hist;
@@ -50,7 +58,7 @@ void fit_CD_distance( std::string filename ) {
 	TGraphErrors *chi_plot[4];
 	//  double sum
 	char cname[200];
-	TCanvas *c1 = new TCanvas("c1","CD distance using solid angle coverage and the ^{226}Ra alpha source",1200,900);
+	TCanvas *c1 = new TCanvas("c1","CD distance using solid angle coverage and an alpha source",1200,900);
 	c1->cd();
 	TPad* ptop = new TPad("ptop", "ptop", 0, 0.3, 1.0, 1);
 	ptop->Draw();
@@ -75,7 +83,16 @@ void fit_CD_distance( std::string filename ) {
 		// Loop over strips
 		for( unsigned int j = 0; j < 16; j++ ){
 			
-			std::string histname = "/sfp_1/board_" + std::to_string(i*2);
+			int mult;
+
+			if ( numberOfNstrips == 12 ) { mult = 2; }
+			else if ( numberOfNstrips == 24 ) { mult = 3; }
+			else {
+			     cout << "Provide a number of N strips equal to 12 or 24 as argument." << endl;
+			     return;
+			}
+			std::string histname = "/sfp_1/board_" + std::to_string(i*mult);
+			histname += "/febex_1_" + std::to_string(i*mult) + "_" + std::to_string(j);
 			histname += "/febex_1_" + std::to_string(i*2) + "_" + std::to_string(j);
 			histname += "_cal";
 			hist = (TH1F*)fin->Get( histname.data() );
