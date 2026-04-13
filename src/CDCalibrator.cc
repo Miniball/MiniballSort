@@ -147,6 +147,20 @@ void MiniballCDCalibrator::Initialise(){
 }
 
 
+int nextPowerOf2(unsigned int n) {
+    if (n == 0) return 1;
+
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+
+    return n + 1;
+}
+
+
 void MiniballCDCalibrator::MakeHists(){
 
 	std::string hname, htitle;
@@ -160,7 +174,11 @@ void MiniballCDCalibrator::MakeHists(){
 	cd_nQ_pQ.resize( set->GetNumberOfCDDetectors() );
 
 	// Get sizes and scales
-	double maxQ = 1073741824;
+	double maxEn = set->GetCDCalibratorMaxEnergy();
+	// read FEBEX gain and offset for reference p strip in first quadrant (febex_1_0_ptag) to get an idea of raw charge range
+	double maxRawEn = ( maxEn - cal->FebexOffset(1,0,ptag) ) / cal->FebexGain(1,0,ptag);
+	// round that value to the next power of two
+	int maxQ = nextPowerOf2(std::round(maxRawEn));
 	unsigned int Qbins = 8192;
 
 	if( set->GetNumberOfCaenAdcModules() > 0 ) {
@@ -198,7 +216,7 @@ void MiniballCDCalibrator::MakeHists(){
 				htitle += ", nid " + std::to_string(ntag);
 				htitle += ";n-side energy (keV);p-side energy (keV);Counts";
 				cd_nen_pen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											   4000, 0, 2000e3, 4000, 0, 2000e3 );
+											   4000, 0, maxEn, 4000, 0, maxEn );
 				histlist->Add(cd_nen_pen[i][j][k]);
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
@@ -225,7 +243,7 @@ void MiniballCDCalibrator::MakeHists(){
 				htitle += ", nid " + std::to_string(k);
 				htitle += ";p-side energy (keV);n-side energy (keV);Counts";
 				cd_pen_nen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											   4000, 0, 2000e3, 4000, 0, 2000e3 );
+											   4000, 0, maxEn, 4000, 0, maxEn );
 				histlist->Add(cd_pen_nen[i][j][k]);
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
@@ -235,7 +253,7 @@ void MiniballCDCalibrator::MakeHists(){
 				htitle += ", nid " + std::to_string(k);
 				htitle += ";p-side energy (keV);n-side raw charge (ADC units);Counts";
 				cd_pen_nQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											  4000, 0, 2000e3, Qbins, 0, maxQ );
+											  4000, 0, maxEn, Qbins, 0, maxQ );
 				histlist->Add(cd_pen_nQ[i][j][k]);
 
 			} // k
