@@ -282,6 +282,8 @@
 #NumberOfCDStrips.P: 16			# number of p-side strips = 16
 #NumberOfCDStrips.N: 12			# number of n-side strips = 12 with Edinburgh/RAL preamps
 
+#CDCalibrator.MaxEnergy: 2000e3		# max energy for CD calibrator spectra in keV; default is 2000e3 keV
+
 #CD_0_0_0.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 0
 #CD_0_0_0.P.Board: 0			#
 #CD_0_0_0.P.Channel: 0			#

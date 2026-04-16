@@ -271,6 +271,8 @@ void MiniballSettings::ReadSettings() {
 	bufferfull_reject	= config->GetValue( "BufferFullRejection", false );
 	bufferpart_reject	= config->GetValue( "BufferPartRejection", false );
 
+	// CD calibrator settings
+	cd_calibrator_max_energy = config->GetValue( "CDCalibrator.MaxEnergy", 2000e3 );
 	
 	// Electronics mapping
 	// Will depend on whether we have FEBEX or DGF/ADC combo
