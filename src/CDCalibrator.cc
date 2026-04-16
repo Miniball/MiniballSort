@@ -188,7 +188,7 @@ void MiniballCDCalibrator::MakeHists(){
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
 				hname  += "_nQ_" + std::to_string(ntag) + "_pQ_" + std::to_string(k);
-				htitle  = "CD n-side energy vs p-side raw charge for detector " + std::to_string(i);
+				htitle  = "CD n-side raw charge vs p-side raw charge for detector " + std::to_string(i);
 				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 				htitle += ", nid " + std::to_string(ntag);
 				htitle += ";n-side raw charge (ADC units);p-side raw charge (ADC units);Counts";
