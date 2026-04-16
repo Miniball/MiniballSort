@@ -46,7 +46,7 @@ double intensity_func( double *x, double *par ) {
 	
 }
 
-void fit_CD_distance( std::string filename, int numberOfNstrips ) {
+void fit_CD_distance( std::string filename, int numberOfNstrips = 24 ) {
 	
 	TFile *fin = new TFile( filename.data() );
 	TH1F *hist;
