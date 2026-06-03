@@ -168,8 +168,8 @@ void MiniballCDCalibrator::MakeHists(){
 	// ------------- //
 	// CD histograms //
 	// ------------- //
-	cd_pen_nQ.resize( set->GetNumberOfCDDetectors() );
 	cd_nQ_pQ.resize( set->GetNumberOfCDDetectors() );
+	cd_pQ_nQ.resize( set->GetNumberOfCDDetectors() );
 
 	// Get sizes and scales
 	double maxEn = set->GetCDCalibratorMaxEnergy();
@@ -195,20 +195,36 @@ void MiniballCDCalibrator::MakeHists(){
 
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 		
-		cd_pen_nQ[i].resize( set->GetNumberOfCDSectors() );
 		cd_nQ_pQ[i].resize( set->GetNumberOfCDSectors() );
+		cd_pQ_nQ[i].resize( set->GetNumberOfCDSectors() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
-			cd_nQ_pQ[i][j].resize( set->GetNumberOfCDPStrips() );
+			cd_pQ_nQ[i][j].resize( set->GetNumberOfCDPStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_nQ_" + std::to_string(ntag) + "_pQ_" + std::to_string(k);
+				hname  += "_pQ_" + std::to_string(k) + "_nQ_" + std::to_string(ntag);
+				htitle  = "CD p-side raw charge vs n-side raw charge for detector " + std::to_string(i);
+				htitle += ", sector " + std::to_string(j) + ", nid " + std::to_string(ntag);
+				htitle += ", pid " + std::to_string(k);
+				htitle += ";p-side raw charge (ADC units);n-side raw charge (ADC units);Counts";
+				cd_pQ_nQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
+											  Qbins, 0, maxQ, Qbins, 0, maxQ );
+				histlist->Add(cd_pQ_nQ[i][j][k]);
+
+			} // k
+
+			cd_nQ_pQ[i][j].resize( set->GetNumberOfCDNStrips() );
+
+			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
+
+				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
+				hname  += "_nQ_" + std::to_string(k) + "_pQ_" + std::to_string(ptag);
 				htitle  = "CD n-side raw charge vs p-side raw charge for detector " + std::to_string(i);
-				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
-				htitle += ", nid " + std::to_string(ntag);
+				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(ptag);
+				htitle += ", nid " + std::to_string(k);
 				htitle += ";n-side raw charge (ADC units);p-side raw charge (ADC units);Counts";
 				cd_nQ_pQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
 											  Qbins, 0, maxQ, Qbins, 0, maxQ );
@@ -216,21 +232,6 @@ void MiniballCDCalibrator::MakeHists(){
 
 			} // k
 
-			cd_pen_nQ[i][j].resize( set->GetNumberOfCDNStrips() );
-
-			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
-
-				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_pen_" + std::to_string(ptag) + "_nQ_" + std::to_string(k);
-				htitle  = "CD p-side energy vs n-side raw charge for detector " + std::to_string(i);
-				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(ptag);
-				htitle += ", nid " + std::to_string(k);
-				htitle += ";p-side energy (keV);n-side raw charge (ADC units);Counts";
-				cd_pen_nQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											  4000, 0, maxEn, Qbins, 0, maxQ );
-				histlist->Add(cd_pen_nQ[i][j][k]);
-
-			} // k
 
 		} // j
 
@@ -353,6 +354,8 @@ void MiniballCDCalibrator::CalibratePsides() {
 
 	// Create a TF1 for the linear fit
 	auto pfit = std::make_unique<TF1>( "pfit", "[0]+[1]*x", 0, 1e9 );
+	auto plf = std::make_unique<TLinearFitter>(1, "pol1");
+	auto res_graph_p = std::make_unique<TGraph>(); //residual plot
 
 	// Some canvases to check fits
 	gErrorIgnoreLevel = kError;
@@ -368,22 +371,150 @@ void MiniballCDCalibrator::CalibratePsides() {
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
 			std::string cname = "cdcal_p_" + std::to_string(i) + "_" + std::to_string(j);
+			std::string pdfname = cname + ".pdf";
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
+			canv[i][j]->Print((pdfname + "[").c_str(), "pdf");
 
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
-				// Get the right histogram to do the fit
-				auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QWL" );
-				if( res != 0 ) continue;
-				double fit_gain = ngain / pfit->GetParameter(1);
-				double fit_offset = noffset - pfit->GetParameter(0) * fit_gain;
+				plf->ClearPoints();
+
+				//calculate slope for this maximum bin: 
+				int binMax = cd_pQ_nQ[i][j][k]->GetMaximumBin();
+				int binx, biny, binz;
+				cd_pQ_nQ[i][j][k]->GetBinXYZ(binMax, binx, biny, binz);
+
+				double x_peak = cd_pQ_nQ[i][j][k]->GetXaxis()->GetBinCenter(binx);
+				double y_peak = cd_pQ_nQ[i][j][k]->GetYaxis()->GetBinCenter(biny); 
+
+            	double m_0;
+				if (x_peak != 0) {
+					m_0 = y_peak / x_peak;
+				} else {
+					m_0 = 1.0;
+				} 
+
+				double allowance = set->GetAllowanceSlope(); //percentage of variation of inital slope at max
+				double d0 = ( set->GetSmallOffset() - noffset ) / ngain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
+				double d1 = ( set->GetLargerOffset() - noffset ) / ngain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
+
+				int nPoints = 0;
+
+				bool validFit; //check for empty hists
+				double fit_gain, fit_offset;
+
+				//for residual 
+				std::vector<double> fitX;
+				std::vector<double> fitY;
+
+				for (int ix = 1; ix <= cd_pQ_nQ[i][j][k]->GetNbinsX(); ix++) {
+
+					double x = cd_pQ_nQ[i][j][k]->GetXaxis()->GetBinCenter(ix);
+
+					for (int iy = 1; iy <= cd_pQ_nQ[i][j][k]->GetNbinsY(); iy++) {
+
+						double y = cd_pQ_nQ[i][j][k]->GetYaxis()->GetBinCenter(iy);
+						double counts = cd_pQ_nQ[i][j][k]->GetBinContent(ix, iy);
+
+						if (counts <= 0) continue;
+
+						// cuts to select the data
+						if ( y < (m_0 + allowance * m_0) * x + d0 &&
+							y > (m_0 - allowance * m_0) * x - d0 &&
+							y < m_0 * x + d1 &&
+							y > m_0 * x - d1 ) {
+
+							double xval[1] = { x };
+
+							// weight choice (important!)
+							double err = 1.0 / std::sqrt(counts); 
+
+							plf->AddPoint(xval, y, err);
+							
+							//save for residual
+							fitX.push_back(x);
+							fitY.push_back(y);
+
+							nPoints++;
+						}
+					}
+				}
+
+				if (plf->GetNpoints() >= 2) {
+
+					plf->EvalRobust( set->GetRobustPercentage() ); // robust fitting	
+
+					pfit->SetParameters(plf->GetParameter(0),
+										plf->GetParameter(1));
+
+					//calculate fit parameters only if there is a fit performed
+					fit_gain = ngain * pfit->GetParameter(1);
+					fit_offset = noffset + pfit->GetParameter(0) * ngain;
+						
+					validFit = true;
+				}
+				else {
+					validFit = false;
+					fit_gain = 1.0;
+					fit_offset = 0.0;
+					std::cout << "Not enough data points in fit" << std::endl;
+				}
 
 				// If we have the n-side tag, set the gain and offset
 				if( k == ptag ) {
 					std::cout << "!! This is the p-side tag channel, cross-check check the parameters below !!" << std::endl;
 					pgain = fit_gain;
 					poffset = fit_offset;
+				}
+
+				//Draw histogram and fit in canvas
+				canv[i][j]->Clear();
+				if (cd_pQ_nQ[i][j][k]->GetEntries() > 0) {
+					cd_pQ_nQ[i][j][k]->Draw("COLZ");
+
+					if(validFit) {
+
+						//draw fit with histogram together
+						pfit->SetLineColor(kRed);
+						pfit->SetLineWidth(1.2);
+						pfit->Draw("SAME");
+					}
+					// print histogram page
+					canv[i][j]->Print(pdfname.c_str(), "pdf");
+				
+
+				} else {
+					std::cout << "Skipping empty histogram Det " << i << " Sec " << j << " Strip " << k << std::endl;
+				}
+
+				//Residuals
+				if(validFit && cd_pQ_nQ[i][j][k]->GetEntries() > 0){
+					res_graph_p->Set(0);
+
+					//calculate residuals only if fit has been performed
+					for(size_t ip = 0; ip < fitX.size(); ip++) {
+
+						double yfit = pfit->Eval(fitX[ip]);
+						double residual = fitY[ip] - yfit;
+
+						res_graph_p->SetPoint(ip, fitX[ip], residual);
+					}
+
+					//draw residual 
+					canv[i][j]->Clear(); //new page
+					res_graph_p->SetTitle( Form("P-side calibration - Residuals Det %d Sec %d Strip %d", i,j,k) );
+					res_graph_p->GetXaxis()->SetTitle("p-side raw charge pQ (ADC units)");
+					res_graph_p->GetYaxis()->SetTitle("residual (nQ - fit(pQ)) (ADC units)");
+					res_graph_p->SetMarkerStyle(20);
+					//only draw if it not empty
+					if (res_graph_p->GetN() > 0) {
+						res_graph_p->Draw("AP");
+					} else {
+						std::cout << "Skipping empty residual graph Det " << i << " Sec " << j << " Strip " << k << std::endl;
+					}
+					
+					canv[i][j]->Print(pdfname.c_str(),"pdf");
 				}
 
 				// Get the output names for the calibration file
@@ -421,15 +552,10 @@ void MiniballCDCalibrator::CalibratePsides() {
 				output_cal << gainstr << std::endl;
 				output_cal << offsetstr << std::endl;
 
-				// Print to a file
-				std::string pdfname = cname + ".pdf";
-				if( k == 0 && set->GetNumberOfCDPStrips() != 1 )
-					pdfname += "(";
-				else if( k > 0 && k == set->GetNumberOfCDPStrips() - 1 )
-					pdfname += ")";
-				canv[i][j]->Print( pdfname.data(), "pdf" );
-
 			} // k
+
+			//close pdf
+			canv[i][j]->Print((pdfname + "]").c_str(), "pdf");
 
 		} // j
 
@@ -451,6 +577,9 @@ void MiniballCDCalibrator::CalibrateNsides() {
 
 	// Create a TF1 for the linear fit
 	auto nfit = std::make_unique<TF1>( "nfit", "[0]+[1]*x", 0, 1e9 );
+	auto nlf = std::make_unique<TLinearFitter>(1, "pol1");
+	auto res_graph_n = std::make_unique<TGraph>(); //residual plot
+
 
 	// Some canvases to check fits
 	gErrorIgnoreLevel = kError;
@@ -466,23 +595,169 @@ void MiniballCDCalibrator::CalibrateNsides() {
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
 			std::string cname = "cdcal_n_" + std::to_string(i) + "_" + std::to_string(j);
+			std::string pdfname = cname + ".pdf";
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
+			canv[i][j]->Print((pdfname + "[").c_str(), "pdf");
 
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
+	
+				//Get the pgain & poffset for the calibrated p-strip
+				int pmod, pch_old; //old DAQ
+				int psfp, pboard, pch; //Febex DAQ
 
-				// Get the right histogram to do the fit
-				auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QWL" );
-				if( res != 0 ) continue;
-				double fit_gain = 1.0 / nfit->GetParameter(1);
-				double fit_offset = -1.0 * nfit->GetParameter(0) * fit_gain;
-				//double fit_gain = 1.0;
-				//double fit_offset = 0.0;
+				if( oldDAQ ){
+					
+					if( !FindCDChannels(i, j, 0, ptag, pmod, pch_old) )
+						continue;
 
+					pgain = cal->AdcGain(pmod, pch_old);
+					poffset = cal->AdcOffset(pmod, pch_old);
+
+				}
+				else {
+					if( !FindCDChannels(i, j, 0, ptag, psfp, pboard, pch) )
+						continue;
+
+					pgain = cal->FebexGain(psfp,pboard,pch);
+					poffset = cal->FebexOffset(psfp,pboard,pch);
+
+				}
+			
+				nlf->ClearPoints();
+
+				//calculate slope for this maximum bin: 
+				int binMax = cd_nQ_pQ[i][j][k]->GetMaximumBin();
+				int binx, biny, binz;
+				cd_nQ_pQ[i][j][k]->GetBinXYZ(binMax, binx, biny, binz);
+
+				double x_peak = cd_nQ_pQ[i][j][k]->GetXaxis()->GetBinCenter(binx);
+				double y_peak = cd_nQ_pQ[i][j][k]->GetYaxis()->GetBinCenter(biny); 
+
+            	double m_0;
+				if (x_peak != 0) {
+					m_0 = y_peak / x_peak;
+				} else {
+					m_0 = 1.0;
+				} 
+
+				double allowance = set->GetAllowanceSlope(); //percentage of variation of inital slope at max
+				double d0 = ( set->GetSmallOffset() - poffset ) / pgain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
+				double d1 = ( set->GetLargerOffset() - poffset ) / pgain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
+
+				int nPoints = 0;
+
+				bool validFit; //check for empty hists
+				double fit_gain, fit_offset;
+
+				//for residual 
+				std::vector<double> fitX;
+				std::vector<double> fitY;
+
+				for (int ix = 1; ix <= cd_nQ_pQ[i][j][k]->GetNbinsX(); ix++) {
+
+					double x = cd_nQ_pQ[i][j][k]->GetXaxis()->GetBinCenter(ix);
+
+					for (int iy = 1; iy <= cd_nQ_pQ[i][j][k]->GetNbinsY(); iy++) {
+
+						double y = cd_nQ_pQ[i][j][k]->GetYaxis()->GetBinCenter(iy);
+						double counts = cd_nQ_pQ[i][j][k]->GetBinContent(ix, iy);
+
+						if (counts <= 0) continue;
+
+						// your original cut logic
+						if ( y < (m_0 + allowance * m_0) * x + d0 &&
+							y > (m_0 - allowance * m_0) * x - d0 &&
+							y < m_0 * x + d1 &&
+							y > m_0 * x - d1 ) {
+
+							double xval[1] = { x };
+
+							// weight choice (important!)
+							double err = 1.0 / std::sqrt(counts); 
+
+							nlf->AddPoint(xval, y, err);
+
+							//save for residual
+							fitX.push_back(x);
+							fitY.push_back(y);
+
+							nPoints++;
+						}
+					}
+				}
+
+				if (nlf->GetNpoints() >= 2){
+					
+					nlf->EvalRobust( set->GetRobustPercentage() );  	
+
+					nfit->SetParameters(nlf->GetParameter(0), nlf->GetParameter(1));
+
+					fit_gain = nfit->GetParameter(1) * pgain;
+					fit_offset = nfit->GetParameter(0) * pgain + poffset ;
+				
+					validFit = true;
+
+				}
+				else {
+					validFit = false;
+					fit_gain = 1.0;
+					fit_offset = 0.0;
+					std::cout << "Not enough data points in fit" << std::endl;
+				}
+
+				
 				// If we have the n-side tag, set the gain and offset
 				if( k == ntag ) {
 					ngain = fit_gain;
 					noffset = fit_offset;
+				}
+
+
+				//Draw histogram and fit in canvas
+				canv[i][j]->Clear();
+
+				if (cd_nQ_pQ[i][j][k]->GetEntries() > 0) {
+					cd_nQ_pQ[i][j][k]->Draw("COLZ");
+
+					if(validFit) {
+						nfit->SetLineColor(kRed);
+						nfit->SetLineWidth(1.2);
+						nfit->Draw("SAME");
+					}
+
+					// print histogram page
+					canv[i][j]->Print(pdfname.c_str(), "pdf");
+					
+				} else {
+					std::cout << "Skipping empty histogram Det " << i << " Sec " << j << " Strip " << k << std::endl;
+				}
+				
+				if(validFit && cd_nQ_pQ[i][j][k]->GetEntries() > 0){
+					res_graph_n->Set(0);
+
+					//calculate residuals only if fit has been performed
+					for(size_t ip = 0; ip < fitX.size(); ip++) {
+
+						double yfit = nfit->Eval(fitX[ip]);
+						double residual = fitY[ip] - yfit;
+
+						res_graph_n->SetPoint(ip, fitX[ip], residual);
+					}
+
+					//draw residual 
+					canv[i][j]->Clear(); //new page
+					res_graph_n->SetTitle( Form("N-side calibration - Residuals Det %d Sec %d Strip %d", i,j,k) );
+					res_graph_n->GetXaxis()->SetTitle("n-side raw charge nQ (ADC units)");
+					res_graph_n->GetYaxis()->SetTitle("residual (pQ - fit(nQ)) (ADC units)");
+					res_graph_n->SetMarkerStyle(20);
+					if (res_graph_n->GetN() > 0) {
+						res_graph_n->Draw("AP");
+					} else {
+						std::cout << "Skipping empty residual graph Det " << i << " Sec " << j << " Strip " << k << std::endl;
+					}
+
+					canv[i][j]->Print(pdfname.c_str(),"pdf");
 				}
 
 				// Get the output names for the calibration file
@@ -520,15 +795,10 @@ void MiniballCDCalibrator::CalibrateNsides() {
 				output_cal << gainstr << std::endl;
 				output_cal << offsetstr << std::endl;
 
-				// Print to a file
-				std::string pdfname = cname + ".pdf";
-				if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
-					pdfname += "(";
-				else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
-					pdfname += ")";
-				canv[i][j]->Print( pdfname.data(), "pdf" );
-
 			} // k
+
+			//close pdf
+			canv[i][j]->Print((pdfname + "]").c_str(), "pdf");
 
 		} // j
 
@@ -592,14 +862,14 @@ void MiniballCDCalibrator::FillPixelHists() {
 			// For p-side tags
 			if( pid == ptag ) {
 
-				cd_pen_nQ[i][j][nid]->Fill( pen, nQ );
+				cd_nQ_pQ[i][j][nid]->Fill( nQ, pQ );
 				
 			}
 			
 			// For n-side tags
 			if( nid == ntag ) {
 
-				cd_nQ_pQ[i][j][pid]->Fill( nQ, pQ );
+				cd_pQ_nQ[i][j][pid]->Fill( pQ, nQ );
 
 			}
 
@@ -948,3 +1218,5 @@ unsigned long MiniballCDCalibrator::FillHists() {
 	return n_entries;
 	
 }
+
+
