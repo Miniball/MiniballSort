@@ -262,6 +262,10 @@ public:
 	};
 	inline double GetCDHitWindow(){ return cd_hit_window; };
 	inline double GetCDCalibratorMaxEnergy(){ return cd_calibrator_max_energy; };
+	inline double GetAllowanceSlope(){ return allowance; };
+	inline double GetSmallOffset(){ return offset_small; };
+	inline double GetLargerOffset(){ return offset_bigger; };
+	inline double GetRobustPercentage(){ return robust_percentage; };
 	
 	
 	// Pad detector
@@ -362,6 +366,10 @@ private:
 
 	// CD calibration settings
 	double cd_calibrator_max_energy;	///< Max energy to fill spectra to calibrate CD strips with CD calibrator; default is 2000e3 keV
+	double offset_small;				///< Offset for cut with varied slope to select data to include in the fit; default is 10e3 keV 
+	double offset_bigger;				///< Offset for cut with fixed slope, should be larger than offset_small; default is 100e3 keV
+	double allowance;					///< Percentage of the slope of maximum bin ->slope varied by this percentage; default is 0.1 
+	double robust_percentage;			///< Percentage used in the Robust fitting, data has to fit at least this percentage of data; default is 0.7
 
 	// CD electronics mapping
 	std::vector<std::vector<std::vector<std::vector<unsigned int>>>> cd_sfp;	///< A list of SFP numbers for each CD detector, sector, side and strip
