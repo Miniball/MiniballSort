@@ -34,7 +34,7 @@ endif
 
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLDFLAGS  := $(shell root-config --ldflags)
-ROOTLIBS     := $(shell root-config --glibs) -lRHTTP -lThread
+ROOTLIBS     := $(shell root-config --glibs) -lMinuit -lMathCore -lRHTTP -lThread
 LIBS         := $(ROOTLIBS) $(LIBEXTRA)
 
 # Compiler.
