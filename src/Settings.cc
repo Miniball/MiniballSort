@@ -273,6 +273,10 @@ void MiniballSettings::ReadSettings() {
 
 	// CD calibrator settings
 	cd_calibrator_max_energy = config->GetValue( "CDCalibrator.MaxEnergy", 2000e3 );
+	offset_small = config->GetValue( "SmallOffset", 10e3 );
+	offset_bigger = config->GetValue( "LargerOffset", 100e3 );
+	allowance = config->GetValue( "AllowanceSlope", 0.1 );
+	robust_percentage = config->GetValue( "RobustPercentage", 0.7 );
 	
 	// Electronics mapping
 	// Will depend on whether we have FEBEX or DGF/ADC combo
