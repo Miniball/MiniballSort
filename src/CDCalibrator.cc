@@ -373,7 +373,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 			std::string cname = "cdcal_p_" + std::to_string(i) + "_" + std::to_string(j);
 			std::string pdfname = cname + ".pdf";
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
-			canv[i][j]->Print((pdfname + "[").c_str(), "pdf");
+			canv[i][j]->Print((pdfname + "[").data(), "pdf");
 
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
@@ -396,10 +396,9 @@ void MiniballCDCalibrator::CalibratePsides() {
 				} 
 
 				double allowance = set->GetAllowanceSlope(); //percentage of variation of inital slope at max
-				double d0 = ( set->GetSmallOffset() - noffset ) / ngain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
-				double d1 = ( set->GetLargerOffset() - noffset ) / ngain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
+				double d0 = set->GetSmallOffset() / ngain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
+				double d1 = set->GetLargerOffset() / ngain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
 
-				int nPoints = 0;
 
 				bool validFit; //check for empty hists
 				double fit_gain, fit_offset;
@@ -436,7 +435,6 @@ void MiniballCDCalibrator::CalibratePsides() {
 							fitX.push_back(x);
 							fitY.push_back(y);
 
-							nPoints++;
 						}
 					}
 				}
@@ -481,7 +479,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 						pfit->Draw("SAME");
 					}
 					// print histogram page
-					canv[i][j]->Print(pdfname.c_str(), "pdf");
+					canv[i][j]->Print(pdfname.data(), "pdf");
 				
 
 				} else {
@@ -514,7 +512,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 						std::cout << "Skipping empty residual graph Det " << i << " Sec " << j << " Strip " << k << std::endl;
 					}
 					
-					canv[i][j]->Print(pdfname.c_str(),"pdf");
+					canv[i][j]->Print(pdfname.data(),"pdf");
 				}
 
 				// Get the output names for the calibration file
@@ -555,7 +553,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 			} // k
 
 			//close pdf
-			canv[i][j]->Print((pdfname + "]").c_str(), "pdf");
+			canv[i][j]->Print((pdfname + "]").data(), "pdf");
 
 		} // j
 
@@ -597,7 +595,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 			std::string cname = "cdcal_n_" + std::to_string(i) + "_" + std::to_string(j);
 			std::string pdfname = cname + ".pdf";
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
-			canv[i][j]->Print((pdfname + "[").c_str(), "pdf");
+			canv[i][j]->Print((pdfname + "[").data(), "pdf");
 
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
@@ -642,10 +640,9 @@ void MiniballCDCalibrator::CalibrateNsides() {
 				} 
 
 				double allowance = set->GetAllowanceSlope(); //percentage of variation of inital slope at max
-				double d0 = ( set->GetSmallOffset() - poffset ) / pgain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
-				double d1 = ( set->GetLargerOffset() - poffset ) / pgain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
+				double d0 = set->GetSmallOffset() / pgain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
+				double d1 = set->GetLargerOffset() / pgain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
 
-				int nPoints = 0;
 
 				bool validFit; //check for empty hists
 				double fit_gain, fit_offset;
@@ -682,7 +679,6 @@ void MiniballCDCalibrator::CalibrateNsides() {
 							fitX.push_back(x);
 							fitY.push_back(y);
 
-							nPoints++;
 						}
 					}
 				}
@@ -722,12 +718,11 @@ void MiniballCDCalibrator::CalibrateNsides() {
 
 					if(validFit) {
 						nfit->SetLineColor(kRed);
-						nfit->SetLineWidth(1.2);
 						nfit->Draw("SAME");
 					}
 
 					// print histogram page
-					canv[i][j]->Print(pdfname.c_str(), "pdf");
+					canv[i][j]->Print(pdfname.data(), "pdf");
 					
 				} else {
 					std::cout << "Skipping empty histogram Det " << i << " Sec " << j << " Strip " << k << std::endl;
@@ -757,7 +752,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 						std::cout << "Skipping empty residual graph Det " << i << " Sec " << j << " Strip " << k << std::endl;
 					}
 
-					canv[i][j]->Print(pdfname.c_str(),"pdf");
+					canv[i][j]->Print(pdfname.data(),"pdf");
 				}
 
 				// Get the output names for the calibration file
@@ -798,7 +793,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 			} // k
 
 			//close pdf
-			canv[i][j]->Print((pdfname + "]").c_str(), "pdf");
+			canv[i][j]->Print((pdfname + "]").data(), "pdf");
 
 		} // j
 

@@ -283,10 +283,10 @@
 #NumberOfCDStrips.N: 12			# number of n-side strips = 12 with Edinburgh/RAL preamps
 
 #CDCalibrator.MaxEnergy: 2000e3		# max energy for CD calibrator spectra in keV; default is 2000e3 keV
-#SmallOffset: 15e3			# Offset for cut with varied slope to select data to include in the fit; default is 15e3 keV --> more sensitive to data with small channels
-#LargerOffset: 150e3			# Offset for cut with fixed slope, should be larger than offset_small; default is 150e3 keV --> more sensitive to data with larger channels
-#AllowanceSlope: 0.1			# Percentage of the slope of maximum bin ->slope varied by this percentage; default is 0.1 
-#RobustPercentage: 0.7			# Percentage used in the Robust fitting, data has to fit at least this percentage of data; default is 0.7
+#CDCalibrator.SmallOffset: 15e3			# Offset for cut with varied slope to select data to include in the fit; default is 15e3 keV --> more sensitive to data with small channels
+#CDCalibrator.LargeOffset: 150e3			# Offset for cut with fixed slope, should be larger than CDCalibrator.SmallOffset; default is 150e3 keV --> more sensitive to data with larger channels
+#CDCalibrator.AllowanceSlope: 0.1			# Fraction of the slope of maximum bin ->slope varied by this fraction; default is 0.1 or 10%
+#CDCalibrator.RobustFraction: 0.7			# Fraction used in the Robust fitting, data has to fit at least this fraction of data; default is 0.7 or 70%
 
 
 #CD_0_0_0.P.Sfp: 1				# Forward CD, Sector 0, P-Strip 0
