@@ -1102,21 +1102,19 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	double eloss = 0.0;
 	double EnergyDetector = EnergyLab3; // energy reconstructed from DeltaE, without dead layer or other energy loss corrections
 	double EnergyDegrader = EnergyLab3; // energy after degrader (with energy loss in dead layer)
-	double EnergyTarget = EnergyLab3; // energy after target, assuming reaction at mid target
+	double EnergyTarget = EnergyLab3; // energy before degrader 
 
 	// Correcting energy loss in CD dead layer
 	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
 		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
 		EnergyLab3 -= eloss;
-	//after_target_recoil_energy = En;
-	//after_degrader_recoil_energy = En;
 		EnergyDegrader = EnergyLab3;
 		EnergyTarget = EnergyLab3;
 	}
 
 	// Correction for energy loss in the degrader
-	if( stopping && degrader_thickness > 0 && ( doppler_mode == 4 || doppler_mode == 5 ) ) {
+	if( stopping && degrader_thickness > 0 && doppler_mode == 5 ) {
 		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
 		EnergyLab3 -= eloss;
@@ -1133,12 +1131,14 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 
 	// Set observables (energy definition will depend on Doppler mode adopted).
 	// If no degrader is present ( degrader_thickness < 0 ), doppler_mode 3 and 5 will give the same outcome.
+	// Relevant doppler_mode values for transfer are 2, 3, 5, as we always need to rely on the measured recoil 
+	// to work out ejectile info and do the Doppler correction.
 	if (doppler_mode == 2)
 		Recoil.SetEnergy(EnergyDetector); // energy of particle in the CD (in this case we use DeltaE in the CD to reconstruct E at CD entrance)
 	else if (doppler_mode == 3)
 		Recoil.SetEnergy(EnergyDegrader); // energy of particle AFTER degrader, corrected for energy loss in dead layer
 	else if (doppler_mode == 5)
- 		Recoil.SetEnergy(EnergyTarget); // energy of particle at mid-target, so BEFORE degrader, corrected for energy loss in dead layer/degrader/half target
+ 		Recoil.SetEnergy(EnergyTarget); // energy of particle at mid-target, so BEFORE degrader, corrected for energy loss in dead layer/(degrader)/half target
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
 
@@ -1151,10 +1151,12 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	// write four-vector ejectile
 	fEnergyImpulsionLab_4 = fTotalEnergyImpulsionLab - fEnergyImpulsionLab_3; 
 	
+	// calculate rest mass of ejectile
+	double Mrest_4 = Ejectile.GetMass() - Ejectile.GetEx();
+
 	// Set observables
-	Ejectile.SetEx( fEnergyImpulsionLab_4.M() - Ejectile.Mass() ); // invariant mass - rest mass
-	Ejectile.SetMomentum( fEnergyImpulsionLab_4.P() );
-	Ejectile.SetEnergyTot( fEnergyImpulsionLab_4.E() );
+	Ejectile.SetEx( fEnergyImpulsionLab_4.M() - Mrest_4 ); 	// invariant mass - rest mass
+	Ejectile.SetEnergy( fEnergyImpulsionLab_4.E() - fEnergyImpulsionLab_4.M() ); // kinetic energy = total energy - invariant mass
 	Ejectile.SetTheta( fEnergyImpulsionLab_4.Theta() );
 	Ejectile.SetPhi( fEnergyImpulsionLab_4.Phi() );
 

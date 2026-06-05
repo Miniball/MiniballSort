@@ -496,7 +496,7 @@ public:
 
 	// Energy loss and stopping powers
 	double GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g );
-	double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, double thickness, std::unique_ptr<TGraph> &g, double EnergyMin, double EnergyMax);
+	double GetInitialEnergyFromDeltaE(double DeltaE, double thickness, std::unique_ptr<TGraph> &g, double EnergyMin, double EnergyMax);
 	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g );
 
 	

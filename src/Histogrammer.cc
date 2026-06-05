@@ -1101,6 +1101,18 @@ void MiniballHistogrammer::MakeHists() {
 
 		}
 
+		hname = "ejectile_ex";
+		htitle = "Ejectile excitation energy;";
+		htitle += "Excitation Energy [keV]";
+		ejectile_ex = new TH1F( hname.data(), htitle.data(), 1000, -10, 19990);
+		histlist->Add(ejectile_ex);
+
+		hname = "recoilE_theta";
+		htitle = "Reconstructed recoil energy (dependent on doppler_mode) vs theta angle;";
+		htitle += ";Angle [deg];Energy [keV];Counts";
+		recoilE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+		histlist->Add(recoilE_theta);
+
 	}
 
 
@@ -2352,6 +2364,17 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 			gE_vs_theta_1p_recoil_dc_recoil->Fill( react->GetRecoil()->GetTheta() * TMath::RadToDeg(), react->DopplerCorrection( g, false ), weight );
 
 		}
+
+		// For transfer reactions only
+		if( react->IsTransferDetected() ) {
+			// Reconstructed excitation energy of ejectile
+			ejectile_ex->Fill( react->GetEjectile()->GetEx(), weight );
+
+			// Reconstructed recoil energy vs Angle plot
+			recoilE_theta->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetEnergy(), weight );
+
+		}
+
 
 		// T1 impact time
 		if( react->HistByT1() ) {
