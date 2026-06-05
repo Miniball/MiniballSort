@@ -395,9 +395,9 @@ void MiniballCDCalibrator::CalibratePsides() {
 					m_0 = 1.0;
 				} 
 
-				double allowance = set->GetAllowanceSlope(); //percentage of variation of inital slope at max
-				double d0 = set->GetSmallOffset() / ngain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
-				double d1 = set->GetLargerOffset() / ngain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
+				double allowance = set->GetCDCalibratorAllowanceSlope(); //percentage of variation of inital slope at max
+				double d0 = set->GetCDCalibratorSmallOffset() / ngain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
+				double d1 = set->GetCDCalibratorLargeOffset() / ngain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
 
 
 				bool validFit; //check for empty hists
@@ -441,7 +441,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 
 				if (plf->GetNpoints() >= 2) {
 
-					plf->EvalRobust( set->GetRobustPercentage() ); // robust fitting	
+					plf->EvalRobust( set->GetCDCalibratorRobustFraction() ); // robust fitting	
 
 					pfit->SetParameters(plf->GetParameter(0),
 										plf->GetParameter(1));
@@ -475,7 +475,6 @@ void MiniballCDCalibrator::CalibratePsides() {
 
 						//draw fit with histogram together
 						pfit->SetLineColor(kRed);
-						pfit->SetLineWidth(1.2);
 						pfit->Draw("SAME");
 					}
 					// print histogram page
@@ -639,9 +638,9 @@ void MiniballCDCalibrator::CalibrateNsides() {
 					m_0 = 1.0;
 				} 
 
-				double allowance = set->GetAllowanceSlope(); //percentage of variation of inital slope at max
-				double d0 = set->GetSmallOffset() / pgain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
-				double d1 = set->GetLargerOffset() / pgain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
+				double allowance = set->GetCDCalibratorAllowanceSlope(); //percentage of variation of inital slope at max
+				double d0 = set->GetCDCalibratorSmallOffset() / pgain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
+				double d1 = set->GetCDCalibratorLargeOffset() / pgain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
 
 
 				bool validFit; //check for empty hists
@@ -685,7 +684,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 
 				if (nlf->GetNpoints() >= 2){
 					
-					nlf->EvalRobust( set->GetRobustPercentage() );  	
+					nlf->EvalRobust( set->GetCDCalibratorRobustFraction() );  	
 
 					nfit->SetParameters(nlf->GetParameter(0), nlf->GetParameter(1));
 
