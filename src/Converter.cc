@@ -245,7 +245,7 @@ void MiniballConverter::MakeHists() {
 				float emax = 4000.0 + emin; // 4 MeV range
 				
 				// Check if we have particles with low gain preamps (heavy ions, Coulex)
-				if( ( cal->FebexType(i,j,k) == "Qshort" && cal->FebexGain(i,j,k) > 5 )
+				if( ( cal->FebexType(i,j,k) == "Qshort" && cal->FebexGain(i,j,k) > 50 )
 				   || ( cal->FebexType(i,j,k) == "Qint" && cal->FebexGain(i,j,k) > 0.005 ) ) {
 					
 					ebins = 8000.0;
