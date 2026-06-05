@@ -399,10 +399,6 @@ void MiniballCDCalibrator::CalibratePsides() {
 				double d0 = set->GetCDCalibratorSmallOffset() / ngain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
 				double d1 = set->GetCDCalibratorLargeOffset() / ngain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
 
-
-				bool validFit; //check for empty hists
-				double fit_gain, fit_offset;
-
 				//for residual 
 				std::vector<double> fitX;
 				std::vector<double> fitY;
@@ -439,26 +435,16 @@ void MiniballCDCalibrator::CalibratePsides() {
 					}
 				}
 
-				if (plf->GetNpoints() >= 2) {
+				//in case of not enough data points or missing strips
+				if (plf->GetNpoints() < 3) { std::cout << "Not enough data points in fit for Sec" << j << " Strip " << k << std::endl; continue; }
 
-					plf->EvalRobust( set->GetCDCalibratorRobustFraction() ); // robust fitting	
+				plf->EvalRobust( set->GetCDCalibratorRobustFraction() ); 
 
-					pfit->SetParameters(plf->GetParameter(0),
-										plf->GetParameter(1));
+				pfit->SetParameters(plf->GetParameter(0), plf->GetParameter(1));
 
-					//calculate fit parameters only if there is a fit performed
-					fit_gain = ngain * pfit->GetParameter(1);
-					fit_offset = noffset + pfit->GetParameter(0) * ngain;
+				double fit_gain = ngain * pfit->GetParameter(1);
+				double fit_offset = noffset + pfit->GetParameter(0) * ngain;
 						
-					validFit = true;
-				}
-				else {
-					validFit = false;
-					fit_gain = 1.0;
-					fit_offset = 0.0;
-					std::cout << "Not enough data points in fit" << std::endl;
-				}
-
 				// If we have the n-side tag, set the gain and offset
 				if( k == ptag ) {
 					std::cout << "!! This is the p-side tag channel, cross-check check the parameters below !!" << std::endl;
@@ -468,51 +454,34 @@ void MiniballCDCalibrator::CalibratePsides() {
 
 				//Draw histogram and fit in canvas
 				canv[i][j]->Clear();
-				if (cd_pQ_nQ[i][j][k]->GetEntries() > 0) {
-					cd_pQ_nQ[i][j][k]->Draw("COLZ");
 
-					if(validFit) {
+				cd_pQ_nQ[i][j][k]->Draw("COLZ");
+				pfit->SetLineColor(kRed);
+				pfit->Draw("SAME");
 
-						//draw fit with histogram together
-						pfit->SetLineColor(kRed);
-						pfit->Draw("SAME");
-					}
-					// print histogram page
-					canv[i][j]->Print(pdfname.data(), "pdf");
-				
-
-				} else {
-					std::cout << "Skipping empty histogram Det " << i << " Sec " << j << " Strip " << k << std::endl;
-				}
+				canv[i][j]->Print(pdfname.data(), "pdf");
 
 				//Residuals
-				if(validFit && cd_pQ_nQ[i][j][k]->GetEntries() > 0){
-					res_graph_p->Set(0);
+				res_graph_p->Set(0);
 
-					//calculate residuals only if fit has been performed
-					for(size_t ip = 0; ip < fitX.size(); ip++) {
+				//calculate residuals only if fit has been performed
+				for(size_t ip = 0; ip < fitX.size(); ip++) {
 
-						double yfit = pfit->Eval(fitX[ip]);
-						double residual = fitY[ip] - yfit;
-
-						res_graph_p->SetPoint(ip, fitX[ip], residual);
-					}
-
-					//draw residual 
-					canv[i][j]->Clear(); //new page
-					res_graph_p->SetTitle( Form("P-side calibration - Residuals Det %d Sec %d Strip %d", i,j,k) );
-					res_graph_p->GetXaxis()->SetTitle("p-side raw charge pQ (ADC units)");
-					res_graph_p->GetYaxis()->SetTitle("residual (nQ - fit(pQ)) (ADC units)");
-					res_graph_p->SetMarkerStyle(20);
-					//only draw if it not empty
-					if (res_graph_p->GetN() > 0) {
-						res_graph_p->Draw("AP");
-					} else {
-						std::cout << "Skipping empty residual graph Det " << i << " Sec " << j << " Strip " << k << std::endl;
-					}
-					
-					canv[i][j]->Print(pdfname.data(),"pdf");
+					double yfit = pfit->Eval(fitX[ip]);
+					double residual = fitY[ip] - yfit;
+					res_graph_p->SetPoint(ip, fitX[ip], residual);
 				}
+				
+				//draw residual 
+				canv[i][j]->Clear(); //new page
+				res_graph_p->SetTitle( Form("P-side calibration - Residuals Det %d Sec %d Strip %d", i,j,k) );
+				res_graph_p->GetXaxis()->SetTitle("p-side raw charge pQ (ADC units)");
+				res_graph_p->GetYaxis()->SetTitle("residual (nQ - fit(pQ)) (ADC units)");
+				res_graph_p->SetMarkerStyle(20);
+				res_graph_p->Draw("AP");
+					
+				canv[i][j]->Print(pdfname.data(),"pdf");
+				
 
 				// Get the output names for the calibration file
 				std::string cal_base;
@@ -642,10 +611,6 @@ void MiniballCDCalibrator::CalibrateNsides() {
 				double d0 = set->GetCDCalibratorSmallOffset() / pgain; //offset for varied slope has to be smaller than d1 --> plays a role for data with small energies/channels
 				double d1 = set->GetCDCalibratorLargeOffset() / pgain; //offset for slope at maximum --> defines the data around maximum for larger energies/channels
 
-
-				bool validFit; //check for empty hists
-				double fit_gain, fit_offset;
-
 				//for residual 
 				std::vector<double> fitX;
 				std::vector<double> fitY;
@@ -682,77 +647,54 @@ void MiniballCDCalibrator::CalibrateNsides() {
 					}
 				}
 
-				if (nlf->GetNpoints() >= 2){
+				
+				//for missing strips or too less counts
+				if (nlf->GetNpoints() < 3) { std::cout << "Not enough data points in fit for Sec" << j << " Strip " << k << std::endl; continue; }
 					
-					nlf->EvalRobust( set->GetCDCalibratorRobustFraction() );  	
+				nlf->EvalRobust( set->GetCDCalibratorRobustFraction() );  	
 
-					nfit->SetParameters(nlf->GetParameter(0), nlf->GetParameter(1));
+				nfit->SetParameters(nlf->GetParameter(0), nlf->GetParameter(1));
 
-					fit_gain = nfit->GetParameter(1) * pgain;
-					fit_offset = nfit->GetParameter(0) * pgain + poffset ;
+				double fit_gain = nfit->GetParameter(1) * pgain;
+				double fit_offset = nfit->GetParameter(0) * pgain + poffset ;
 				
-					validFit = true;
 
-				}
-				else {
-					validFit = false;
-					fit_gain = 1.0;
-					fit_offset = 0.0;
-					std::cout << "Not enough data points in fit" << std::endl;
-				}
-
-				
 				// If we have the n-side tag, set the gain and offset
 				if( k == ntag ) {
 					ngain = fit_gain;
 					noffset = fit_offset;
 				}
 
-
 				//Draw histogram and fit in canvas
 				canv[i][j]->Clear();
 
-				if (cd_nQ_pQ[i][j][k]->GetEntries() > 0) {
-					cd_nQ_pQ[i][j][k]->Draw("COLZ");
-
-					if(validFit) {
-						nfit->SetLineColor(kRed);
-						nfit->Draw("SAME");
-					}
-
-					// print histogram page
-					canv[i][j]->Print(pdfname.data(), "pdf");
-					
-				} else {
-					std::cout << "Skipping empty histogram Det " << i << " Sec " << j << " Strip " << k << std::endl;
-				}
+				cd_nQ_pQ[i][j][k]->Draw("COLZ");
+				nfit->SetLineColor(kRed);
+				nfit->Draw("SAME");
 				
-				if(validFit && cd_nQ_pQ[i][j][k]->GetEntries() > 0){
-					res_graph_n->Set(0);
+				canv[i][j]->Print(pdfname.data(), "pdf");
+					
+				//Residuals
+				res_graph_n->Set(0);
 
-					//calculate residuals only if fit has been performed
-					for(size_t ip = 0; ip < fitX.size(); ip++) {
+				for(size_t ip = 0; ip < fitX.size(); ip++) {
 
-						double yfit = nfit->Eval(fitX[ip]);
-						double residual = fitY[ip] - yfit;
+					double yfit = nfit->Eval(fitX[ip]);
+					double residual = fitY[ip] - yfit;
 
-						res_graph_n->SetPoint(ip, fitX[ip], residual);
-					}
-
-					//draw residual 
-					canv[i][j]->Clear(); //new page
-					res_graph_n->SetTitle( Form("N-side calibration - Residuals Det %d Sec %d Strip %d", i,j,k) );
-					res_graph_n->GetXaxis()->SetTitle("n-side raw charge nQ (ADC units)");
-					res_graph_n->GetYaxis()->SetTitle("residual (pQ - fit(nQ)) (ADC units)");
-					res_graph_n->SetMarkerStyle(20);
-					if (res_graph_n->GetN() > 0) {
-						res_graph_n->Draw("AP");
-					} else {
-						std::cout << "Skipping empty residual graph Det " << i << " Sec " << j << " Strip " << k << std::endl;
-					}
-
-					canv[i][j]->Print(pdfname.data(),"pdf");
+					res_graph_n->SetPoint(ip, fitX[ip], residual);
 				}
+
+				//draw residual 
+				canv[i][j]->Clear();
+				res_graph_n->SetTitle( Form("N-side calibration - Residuals Det %d Sec %d Strip %d", i,j,k) );
+				res_graph_n->GetXaxis()->SetTitle("n-side raw charge nQ (ADC units)");
+				res_graph_n->GetYaxis()->SetTitle("residual (pQ - fit(nQ)) (ADC units)");
+				res_graph_n->SetMarkerStyle(20);
+				res_graph_n->Draw("AP");
+					
+				canv[i][j]->Print(pdfname.data(),"pdf");
+				
 
 				// Get the output names for the calibration file
 				std::string cal_base;
