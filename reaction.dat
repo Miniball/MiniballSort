@@ -73,6 +73,8 @@
 #CD_1.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, anti-clockwise wrt beam direction because theta > 90 deg (in deg)
 #CD_0.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
 #CD_1.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
+#CD_0.Thickness: 0.140		# CD thickness in mm (default value is 0.140 mm)
+#CD_1.Thickness: 0.140		# CD thickness in mm (default value is 0.140 mm)
 
 # SPEDE Detector geometry
 #Spede.Distance: -30.0	# Target to SPEDE distance in mm (backwards direction, so negative)

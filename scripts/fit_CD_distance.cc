@@ -38,7 +38,7 @@ double intensity_func( double *x, double *par ) {
 	
 }
 
-void fit_CD_distance( std::string filename ) {
+void fit_CD_distance( std::string filename, int numberOfNstrips ) {
 	
 	TFile *fin = new TFile( filename.data() );
 	TH1F *hist;
@@ -75,8 +75,15 @@ void fit_CD_distance( std::string filename ) {
 		// Loop over strips
 		for( unsigned int j = 0; j < 16; j++ ){
 			
-			std::string histname = "/sfp_1/board_" + std::to_string(i*2);
-			histname += "/febex_1_" + std::to_string(i*2) + "_" + std::to_string(j);
+			int mult;
+			if ( numberOfNstrips == 12 ) { mult = 2; }
+			else if ( numberOfNstrips == 24 ) { mult = 3; }
+			else {
+				cout << "Provide a number of N strips equal to 12 or 24 as argument." << endl;
+				return;
+			}
+			std::string histname = "/sfp_1/board_" + std::to_string(i*mult);
+			histname += "/febex_1_" + std::to_string(i*mult) + "_" + std::to_string(j);
 			histname += "_cal";
 			hist = (TH1F*)fin->Get( histname.data() );
 			
@@ -89,7 +96,7 @@ void fit_CD_distance( std::string filename ) {
 			y1.push_back( integral );
 			xerr1.push_back( 0 );
 			yerr1.push_back( TMath::Sqrt( integral ) );
-			
+
 		}
 		
 		data_points[i] = new TGraphErrors(x1.size(),x1.data(),y1.data(),xerr1.data(),yerr1.data());

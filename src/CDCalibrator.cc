@@ -55,7 +55,8 @@ void MiniballCDCalibrator::SetInputFile( std::vector<std::string> input_file_nam
 
 	input_tree->SetBranchAddress( "data", &in_data );
 	mbsinfo_tree->SetBranchAddress( "mbsinfo", &mbs_info );
-	mbsinfo_tree->BuildIndex("GetEventID()");
+	//mbsinfo_tree->BuildIndex("GetEventID()");
+	if (mbsinfo_tree->GetEntries()) mbsinfo_tree->BuildIndex("GetEventID()");
 
 	return;
 
@@ -147,6 +148,20 @@ void MiniballCDCalibrator::Initialise(){
 }
 
 
+int nextPowerOf2(unsigned int n) {
+    if (n == 0) return 1;
+
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+
+    return n + 1;
+}
+
+
 void MiniballCDCalibrator::MakeHists(){
 
 	std::string hname, htitle;
@@ -154,14 +169,26 @@ void MiniballCDCalibrator::MakeHists(){
 	// ------------- //
 	// CD histograms //
 	// ------------- //
-	cd_pen_nen.resize( set->GetNumberOfCDDetectors() );
-	cd_nen_pen.resize( set->GetNumberOfCDDetectors() );
+	//cd_pen_nen.resize( set->GetNumberOfCDDetectors() );
+	//cd_nen_pen.resize( set->GetNumberOfCDDetectors() );
 	cd_pen_nQ.resize( set->GetNumberOfCDDetectors() );
 	cd_nQ_pQ.resize( set->GetNumberOfCDDetectors() );
 
 	// Get sizes and scales
-	double maxQ = 1073741824;
-	unsigned int Qbins = 8192;
+	//double maxQ = 1073741824;
+	//double maxQ = 1073741824/7.; // should be a power of 2?
+	//unsigned int Qbins = 8192;
+	//unsigned int Qbins = 4096;
+	unsigned int Qbins = 1024;
+	//unsigned int Qbins = 256;
+	double maxEn = set->GetCDCalibratorMaxEnergy();  //20e3;
+	//read FEBEX gain and offset for reference p strip in first quadrant (febex_1_0_ptag) to get an idea of raw charge range
+	double maxRawEn = ( maxEn - cal->FebexOffset(1,0,ptag) ) / cal->FebexGain(1,0,ptag);
+	std::cout << "Max raw energy is: " << maxRawEn << std::endl;
+	std::cout << "Gain is: "  << cal->FebexGain(1,0,ptag) << " and offset is: " << cal->FebexOffset(1,0,ptag) << std::endl;
+	// round that value to the next power of two
+	int maxQ = nextPowerOf2(std::round(maxRawEn));
+	std::cout << "Next power of 2 is: " << maxQ << std::endl;
 
 	if( set->GetNumberOfCaenAdcModules() > 0 ) {
 		maxQ = 4096;
@@ -179,30 +206,31 @@ void MiniballCDCalibrator::MakeHists(){
 
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 		
-		cd_pen_nen[i].resize( set->GetNumberOfCDSectors() );
-		cd_nen_pen[i].resize( set->GetNumberOfCDSectors() );
+		//cd_pen_nen[i].resize( set->GetNumberOfCDSectors() );
+		//cd_nen_pen[i].resize( set->GetNumberOfCDSectors() );
 		cd_pen_nQ[i].resize( set->GetNumberOfCDSectors() );
 		cd_nQ_pQ[i].resize( set->GetNumberOfCDSectors() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
-			cd_nen_pen[i][j].resize( set->GetNumberOfCDPStrips() );
+			//cd_nen_pen[i][j].resize( set->GetNumberOfCDPStrips() );
 			cd_nQ_pQ[i][j].resize( set->GetNumberOfCDPStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
-				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_nen_" + std::to_string(ptag) + "_pen_" + std::to_string(k);
-				htitle  = "CD n-side energy vs p-side energy for detector " + std::to_string(i);
-				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
-				htitle += ", nid " + std::to_string(ntag);
-				htitle += ";n-side energy (keV);p-side energy (keV);Counts";
-				cd_nen_pen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											   4000, 0, 2000e3, 4000, 0, 2000e3 );
-				histlist->Add(cd_nen_pen[i][j][k]);
+			//	hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
+			//	hname  += "_nen_" + std::to_string(ptag) + "_pen_" + std::to_string(k);
+			//	htitle  = "CD n-side energy vs p-side energy for detector " + std::to_string(i);
+			//	htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
+			//	htitle += ", nid " + std::to_string(ntag);
+			//	htitle += ";n-side energy (keV);p-side energy (keV);Counts";
+			//	cd_nen_pen[i][j][k] = new TH2F( hname.data(), htitle.data(),
+			//								   1000, 0, 20e3, 4000, 0, 20e3 );
+			//								  // 4000, 0, 2000e3, 4000, 0, 2000e3 );
+			//	histlist->Add(cd_nen_pen[i][j][k]);
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_nQ_" + std::to_string(ptag) + "_pQ_" + std::to_string(k);
+				hname  += "_nQ_" + std::to_string(ntag) + "_pQ_" + std::to_string(k);
 				htitle  = "CD n-side energy vs p-side raw charge for detector " + std::to_string(i);
 				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 				htitle += ", nid " + std::to_string(ntag);
@@ -213,20 +241,21 @@ void MiniballCDCalibrator::MakeHists(){
 
 			} // k
 
-			cd_pen_nen[i][j].resize( set->GetNumberOfCDNStrips() );
+			//cd_pen_nen[i][j].resize( set->GetNumberOfCDNStrips() );
 			cd_pen_nQ[i][j].resize( set->GetNumberOfCDNStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
 
-				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-				hname  += "_pen_" + std::to_string(ptag) + "_nen_" + std::to_string(k);
-				htitle  = "CD p-side energy vs n-side energy for detector " + std::to_string(i);
-				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(ptag);
-				htitle += ", nid " + std::to_string(k);
-				htitle += ";p-side energy (keV);n-side energy (keV);Counts";
-				cd_pen_nen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											   4000, 0, 2000e3, 4000, 0, 2000e3 );
-				histlist->Add(cd_pen_nen[i][j][k]);
+			//	hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
+			//	hname  += "_pen_" + std::to_string(ptag) + "_nen_" + std::to_string(k);
+			//	htitle  = "CD p-side energy vs n-side energy for detector " + std::to_string(i);
+			//	htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(ptag);
+			//	htitle += ", nid " + std::to_string(k);
+			//	htitle += ";p-side energy (keV);n-side energy (keV);Counts";
+			//	cd_pen_nen[i][j][k] = new TH2F( hname.data(), htitle.data(),
+			//								   1000, 0, 20e3, 4000, 0, 20e3 );
+			//								  // 4000, 0, 2000e3, 4000, 0, 2000e3 );
+			//	histlist->Add(cd_pen_nen[i][j][k]);
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
 				hname  += "_pen_" + std::to_string(ptag) + "_nQ_" + std::to_string(k);
@@ -235,7 +264,8 @@ void MiniballCDCalibrator::MakeHists(){
 				htitle += ", nid " + std::to_string(k);
 				htitle += ";p-side energy (keV);n-side raw charge (ADC units);Counts";
 				cd_pen_nQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											  4000, 0, 2000e3, Qbins, 0, maxQ );
+											  1000, 0, maxEn, Qbins, 0, maxQ );
+											 // 4000, 0, 2000e3, Qbins, 0, maxQ );
 				histlist->Add(cd_pen_nQ[i][j][k]);
 
 			} // k
@@ -360,7 +390,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 		oldDAQ = true;
 
 	// Create a TF1 for the linear fit
-	auto pfit = std::make_unique<TF1>( "pfit", "[0]+[1]*x", 0, 1e9 );
+	//auto pfit = std::make_unique<TF1>( "pfit", "[0]+[1]*x", 0, 1e9 );
 
 	// Some canvases to check fits
 	gErrorIgnoreLevel = kError;
@@ -378,12 +408,35 @@ void MiniballCDCalibrator::CalibratePsides() {
 			std::string cname = "cdcal_p_" + std::to_string(i) + "_" + std::to_string(j);
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
 
+			// Print to a file
+			std::string pdfname = cname + ".pdf";
+			canv[i][j]->Print( (pdfname + "[").c_str(), "pdf" );
+
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
+				// Create a TF1 for the linear fit
+				//auto pfit = std::make_unique<TF1>( ("pfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), "[0]+[1]*x", 0, 1e9 );
+				auto pfit = std::make_unique<TF1>( ("pfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), 
+						"[0]+[1]*x", cd_nQ_pQ[i][j][k]->GetXaxis()->GetXmin(), cd_nQ_pQ[i][j][k]->GetXaxis()->GetXmax() );
+
 				// Get the right histogram to do the fit
-				auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QWL" );
-				if( res != 0 ) continue;
+				//auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QWL" );
+				auto prof = cd_nQ_pQ[i][j][k]->ProfileX( ("p_prof_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str() );
+				//auto res = prof->Fit( pfit.get(), "QW" ); // with W: ignores all error points in TProfile/TGraph
+				auto res = prof->Fit( pfit.get(), "QROB=0.7" ); // with ROB=0.7: robust fitting with 0.7 as fraction of good points
+				//if( res != 0 ) continue;
+				if( res != 0 ) { std::cout << "For p strip " << k << " the fit failed." << std::endl; }
+				canv[i][j]->cd();
+				cd_nQ_pQ[i][j][k]->Draw(); // to draw on the canvas that will be printed in the PDF file
+				//prof->Draw("same");
+				//cd_nQ_pQ[i][j][k]->ProfileX()->Draw("same");
+				pfit.get()->SetLineColor(kBlue);
+				pfit.get()->Draw("same");
+				canv[i][j]->Modified();
+				canv[i][j]->Update();
+				//cd_nQ_pQ[i][j][k]->GetListOfFunctions()->Add(pfit.get()); // to attach the fitted function to the TH2 written to the ROOT file
+				pfit.get()->Write(); // to write the TF1 function to the output ROOT file
 				double fit_gain = ngain / pfit->GetParameter(1);
 				double fit_offset = noffset - pfit->GetParameter(0) * fit_gain;
 
@@ -430,14 +483,17 @@ void MiniballCDCalibrator::CalibratePsides() {
 				output_cal << offsetstr << std::endl;
 
 				// Print to a file
-				std::string pdfname = cname + ".pdf";
-				if( k == 0 && set->GetNumberOfCDPStrips() != 1 )
-					pdfname += "(";
-				else if( k > 0 && k == set->GetNumberOfCDPStrips() - 1 )
-					pdfname += ")";
-				canv[i][j]->Print( pdfname.data(), "pdf" );
+				//std::string pdfname = cname + ".pdf";
+				//if( k == 0 && set->GetNumberOfCDPStrips() != 1 )
+				//	pdfname += "[";
+				//else if( k > 0 && k == set->GetNumberOfCDPStrips() - 1 )
+				//	pdfname += "]";
+				//canv[i][j]->Print( pdfname.data(), "pdf" );
+				canv[i][j]->Print( pdfname.c_str(), "pdf" );
 
 			} // k
+
+			canv[i][j]->Print( (pdfname + "]").c_str(), "pdf" );
 
 		} // j
 
@@ -458,7 +514,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 		oldDAQ = true;
 
 	// Create a TF1 for the linear fit
-	auto nfit = std::make_unique<TF1>( "nfit", "[0]+[1]*x", 0, 1e9 );
+	//auto nfit = std::make_unique<TF1>( "nfit", "[0]+[1]*x", 0, 1e9 );
 
 	// Some canvases to check fits
 	gErrorIgnoreLevel = kError;
@@ -476,12 +532,34 @@ void MiniballCDCalibrator::CalibrateNsides() {
 			std::string cname = "cdcal_n_" + std::to_string(i) + "_" + std::to_string(j);
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
 
+			// Print to a file
+			std::string pdfname = cname + ".pdf";
+			canv[i][j]->Print( (pdfname + "[").c_str(), "pdf" );
+
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
 
+				// Create a TF1 for the linear fit
+				//auto nfit = std::make_unique<TF1>( ("nfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), "[0]+[1]*x", 0, 1e9 );
+				auto nfit = std::make_unique<TF1>( ("nfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), 
+						"[0]+[1]*x", cd_pen_nQ[i][j][k]->GetXaxis()->GetXmin(), cd_pen_nQ[i][j][k]->GetXaxis()->GetXmax() );
+
 				// Get the right histogram to do the fit
-				auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QWL" );
-				if( res != 0 ) continue;
+				//auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QWL" );
+				auto prof = cd_pen_nQ[i][j][k]->ProfileX( ("n_prof_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str() );
+				auto res = prof->Fit( nfit.get(), "QROB=0.7" ); // with ROB=0.7: robust fitting with 0.7 as fraction of good points
+				//if( res != 0 ) continue;
+				if( res != 0 ) { std::cout << "For n strip " << k << " the fit failed." << std::endl; }
+				canv[i][j]->cd();
+				cd_pen_nQ[i][j][k]->Draw(); // to draw on the canvas that will be printed in the PDF file
+				//prof->Draw("same");
+				//cd_pen_nQ[i][j][k]->ProfileX()->Draw("same");
+				nfit.get()->SetLineColor(kBlue);
+				nfit.get()->Draw("same");
+				canv[i][j]->Modified();
+				canv[i][j]->Update();
+				//cd_pen_nQ[i][j][k]->GetListOfFunctions()->Add(nfit.get()); // to attach the fitted function to the TH2 written to the ROOT file
+				nfit.get()->Write(); // to write the TF1 function to the output ROOT file
 				double fit_gain = 1.0 / nfit->GetParameter(1);
 				double fit_offset = -1.0 * nfit->GetParameter(0) * fit_gain;
 				//double fit_gain = 1.0;
@@ -529,14 +607,17 @@ void MiniballCDCalibrator::CalibrateNsides() {
 				output_cal << offsetstr << std::endl;
 
 				// Print to a file
-				std::string pdfname = cname + ".pdf";
-				if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
-					pdfname += "(";
-				else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
-					pdfname += ")";
-				canv[i][j]->Print( pdfname.data(), "pdf" );
+				//std::string pdfname = cname + ".pdf";
+				//if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
+				//	pdfname += "[";
+				//else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
+				//	pdfname += "]";
+				//canv[i][j]->Print( pdfname.data(), "pdf" );
+				canv[i][j]->Print( pdfname.c_str(), "pdf" );
 
 			} // k
+
+			canv[i][j]->Print( (pdfname + "]").c_str(), "pdf" );
 
 		} // j
 
@@ -600,7 +681,7 @@ void MiniballCDCalibrator::FillPixelHists() {
 			// For p-side tags
 			if( pid == ptag ) {
 
-				cd_pen_nen[i][j][nid]->Fill( pen, nen );
+				//cd_pen_nen[i][j][nid]->Fill( pen, nen );
 				cd_pen_nQ[i][j][nid]->Fill( pen, nQ );
 				
 			}
@@ -608,7 +689,7 @@ void MiniballCDCalibrator::FillPixelHists() {
 			// For n-side tags
 			if( nid == ntag ) {
 
-				cd_nen_pen[i][j][pid]->Fill( nen, pen );
+				//cd_nen_pen[i][j][pid]->Fill( nen, pen );
 				cd_nQ_pQ[i][j][pid]->Fill( nQ, pQ );
 
 			}

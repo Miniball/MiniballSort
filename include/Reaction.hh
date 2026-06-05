@@ -22,6 +22,8 @@
 #include "TSpline.h"
 #include "TCanvas.h"
 #include "TGraph.h"
+#include "TLorentzRotation.h"
+#include "TLorentzVector.h"
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -197,6 +199,10 @@ public:
 	};
 	inline double			GetCDDeadLayer( unsigned char det ){
 		if( det < dead_layer.size() ) return dead_layer.at(det);
+		else return 0.0;
+	};
+	inline double			GetCDThickness( unsigned char det ){
+		if( det < cd_thickness.size() ) return cd_thickness.at(det);
 		else return 0.0;
 	};
 	inline unsigned int		GetNumberOfParticleThetas() {
@@ -490,6 +496,7 @@ public:
 
 	// Energy loss and stopping powers
 	double GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g );
+	double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, double thickness, std::unique_ptr<TGraph> &g, double EnergyMin, double EnergyMax);
 	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g );
 
 	
@@ -618,6 +625,7 @@ private:
 	std::vector<double> cd_dist;		///< distance from target to CD detector in mm
 	std::vector<double> cd_offset;		///< phi rotation of the CD in degrees
 	std::vector<double> dead_layer;		///< dead layer thickness in mm
+	std::vector<double> cd_thickness;	///< thickness of CD detector in mm
 
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;

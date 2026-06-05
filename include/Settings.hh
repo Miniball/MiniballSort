@@ -261,6 +261,7 @@ public:
 		return GetCDID( sfp, board, ch, cd_strip );
 	};
 	inline double GetCDHitWindow(){ return cd_hit_window; };
+	inline double GetCDCalibratorMaxEnergy(){ return cd_calibrator_max_energy; };
 	
 	
 	// Pad detector
@@ -358,6 +359,9 @@ private:
 	unsigned int n_cd_side;			///< number of sides, it's always 2, i.e. p-side and n-side
 	unsigned int n_cd_pstrip;		///< number of p-side strips
 	unsigned int n_cd_nstrip;		///< number of n-side strips
+
+	// CD calibration settings
+	double cd_calibrator_max_energy;	///< Max energy to fill spectra to calibrate CD strips with CD calibrator; default is 2000e3 keV
 
 	// CD electronics mapping
 	std::vector<std::vector<std::vector<std::vector<unsigned int>>>> cd_sfp;	///< A list of SFP numbers for each CD detector, sector, side and strip
