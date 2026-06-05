@@ -68,6 +68,9 @@ const std::vector<std::string> gElName = {
 };
 
 
+// Define density of Si, to reconstruct initial energy from DeltaE in CD, given the user-provided CD thickness in mm
+const double rho_Si = 2.3212; // g/cm^3
+
 /// A class to read in the reaction file in ROOT's TConfig format.
 /// And also to do the physics stuff for the reaction
 

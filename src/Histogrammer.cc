@@ -1104,12 +1104,12 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "ejectile_ex";
 		htitle = "Ejectile excitation energy;";
 		htitle += "Excitation Energy [keV]";
-		ejectile_ex = new TH1F( hname.data(), htitle.data(), 1000, -10, 19990);
+		ejectile_ex = new TH1F( hname.data(), htitle.data(), 1000, -10, 49990);
 		histlist->Add(ejectile_ex);
 
 		hname = "recoilE_theta";
 		htitle = "Reconstructed recoil energy (dependent on doppler_mode) vs theta angle;";
-		htitle += ";Angle [deg];Energy [keV];Counts";
+		htitle += "Angle [deg];Energy [keV]";
 		recoilE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 		histlist->Add(recoilE_theta);
 
