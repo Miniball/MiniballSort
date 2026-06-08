@@ -1107,11 +1107,24 @@ void MiniballHistogrammer::MakeHists() {
 		ejectile_ex = new TH1F( hname.data(), htitle.data(), 1000, -10, 49990);
 		histlist->Add(ejectile_ex);
 
+		hname = "ejectile_beta";
+		htitle = "Ejectile beta;";
+		htitle += "Beta";
+		ejectile_beta = new TH1F( hname.data(), htitle.data(), 100, 0.105, 0.115);
+		histlist->Add(ejectile_beta);
+
 		hname = "recoilE_theta";
 		htitle = "Reconstructed recoil energy (dependent on doppler_mode) vs theta angle;";
 		htitle += "Angle [deg];Energy [keV]";
 		recoilE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 		histlist->Add(recoilE_theta);
+
+		hname = "ejectileE_theta";
+		htitle = "Reconstructed ejectile energy from measured recoil (dependent on doppler_mode) vs theta angle;";
+		htitle += "Angle [deg];Energy [keV]";
+		ejectileE_theta = new TH2F( hname.data(), htitle.data(), 20, 0, 5, 1000, 1000e3, 1500e3 ); 	// transfer reaction where ejectile goes almost straight along z-axis
+													// energy picked ad hoc for IS774
+		histlist->Add(ejectileE_theta);
 
 	}
 
@@ -2370,8 +2383,14 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 			// Reconstructed excitation energy of ejectile
 			ejectile_ex->Fill( react->GetEjectile()->GetEx(), weight );
 
+			// Reconstructed beta of ejectile
+			ejectile_beta->Fill( react->GetEjectile()->GetBeta(), weight );
+
 			// Reconstructed recoil energy vs Angle plot
 			recoilE_theta->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetEnergy(), weight );
+
+			// Reconstructed ejectile energy vs Angle plot
+			ejectileE_theta->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->GetEjectile()->GetEnergy(), weight );
 
 		}
 

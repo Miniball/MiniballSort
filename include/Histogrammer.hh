@@ -446,8 +446,8 @@ private:
 	std::vector<TH2F*> gE_vs_phi_dc_recoil;
 	
 	// Transfer reaction histograms
-	TH1F *ejectile_ex = nullptr;
-	TH2F *recoilE_theta = nullptr;
+	TH1F *ejectile_ex = nullptr,                      *ejectile_beta = nullptr;
+	TH2F *recoilE_theta = nullptr,                    *ejectileE_theta = nullptr;
 
 	// Electron energy versus cos(theta)
 	TH2F *eE_costheta_ejectile = nullptr, *eE_costheta_recoil = nullptr;

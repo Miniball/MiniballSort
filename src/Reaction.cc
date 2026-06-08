@@ -1087,7 +1087,7 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	TVector3 fImpulsionLab_4; // ejectile
 
 	//fImpulsionLab_1 = TVector3(0, 0, sqrt(Beam.GetEnergyTot() * Beam.GetEnergyTot() + 2 * Beam.GetEnergyTot() * Beam.GetMass())); // beam
-	fImpulsionLab_1 = TVector3(0, 0, sqrt(Beam.GetEnergyTot() * Beam.GetEnergyTot() - Beam.GetMass() * Beam.GetMass())); // beam
+	fImpulsionLab_1 = TVector3(0, 0, sqrt( Beam.GetEnergyTot() * Beam.GetEnergyTot() - Beam.GetMass() * Beam.GetMass())); // beam
 	fImpulsionLab_2 = TVector3(0, 0, 0); // target
 	
 	fEnergyImpulsionLab_1 = TLorentzVector(fImpulsionLab_1, Beam.GetEnergyTot()); // beam
