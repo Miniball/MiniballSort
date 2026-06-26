@@ -1110,7 +1110,7 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "ejectile_beta";
 		htitle = "Ejectile beta;";
 		htitle += "Beta";
-		ejectile_beta = new TH1F( hname.data(), htitle.data(), 100, 0.105, 0.115);
+		ejectile_beta = new TH1F( hname.data(), htitle.data(), 100, 0.10, 0.11);
 		histlist->Add(ejectile_beta);
 
 		hname = "recoilE_theta";

@@ -92,7 +92,13 @@ public:
 		mass -= (double)GetA() * bindingE;
 		mass += GetEx();
 		return mass;
-	};		// returns mass in keV/c^2
+	};		// returns invariant mass in keV/c^2
+	inline double		GetRestMass(){
+		double restmass = (double)GetN() * n_mass;
+		restmass += (double)GetZ() * p_mass;
+		restmass -= (double)GetA() * bindingE;
+		return restmass;
+	};		// returns rest mass in keV/c^2
 	inline int			GetA(){ return A; };	// returns mass number
 	inline int			GetZ(){ return Z; };
 	inline int			GetN(){ return A-Z; };
@@ -499,7 +505,7 @@ public:
 
 	// Energy loss and stopping powers
 	double GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g );
-	double GetInitialEnergyFromDeltaE(double DeltaE, double thickness, std::unique_ptr<TGraph> &g, double EnergyMin, double EnergyMax);
+	double GetInitialEnergyFromDeltaE(double DeltaE, std::unique_ptr<TGraph> &g);
 	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g );
 
 	
@@ -694,6 +700,8 @@ private:
 	// Stopping powers
 	std::vector<std::unique_ptr<TGraph>> gStopping;
 	bool stopping;
+	std::vector<std::unique_ptr<TGraph>> gEloss_E;
+	std::vector<std::unique_ptr<TGraph>> gE_Eloss;
 	
 };
 

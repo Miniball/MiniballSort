@@ -351,6 +351,42 @@ void MiniballReaction::ReadReaction() {
 		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
 	}
 	
+	// Prepare the Eloss vs E graphs and E vs Eloss graphs for all CD strips (as Si thickness will vary strip by strip).
+	// These will be used by the function TransferProduct(), in case you are doing a transfer reaction.
+	for( unsigned int i = 0; i < set->GetNumberOfCDPStrips(); ++i ) { // loop over CD strips
+		gEloss_E.push_back( std::make_unique<TGraph>() );
+		gE_Eloss.push_back( std::make_unique<TGraph>() );
+		double cd_eff_thick = GetCDThickness( 0 ) / TMath::Abs( TMath::Cos( TMath::DegToRad() * ( GetParticleThetas()[i]+GetParticleThetas()[i+1] ) / 2. ) ); // we are using just one CD at the moment, so #0
+		//std::cout << "Strip #" << i << ": average angle = " << ( GetParticleThetas()[i]+GetParticleThetas()[i+1] ) / 2. << "; eff_thick = " << cd_eff_thick << std::endl;
+		double dE;
+		int n = 0;
+		for( double E = 15000; E <= 150000; E += 500 ){ // sampling over 5 MeV-150 MeV energy range, where Eloss vs E is monotonic, so can be inverted
+			dE = GetEnergyLoss(E, cd_eff_thick, gStopping[4]);
+			gEloss_E[i]->SetPoint(n, E, dE);
+			gE_Eloss[i]->SetPoint(n, dE, E);
+
+			n++;
+		}
+		gE_Eloss[i]->Sort();
+
+		// Draw the plot and save it somewhere
+		TCanvas *c = new TCanvas();
+		c->Divide(1,2);
+		c->cd(1);
+		gEloss_E[i]->SetTitle("Eloss vs E");
+		gEloss_E[i]->Draw("A*");
+		c->cd(2);
+		gE_Eloss[i]->SetTitle("E vs Eloss");
+		gE_Eloss[i]->Draw("A*");
+		std::string pdfname = "gEloss_E_strip" + std::to_string(i) + ".pdf";
+		c->SaveAs( pdfname.c_str() );
+		
+		delete c;
+	
+	}
+		
+
+
 	// Some diagnostics and info
 	std::cout << std::endl << " +++  ";
 	std::cout << Target.GetIsotope() << "(" << Beam.GetIsotope() << ",";
@@ -1074,61 +1110,55 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	// https://gitlab.in2p3.fr/np/nptool/-/blob/NPTool.2.dev/NPLib/Physics/NPReaction.cxx
 	
 	// Lorentz Vector
-	TLorentzVector fEnergyImpulsionLab_1; // beam
-	TLorentzVector fEnergyImpulsionLab_2; // target
-	TLorentzVector fEnergyImpulsionLab_3; // recoil
-	TLorentzVector fEnergyImpulsionLab_4; // ejectile
-	TLorentzVector fTotalEnergyImpulsionLab;
+	TLorentzVector EnergyMomentumLab_1; // beam
+	TLorentzVector EnergyMomentumLab_2; // target
+	TLorentzVector EnergyMomentumLab_3; // recoil (light ion/target-like particle)
+	TLorentzVector EnergyMomentumLab_4; // ejectile (heavy ion/beam-like particle)
+	TLorentzVector TotalEnergyMomentumLab;
 	
 	// Impulsion Vector3
-	TVector3 fImpulsionLab_1; // beam
-	TVector3 fImpulsionLab_2; // target
-	TVector3 fImpulsionLab_3; // recoil
-	TVector3 fImpulsionLab_4; // ejectile
+	TVector3 MomentumLab_1; // beam
+	TVector3 MomentumLab_2; // target
+	TVector3 MomentumLab_3; // recoil (light ion/target-like particle)
+	TVector3 MomentumLab_4; // ejectile (heavy ion/beam-like particle)
 
-	//fImpulsionLab_1 = TVector3(0, 0, sqrt(Beam.GetEnergyTot() * Beam.GetEnergyTot() + 2 * Beam.GetEnergyTot() * Beam.GetMass())); // beam
-	fImpulsionLab_1 = TVector3(0, 0, sqrt( Beam.GetEnergyTot() * Beam.GetEnergyTot() - Beam.GetMass() * Beam.GetMass())); // beam
-	fImpulsionLab_2 = TVector3(0, 0, 0); // target
+	MomentumLab_1 = TVector3(0, 0, sqrt( Beam.GetEnergyTot() * Beam.GetEnergyTot() - Beam.GetMass() * Beam.GetMass())); // beam
+	MomentumLab_2 = TVector3(0, 0, 0); // target
 	
-	fEnergyImpulsionLab_1 = TLorentzVector(fImpulsionLab_1, Beam.GetEnergyTot()); // beam
-	fEnergyImpulsionLab_2 = TLorentzVector(fImpulsionLab_2, Target.GetMass()); // target
+	EnergyMomentumLab_1 = TLorentzVector(MomentumLab_1, Beam.GetEnergyTot()); // beam
+	EnergyMomentumLab_2 = TLorentzVector(MomentumLab_2, Target.GetMass()); // target
 	
-	fTotalEnergyImpulsionLab = fEnergyImpulsionLab_1 + fEnergyImpulsionLab_2;
+	TotalEnergyMomentumLab = EnergyMomentumLab_1 + EnergyMomentumLab_2;
 	
 	// get energy of the reaction product prior entering the CD (after the dead layer)
-	double cd_eff_thick = GetCDThickness( p->GetDetector() ) * 0.1 * rho_Si * 1000. / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ); // convert CD thickness from mm to mg/cm2
-	//std::cout << cd_eff_thick << std::endl;
-	//double EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP()*0.001, cd_eff_thick, gStopping[4], 15, 150);  // need to add to reaction file also EnergyMin, EnergyMax search range, to make it user defined
-	double EnergyLab3 = p->GetEnergy(); // p-strip + PAD energy
+	//double cd_eff_thick = GetCDThickness( p->GetDetector() ) / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ); 
+	//std::cout << "cd_eff_thick = " << cd_eff_thick;
+	int pstrip = static_cast<int>(p->GetStripP());
+	double EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP(), gE_Eloss[pstrip]);  // need to add to reaction file also EnergyMin, EnergyMax search range, to make it user defined
+	//std::cout << "; E loss in CD = " << p->GetEnergyP() << " keV; p strip hit = " << pstrip << "; E initial = " << EnergyLab3 << " keV." << std::endl;
+	//double EnergyLab3 = p->GetEnergy(); // p-strip + PAD energy
 
 	double eloss = 0.0;
-	double EnergyDetector = EnergyLab3; // energy reconstructed from DeltaE, without dead layer or other energy loss corrections
-	double EnergyDegrader = EnergyLab3; // energy after degrader (with energy loss in dead layer)
-	double EnergyTarget = EnergyLab3; // energy before degrader 
 
-	// Correcting energy loss in CD dead layer
-	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
+	// Correcting energy loss of recoil in CD dead layer
+	if( stopping ) {
 		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
 		EnergyLab3 -= eloss;
-		EnergyDegrader = EnergyLab3;
-		EnergyTarget = EnergyLab3;
 	}
 
-	// Correction for energy loss in the degrader
-	if( stopping && degrader_thickness > 0 && doppler_mode == 5 ) {
+	// Correction for energy loss of recoil in the degrader if degrader is defined (degrader thickness > 0)
+	if( stopping && degrader_thickness > 0 ) {
 		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
 		EnergyLab3 -= eloss;
-		EnergyTarget -= eloss;
 	}
 
-	// Correction for energy loss through half of the target material
+	// Correction for energy loss of recoil through half of the target material
 	if( stopping ) {
 		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[2] ); // recoil in target
 		EnergyLab3 -= eloss;
-		EnergyTarget -= eloss;
 	}
 
 	//if (std::rand() % 1000 == 0) {  // sample 1/1000 events
@@ -1138,42 +1168,47 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	//    std::cout << "Boundary hit! Energy = " << EnergyLab3 << std::endl;
 	//}
 
-
-	// Set observables (energy definition will depend on Doppler mode adopted).
-	// If no degrader is present ( degrader_thickness < 0 ), doppler_mode 3 and 5 will give the same outcome.
-	// Relevant doppler_mode values for transfer are 2, 3, 5, as we always need to rely on the measured recoil 
-	// to work out ejectile info and do the Doppler correction.
-	if (doppler_mode == 2)
-		Recoil.SetEnergy(EnergyDetector); // energy of particle in the CD (in this case we use DeltaE in the CD to reconstruct E at CD entrance)
-	else if (doppler_mode == 3)
-		Recoil.SetEnergy(EnergyDegrader); // energy of particle AFTER degrader, corrected for energy loss in dead layer
-	else if (doppler_mode == 5)
- 		Recoil.SetEnergy(EnergyTarget); // energy of particle at mid-target, so BEFORE degrader, corrected for energy loss in dead layer/(degrader)/half target
+	// Set recoil observables 
+	Recoil.SetEnergy( EnergyLab3 );
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
 
 	// write four-vector recoil
 	double p_Lab_3 = sqrt(Recoil.GetEnergyTot() * Recoil.GetEnergyTot() - Recoil.GetMass() * Recoil.GetMass()); // amplitude of impulsion of recoil
-	fImpulsionLab_3.SetMagThetaPhi(p_Lab_3, Recoil.GetTheta(), Recoil.GetPhi() );
-	fEnergyImpulsionLab_3.SetVect(fImpulsionLab_3);
-	fEnergyImpulsionLab_3.SetE(Recoil.GetEnergyTot()); // this assumes that invariant mass = rest mass for the recoil (namely the recoil is in its ground state)
+	MomentumLab_3.SetMagThetaPhi(p_Lab_3, Recoil.GetTheta(), Recoil.GetPhi() );
+	EnergyMomentumLab_3.SetVect(MomentumLab_3);
+	EnergyMomentumLab_3.SetE(Recoil.GetEnergyTot()); // this assumes that invariant mass = rest mass for the recoil (namely the recoil is in its ground state)
 
-	// write four-vector ejectile
-	fEnergyImpulsionLab_4 = fTotalEnergyImpulsionLab - fEnergyImpulsionLab_3; 
+	// write four-vector and kinetic energy ejectile
+	EnergyMomentumLab_4 = TotalEnergyMomentumLab - EnergyMomentumLab_3; 
+	double EnergyLab4 = EnergyMomentumLab_4.E() - EnergyMomentumLab_4.M(); // kinetic energy = total energy - invariant mass 
 	
-	// calculate rest mass of ejectile
-	double Mrest_4 = Ejectile.GetMass() - Ejectile.GetEx();
+	// Factor in energy loss of ejectile in second half of the target
+	if( stopping ) {
+		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos( EnergyMomentumLab_4.Theta() ) );
+		eloss = GetEnergyLoss( EnergyLab4, eff_thick, gStopping[1] ); // ejectile in target
+		EnergyLab4 -= eloss;
+	}
+	
+	// Factor in energy loss of ejectile into degrader, if degrader is defined (degrader thickness > 0)
+	// and if doppler_mode == 3 (velocity of ejectile after degrader)
+	//
+	// !!!!!!!! Review doppler_mode nomenclature for transfer !!!!!!!!!!!
+	// Also: what other doppler modes should be considered? In case of transfer, everything relies on kin reconstruction
+	// from measured recoil (at least in the case of the cluster transfer, where ejectile is not measured), so the only 
+	// options I see remaining are: do we want the energy before or after degrader, if degrader is installed?
+	//
+	if( stopping && degrader_thickness > 0 && doppler_mode == 3 ) {
+		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( EnergyMomentumLab_4.Theta() ) );
+		eloss = GetEnergyLoss( EnergyLab4, eff_thick, gStopping[5] ); // ejectile in degrader
+		EnergyLab4 -= eloss;
+	}
 
-	// Set observables
-	Ejectile.SetEx( fEnergyImpulsionLab_4.M() - Mrest_4 ); 	// invariant mass - rest mass
-	Ejectile.SetEnergy( fEnergyImpulsionLab_4.E() - fEnergyImpulsionLab_4.M() ); // kinetic energy = total energy - invariant mass
-	Ejectile.SetTheta( fEnergyImpulsionLab_4.Theta() );
-	Ejectile.SetPhi( fEnergyImpulsionLab_4.Phi() );
-
-	//if (std::rand() % 1000 == 0) {  // sample 1/1000 events
-	//	std::cout << "Excitation energy [keV] = " << fEnergyImpulsionLab_4.M() - Mrest_4 <<  std::endl;
-	//	std::cout << "M_inv = " << fEnergyImpulsionLab_4.M() << " M_rest = " << Mrest_4 << std::endl;
-	//}
+	// Set ejectile observables
+	Ejectile.SetEx( EnergyMomentumLab_4.M() - Ejectile.GetRestMass() ); 	// invariant mass - rest mass
+	Ejectile.SetEnergy( EnergyLab4 ); // kinetic energy
+	Ejectile.SetTheta( EnergyMomentumLab_4.Theta() );
+	Ejectile.SetPhi( EnergyMomentumLab_4.Phi() );
 
 	// Flag that we have a transfer product
 	transfer_detected = true;
@@ -1210,48 +1245,53 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 }
 
 
-double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, double thickness, std::unique_ptr<TGraph> &g, double EnergyMin, double EnergyMax) {
+//double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, double thickness, std::unique_ptr<TGraph> &g, double EnergyMin, double EnergyMax) {
+double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, std::unique_ptr<TGraph> &g){
 
 	/// Returns the initial energy of a particle that deposited a given energy DeltaE 
 	/// in a given material thickness.
 	/// User should provide a sensible energy range for the search of the initial energy.
 
+	return g->Eval(DeltaE);
+
+
+
 	// We make a guess on the initial energy. To check how good the guess is, we evaluate
 	// the function f, which measures how far away is the DeltaE calculated based on the guess 
 	// from the measured one. 
 	// We want f to be as close to 0 as possible (i.e. within the tolerance we define).
-	auto f = [&](double Einitial) {
-	    return GetEnergyLoss(Einitial, thickness, g) - DeltaE;
-	};
+	//auto f = [&](double Einitial) {
+	//    return GetEnergyLoss(Einitial, thickness, g) - DeltaE;
+	//};
+	//
+	//// Function f is monotonic. If the solution is within the provided search interval (EnergyMin,EnergyMax) 
+	//// f(EnergyMin) * f(EnergyMax) < 0. If not, we are searching in an interval where no solution exists.
+	//if (f(EnergyMin) * f(EnergyMax) > 0) {
+	//	std::cout << "NO ROOT in interval!" << std::endl;
+	//	std::cout << "DeltaE = " << DeltaE << "; f(" << EnergyMin << ") = " << f(EnergyMin) << "; f(" << EnergyMax << ") = " << f(EnergyMax) << std::endl;
+	//    return -1; 
+	//}
+	//
+	//double Einitial = 0.;
+	//
+	//// Search for solution via bisection.
+	//for (int i = 0; i < 100; ++i) {
+	//	// Our guess for the initial energy is at the middle of the energy range	
+	//	Einitial = 0.5 * (EnergyMin + EnergyMax);
+	//	double fmid = f(Einitial);
+	//	
+	//	// Based on the sign of f(Einitial), we adjust the search interval (EnergyMin,EnergyMax)
+	//	if (f(Einitial) > 0)
+	//	    EnergyMax = Einitial;
+	//	else
+	//	    EnergyMin = Einitial;
+	//	
+	//	// If the range is so small to be within the tolerance, we have found the solution
+	//	if (fabs(EnergyMax - EnergyMin) < 1e-4)
+	//	    break;
+	//}
 	
-	// Function f is monotonic. If the solution is within the provided search interval (EnergyMin,EnergyMax) 
-	// f(EnergyMin) * f(EnergyMax) < 0. If not, we are searching in an interval where no solution exists.
-	if (f(EnergyMin) * f(EnergyMax) > 0) {
-		std::cout << "NO ROOT in interval!" << std::endl;
-		std::cout << "DeltaE = " << DeltaE << "; f(" << EnergyMin << ") = " << f(EnergyMin) << "; f(" << EnergyMax << ") = " << f(EnergyMax) << std::endl;
-	    return -1; 
-	}
-	
-	double Einitial = 0.;
-	
-	// Search for solution via bisection.
-	for (int i = 0; i < 100; ++i) {
-		// Our guess for the initial energy is at the middle of the energy range	
-		Einitial = 0.5 * (EnergyMin + EnergyMax);
-		double fmid = f(Einitial);
-		
-		// Based on the sign of f(Einitial), we adjust the search interval (EnergyMin,EnergyMax)
-		if (f(Einitial) > 0)
-		    EnergyMax = Einitial;
-		else
-		    EnergyMin = Einitial;
-		
-		// If the range is so small to be within the tolerance, we have found the solution
-		if (fabs(EnergyMax - EnergyMin) < 1e-4)
-		    break;
-	}
-	
-	return Einitial;
+//	return Einitial;
 }
 
 
