@@ -572,6 +572,12 @@ public:
 	inline unsigned int HistParticleBins(){ return particle_bins; }
 	inline double HistParticleMin(){ return particle_range[0]; }
 	inline double HistParticleMax(){ return particle_range[1]; }
+	inline double HistTransferEjectileMin(){ return transfer_ejectile_range[0]; }
+	inline double HistTransferEjectileMax(){ return transfer_ejectile_range[1]; }
+	inline double HistTransferEjectileExcitationMin(){ return transfer_ejectile_excitation_range[0]; }
+	inline double HistTransferEjectileExcitationMax(){ return transfer_ejectile_excitation_range[1]; }
+	inline double HistTransferEjectileBetaMin(){ return transfer_ejectile_beta_range[0]; }
+	inline double HistTransferEjectileBetaMax(){ return transfer_ejectile_beta_range[1]; }
 
 	ClassDef( MiniballReaction, 3 )
 
@@ -682,7 +688,8 @@ private:
 	
 	// Histogram ranges
 	unsigned int gamma_bins, electron_bins, particle_bins;
-	double gamma_range[2], electron_range[2], particle_range[2];
+	double gamma_range[2], electron_range[2], particle_range[2], 
+	       transfer_ejectile_range[2], transfer_ejectile_excitation_range[2], transfer_ejectile_beta_range[2];
 
 	// Random numbers
 	TRandom rand;
@@ -702,6 +709,7 @@ private:
 	bool stopping;
 	std::vector<std::unique_ptr<TGraph>> gEloss_E;
 	std::vector<std::unique_ptr<TGraph>> gE_Eloss;
+	double transfer_recoil_range[2]; // Ranges for E vs Eloss graph of recoil in transfer reaction
 	
 };
 

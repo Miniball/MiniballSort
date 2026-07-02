@@ -246,6 +246,12 @@ void MiniballReaction::ReadReaction() {
 	particle_bins = config->GetValue( "Histograms.Particle.Bins", 2000 );		// number of bins in particle spectra
 	particle_range[0] = config->GetValue( "Histograms.Particle.Min", 0.0 );		// lower energy limit of particle spectra (keV)
 	particle_range[1] = config->GetValue( "Histograms.Particle.Max", pmax_default );	// upper energy limit of particle spectra (keV)
+	transfer_ejectile_range[0] = config->GetValue( "Histograms.Transfer.Ejectile.Min", 800e3 ); // lower energy limit of ejectile spectrum for transfer reaction (keV)
+	transfer_ejectile_range[1] = config->GetValue( "Histograms.Transfer.Ejectile.Max", 1300e3 ); // upper energy limit of ejectile spectrum for transfer reaction (keV)
+	transfer_ejectile_excitation_range[0] = config->GetValue( "Histograms.Transfer.EjectileExcitation.Min", 0. ); // lower limit of ejectile excitation energy for transfer reaction (keV)
+	transfer_ejectile_excitation_range[1] = config->GetValue( "Histograms.Transfer.EjectileExcitation.Max", 50e3 ); // upper limit of ejectile excitation energy for transfer reaction (keV)
+	transfer_ejectile_beta_range[0] = config->GetValue( "Histograms.Transfer.EjectileBeta.Min", 0.09 ); // lower limit of ejectile beta for transfer reaction (keV)
+	transfer_ejectile_beta_range[1] = config->GetValue( "Histograms.Transfer.EjectileBeta.Max", 0.11 ); // upper limit of ejectile beta for transfer reaction (keV)
 
 	// Particle-Gamma time windows
 	pg_prompt[0] = config->GetValue( "ParticleGamma_PromptTime.Min", -300 );	// lower limit for particle-gamma prompt time difference
@@ -351,8 +357,10 @@ void MiniballReaction::ReadReaction() {
 		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
 	}
 	
-	// Prepare the Eloss vs E graphs and E vs Eloss graphs for all CD strips (as Si thickness will vary strip by strip).
+	// Prepare the Eloss vs E graphs and E vs Eloss graphs for all CD strips (as Si effective thickness will vary strip by strip).
 	// These will be used by the function TransferProduct(), in case you are doing a transfer reaction.
+	transfer_recoil_range[0] = config->GetValue( "Transfer.InitialRecoilEnergy.Min", 15e3 ); // lower limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
+	transfer_recoil_range[1] = config->GetValue( "Transfer.InitialRecoilEnergy.Max", 150e3 ); // upper limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
 	for( unsigned int i = 0; i < set->GetNumberOfCDPStrips(); ++i ) { // loop over CD strips
 		gEloss_E.push_back( std::make_unique<TGraph>() );
 		gE_Eloss.push_back( std::make_unique<TGraph>() );
@@ -360,7 +368,7 @@ void MiniballReaction::ReadReaction() {
 		//std::cout << "Strip #" << i << ": average angle = " << ( GetParticleThetas()[i]+GetParticleThetas()[i+1] ) / 2. << "; eff_thick = " << cd_eff_thick << std::endl;
 		double dE;
 		int n = 0;
-		for( double E = 15000; E <= 150000; E += 500 ){ // sampling over 5 MeV-150 MeV energy range, where Eloss vs E is monotonic, so can be inverted
+		for( double E = transfer_recoil_range[0]; E <= transfer_recoil_range[1]; E += 500 ){ // sampling over user-defined energy range (default 15e3-150e3 keV), where Eloss vs E is monotonic, so can be inverted
 			dE = GetEnergyLoss(E, cd_eff_thick, gStopping[4]);
 			gEloss_E[i]->SetPoint(n, E, dE);
 			gE_Eloss[i]->SetPoint(n, dE, E);
@@ -373,10 +381,12 @@ void MiniballReaction::ReadReaction() {
 		TCanvas *c = new TCanvas();
 		c->Divide(1,2);
 		c->cd(1);
-		gEloss_E[i]->SetTitle("Eloss vs E");
+		gEloss_E[i]->SetTitle( ("Energy Loss vs Initial Energy of alpha particle in CD strip "
+				       	+ std::to_string(i) + ";Initial Energy (keV);E_{loss} (keV)").c_str() );
 		gEloss_E[i]->Draw("A*");
 		c->cd(2);
-		gE_Eloss[i]->SetTitle("E vs Eloss");
+		gE_Eloss[i]->SetTitle( ("Initial Energy vs Energy Loss of alpha particle in CD strip "
+				       	+ std::to_string(i) + ";E_{loss} (keV);Initial Energy (keV)").c_str() ) ;
 		gE_Eloss[i]->Draw("A*");
 		std::string pdfname = "gEloss_E_strip" + std::to_string(i) + ".pdf";
 		c->SaveAs( pdfname.c_str() );
@@ -1131,12 +1141,8 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	TotalEnergyMomentumLab = EnergyMomentumLab_1 + EnergyMomentumLab_2;
 	
 	// get energy of the reaction product prior entering the CD (after the dead layer)
-	//double cd_eff_thick = GetCDThickness( p->GetDetector() ) / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ); 
-	//std::cout << "cd_eff_thick = " << cd_eff_thick;
 	int pstrip = static_cast<int>(p->GetStripP());
-	double EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP(), gE_Eloss[pstrip]);  // need to add to reaction file also EnergyMin, EnergyMax search range, to make it user defined
-	//std::cout << "; E loss in CD = " << p->GetEnergyP() << " keV; p strip hit = " << pstrip << "; E initial = " << EnergyLab3 << " keV." << std::endl;
-	//double EnergyLab3 = p->GetEnergy(); // p-strip + PAD energy
+	double EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP(), gE_Eloss[pstrip]);  
 
 	double eloss = 0.0;
 
@@ -1161,13 +1167,6 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 		EnergyLab3 -= eloss;
 	}
 
-	//if (std::rand() % 1000 == 0) {  // sample 1/1000 events
-	//   std::cout << "DeltaE measured [keV] = " << p->GetEnergyP() << ";  Reconstructed E {MeV} = " << EnergyLab3 << std::endl;
-	//}
-	//if (EnergyLab3 == 15 || EnergyLab3 == 150) {
-	//    std::cout << "Boundary hit! Energy = " << EnergyLab3 << std::endl;
-	//}
-
 	// Set recoil observables 
 	Recoil.SetEnergy( EnergyLab3 );
 	Recoil.SetTheta( GetParticleTheta(p) );
@@ -1191,14 +1190,8 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	}
 	
 	// Factor in energy loss of ejectile into degrader, if degrader is defined (degrader thickness > 0)
-	// and if doppler_mode == 3 (velocity of ejectile after degrader)
-	//
-	// !!!!!!!! Review doppler_mode nomenclature for transfer !!!!!!!!!!!
-	// Also: what other doppler modes should be considered? In case of transfer, everything relies on kin reconstruction
-	// from measured recoil (at least in the case of the cluster transfer, where ejectile is not measured), so the only 
-	// options I see remaining are: do we want the energy before or after degrader, if degrader is installed?
-	//
-	if( stopping && degrader_thickness > 0 && doppler_mode == 3 ) {
+	// and if doppler_mode == 7 (velocity of ejectile after degrader)
+	if( stopping && degrader_thickness > 0 && doppler_mode == 7 ) {
 		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( EnergyMomentumLab_4.Theta() ) );
 		eloss = GetEnergyLoss( EnergyLab4, eff_thick, gStopping[5] ); // ejectile in degrader
 		EnergyLab4 -= eloss;
@@ -1245,53 +1238,15 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 }
 
 
-//double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, double thickness, std::unique_ptr<TGraph> &g, double EnergyMin, double EnergyMax) {
 double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, std::unique_ptr<TGraph> &g){
 
 	/// Returns the initial energy of a particle that deposited a given energy DeltaE 
 	/// in a given material thickness.
-	/// User should provide a sensible energy range for the search of the initial energy.
+	/// User should provide a sensible energy range for the search of the initial energy,
+	/// where Eloss vs E is MONOTONIC.
 
 	return g->Eval(DeltaE);
 
-
-
-	// We make a guess on the initial energy. To check how good the guess is, we evaluate
-	// the function f, which measures how far away is the DeltaE calculated based on the guess 
-	// from the measured one. 
-	// We want f to be as close to 0 as possible (i.e. within the tolerance we define).
-	//auto f = [&](double Einitial) {
-	//    return GetEnergyLoss(Einitial, thickness, g) - DeltaE;
-	//};
-	//
-	//// Function f is monotonic. If the solution is within the provided search interval (EnergyMin,EnergyMax) 
-	//// f(EnergyMin) * f(EnergyMax) < 0. If not, we are searching in an interval where no solution exists.
-	//if (f(EnergyMin) * f(EnergyMax) > 0) {
-	//	std::cout << "NO ROOT in interval!" << std::endl;
-	//	std::cout << "DeltaE = " << DeltaE << "; f(" << EnergyMin << ") = " << f(EnergyMin) << "; f(" << EnergyMax << ") = " << f(EnergyMax) << std::endl;
-	//    return -1; 
-	//}
-	//
-	//double Einitial = 0.;
-	//
-	//// Search for solution via bisection.
-	//for (int i = 0; i < 100; ++i) {
-	//	// Our guess for the initial energy is at the middle of the energy range	
-	//	Einitial = 0.5 * (EnergyMin + EnergyMax);
-	//	double fmid = f(Einitial);
-	//	
-	//	// Based on the sign of f(Einitial), we adjust the search interval (EnergyMin,EnergyMax)
-	//	if (f(Einitial) > 0)
-	//	    EnergyMax = Einitial;
-	//	else
-	//	    EnergyMin = Einitial;
-	//	
-	//	// If the range is so small to be within the tolerance, we have found the solution
-	//	if (fabs(EnergyMax - EnergyMin) < 1e-4)
-	//	    break;
-	//}
-	
-//	return Einitial;
 }
 
 

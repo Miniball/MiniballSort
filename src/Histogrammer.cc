@@ -1101,20 +1101,21 @@ void MiniballHistogrammer::MakeHists() {
 
 		}
 
+		// Transfer reaction kinematics histograms
 		hname = "ejectile_ex";
 		htitle = "Ejectile excitation energy;";
 		htitle += "Excitation Energy [keV]";
-		ejectile_ex = new TH1F( hname.data(), htitle.data(), 1000, -10, 49990);
+		ejectile_ex = new TH1F( hname.data(), htitle.data(), 1000, react->HistTransferEjectileExcitationMin(), react->HistTransferEjectileExcitationMax() );
 		histlist->Add(ejectile_ex);
 
 		hname = "ejectile_beta";
 		htitle = "Ejectile beta;";
 		htitle += "Beta";
-		ejectile_beta = new TH1F( hname.data(), htitle.data(), 100, 0.10, 0.11);
+		ejectile_beta = new TH1F( hname.data(), htitle.data(), 100, react->HistTransferEjectileBetaMin(), react->HistTransferEjectileBetaMax() );
 		histlist->Add(ejectile_beta);
 
 		hname = "recoilE_theta";
-		htitle = "Reconstructed recoil energy (dependent on doppler_mode) vs theta angle;";
+		htitle = "Reconstructed recoil energy vs theta angle;";
 		htitle += "Angle [deg];Energy [keV]";
 		recoilE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 		histlist->Add(recoilE_theta);
@@ -1122,8 +1123,7 @@ void MiniballHistogrammer::MakeHists() {
 		hname = "ejectileE_theta";
 		htitle = "Reconstructed ejectile energy from measured recoil (dependent on doppler_mode) vs theta angle;";
 		htitle += "Angle [deg];Energy [keV]";
-		ejectileE_theta = new TH2F( hname.data(), htitle.data(), 20, 0, 5, 1000, 1000e3, 1500e3 ); 	// transfer reaction where ejectile goes almost straight along z-axis
-													// energy picked ad hoc for IS774
+		ejectileE_theta = new TH2F( hname.data(), htitle.data(), 20, 0, 5, 1000, react->HistTransferEjectileMin(), react->HistTransferEjectileMax() ); // transfer reaction where ejectile goes almost straight along z-axis
 		histlist->Add(ejectileE_theta);
 
 	}
@@ -3224,6 +3224,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 				if( react->HistBySector() )
 					pE_dE_cut_sec[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
+
+				// assuming here that detected particle in transfer reaction is the recoil, so filling this plot as well:
+				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 
 				// Got what we came for
 				// TODO: What if we have multiple particles in transfer?
