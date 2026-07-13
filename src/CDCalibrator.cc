@@ -55,7 +55,6 @@ void MiniballCDCalibrator::SetInputFile( std::vector<std::string> input_file_nam
 
 	input_tree->SetBranchAddress( "data", &in_data );
 	mbsinfo_tree->SetBranchAddress( "mbsinfo", &mbs_info );
-	//mbsinfo_tree->BuildIndex("GetEventID()");
 	if (mbsinfo_tree->GetEntries()) mbsinfo_tree->BuildIndex("GetEventID()");
 
 	return;
@@ -169,26 +168,16 @@ void MiniballCDCalibrator::MakeHists(){
 	// ------------- //
 	// CD histograms //
 	// ------------- //
-	//cd_pen_nen.resize( set->GetNumberOfCDDetectors() );
-	//cd_nen_pen.resize( set->GetNumberOfCDDetectors() );
 	cd_pen_nQ.resize( set->GetNumberOfCDDetectors() );
 	cd_nQ_pQ.resize( set->GetNumberOfCDDetectors() );
 
 	// Get sizes and scales
-	//double maxQ = 1073741824;
-	//double maxQ = 1073741824/7.; // should be a power of 2?
-	//unsigned int Qbins = 8192;
-	//unsigned int Qbins = 4096;
-	unsigned int Qbins = 1024;
-	//unsigned int Qbins = 256;
-	double maxEn = set->GetCDCalibratorMaxEnergy();  //20e3;
-	//read FEBEX gain and offset for reference p strip in first quadrant (febex_1_0_ptag) to get an idea of raw charge range
+	double maxEn = set->GetCDCalibratorMaxEnergy();
+	// read FEBEX gain and offset for reference p strip in first quadrant (febex_1_0_ptag) to get an idea of raw charge range
 	double maxRawEn = ( maxEn - cal->FebexOffset(1,0,ptag) ) / cal->FebexGain(1,0,ptag);
-	std::cout << "Max raw energy is: " << maxRawEn << std::endl;
-	std::cout << "Gain is: "  << cal->FebexGain(1,0,ptag) << " and offset is: " << cal->FebexOffset(1,0,ptag) << std::endl;
 	// round that value to the next power of two
 	int maxQ = nextPowerOf2(std::round(maxRawEn));
-	std::cout << "Next power of 2 is: " << maxQ << std::endl;
+	unsigned int Qbins = 8192;
 
 	if( set->GetNumberOfCaenAdcModules() > 0 ) {
 		maxQ = 4096;
@@ -206,32 +195,18 @@ void MiniballCDCalibrator::MakeHists(){
 
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 		
-		//cd_pen_nen[i].resize( set->GetNumberOfCDSectors() );
-		//cd_nen_pen[i].resize( set->GetNumberOfCDSectors() );
 		cd_pen_nQ[i].resize( set->GetNumberOfCDSectors() );
 		cd_nQ_pQ[i].resize( set->GetNumberOfCDSectors() );
 
 		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
 
-			//cd_nen_pen[i][j].resize( set->GetNumberOfCDPStrips() );
 			cd_nQ_pQ[i][j].resize( set->GetNumberOfCDPStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
-			//	hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-			//	hname  += "_nen_" + std::to_string(ptag) + "_pen_" + std::to_string(k);
-			//	htitle  = "CD n-side energy vs p-side energy for detector " + std::to_string(i);
-			//	htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
-			//	htitle += ", nid " + std::to_string(ntag);
-			//	htitle += ";n-side energy (keV);p-side energy (keV);Counts";
-			//	cd_nen_pen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-			//								   1000, 0, 20e3, 4000, 0, 20e3 );
-			//								  // 4000, 0, 2000e3, 4000, 0, 2000e3 );
-			//	histlist->Add(cd_nen_pen[i][j][k]);
-
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
 				hname  += "_nQ_" + std::to_string(ntag) + "_pQ_" + std::to_string(k);
-				htitle  = "CD n-side energy vs p-side raw charge for detector " + std::to_string(i);
+				htitle  = "CD n-side raw charge vs p-side raw charge for detector " + std::to_string(i);
 				htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(k);
 				htitle += ", nid " + std::to_string(ntag);
 				htitle += ";n-side raw charge (ADC units);p-side raw charge (ADC units);Counts";
@@ -241,21 +216,9 @@ void MiniballCDCalibrator::MakeHists(){
 
 			} // k
 
-			//cd_pen_nen[i][j].resize( set->GetNumberOfCDNStrips() );
 			cd_pen_nQ[i][j].resize( set->GetNumberOfCDNStrips() );
 
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
-
-			//	hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
-			//	hname  += "_pen_" + std::to_string(ptag) + "_nen_" + std::to_string(k);
-			//	htitle  = "CD p-side energy vs n-side energy for detector " + std::to_string(i);
-			//	htitle += ", sector " + std::to_string(j) + ", pid " + std::to_string(ptag);
-			//	htitle += ", nid " + std::to_string(k);
-			//	htitle += ";p-side energy (keV);n-side energy (keV);Counts";
-			//	cd_pen_nen[i][j][k] = new TH2F( hname.data(), htitle.data(),
-			//								   1000, 0, 20e3, 4000, 0, 20e3 );
-			//								  // 4000, 0, 2000e3, 4000, 0, 2000e3 );
-			//	histlist->Add(cd_pen_nen[i][j][k]);
 
 				hname  = "cd_" + std::to_string(i) + "_" + std::to_string(j);
 				hname  += "_pen_" + std::to_string(ptag) + "_nQ_" + std::to_string(k);
@@ -264,8 +227,7 @@ void MiniballCDCalibrator::MakeHists(){
 				htitle += ", nid " + std::to_string(k);
 				htitle += ";p-side energy (keV);n-side raw charge (ADC units);Counts";
 				cd_pen_nQ[i][j][k] = new TH2F( hname.data(), htitle.data(),
-											  1000, 0, maxEn, Qbins, 0, maxQ );
-											 // 4000, 0, 2000e3, Qbins, 0, maxQ );
+											  4000, 0, maxEn, Qbins, 0, maxQ );
 				histlist->Add(cd_pen_nQ[i][j][k]);
 
 			} // k
@@ -681,7 +643,6 @@ void MiniballCDCalibrator::FillPixelHists() {
 			// For p-side tags
 			if( pid == ptag ) {
 
-				//cd_pen_nen[i][j][nid]->Fill( pen, nen );
 				cd_pen_nQ[i][j][nid]->Fill( pen, nQ );
 				
 			}
@@ -689,7 +650,6 @@ void MiniballCDCalibrator::FillPixelHists() {
 			// For n-side tags
 			if( nid == ntag ) {
 
-				//cd_nen_pen[i][j][pid]->Fill( nen, pen );
 				cd_nQ_pQ[i][j][pid]->Fill( nQ, pQ );
 
 			}

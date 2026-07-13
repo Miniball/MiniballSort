@@ -1,3 +1,11 @@
+// To run this code you need to do the following in ROOT:
+// root [0]: .L fit_CD_distance.cc
+// root [1]: fit_CD_distance( "RXXX_X.root", <numberNstrips> )
+// where RXXX_X.root is the filename produced by the first step
+// of mb_sort and <numberNstrips> is the number of N strips that
+// were active during your experiment (either 12, for experiments
+// up to 2024; or 24, for experiments from 2025 onwards).
+
 #include <fstream>
 #include <iostream>
 #include "TH1.h"
@@ -38,7 +46,7 @@ double intensity_func( double *x, double *par ) {
 	
 }
 
-void fit_CD_distance( std::string filename, int numberOfNstrips ) {
+void fit_CD_distance( std::string filename, int numberOfNstrips = 24 ) {
 	
 	TFile *fin = new TFile( filename.data() );
 	TH1F *hist;
@@ -50,7 +58,7 @@ void fit_CD_distance( std::string filename, int numberOfNstrips ) {
 	TGraphErrors *chi_plot[4];
 	//  double sum
 	char cname[200];
-	TCanvas *c1 = new TCanvas("c1","CD distance using solid angle coverage and the ^{226}Ra alpha source",1200,900);
+	TCanvas *c1 = new TCanvas("c1","CD distance using solid angle coverage and an alpha source",1200,900);
 	c1->cd();
 	TPad* ptop = new TPad("ptop", "ptop", 0, 0.3, 1.0, 1);
 	ptop->Draw();
