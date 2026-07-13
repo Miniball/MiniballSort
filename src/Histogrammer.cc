@@ -1115,13 +1115,13 @@ void MiniballHistogrammer::MakeHists() {
 		histlist->Add(ejectile_beta);
 
 		hname = "recoilE_theta";
-		htitle = "Reconstructed recoil energy vs theta angle;";
+		htitle = "Reconstructed recoil energy at reaction point vs theta angle;";
 		htitle += "Angle [deg];Energy [keV]";
 		recoilE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
 		histlist->Add(recoilE_theta);
 
 		hname = "ejectileE_theta";
-		htitle = "Reconstructed ejectile energy from measured recoil (dependent on doppler_mode) vs theta angle;";
+		htitle = "Ejectile energy after target reconstructed from measured recoil (dependent on doppler_mode) vs theta angle;";
 		htitle += "Angle [deg];Energy [keV]";
 		ejectileE_theta = new TH2F( hname.data(), htitle.data(), 20, 0, 5, 1000, react->HistTransferEjectileMin(), react->HistTransferEjectileMax() ); // transfer reaction where ejectile goes almost straight along z-axis
 		histlist->Add(ejectileE_theta);

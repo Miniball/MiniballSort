@@ -364,8 +364,8 @@ void MiniballReaction::ReadReaction() {
 	for( unsigned int i = 0; i < set->GetNumberOfCDPStrips(); ++i ) { // loop over CD strips
 		gEloss_E.push_back( std::make_unique<TGraph>() );
 		gE_Eloss.push_back( std::make_unique<TGraph>() );
-		double cd_eff_thick = GetCDThickness( 0 ) / TMath::Abs( TMath::Cos( TMath::DegToRad() * ( GetParticleThetas()[i]+GetParticleThetas()[i+1] ) / 2. ) ); // we are using just one CD at the moment, so #0
-		//std::cout << "Strip #" << i << ": average angle = " << ( GetParticleThetas()[i]+GetParticleThetas()[i+1] ) / 2. << "; eff_thick = " << cd_eff_thick << std::endl;
+		double cd_eff_thick = GetCDThickness( 0 ) / TMath::Abs( TMath::Cos( TMath::DegToRad() * ( GetParticleThetas()[16-i]+GetParticleThetas()[15-i] ) / 2. ) ); // we are using just one CD at the moment, so #0
+		//std::cout << "Strip #" << i << ": average angle = " << ( GetParticleThetas()[16-i]+GetParticleThetas()[15-i] ) / 2. << "; eff_thick = " << cd_eff_thick << std::endl;
 		double dE;
 		int n = 0;
 		for( double E = transfer_recoil_range[0]; E <= transfer_recoil_range[1]; E += 500 ){ // sampling over user-defined energy range (default 15e3-150e3 keV), where Eloss vs E is monotonic, so can be inverted
@@ -426,9 +426,9 @@ void MiniballReaction::ReadReaction() {
 
 		std::cout << "A " << degrader_material << " degrader of " << degrader_thickness;
 		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
-		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
+		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 || doppler_mode == 6 )
 			std::cout << " BEFORE the degrader";
-		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
+		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 || doppler_mode == 7 )
 			std::cout << " AFTER the degrader";
 		else
 			std::cout << " with unknown DopplerMode = " << doppler_mode;
@@ -1143,6 +1143,7 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	// get energy of the reaction product prior entering the CD (after the dead layer)
 	int pstrip = static_cast<int>(p->GetStripP());
 	double EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP(), gE_Eloss[pstrip]);  
+	//double EnergyLab3 = p->GetEnergy();
 
 	double eloss = 0.0;
 
@@ -1152,14 +1153,14 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
 		EnergyLab3 -= eloss;
 	}
-
+	
 	// Correction for energy loss of recoil in the degrader if degrader is defined (degrader thickness > 0)
 	if( stopping && degrader_thickness > 0 ) {
 		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
 		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
 		EnergyLab3 -= eloss;
 	}
-
+	
 	// Correction for energy loss of recoil through half of the target material
 	if( stopping ) {
 		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
