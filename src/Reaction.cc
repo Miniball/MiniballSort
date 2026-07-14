@@ -364,7 +364,7 @@ void MiniballReaction::ReadReaction() {
 	for( unsigned int i = 0; i < set->GetNumberOfCDPStrips(); ++i ) { // loop over CD strips
 		gEloss_E.push_back( std::make_unique<TGraph>() );
 		gE_Eloss.push_back( std::make_unique<TGraph>() );
-		double cd_eff_thick = GetCDThickness( 0 ) / TMath::Abs( TMath::Cos( TMath::DegToRad() * ( GetParticleThetas()[16-i]+GetParticleThetas()[15-i] ) / 2. ) ); // we are using just one CD at the moment, so #0
+		double cd_eff_thick = GetCDThickness( 0 ) / TMath::Abs( TMath::Cos( TMath::DegToRad() * GetParticleTheta( 0, 0, i, 0 ) ); // we are using just one CD at the moment, so #0. Also just assuming we have sector = 0 and nid = 0.
 		//std::cout << "Strip #" << i << ": average angle = " << ( GetParticleThetas()[16-i]+GetParticleThetas()[15-i] ) / 2. << "; eff_thick = " << cd_eff_thick << std::endl;
 		double dE;
 		for( double E = transfer_recoil_range[0]; E <= transfer_recoil_range[1]; E += 500 ){ // sampling over user-defined energy range (default 15e3-150e3 keV), where Eloss vs E is monotonic, so can be inverted
