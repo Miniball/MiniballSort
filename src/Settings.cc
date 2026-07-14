@@ -1002,22 +1002,84 @@ int MiniballSettings::GetMiniballID( unsigned int dgf, unsigned int ch,
 }
 
 int MiniballSettings::GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
-							 const std::vector<std::vector<std::vector<int>>> &vector ) {
-	
+									const std::vector<std::vector<std::vector<int>>> &vector ) {
+
 	/// Return the Miniball ID by the FEBEX SFP, Board number and Channel number
 	if( sfp < n_febex_sfp && board < n_febex_board && ch < n_febex_ch )
 		return vector[sfp][board][ch];
-	
+
 	else {
-		
+
 		std::cerr << "Bad Miniball event: sfp = " << sfp;
 		std::cerr << ", board = " << board;
 		std::cerr << ", channel = " << ch << std::endl;
 		return 0;
-		
+
 	}
-	
+
 }
+
+std::vector<int> MiniballSettings::GetMiniballDAQ( unsigned int clu, unsigned int cry, unsigned int seg ) {
+
+	/// Return the DAQ information, given the Miniball cluster, crystal and segment.
+	/// \param[in] clu Cluster number from 0-7
+	/// \param[in] cry Crystal number from 0-2
+	/// \param[in] seg Segment number from 0-6, core is 0 and outer segments are 1-6
+	/// \return a vector containing the FEBEX SFP, Board and Channel numbers unless it is the
+	/// old Marabou DAQ, which returns -1 for the SFP, then the DGF module and channel numbers.
+
+	std::vector<int> daqinfo(3,-1);
+
+	// Loop over all FEBEX SFPs, boards and channels to find a match
+	for( unsigned int i = 0; i < GetNumberOfFebexSfps(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfFebexBoards(); ++j ) {
+
+			for( unsigned int k = 0; k < GetNumberOfFebexChannels(); ++k ) {
+
+				// test for complete match
+				if( GetMiniballCluster(i,j,k) == (int)clu &&
+				   GetMiniballCrystal(i,j,k) == (int)cry &&
+				   GetMiniballSegment(i,j,k) == (int)seg ) {
+
+					daqinfo[0] = i;
+					daqinfo[1] = j;
+					daqinfo[2] = k;
+					return daqinfo;
+
+				} // test
+
+			} // k - channel
+
+		} // j - board
+
+	} // i - sfp
+
+	// Loop over all DGF modules and channels to find a match
+	// only here if we didn't find a match in FEBEX
+	for( unsigned int i = 0; i < GetNumberOfDgfModules(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfDgfChannels(); ++j ) {
+
+			// test for complete match
+			if( GetMiniballCluster(i,j) == (int)clu &&
+			   GetMiniballCrystal(i,j) == (int)cry &&
+			   GetMiniballSegment(i,j) == (int)seg ) {
+
+				daqinfo[0] = -1;
+				daqinfo[1] = i;
+				daqinfo[2] = j;
+				return daqinfo;
+
+			} // test
+
+		} // j - channel
+
+	} // i - module
+
+	return daqinfo;
+
+};
 
 
 bool MiniballSettings::IsCD( unsigned int adc, unsigned int ch ) {
@@ -1095,6 +1157,72 @@ int MiniballSettings::GetCDID( unsigned int sfp, unsigned int board, unsigned in
 	}
 	
 }
+
+std::vector<int> MiniballSettings::GetCDDAQ( unsigned int det, unsigned int sec, unsigned int side, unsigned int strip ) {
+
+	/// Return the DAQ information, given the CD detector, sector, side and strip
+	/// \param[in] det CD detector number (0: downstream, 1: upstream)
+	/// \param[in] sec sector number 0-3 for quadrants
+	/// \param[in] side the side of the silicon (0: p-side, 1: n-side)
+	/// \param[in] strip the strip ID (e.g. 0-15: p-side, 0-23: n-side)
+	/// \return a vector containing the FEBEX SFP, Board and Channel numbers unless it is the
+	/// old Marabou DAQ, which returns -1 for the SFP, then the ADC module and channel numbers.
+
+	std::vector<int> daqinfo(3,-1);
+
+	// Loop over all FEBEX SFPs, boards and channels to find a match
+	for( unsigned int i = 0; i < GetNumberOfFebexSfps(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfFebexBoards(); ++j ) {
+
+			for( unsigned int k = 0; k < GetNumberOfFebexChannels(); ++k ) {
+
+				// test for complete match
+				if( GetCDDetector(i,j,k) == (int)det &&
+				   GetCDSector(i,j,k) == (int)sec &&
+				   GetCDSide(i,j,k) == (int)side &&
+				   GetCDStrip(i,j,k) == (int)strip ) {
+
+					daqinfo[0] = i;
+					daqinfo[1] = j;
+					daqinfo[2] = k;
+					return daqinfo;
+
+				} // test
+
+			} // k - channel
+
+		} // j - board
+
+	} // i - sfp
+
+	// Loop over all ADC modules and channels to find a match
+	// only here if we didn't find a match in FEBEX
+	for( unsigned int i = 0; i < GetNumberOfAdcModules(); ++i ) {
+
+		for( unsigned int j = 0; j < GetMaximumNumberOfAdcChannels(); ++j ) {
+
+			// test for complete match
+			if( GetCDDetector(i,j) == (int)det &&
+			   GetCDSector(i,j) == (int)sec &&
+			   GetCDSide(i,j) == (int)side &&
+			   GetCDStrip(i,j) == (int)strip ) {
+
+				daqinfo[0] = -1;
+				daqinfo[1] = i;
+				daqinfo[2] = j;
+				return daqinfo;
+
+			} // test
+
+		} // j - channel
+
+	} // i - module
+
+	return daqinfo;
+
+};
+
 
 bool MiniballSettings::IsPad( unsigned int adc, unsigned int ch ) {
 	
@@ -1203,6 +1331,66 @@ int MiniballSettings::GetPadSector( unsigned int sfp, unsigned int board, unsign
 	
 }
 
+std::vector<int> MiniballSettings::GetPadDAQ( unsigned int det, unsigned int sec ) {
+
+	/// Return the DAQ information, given the Pad detector and sector
+	/// \param[in] det Pad detector number (0: downstream, 1: upstream)
+	/// \param[in] sec sector number 0-3 for quadrants
+	/// \return a vector containing the FEBEX SFP, Board and Channel numbers unless it is the
+	/// old Marabou DAQ, which returns -1 for the SFP, then the ADC module and channel numbers.
+
+	std::vector<int> daqinfo(3,-1);
+
+	// Loop over all FEBEX SFPs, boards and channels to find a match
+	for( unsigned int i = 0; i < GetNumberOfFebexSfps(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfFebexBoards(); ++j ) {
+
+			for( unsigned int k = 0; k < GetNumberOfFebexChannels(); ++k ) {
+
+				// test for complete match
+				if( GetPadDetector(i,j,k) == (int)det &&
+				   GetPadSector(i,j,k) == (int)sec ) {
+
+					daqinfo[0] = i;
+					daqinfo[1] = j;
+					daqinfo[2] = k;
+					return daqinfo;
+
+				} // test
+
+			} // k - channel
+
+		} // j - board
+
+	} // i - sfp
+
+	// Loop over all ADC modules and channels to find a match
+	// only here if we didn't find a match in FEBEX
+	for( unsigned int i = 0; i < GetNumberOfAdcModules(); ++i ) {
+
+		for( unsigned int j = 0; j < GetMaximumNumberOfAdcChannels(); ++j ) {
+
+			// test for complete match
+			if( GetPadDetector(i,j) == (int)det &&
+			   GetPadSector(i,j) == (int)sec ) {
+
+				daqinfo[0] = -1;
+				daqinfo[1] = i;
+				daqinfo[2] = j;
+				return daqinfo;
+
+			} // test
+
+		} // j - channel
+
+	} // i - module
+
+	return daqinfo;
+
+};
+
+
 bool MiniballSettings::IsBeamDump( unsigned int dgf, unsigned int ch ) {
 	
 	/// Return true if this is a beam dump event
@@ -1252,6 +1440,63 @@ int MiniballSettings::GetBeamDumpDetector( unsigned int sfp, unsigned int board,
 	
 }
 
+std::vector<int> MiniballSettings::GetBeamDumpDAQ( unsigned int det ) {
+
+	/// Return the DAQ information, given the beam dump detector
+	/// \param[in] det Beam dump detector number
+	/// \return a vector containing the FEBEX SFP, Board and Channel numbers unless it is the
+	/// old Marabou DAQ, which returns -1 for the SFP, then the ADC module and channel numbers.
+
+	std::vector<int> daqinfo(3,-1);
+
+	// Loop over all FEBEX SFPs, boards and channels to find a match
+	for( unsigned int i = 0; i < GetNumberOfFebexSfps(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfFebexBoards(); ++j ) {
+
+			for( unsigned int k = 0; k < GetNumberOfFebexChannels(); ++k ) {
+
+				// test for complete match
+				if( GetBeamDumpDetector(i,j,k) == (int)det ) {
+
+					daqinfo[0] = i;
+					daqinfo[1] = j;
+					daqinfo[2] = k;
+					return daqinfo;
+
+				} // test
+
+			} // k - channel
+
+		} // j - board
+
+	} // i - sfp
+
+	// Loop over all DGF modules and channels to find a match
+	// only here if we didn't find a match in FEBEX
+	for( unsigned int i = 0; i < GetNumberOfDgfModules(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfDgfChannels(); ++j ) {
+
+			// test for complete match
+			if( GetBeamDumpDetector(i,j) == (int)det ) {
+
+				daqinfo[0] = -1;
+				daqinfo[1] = i;
+				daqinfo[2] = j;
+				return daqinfo;
+
+			} // test
+
+		} // j - channel
+
+	} // i - module
+
+	return daqinfo;
+
+};
+
+
 bool MiniballSettings::IsSpede( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	
 	/// Return true if this is a SPEDE event
@@ -1276,6 +1521,46 @@ int MiniballSettings::GetSpedeSegment( unsigned int sfp, unsigned int board, uns
 	}
 	
 }
+
+std::vector<int> MiniballSettings::GetSpedeDAQ( unsigned int seg ) {
+
+	/// Return the DAQ information, given the Spede segment
+	/// \param[in] seg Spede segment number
+	/// \return a vector containing the FEBEX SFP, Board and Channel numbers unless it is the
+	/// old Marabou DAQ, which returns -1 for the SFP, then the ADC module and channel numbers.
+
+	std::vector<int> daqinfo(3,-1);
+
+	// Loop over all FEBEX SFPs, boards and channels to find a match
+	for( unsigned int i = 0; i < GetNumberOfFebexSfps(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfFebexBoards(); ++j ) {
+
+			for( unsigned int k = 0; k < GetNumberOfFebexChannels(); ++k ) {
+
+				// test for complete match
+				if( GetSpedeSegment(i,j,k) == (int)seg ) {
+
+					daqinfo[0] = i;
+					daqinfo[1] = j;
+					daqinfo[2] = k;
+					return daqinfo;
+
+				} // test
+
+			} // k - channel
+
+		} // j - board
+
+	} // i - sfp
+
+	// SPEDE never worked with the old Marabou DAQ, so we don't search
+	// through the DGFs or ADCs to look for the mapping.
+
+	return daqinfo;
+
+};
+
 
 bool MiniballSettings::IsIonChamber( unsigned int adc, unsigned int ch ) {
 	
@@ -1325,6 +1610,63 @@ int MiniballSettings::GetIonChamberLayer( unsigned int sfp, unsigned int board, 
 	}
 	
 }
+
+std::vector<int> MiniballSettings::GetIonChamberDAQ( unsigned int layer ) {
+
+	/// Return the DAQ information, given the ionisation chamber layer ID
+	/// \param[in] layer ID of the ionisation chamber layer (0: Silicon - delta E, 1: Gas - E rest)
+	/// \return a vector containing the FEBEX SFP, Board and Channel numbers unless it is the
+	/// old Marabou DAQ, which returns -1 for the SFP, then the ADC module and channel numbers.
+
+	std::vector<int> daqinfo(3,-1);
+
+	// Loop over all FEBEX SFPs, boards and channels to find a match
+	for( unsigned int i = 0; i < GetNumberOfFebexSfps(); ++i ) {
+
+		for( unsigned int j = 0; j < GetNumberOfFebexBoards(); ++j ) {
+
+			for( unsigned int k = 0; k < GetNumberOfFebexChannels(); ++k ) {
+
+				// test for complete match
+				if( GetIonChamberLayer(i,j) == (int)layer ) {
+
+					daqinfo[0] = i;
+					daqinfo[1] = j;
+					daqinfo[2] = k;
+					return daqinfo;
+
+				} // test
+
+			} // k - channel
+
+		} // j - board
+
+	} // i - sfp
+
+	// Loop over all ADC modules and channels to find a match
+	// only here if we didn't find a match in FEBEX
+	for( unsigned int i = 0; i < GetNumberOfAdcModules(); ++i ) {
+
+		for( unsigned int j = 0; j < GetMaximumNumberOfAdcChannels(); ++j ) {
+
+			// test for complete match
+			if( GetIonChamberLayer(i,j) == (int)layer ) {
+
+				daqinfo[0] = -1;
+				daqinfo[1] = i;
+				daqinfo[2] = j;
+				return daqinfo;
+
+			} // test
+
+		} // j - channel
+
+	} // i - module
+
+	return daqinfo;
+
+};
+
 
 bool MiniballSettings::IsPulser( unsigned int sfp, unsigned int board, unsigned int ch ) {
 	

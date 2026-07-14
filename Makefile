@@ -2,11 +2,11 @@
 .PHONY: clean all
 
 PWD			:= $(shell pwd)
-BIN_DIR     := ./bin
-SRC_DIR     := ./src
-LIB_DIR     := ./lib
-INC_DIR     := ./include
-UTIL_DIR    := ./utils
+BIN_DIR     := $(PWD)/bin
+SRC_DIR     := $(PWD)/src
+LIB_DIR     := $(PWD)/lib
+INC_DIR     := $(PWD)/include
+UTIL_DIR    := $(PWD)/utils
 AME_FILE	:= \"$(PWD)/data/mass_1.mas20\"
 SRIM_DIR	:= \"$(PWD)/srim/\"
 CUR_DIR		:= \"$(PWD)/\"

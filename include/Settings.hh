@@ -201,6 +201,7 @@ public:
 					  const std::vector<std::vector<std::vector<int>>> &vector );
 	int GetMiniballID( unsigned int sfp, unsigned int board, unsigned int ch,
 					  const std::vector<std::vector<std::vector<int>>> &vector );
+	std::vector<int> GetMiniballDAQ( unsigned int clu, unsigned int cry, unsigned int seg );
 	inline int GetMiniballCluster( unsigned int dgf, unsigned int ch ){
 		return GetMiniballID( dgf, ch, mb_cluster );
 	};
@@ -219,6 +220,22 @@ public:
 	inline int GetMiniballSegment( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetMiniballID( sfp, board, ch, mb_segment );
 	};
+	inline int GetMiniballSFP( unsigned int clu, unsigned int cry, unsigned int seg ){
+		return GetMiniballDAQ( clu, cry, seg ).at(0);
+	};
+	inline int GetMiniballBoard( unsigned int clu, unsigned int cry, unsigned int seg ){
+		std::vector<int> daqinfo = GetMiniballDAQ( clu, cry, seg );
+		if( daqinfo.at(0) >= 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetMiniballDGF( unsigned int clu, unsigned int cry, unsigned int seg ){
+		std::vector<int> daqinfo = GetMiniballDAQ( clu, cry, seg );
+		if( daqinfo.at(0) < 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetMiniballChannel( unsigned int clu, unsigned int cry, unsigned int seg ){
+		return GetMiniballDAQ( clu, cry, seg ).at(2);
+	};
 	bool IsMiniballSegmentVetoed( unsigned int clu, unsigned int cry, unsigned int seg );
 	inline double GetMiniballCrystalHitWindow(){ return mb_hit_window; };
 	inline double GetMiniballAddbackHitWindow(){ return ab_hit_window; };
@@ -236,6 +253,7 @@ public:
 				const std::vector<std::vector<std::vector<int>>> &vector );
 	int GetCDID( unsigned int sfp, unsigned int board, unsigned int ch,
 				const std::vector<std::vector<std::vector<int>>> &vector );
+	std::vector<int> GetCDDAQ( unsigned int det, unsigned int sec, unsigned int side, unsigned int strip );
 	inline int GetCDDetector( unsigned int adc, unsigned int ch ){
 		return GetCDID( adc, ch, cd_det );
 	};
@@ -260,6 +278,22 @@ public:
 	inline int GetCDStrip( unsigned int sfp, unsigned int board, unsigned int ch ){
 		return GetCDID( sfp, board, ch, cd_strip );
 	};
+	inline int GetCDSFP( unsigned int det, unsigned int sec, unsigned int side, unsigned int strip ){
+		return GetCDDAQ( det, sec, side, strip ).at(0);
+	};
+	inline int GetCDBoard(  unsigned int det, unsigned int sec, unsigned int side, unsigned int strip ){
+		std::vector<int> daqinfo = GetCDDAQ( det, sec, side, strip );
+		if( daqinfo.at(0) >= 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetCDADC( unsigned int det, unsigned int sec, unsigned int side, unsigned int strip ){
+		std::vector<int> daqinfo = GetCDDAQ( det, sec, side, strip );
+		if( daqinfo.at(0) < 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetCDChannel( unsigned int det, unsigned int sec, unsigned int side, unsigned int strip ){
+		return GetCDDAQ( det, sec, side, strip ).at(2);
+	};
 	inline double GetCDHitWindow(){ return cd_hit_window; };
 	inline double GetCDCalibratorMaxEnergy(){ return cd_calibrator_max_energy; };
 	
@@ -271,6 +305,23 @@ public:
 	int GetPadDetector( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetPadSector( unsigned int adc, unsigned int ch );
 	int GetPadSector( unsigned int sfp, unsigned int board, unsigned int ch );
+	std::vector<int> GetPadDAQ( unsigned int det, unsigned int sec );
+	inline int GetPadSFP( unsigned int det, unsigned int sec ){
+		return GetPadDAQ( det, sec ).at(0);
+	};
+	inline int GetPadBoard(  unsigned int det, unsigned int sec ){
+		std::vector<int> daqinfo = GetPadDAQ( det, sec );
+		if( daqinfo.at(0) >= 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetPadADC( unsigned int det, unsigned int sec ){
+		std::vector<int> daqinfo = GetPadDAQ( det, sec );
+		if( daqinfo.at(0) < 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetPadChannel( unsigned int det, unsigned int sec ){
+		return GetPadDAQ( det, sec ).at(2);
+	};
 	inline double GetPadHitWindow(){ return pad_hit_window; };
 	
 	
@@ -280,12 +331,41 @@ public:
 	bool IsBeamDump( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetBeamDumpDetector( unsigned int dgf, unsigned int ch );
 	int GetBeamDumpDetector( unsigned int sfp, unsigned int board, unsigned int ch );
+	std::vector<int> GetBeamDumpDAQ( unsigned int det );
+	inline int GetBeamDumpSFP( unsigned int det ){
+		return GetBeamDumpDAQ( det ).at(0);
+	};
+	inline int GetBeamDumpBoard(  unsigned int det ){
+		std::vector<int> daqinfo = GetBeamDumpDAQ( det );
+		if( daqinfo.at(0) >= 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetBeamDumpDGF( unsigned int det ){
+		std::vector<int> daqinfo = GetBeamDumpDAQ( det );
+		if( daqinfo.at(0) < 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetBeamDumpChannel( unsigned int det ){
+		return GetBeamDumpDAQ( det ).at(2);
+	};
 
 	
 	// SPEDE detector
 	inline unsigned int GetNumberOfSpedeSegments(){ return n_spede_seg; };
 	bool IsSpede( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetSpedeSegment( unsigned int sfp, unsigned int board, unsigned int ch );
+	std::vector<int> GetSpedeDAQ( unsigned int seg );
+	inline int GetSpedeSFP( unsigned int seg ){
+		return GetSpedeDAQ( seg ).at(0);
+	};
+	inline int GetSpedeBoard(  unsigned int seg ){
+		std::vector<int> daqinfo = GetSpedeDAQ( seg );
+		if( daqinfo.at(0) >= 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetSpedeChannel( unsigned int seg ){
+		return GetSpedeDAQ( seg ).at(2);
+	};
 
 	
 	// IonChamber
@@ -294,6 +374,23 @@ public:
 	bool IsIonChamber( unsigned int sfp, unsigned int board, unsigned int ch );
 	int GetIonChamberLayer( unsigned int adc, unsigned int ch );
 	int GetIonChamberLayer( unsigned int sfp, unsigned int board, unsigned int ch );
+	std::vector<int> GetIonChamberDAQ( unsigned int layer );
+	inline int GetIonChamberSFP( unsigned int layer ){
+		return GetIonChamberDAQ( layer ).at(0);
+	};
+	inline int GetIonChamberBoard(  unsigned int layer ){
+		std::vector<int> daqinfo = GetIonChamberDAQ( layer );
+		if( daqinfo.at(0) >= 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetIonChamberADC( unsigned int layer ){
+		std::vector<int> daqinfo = GetIonChamberDAQ( layer );
+		if( daqinfo.at(0) < 0 ) return daqinfo.at(1);
+		else return -1;
+	};
+	inline int GetIonChamberChannel( unsigned int layer ){
+		return GetIonChamberDAQ( layer ).at(2);
+	};
 	inline double GetIonChamberHitWindow(){ return ic_hit_window; };
 	
 	

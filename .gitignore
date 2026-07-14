@@ -46,7 +46,10 @@ bin/*
 lib/*
 
 # Plots
+srim/*.png
 srim/*.pdf
+scripts/*.png
+scripts/*.pdf
 
 # Test data
 test/*

@@ -1,3 +1,17 @@
+// ============================================================================================= //
+/*! \mainpage The Miniball Sort Code
+ * **Author**: Liam Gaffney [(liam.gaffney@liverpool.ac.uk)](mailto:liam.gaffney@liverpool.ac.uk), University of Liverpool
+ *
+ * See the [GitHub page](https://github.com/Miniball/MiniballSort) for installation
+ * instructions, to submit bug reports, and to understand the sorting philosophy. The documentation
+ * here focuses on the purpose of different variables and functions. N.B. it's not complete, but
+ * should become more complete over time.
+ *
+ * For information on how to use the code and what the variables mean in the different input files,
+ * see the [wiki pages on GitHub](https://github.com/Miniball/MiniballSort/wiki).
+ */
+// ============================================================================================= //
+
 // My code include.
 #include "mb_sort.hh"
 

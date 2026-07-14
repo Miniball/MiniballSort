@@ -4,8 +4,8 @@
 // Written by Liam Gaffney (liam.gaffney@liverpool.ac.uk) - 18/07/2025
 //
 // To run you need to do the following in ROOT:
-// root [0]: .L show_miniball_positions.cc
-// root [1]: show_miniball_positions( "reaction.dat", "settings.dat" )
+// root [0]: .L calculate_alpha_energies.cc
+// root [1]: calculate_alpha_energies( "reaction.dat", "settings.dat" )
 // where the settings and reaction files match those from your experiment
 
 R__LOAD_LIBRARY(libmb_sort.so)
