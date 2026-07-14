@@ -367,13 +367,12 @@ void MiniballReaction::ReadReaction() {
 		double cd_eff_thick = GetCDThickness( 0 ) / TMath::Abs( TMath::Cos( TMath::DegToRad() * ( GetParticleThetas()[16-i]+GetParticleThetas()[15-i] ) / 2. ) ); // we are using just one CD at the moment, so #0
 		//std::cout << "Strip #" << i << ": average angle = " << ( GetParticleThetas()[16-i]+GetParticleThetas()[15-i] ) / 2. << "; eff_thick = " << cd_eff_thick << std::endl;
 		double dE;
-		int n = 0;
 		for( double E = transfer_recoil_range[0]; E <= transfer_recoil_range[1]; E += 500 ){ // sampling over user-defined energy range (default 15e3-150e3 keV), where Eloss vs E is monotonic, so can be inverted
 			dE = GetEnergyLoss(E, cd_eff_thick, gStopping[4]);
-			gEloss_E[i]->SetPoint(n, E, dE);
-			gE_Eloss[i]->SetPoint(n, dE, E);
-
-			n++;
+			gEloss_E[i]->SetPoint(gEloss_E[i]->GetN(), E, dE);
+			// Filling out Einitial vs Eloss value only if dE < E, namely only if the particle punches through the CD
+			const double epsilon = 1.0; // in keV
+			if ( dE < E - epsilon ) { gE_Eloss[i]->SetPoint(gE_Eloss[i]->GetN(), dE, E); }
 		}
 		gE_Eloss[i]->Sort();
 
