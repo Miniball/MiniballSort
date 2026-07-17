@@ -1115,8 +1115,12 @@ void MiniballReaction::CalculateRecoil(){
 
 void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* kinflag */ ){
 
-	// The following is strongly inspired by the NPReaction.cxx code of NPTool:
-	// https://gitlab.in2p3.fr/np/nptool/-/blob/NPTool.2.dev/NPLib/Physics/NPReaction.cxx
+
+	/// Reconstructs ejectile (heavy ion) kinematics based on measured recoil (light ion) information
+	/// @param kinflag is no longer used
+	
+	/// The following is strongly inspired by the NPReaction.cxx code of NPTool:
+	/// https://gitlab.in2p3.fr/np/nptool/-/blob/NPTool.2.dev/NPLib/Physics/NPReaction.cxx
 	
 	// Lorentz Vector
 	TLorentzVector EnergyMomentumLab_1; // beam
