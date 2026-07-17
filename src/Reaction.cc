@@ -394,7 +394,8 @@ void MiniballReaction::ReadReaction() {
 	
 	}
 		
-
+	// Use CD+PAD energy or CD energy only for recoil energy determination in transfer reactions (called in TransferProduct function)
+	transfer_CdPadEnergy  = config->GetValue( "Transfer.CdPadEnergy", true );	// use CD+PAD energy for recoil in TransferProduct if TRUE; use CD energy (DeltaE) only if FALSE 
 
 	// Some diagnostics and info
 	std::cout << std::endl << " +++  ";
@@ -1144,9 +1145,12 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 	TotalEnergyMomentumLab = EnergyMomentumLab_1 + EnergyMomentumLab_2;
 	
 	// get energy of the reaction product prior entering the CD (after the dead layer)
-	int pstrip = static_cast<int>(p->GetStripP());
-	double EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP(), gE_Eloss[pstrip]);  
-	//double EnergyLab3 = p->GetEnergy();
+	double EnergyLab3;
+	if( transfer_CdPadEnergy ) { EnergyLab3 = p->GetEnergy(); }
+	else {
+		int pstrip = static_cast<int>(p->GetStripP());
+		EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP(), gE_Eloss[pstrip]);  
+	}
 
 	double eloss = 0.0;
 

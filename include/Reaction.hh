@@ -579,6 +579,9 @@ public:
 	inline double HistTransferEjectileBetaMin(){ return transfer_ejectile_beta_range[0]; }
 	inline double HistTransferEjectileBetaMax(){ return transfer_ejectile_beta_range[1]; }
 
+	// Choose between CD+PAD energy or CD energy (DeltaE) only for transfer reactions
+	inline bool TransferCDPadEnergy(){ return transfer_CdPadEnergy; }
+
 	ClassDef( MiniballReaction, 3 )
 
 private:
@@ -711,6 +714,8 @@ private:
 	std::vector<std::unique_ptr<TGraph>> gE_Eloss;
 	double transfer_recoil_range[2]; // Ranges for E vs Eloss graph of recoil in transfer reaction
 	
+	// Choose between CD+PAD energy or CD energy (DeltaE) only for transfer reactions
+	bool transfer_CdPadEnergy; 
 };
 
 #endif

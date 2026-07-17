@@ -185,3 +185,5 @@
 #Transfer.InitialRecoilEnergy.Min: 15e3   # lower limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
 #Transfer.InitialRecoilEnergy.Max: 150e3  # upper limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
 
+## Choose between CD+PAD energy or CD energy (DeltaE) only for recoil (light ion) in transfer reactions
+#Transfer.CdPadEnergy: true	# use CD+PAD energy for recoil in TransferProduct if TRUE; use CD energy (DeltaE) only if FALSE 
