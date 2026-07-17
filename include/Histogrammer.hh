@@ -448,6 +448,7 @@ private:
 	// Transfer reaction histograms
 	TH1F *ejectile_ex = nullptr,                      *ejectile_beta = nullptr;
 	TH2F *recoilE_theta = nullptr,                    *ejectileE_theta = nullptr;
+	TH2F *ejectile_ex_vs_gE_recoil_dc_ejectile = nullptr; 
 
 	// Electron energy versus cos(theta)
 	TH2F *eE_costheta_ejectile = nullptr, *eE_costheta_recoil = nullptr;
