@@ -23,6 +23,7 @@
 #include <TCanvas.h>
 #include <TF1.h>
 #include <TROOT.h>
+#include <TLinearFitter.h>
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -185,13 +186,12 @@ private:
 	unsigned long n_mbs_entries;
 
 	// CD histograms
-	std::vector<std::vector<std::vector<TH2F*>>> cd_pen_nen;
-	std::vector<std::vector<std::vector<TH2F*>>> cd_nen_pen;
-	std::vector<std::vector<std::vector<TH2F*>>> cd_pen_nQ;
 	std::vector<std::vector<std::vector<TH2F*>>> cd_nQ_pQ;
+	std::vector<std::vector<std::vector<TH2F*>>> cd_pQ_nQ;
 
 
 };
 
 #endif
+
 
