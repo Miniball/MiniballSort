@@ -177,7 +177,7 @@ void MiniballCDCalibrator::MakeHists(){
 	double maxRawEn = ( maxEn - cal->FebexOffset(1,0,ptag) ) / cal->FebexGain(1,0,ptag);
 	// round that value to the next power of two
 	int maxQ = nextPowerOf2(std::round(maxRawEn));
-	unsigned int Qbins = 8192;
+	unsigned int Qbins = 1024;
 
 	if( set->GetNumberOfCaenAdcModules() > 0 ) {
 		maxQ = 4096;
