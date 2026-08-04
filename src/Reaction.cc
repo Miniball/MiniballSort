@@ -319,6 +319,9 @@ void MiniballReaction::ReadReaction() {
 		else degrader_material += degrader_material_tmp[i];
 	}
 
+	// Al foil thickness (protection in front of CD detector)
+	Al_foil_thickness = config->GetValue( "AlFoilThickness", -1.0 ); 	// units of mg/cm^2 - negative means it doesn't exist 
+
 	// Read in Miniball geometry
 	mb_type = config->GetValue( "MiniballGeometry.Type", 1 ); // default = 1
 	mb_geo.resize( set->GetNumberOfMiniballClusters() );
@@ -355,6 +358,10 @@ void MiniballReaction::ReadReaction() {
 	if( degrader_thickness > 0 ) {
 		stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), degrader_material, gStopping[5] );
 		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
+	}
+	if( Al_foil_thickness > 0 ) {
+		stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), "Al", gStopping[7] );
+		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), "Al", gStopping[8] );
 	}
 	
 	// Prepare the Eloss vs E graphs and E vs Eloss graphs for all CD strips (as Si effective thickness will vary strip by strip).
@@ -432,6 +439,14 @@ void MiniballReaction::ReadReaction() {
 			std::cout << " AFTER the degrader";
 		else
 			std::cout << " with unknown DopplerMode = " << doppler_mode;
+		std::cout << std::endl;
+
+	}
+
+	if( Al_foil_thickness > 0 ) {
+
+		std::cout << "An Al protector foil of " << Al_foil_thickness;
+		std::cout << " mg/cm2 has been included.";
 		std::cout << std::endl;
 
 	}
@@ -1161,6 +1176,13 @@ void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* 
 		EnergyLab3 -= eloss;
 	}
 	
+	// Correction for energy loss of recoil in the Al protector foil, if Al protector foil is defined (Al foil thickness > 0)
+	if( stopping && Al_foil_thickness > 0 ) {
+		double eff_thick = Al_foil_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[8] ); // recoil in Al
+		EnergyLab3 -= eloss;
+	}
+
 	// Correction for energy loss of recoil in the degrader if degrader is defined (degrader thickness > 0)
 	if( stopping && degrader_thickness > 0 ) {
 		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
@@ -1272,6 +1294,7 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 	title += ";" + isotope1 + " energy [keV];";
 	title += "Energy loss in " + isotope2;
 	if( isotope2 == "Si" ) title += " [keV/mm]";
+	else if( isotope2 == "Al" ) title += " [keV/mm]";
 	else title += " [keV/(mg/cm^{2})]";
 	
 	// Initialise an empty TGraph
@@ -1372,6 +1395,7 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 	
 	// Now convert all the points in the plot
 	if( isotope2 == "Si" ) conv = conv_keVum * 1E3; // silicon thickness in mm, energy in keV
+	else if( isotope2 == "Al" ) conv = conv_keVum * 1E3; // Al foil thickness in mm, energy in keV
 	else conv = conv_MeVmgcm2 * 1E3; // target thickness in mg/cm2, energy in keV
 	for( Int_t i = 0; i < g->GetN(); ++i ){
 		

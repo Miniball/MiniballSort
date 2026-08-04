@@ -42,6 +42,9 @@
 #DegraderThickness: -1.0	# in units of mg/cm2, a negative value means that it doesn't exist
 #DegraderMaterial: 197Au	# a string containing the material that matches the SRIM file for energy loss, usually an isotope name
 
+# Definition of Al foil thickness, if experiment uses an aluminum protector foil in front of the CD. Used for transfer reactions only (to stop heavy ion scattering into CD)
+#AlFoilThickness: -1.0        # in units of mm, a negative value means that it doesn't exist
+
 # Doppler mode, calculating the velocity for Doppler correction
 # Modes relevant for Coulex experiments:
 #DopplerMode: 1	# 0 = use angles and two-body kinematics at the centre of the target

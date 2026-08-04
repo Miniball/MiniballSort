@@ -639,6 +639,9 @@ private:
 	double degrader_thickness;		///< target thickness in units of mg/cm^2. Negative if degrader not present. SHM, RAB 12 June 2025
 	std::string degrader_material;	///< can be an isotope name, or some string that matches the material used and corresponding SRIM file
 
+	// Al foil thickness (protecting CD detector)
+	double Al_foil_thickness;		///< target thickness in units of mg/cm^2. Negative if Al foil not present. 
+
 	// CD detector things
 	std::vector<double> cd_dist;		///< distance from target to CD detector in mm
 	std::vector<double> cd_offset;		///< phi rotation of the CD in degrees
