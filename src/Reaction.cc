@@ -348,7 +348,7 @@ void MiniballReaction::ReadReaction() {
 	
 	// Get the stopping powers
 	stopping = true;
-	for( unsigned int i = 0; i < 7; ++i )
+	for( unsigned int i = 0; i < 9; ++i )
 		gStopping.push_back( std::make_unique<TGraph>() );
 	stopping &= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
 	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), Target.GetIsotope(), gStopping[1] );
