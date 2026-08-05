@@ -417,7 +417,7 @@ public:
 		else return 0;
 	};
 	inline double GetParticleGammaTimeRatio(){
-		return ( pg_prompt[1] - pg_prompt[0] ) / ( pg_random[1] - pg_random[0] );
+		return double( pg_prompt[1] - pg_prompt[0] ) / double( pg_random[1] - pg_random[0] );
 	};
 	inline double GetParticleGammaFillRatio(){
 		return pg_ratio;
@@ -433,7 +433,7 @@ public:
 		else return 0;
 	};
 	inline double GetGammaGammaTimeRatio(){
-		return ( gg_prompt[1] - gg_prompt[0] ) / ( gg_random[1] - gg_random[0] );
+		return double( gg_prompt[1] - gg_prompt[0] ) / double( gg_random[1] - gg_random[0] );
 	};
 	inline double GetGammaGammaFillRatio(){
 		return gg_ratio;
@@ -449,7 +449,7 @@ public:
 		else return 0;
 	};
 	inline double GetParticleParticleTimeRatio(){
-		return ( pp_prompt[1] - pp_prompt[0] ) / ( pp_random[1] - pp_random[0] );
+		return double( pp_prompt[1] - pp_prompt[0] ) / double( pp_random[1] - pp_random[0] );
 	};
 	inline double GetParticleParticleFillRatio(){
 		return pp_ratio;
@@ -465,7 +465,7 @@ public:
 		else return 0;
 	};
 	inline double GetGammaElectronTimeRatio(){
-		return ( ge_prompt[1] - ge_prompt[0] ) / ( ge_random[1] - ge_random[0] );
+		return double( ge_prompt[1] - ge_prompt[0] ) / double( ge_random[1] - ge_random[0] );
 	};
 	inline double GetGammaElectronFillRatio(){
 		return ge_ratio;
@@ -481,7 +481,7 @@ public:
 		else return 0;
 	};
 	inline double GetElectronElectronTimeRatio(){
-		return ( ee_prompt[1] - ee_prompt[0] ) / ( ee_random[1] - ee_random[0] );
+		return double( ee_prompt[1] - ee_prompt[0] ) / double( ee_random[1] - ee_random[0] );
 	};
 	inline double GetElectronElectronFillRatio(){
 		return ee_ratio;
@@ -497,7 +497,7 @@ public:
 		else return 0;
 	};
 	inline double GetParticleElectronTimeRatio(){
-		return ( pe_prompt[1] - pe_prompt[0] ) / ( pe_random[1] - pe_random[0] );
+		return double( pe_prompt[1] - pe_prompt[0] ) / double( pe_random[1] - pe_random[0] );
 	};
 	inline double GetParticleElectronFillRatio(){
 		return pe_ratio;
