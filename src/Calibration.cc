@@ -478,7 +478,8 @@ float MiniballCalibration::DgfEnergy( unsigned char mod, unsigned char ch, unsig
 
 		raw_rand = raw + 0.5 - fRand->Uniform();
 
-		energy  = fDgfGain[mod][ch] * raw_rand;
+		energy = fDgfGainQuadr[mod][ch] * raw_rand * raw_rand;
+		energy += fDgfGain[mod][ch] * raw_rand;
 		energy += fDgfOffset[mod][ch];
 
 		// Check if we have defaults
@@ -634,8 +635,8 @@ std::string MiniballCalibration::FebexType( unsigned char sfp, unsigned char boa
 		
 	}
 	
-	return 0;
-	
+	return "";
+
 }
 
 double MiniballCalibration::DgfOffset( unsigned char mod, unsigned char ch ) {

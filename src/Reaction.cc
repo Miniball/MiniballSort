@@ -108,18 +108,18 @@ void MiniballReaction::ReadMassTables() {
 void MiniballReaction::ReadReaction() {
 
 	TEnv *config = new TEnv( fInputFile.data() );
-	
+
 	std::string isotope_key;
 
 	// Get particle properties
 	Beam.SetA( config->GetValue( "BeamA", 185 ) );
 	Beam.SetZ( config->GetValue( "BeamZ", 80 ) );
 	if( Beam.GetZ() < 0 || Beam.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Beam.GetZ() << " (beam)" << std::endl;
 		exit(1);
-		
+
 	}
 	Beam.SetBindingEnergy( ame_be.at( Beam.GetIsotope() ) );
 	Beam.SetEx( config->GetValue( "BeamEx", 0. ) );
@@ -127,16 +127,16 @@ void MiniballReaction::ReadReaction() {
 	Eb = config->GetValue( "BeamE", 4500.0 ); // in keV per nucleon
 	Eb *= Beam.GetMass_u(); // keV
 	Beam.SetEnergy( Eb ); // keV
-	
+
 	Target.SetA( config->GetValue( "TargetA", 120 ) );
 	Target.SetZ( config->GetValue( "TargetZ", 50 ) );
 	Target.SetEnergy( 0.0 );
 	if( Target.GetZ() < 0 || Target.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Target.GetZ() << " (target)" << std::endl;
 		exit(1);
-		
+
 	}
 	Target.SetBindingEnergy( ame_be.at( Target.GetIsotope() ) );
 	Target.SetEx( config->GetValue( "TargetEx", 0. ) );
@@ -144,11 +144,11 @@ void MiniballReaction::ReadReaction() {
 	Ejectile.SetA( config->GetValue( "EjectileA", 185 ) );
 	Ejectile.SetZ( config->GetValue( "EjectileZ", 80 ) );
 	if( Ejectile.GetZ() < 0 || Ejectile.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Ejectile.GetZ() << " (ejectile)" << std::endl;
 		exit(1);
-		
+
 	}
 	Ejectile.SetBindingEnergy( ame_be.at( Ejectile.GetIsotope() ) );
 	Ejectile.SetEx( config->GetValue( "EjectileEx", 500. ) );
@@ -156,19 +156,16 @@ void MiniballReaction::ReadReaction() {
 	Recoil.SetA( config->GetValue( "RecoilA", 120 ) );
 	Recoil.SetZ( config->GetValue( "RecoilZ", 50 ) );
 	if( Recoil.GetZ() < 0 || Recoil.GetZ() >= (int)gElName.size() ){
-		
+
 		std::cout << "Not a recognised element with Z = ";
 		std::cout << Recoil.GetZ() << " (recoil)" << std::endl;
 		exit(1);
-		
+
 	}
 	Recoil.SetBindingEnergy( ame_be.at( Recoil.GetIsotope() ) );
 	Recoil.SetEx( config->GetValue( "RecoilEx", 0. ) );
 
 	// Get particle energy cut
-	bool ejectile_cut_flag = false;
-	bool recoil_cut_flag = false;
-	bool transfer_cut_flag = false;
 	ejectilecutfile = config->GetValue( "EjectileCut.File", "NULL" );
 	ejectilecutname = config->GetValue( "EjectileCut.Name", "CUTG" );
 	recoilcutfile = config->GetValue( "RecoilCut.File", "NULL" );
@@ -177,96 +174,40 @@ void MiniballReaction::ReadReaction() {
 	transfercutname = config->GetValue( "TransferCut.Name", "CUTG" );
 	transfercut_x = config->GetValue( "TransferCut.X", "E" );
 	transfercut_y = config->GetValue( "TransferCut.Y", "dE" );
-	
-	// Check if beam cut is given by the user
-	if( ejectilecutfile != "NULL" ) {
-	
-		cut_file = new TFile( ejectilecutfile.data(), "READ" );
-		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << ejectilecutfile << " correctly" << std::endl;
-			
-		else {
-		
-			if( !cut_file->GetListOfKeys()->Contains( ejectilecutname.data() ) )
-				std::cout << "Couldn't find " << ejectilecutname << " in " << ejectilecutfile << std::endl;
-			else {
-				ejectile_cut = (TCutG*)cut_file->Get( ejectilecutname.data() )->Clone();
-				ejectile_cut_flag = true;
-			}
-		}
-		
-		cut_file->Close();
-		
-	}
 
-	// Check if target cut is given by the user
-	if( recoilcutfile != "NULL" ) {
-	
-		cut_file = new TFile( recoilcutfile.data(), "READ" );
-		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << recoilcutfile << " correctly" << std::endl;
-			
-		else {
-		
-			if( !cut_file->GetListOfKeys()->Contains( recoilcutname.data() ) )
-				std::cout << "Couldn't find " << recoilcutname << " in " << recoilcutfile << std::endl;
-			else {
-				recoil_cut = (TCutG*)cut_file->Get( recoilcutname.data() )->Clone();
-				recoil_cut_flag = true;
-			}
-		}
-		
-		cut_file->Close();
-		
-	}
+	// Check if ejectile/recoil/transfer cuts are given by the user
+	ejectile_cut = ReadCutFile( ejectilecutfile, ejectilecutname );
+	recoil_cut = ReadCutFile( recoilcutfile, recoilcutname );
+	transfer_cut = ReadCutFile( transfercutfile, transfercutname );
 
-	// Check if transfer cut is given by the user
-	if( transfercutfile != "NULL" ) {
-	
-		cut_file = new TFile( transfercutfile.data(), "READ" );
-		if( cut_file->IsZombie() )
-			std::cout << "Couldn't open " << transfercutfile << " correctly" << std::endl;
-			
-		else {
-		
-			if( !cut_file->GetListOfKeys()->Contains( transfercutname.data() ) )
-				std::cout << "Couldn't find " << transfercutname << " in " << transfercutfile << std::endl;
-			else {
-				transfer_cut = (TCutG*)cut_file->Get( transfercutname.data() )->Clone();
-				transfer_cut_flag = true;
-			}
-		}
-		
-		cut_file->Close();
-		
-	}
-
-	// Assign an empty cut file if none is given, so the code doesn't crash
-	if( !ejectile_cut_flag ) ejectile_cut = new TCutG();
-	if( !recoil_cut_flag ) recoil_cut = new TCutG();
-	if( !transfer_cut_flag ) transfer_cut = new TCutG();
-
-	
 	// Velocity calculation for Doppler correction
 	doppler_mode = config->GetValue( "DopplerMode", 1 );
-	
+
 	// Laser mode
 	laser_mode = config->GetValue( "LaserMode", 2 );
-	
+
 	// EBIS time window
 	EBIS_On = config->GetValue( "EBIS.On", 1.2e6 );		// normally 1.2 ms in slow extraction
 	EBIS_Off = config->GetValue( "EBIS.Off", 2.52e7 );	// this allows a off window 20 times bigger than on
 	EBIS_ratio = config->GetValue( "EBIS.FillRatio", GetEBISTimeRatio() );	// this is the measured ratio of EBIS On/off. Default is just the time window ratio
-	
+
 	// T1 cuts
 	t1_cut = config->GetValue( "T1.Cut", false );		// enable or disable the T1 cuts
 	t1_time[0] = config->GetValue( "T1.Min", 0.0 );		// minimum T1 time for cut (ns), default 0
 	t1_time[1] = config->GetValue( "T1.Max", 1.2e9 );	// maximum T1 time for cut (ns), default 1.2 seconds
-	
+
 	// Events tree options
-	events_particle_gamma = config->GetValue( "Events.ParticleGammaOnly", false );	// only do histogramming for particle-gamma coincidences to speed things up
+	events_particle_gamma       = config->GetValue( "Events.ParticleGammaOnly", false );			// only do histogramming for particle-gamma coincidences to speed things up
+	events_particle_cdpad_coinc = config->GetValue( "Events.CdPadCoincidence", false );				// only do histogramming for particles with CD-Pad coincidences
+	events_particle_cdpad_veto  = config->GetValue( "Events.CdPadVeto", false );					// only do histogramming for particles without CD-Pad coincidences (Pad as veto)
+	events_gamma_seg_energy     = config->GetValue( "Events.GammaUseSegmentEnergy", false );		// use the segment energy instead of the core energy for gamma-rays
+	events_gamma_demand_seg     = config->GetValue( "Events.GammaWithSegment", false );				// only do histogramming for gamma-rays that have a segment, i.e. reject core-only gammas
+	events_gamma_max_seg_mult   = config->GetValue( "Events.GammaMaxSegmentMultiplicity", 99 );		// only do histogramming for gamma-rays with a maximum segment multiplicity (all segments of a cluster = 18)
+	events_gamma_seg_ediff      = config->GetValue( "Events.GammaCoreSegmentEnergyDifference", 9.9e9 );	// only do histogramming for gamma-rays where the core and sgement energies are less than this
 
 	// Histogram options
+	hist_wo_addback = config->GetValue( "Histograms.WithoutAddback", true );	// turn on histograms for gamma-rays without addback
+	hist_w_addback = config->GetValue( "Histograms.WithAddback", false );	// turn on histograms for gamma-rays with addback
 	hist_segment_phi = config->GetValue( "Histograms.SegmentPhi", false );	// turn on histograms for segment phi
 	hist_by_crystal = config->GetValue( "Histograms.ByCrystal", false );	// turn on histograms for gamma-gamma
 	hist_by_pmult = config->GetValue( "Histograms.ByMultiplicity", false );	// turn on particle-gamma(-electron) spectra by multiplicity, i.e. 1p and 2p spectra
@@ -344,9 +285,9 @@ void MiniballReaction::ReadReaction() {
 	cd_dist.resize( set->GetNumberOfCDDetectors() );
 	cd_offset.resize( set->GetNumberOfCDDetectors() );
 	dead_layer.resize( set->GetNumberOfCDDetectors() );
-	double d_tmp;
+	double d_tmp = 0;
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
-	
+
 		if( i == 0 ) d_tmp = 32.0; // standard CD
 		else if( i == 1 ) d_tmp = -64.0; // TREX backwards CD
 		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );		// distance to target in mm
@@ -354,12 +295,21 @@ void MiniballReaction::ReadReaction() {
 		dead_layer[i] = config->GetValue( Form( "CD_%d.DeadLayer", i ), 0.0007 );	// dead layer thickness in mm of Si
 
 	}
-	
+
 	// Target thickness and offsets
 	target_thickness = config->GetValue( "TargetThickness", 2.0 ); // units of mg/cm^2
 	x_offset = config->GetValue( "TargetOffset.X", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, vertical
 	y_offset = config->GetValue( "TargetOffset.Y", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, horizontal
 	z_offset = config->GetValue( "TargetOffset.Z", 0.0 );	// of course this should be 0.0 if you centre the beam! Units of mm, lateral
+
+	// Degrader thickness and material
+	degrader_thickness = config->GetValue( "DegraderThickness", -1.0 ); 	// units of mg/cm^2 - negative means it doesn't exist (only plunger runs)
+	std::string degrader_material_tmp = config->GetValue( "DegraderMaterial", "197Au" );	// can be isotope name or other material name that matches SRIM file
+	for( unsigned int i = 0; i < degrader_material_tmp.length(); i++ ){
+		if( std::isspace( degrader_material_tmp[i] ) || degrader_material_tmp[i] == '#' )
+			break;
+		else degrader_material += degrader_material_tmp[i];
+	}
 
 	// Read in Miniball geometry
 	mb_type = config->GetValue( "MiniballGeometry.Type", 1 ); // default = 1
@@ -387,13 +337,17 @@ void MiniballReaction::ReadReaction() {
 	
 	// Get the stopping powers
 	stopping = true;
-	for( unsigned int i = 0; i < 4; ++i )
+	for( unsigned int i = 0; i < 7; ++i )
 		gStopping.push_back( std::make_unique<TGraph>() );
 	stopping &= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
-	stopping &= ReadStoppingPowers( Target.GetIsotope(), Target.GetIsotope(), gStopping[1] );
-	stopping &= ReadStoppingPowers( Beam.GetIsotope(), "Si", gStopping[2] );
-	stopping &= ReadStoppingPowers( Target.GetIsotope(), "Si", gStopping[3] );
-
+	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), Target.GetIsotope(), gStopping[1] );
+	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), Target.GetIsotope(), gStopping[2] );
+	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), "Si", gStopping[3] );
+	stopping &= ReadStoppingPowers( Recoil.GetIsotope(), "Si", gStopping[4] );
+	if( degrader_thickness > 0 ) {
+		stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), degrader_material, gStopping[5] );
+		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
+	}
 
 	
 	// Some diagnostics and info
@@ -421,6 +375,20 @@ void MiniballReaction::ReadReaction() {
 	std::cout << "Beam velocity at reaction position = ";
 	std::cout << Beam.GetBeta() << "c" << std::endl;
 
+	if( degrader_thickness > 0 ) {
+
+		std::cout << "A " << degrader_material << " degrader of " << degrader_thickness;
+		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
+		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
+			std::cout << " BEFORE the degrader";
+		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
+			std::cout << " AFTER the degrader";
+		else
+			std::cout << " with unknown DopplerMode = " << doppler_mode;
+		std::cout << std::endl;
+
+	}
+
 	// Finished
 	delete config;
 
@@ -444,6 +412,42 @@ void MiniballReaction::PrintReaction( std::ostream &stream, std::string opt = ""
 	
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Loads a TCutG from file, either a saved TCutG from a ROOT file or the (x,y)
+/// coordinates from a text file.
+std::shared_ptr<TCutG> MiniballReaction::ReadCutFile( std::string cut_filename, std::string cut_name ) {
+
+	std::shared_ptr<TCutG> cut;
+
+	// Check if filename is given in the settings file.
+	if( cut_filename != "NULL" ) {
+
+		TFile *cut_file = new TFile( cut_filename.data(), "READ" );
+		if( cut_file->IsZombie() )
+			std::cout << "Couldn't open " << cut_filename << " correctly" << std::endl;
+
+		else {
+
+			if( !cut_file->GetListOfKeys()->Contains( cut_name.data() ) )
+				std::cout << "Couldn't find " << cut_name << " in "
+				<< cut_filename << std::endl;
+			else
+				cut = std::make_shared<TCutG>( *static_cast<TCutG*>( cut_file->Get( cut_name.data() )->Clone() ) );
+
+		}
+
+		cut_file->Close();
+
+	}
+
+	// Assign an empty cut file if none is given, so the code doesn't crash
+	if( !cut ) cut = std::make_shared<TCutG>();
+
+	return cut;
+
+}
+
+
 TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, float pid, float nid ){
 	
 	// Check that we have a real CD detector
@@ -462,35 +466,39 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 	phi += cd_offset[det]; // left edge of first strip
 	
 	// Recalculate this points for the standard CD (not yet done for CREX/TREX)
-	if( set->GetNumberOfCDNStrips() == 12 )	{			// standard CD
+	if( set->GetNumberOfCDNStrips() == 12 || set->GetNumberOfCDNStrips() == 24 ) { // standard CD
 
 		// CD phi calculation using method from Tim Gray
 		double alpha = 82.0;
-		double offset = 1.625;
+		double offset_x = 1.6728;
+		double offset_y = 1.5751;
+		double grouping = 24.0 / (double)set->GetNumberOfCDNStrips();
 
-		double phi_body = ( 2.0*nid + 1.0 ) * alpha / 24.;
+		double phi_body = grouping * ( nid + 0.5 ) * alpha / 24.;
 
 		double r_lab = 9.0;
 		r_lab += ( 15.5 - pid ) * 2.0; // pid = 0 is outer ring and pid = 15 is inner ring
 		  
-		double beta = 180.0 - alpha / 2.0;
+		double beta = 180.0 - TMath::ATan(offset_y/offset_x) * TMath::RadToDeg();
 		double bphi = beta + phi_body;
 		if( bphi > 180.0) bphi = 360.0 - bphi;
 
-		double r_d = offset / TMath::Sin( alpha * TMath::DegToRad() / 2.0 );  // from center of rings to center of sectors
+		double r_d = TMath::Sqrt( offset_x * offset_x + offset_y * offset_y ); // from center of rings to center of sectors
 		double delta = TMath::ASin( r_d * TMath::Sin( bphi * TMath::DegToRad() ) / r_lab );
 		delta *= TMath::RadToDeg(); // angle between r_body and r_lab
 		  
 		double gamma = 180.0 - bphi - delta; // angle between r_d and r_lab
 
-		double r_body = TMath::Sin( gamma * TMath::DegToRad() ) / ( TMath::Sin( bphi * TMath::DegToRad() ) / r_lab ); // between sector center and point of interest
+		double r_body;
+		if (TMath::Abs(TMath::Sin( bphi * TMath::DegToRad() ) < 1e-5)) r_body = r_lab - r_d;
+		else r_body = TMath::Sin( gamma * TMath::DegToRad() ) / ( TMath::Sin( bphi * TMath::DegToRad() ) / r_lab ); // between sector center and point of interest
 
 		double x_body = r_body * TMath::Cos( phi_body * TMath::DegToRad() ); //in sector "body" coordinates
 		double y_body = r_body * TMath::Sin( phi_body * TMath::DegToRad() );
 
 		//transform back to ring "lab" coordinates
-		double y = y_body + offset;
-		double x = x_body + TMath::Sqrt( r_d*r_d - offset*offset );
+		double y = y_body + offset_y;
+		double x = x_body + offset_x;
 
 		//should have sqrt(x*x + y*y) = r_lab at this point
 		vec.SetX(x);
@@ -533,7 +541,8 @@ TVector3 MiniballReaction::GetCDVector( unsigned char det, unsigned char sec, fl
 		
 		// Each strip centre is 2.0 mm apart
 		x += ( pid + 0.5 ) * 2.0;
-		
+		vec.SetX(x);
+
 		// Then find phi angle for each n-side strip
 		phi += 1.75; // centre of first strip
 		if( nid < 4 ) phi += nid * 3.5; // first 4 strips singles (=4 nid)
@@ -732,9 +741,12 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, doub
 	double gamma = 1.0 / TMath::Sqrt( 1.0 - TMath::Power( pbeta, 2.0 ) );
 	double corr = 1.0 - pbeta * TMath::Cos( gvec.Angle( pvec ) );
 	corr *= gamma;
-	
-	return corr * g->GetEnergy();
-	
+
+	if( events_gamma_seg_energy )
+		return corr * g->GetSegmentSumEnergy();
+	else
+		return corr * g->GetEnergy();
+
 }
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool ejectile ) {
@@ -748,8 +760,11 @@ double MiniballReaction::DopplerCorrection( std::shared_ptr<GammaRayEvt> g, bool
 	double corr = 1.0 - p.GetBeta() * CosTheta( g, ejectile );
 	corr *= p.GetGamma();
 	
-	return corr * g->GetEnergy();
-	
+	if( events_gamma_seg_energy )
+		return corr * g->GetSegmentSumEnergy();
+	else
+		return corr * g->GetEnergy();
+
 }
 
 double MiniballReaction::DopplerCorrection( std::shared_ptr<SpedeEvt> s, bool ejectile ) {
@@ -782,16 +797,45 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	double eloss = 0;
-	if( stopping && doppler_mode > 2 ) {
+	double En = p->GetEnergy(), Eemit = En;
+	double eloss = 0.0;
+	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
+
 		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[2] ); // ejectile in dead layer
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[3] ); // ejectile in dead layer
+		En -= eloss;
+		Eemit = En;
+
+		// Correction for degrader, so we get energy after target
+		if( ( doppler_mode == 3 || doppler_mode == 5 ) && degrader_thickness > 0 ) {
+
+			eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+			eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[5] ); // ejectile in degrader
+			En -= eloss;
+			if( doppler_mode == 5 ) Eemit = En;
+		}
+
 	}
-	Ejectile.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
+	
+	// Correction for energy loss in second half of target, so we get energy in the centre of the target
+	if( stopping && ( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 5 ) ) {
+		double eff_thick = target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( En, -0.5 * eff_thick, gStopping[1] ); // ejectile in target
+		En -= eloss;
+	}
+	
+	// Here, En is the energy at the centre of the target needed for the kinematic
+	// calculation, while Eemit is the energy at the point where the gamma ray was
+	// emitted (in the CD for mode 2, between degrader and CD for mode 5 and between
+	// target and degrader for mode 3.
+	
+	// Set observables
+	Ejectile.SetEnergy( En ); // eloss is negative
 	Ejectile.SetTheta( GetParticleTheta(p) );
 	Ejectile.SetPhi( GetParticlePhi(p) );
 
 	// Calculate the centre of mass angle
+	// TODO: Replace with the full relativisic kinematics
 	double maxang = TMath::ASin( 1. / ( GetTau() * GetEpsilon() ) );
 	double y = GetEpsilon() * GetTau();
 	if( GetTau() * GetEpsilon() > 1 && GetParticleTheta(p) > maxang )
@@ -806,25 +850,40 @@ void MiniballReaction::IdentifyEjectile( std::shared_ptr<ParticleEvt> p, bool ki
 	else y = TMath::ASin( y );
 
 	Ejectile.SetThetaCoM( GetParticleTheta(p) + y );
+	
 	ejectile_detected = true;
 	
+	// Now restore the energy to the value at the point of gamma-ray emission
+	Ejectile.SetEnergy(Eemit);
+	
 	// Overwrite energy with kinematics if requested
-	if( doppler_mode < 2 ) {
-		
+	if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 4 ) {
+
 		// Energy of the ejectile from the centre of mass angle
+		// TODO: Replace with the full relativisic kinematics
 		double En = TMath::Power( GetTau() * GetEpsilon(), 2.0 ) + 1.0;
 		En += 2.0 * GetTau() * GetEpsilon() * TMath::Cos( Ejectile.GetThetaCoM() );
 		En *= TMath::Power( Recoil.GetMass() / ( Recoil.GetMass() + Ejectile.GetMass() ), 2.0 );
 		En *= GetEnergyPrime();
-		
+
 		// Do energy loss out the back of target if requested
-		if( stopping && doppler_mode == 1 ) {
+		if( stopping && ( doppler_mode == 1 || doppler_mode == 4 ) ) {
 			
 			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[0] );
-			Ejectile.SetEnergy( En - eloss );
-			
+			En -= eloss;
+
 		}
-		else Ejectile.SetEnergy( En );
+
+		// Do energy loss through the full degrader if requested
+		if( stopping && doppler_mode == 4 && degrader_thickness > 0 ) {
+
+			eloss = GetEnergyLoss( En, degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[5] );
+			En -= eloss;
+
+		}
+
+		// Finally set the energy
+		Ejectile.SetEnergy( En );
 
 	}
 	
@@ -837,12 +896,35 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	
 	/// Set the recoil particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	double eloss = 0;
-	if( stopping && doppler_mode > 2 ) {
+	double En = p->GetEnergy(), Eemit = En;
+	double eloss = 0.0;
+	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
+
 		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[3] ); // recoil in dead layer
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
+		En -= eloss;
+		Eemit = En;
+
+		// Correction for degrader, so we get energy after target
+		if( doppler_mode == 5 && degrader_thickness > 0 ) {
+
+			eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+			eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
+			En -= eloss;
+			if( doppler_mode == 5 ) Eemit = En;
+		}
+
 	}
-	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative to add back the dead layer energy
+
+	// Correction for energy loss in second half of target, so we get energy in the centre of the target
+	if( stopping && ( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 5 ) ) {
+		double eff_thick = target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( En, -0.5 * eff_thick, gStopping[2] ); // recoil in target
+		En -= eloss;
+	}
+	
+	// Set observables
+	Recoil.SetEnergy( En ); // eloss is negative to add back the dead layer energy
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
 
@@ -860,24 +942,37 @@ void MiniballReaction::IdentifyRecoil( std::shared_ptr<ParticleEvt> p, bool kinf
 	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
 	recoil_detected = true;
 
+	// Now restore the energy to the value at the point of gamma-ray emission
+	Recoil.SetEnergy(Eemit);
+	
 	// Overwrite energy with kinematics if requested
-	if( doppler_mode < 2 ) {
-		
+	if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 4 ) {
+
 		// Energy of the recoil from the centre of mass angle
-		double En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
+		En = TMath::Power( GetEpsilon(), 2.0 ) + 1.0;
 		En += 2.0 * GetEpsilon() * TMath::Cos( Recoil.GetThetaCoM() );
 		En *= Recoil.GetMass() * Ejectile.GetMass() / TMath::Power( Recoil.GetMass() + Ejectile.GetMass(), 2.0 );
 		En *= GetEnergyPrime();
 
 		// Do energy loss out the back of target if requested
-		if( stopping && doppler_mode == 1 ) {
-			
-			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[1] );
-			Recoil.SetEnergy( En - eloss );
-			
+		if( stopping && ( doppler_mode == 1 || doppler_mode == 4 ) ) {
+
+			eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[2] );
+			En -= eloss;
+
 		}
-		else Recoil.SetEnergy( En );
-	
+
+		// Do energy loss through the full degrader if requested
+		if( stopping && doppler_mode == 4 && degrader_thickness > 0 ) {
+
+			eloss = GetEnergyLoss( En, degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) ), gStopping[6] );
+			En -= eloss;
+
+		}
+
+		// Finally set the energy
+		Recoil.SetEnergy( En );
+
 	}
 
 }
@@ -903,14 +998,24 @@ void MiniballReaction::CalculateEjectile(){
 	if( Th < 0. ) Th += TMath::Pi();
 	
 	// Do energy loss out the back of target if requested
-	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
-		
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[0] );
-		Ejectile.SetEnergy( En - eloss );
-		
-	}
-	else Ejectile.SetEnergy( En );
+	double eloss = 0.0;
+	if( stopping && doppler_mode > 0 ) {
 
+		eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[1] );
+		En -= eloss;
+
+		// Do energy loss through the full degrader if requested
+		if( ( doppler_mode == 3 || doppler_mode == 4 ) && degrader_thickness > 0 ) {
+
+			eloss = GetEnergyLoss( En, degrader_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[5] );
+			En -= eloss;
+
+		}
+
+	}
+
+	// Set observables
+	Ejectile.SetEnergy( En );
 	Ejectile.SetTheta( Th );
 	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
 	ejectile_detected = false;
@@ -938,55 +1043,137 @@ void MiniballReaction::CalculateRecoil(){
 	if( Th < 0. ) Th += TMath::Pi();
 	
 	// Do energy loss out the back of target if requested
-	if( stopping && ( doppler_mode == 1 || doppler_mode == 3 ) ) {
+	double eloss = 0.0;
+	if( stopping && doppler_mode > 0 ) {
 
-		double eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[1] );
-		Recoil.SetEnergy( En - eloss );
-		
+		eloss = GetEnergyLoss( En, 0.5 * target_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[2] );
+		En -= eloss;
+
+		// Do energy loss through the full degrader if requested
+		if( ( doppler_mode == 3 || doppler_mode == 4 ) && degrader_thickness > 0 ) {
+
+			eloss = GetEnergyLoss( En, degrader_thickness / TMath::Abs( TMath::Cos(Th) ), gStopping[6] );
+			En -= eloss;
+
+		}
+
 	}
-	else Recoil.SetEnergy( En );
 
+	// Set observables
+	Recoil.SetEnergy( En );
 	Recoil.SetTheta( Th );
 	Recoil.SetPhi( TMath::Pi() + Ejectile.GetPhi() );
 	recoil_detected = false;
 
 }
 
-void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag ){
-	
+void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* kinflag */ ){
+
 	/// Set the ejectile particle and calculate the centre of mass angle too
 	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
-	double eloss = 0;
-	if( stopping ) {
+
+	//this assumes the reaction product is emitted at the centre of the target
+	double En = p->GetEnergy(); //get energy of the reaction product
+	double eloss = 0.0;
+	double after_target_recoil_energy = p->GetEnergy();
+	double after_degrader_recoil_energy = p->GetEnergy();
+
+	// Correcting energy loss in CD dead layer
+	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
 		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( p->GetEnergy(), -1.0 * eff_thick, gStopping[2] ); // transfer product in dead layers
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
+		En -= eloss;
+		after_target_recoil_energy = En;
+		after_degrader_recoil_energy = En;
 	}
-	Recoil.SetEnergy( p->GetEnergy() - eloss ); // eloss is negative
+
+	// Correction for energy loss in the degrader
+	if( stopping && degrader_thickness > 0 ) {
+		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
+		En -= eloss;
+		after_target_recoil_energy = En;
+	}
+
+	// Correction for energy loss through half of the target material
+	if( stopping ) {
+		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[2] ); // recoil in target
+		En -= eloss;
+	}
+
+	// Set observables
+	Recoil.SetEnergy( En );
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
 
-	// Do something for the ejectile too, this needs some work
-	if( stopping ) {
-		eloss = GetEnergyLoss( Beam.GetEnergy(), 0.5 * target_thickness, gStopping[0] ); // transfer product in target
+	// Kinematics calculations assuming this energy
+	double p4x = Recoil.GetMomentum() * TMath::Cos(Recoil.GetTheta());
+	double p4y = Recoil.GetMomentum() * TMath::Sin(Recoil.GetTheta());
+	double p3x = Beam.GetMomentum() - p4x;
+	double p3y = p4y;
+	double theta3 = TMath::ATan2(p3y, p3x);
+	//double E3 = GetEnergyTotLab() - Recoil.GetEnergyTot();
+	double E3 = Beam.GetEnergyTot() + Target.GetEnergyTot() - Recoil.GetEnergyTot(); // Total energy of ejectile
+
+	// Kinetic energy at the reaction position in the centre of the target
+	double beam_kinetic_energy = E3 - Ejectile.GetMass();
+
+	// Calculate the centre-of-mass energy and angle
+	// Vili's version
+	double E3_CoM = GetGammaCoM()*(E3 - GetBetaCoM() * p3x);
+	double p3x_CoM = GetGammaCoM()*(p3x - GetBetaCoM() * E3);
+	double p3y_CoM = p3y;
+	// double p_CoM = TMath::Sqrt(TMath::Power(p3x_CoM, 2.0) + TMath::Power(p3y_CoM, 2.0));
+	double theta3_CoM = TMath::ATan2(p3y_CoM, p3x_CoM);
+
+	// Lets check E4_CoM also with lorentz transfrom
+	//double E4_CoM = Recoil.GetEnergyTotCM(); This is only calculated from projectile = target -> bad
+	double E4_CoM = GetGammaCoM()*(Recoil.GetEnergyTot() - GetBetaCoM() * p4x);
+//	double p4x_CoM = GetGammaCoM()*(p4x - GetBetaCoM() * Recoil.GetEnergyTot());
+//	double p4y_CoM = p4y;
+//	double theta4_CoM = TMath::ATan2(p4y_CoM, p4x_CoM);
+
+	Ejectile.SetEnergyCoM(E3_CoM - Ejectile.GetMass() ); // Energy of the ejectile in CoM frame
+	Ejectile.SetThetaCoM(theta3_CoM); // theta of ejectile in CoM frame in radians
+	Recoil.SetEnergyCoM(E4_CoM - Recoil.GetMass()); // Set Recoil energy in CoM
+	Recoil.SetThetaCoM( TMath::Pi() - theta3_CoM ); // theta of recoil in CoM frame in radians
+
+	// Calculate the ejectile stopping
+	if( stopping && doppler_mode > 0 ) {
+
+		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos(theta3) );
+		eloss = GetEnergyLoss( beam_kinetic_energy, eff_thick, gStopping[1] );
+		beam_kinetic_energy -= eloss;
+
+		// Do energy loss through the full degrader if requested
+		if( doppler_mode >= 2 && doppler_mode <= 4 && degrader_thickness > 0 ) {
+
+			eff_thick = degrader_thickness / TMath::Abs( TMath::Cos(theta3) );
+			eloss = GetEnergyLoss( beam_kinetic_energy, eff_thick, gStopping[5] );
+			beam_kinetic_energy -= eloss;
+
+		}
+
 	}
-	Ejectile.SetEnergy( Beam.GetEnergy() - eloss ); // eloss is positive
-	Ejectile.SetTheta( 0.0 ); // asume is goes straight for now
+
+	// Set the ejectile energy
+	Ejectile.SetEnergy( beam_kinetic_energy );  // Kinetic energy of ejectile
+	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
 	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
 
-	// Calculate the centre of mass angle
-	double maxang = TMath::ASin( 1. / GetEpsilon() );
-	double y = GetEpsilon();
-	if( GetParticleTheta(p) > maxang )
-		y *= TMath::Sin( maxang );
-	else
-		y *= TMath::Sin( GetParticleTheta(p) );
-	
-	if( kinflag ) y = TMath::ASin( -y );
-	else y = TMath::ASin( y );
+	// Calculate also the energy loss of the recoil as requested
+	if( doppler_mode == 2 )
+		Recoil.SetEnergy( p->GetEnergy() );
+	else if( doppler_mode == 1 || doppler_mode == 3 )
+		Recoil.SetEnergy( after_target_recoil_energy );
+	else if( doppler_mode == 4 )
+		Recoil.SetEnergy( after_degrader_recoil_energy );
 
-	Recoil.SetThetaCoM( GetParticleTheta(p) + y );
-	Ejectile.SetThetaCoM( TMath::Pi() - Recoil.GetThetaCoM() );
+	// Flag that we have a transfer product
 	transfer_detected = true;
+
+	return;
 
 }
 
@@ -1002,10 +1189,17 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 	double E = Ei;
 	
 	for( unsigned int i = 0; i < Nmeshpoints; i++ ){
-		
-		E -= g->Eval(E) * dx;
+
+		double Eloss = g->Eval(E) * dx;
+		if( Eloss > E ) {
+			E = 0.01;
+			break;
+		}
+		else
+			E -= Eloss;
 		
 	}
+
 	return Ei - E;
 
 }
@@ -1093,10 +1287,10 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 		
 		total = nucl + elec ; // in some units, conversion done later
 		
-		g->SetPoint( g->GetN(), En, total );
-		
 		// If we've reached the end, stop
 		if( line.substr( 3, 9 ) == "---------" ) break;
+
+		g->SetPoint( g->GetN(), En, total );
 		
 	}
 	
@@ -1130,6 +1324,7 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 		g->SetPoint( i, En, total*conv );
 		
 	}
+	g->Sort();
 	
 	// Draw the plot and save it somewhere
 	TCanvas *c = new TCanvas();

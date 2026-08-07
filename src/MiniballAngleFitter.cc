@@ -120,8 +120,8 @@ void MiniballAngleFunction::FitSegmentEnergies( TFile *infile ){
 	std::string hname, folder = "/miniball/cluster_", base = "mb_en_core_seg_";
 	
 	// Histogram objects
-	TH1D *h1;
-	TH2D *h2;
+	TH1D *h1 = nullptr;
+	TH2D *h2 = nullptr;
 	
 	// Open the pdf file for peak fits
 	auto c1 = std::make_unique<TCanvas>();
@@ -186,8 +186,8 @@ void MiniballAngleFunction::FitSegmentEnergies( TFile *infile ){
 	c1->Print("peak_fits.pdf)");
 
 	// Clean up
-	delete h1;
-	delete h2;
+	if (h1) delete h1;
+	if (h2) delete h2;
 
 	gErrorIgnoreLevel = kInfo;
 

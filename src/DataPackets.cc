@@ -120,11 +120,6 @@ void MiniballDataPackets::SetData( std::shared_ptr<InfoData> data ){
 
 void MiniballDataPackets::ClearData(){
 	
-	dgf_packets.clear();
-	adc_packets.clear();
-	febex_packets.clear();
-	info_packets.clear();
-	
 	std::vector<DgfData>().swap(dgf_packets);
 	std::vector<AdcData>().swap(adc_packets);
 	std::vector<FebexData>().swap(febex_packets);
@@ -132,42 +127,42 @@ void MiniballDataPackets::ClearData(){
 	
 }
 
-unsigned long long int MiniballDataPackets::GetEventID(){
-		
-	if( IsDgf() )			return GetDgfData()->GetEventID();
-	if( IsAdc() )			return GetAdcData()->GetEventID();
-	if( IsFebex() )			return GetFebexData()->GetEventID();
-	if( IsInfo() )			return GetInfoData()->GetEventID();
+unsigned long long int MiniballDataPackets::GetEventID() const {
+
+	if( this->IsDgf() )		return GetDgfData()->GetEventID();
+	if( this->IsAdc() )		return GetAdcData()->GetEventID();
+	if( this->IsFebex() )	return GetFebexData()->GetEventID();
+	if( this->IsInfo() )	return GetInfoData()->GetEventID();
 
 	return 0;
 	
 }
 
-long long int MiniballDataPackets::GetTime(){
-	
-	if( IsDgf() )			return GetDgfData()->GetTime();
-	if( IsAdc() )			return GetAdcData()->GetTime();
-	if( IsFebex() )			return GetFebexData()->GetTime();
-	if( IsInfo() )			return GetInfoData()->GetTime();
-	
+long long int MiniballDataPackets::GetTime() const {
+
+	if( this->IsDgf() )			return GetDgfData()->GetTime();
+	if( this->IsAdc() )			return GetAdcData()->GetTime();
+	if( this->IsFebex() )		return GetFebexData()->GetTime();
+	if( this->IsInfo() )		return GetInfoData()->GetTime();
+
 	return 0;
 	
 }
 
-UInt_t MiniballDataPackets::GetTimeMSB(){
-	
+UInt_t MiniballDataPackets::GetTimeMSB() const {
+
 	return ( (this->GetTime() >> 32) & 0xFFFFFFFF );
 	
 }
 
-UInt_t MiniballDataPackets::GetTimeLSB(){
-	
+UInt_t MiniballDataPackets::GetTimeLSB() const {
+
 	return (UInt_t)this->GetTime();
 	
 }
 
-unsigned char MiniballDataPackets::GetSfp(){
-	
+unsigned char MiniballDataPackets::GetSfp() const {
+
 	if( IsFebex() )		return GetFebexData()->GetSfp();
 	if( IsInfo() )		return GetInfoData()->GetSfp();
 	
@@ -175,8 +170,8 @@ unsigned char MiniballDataPackets::GetSfp(){
 	
 }
 
-unsigned char MiniballDataPackets::GetBoard(){
-	
+unsigned char MiniballDataPackets::GetBoard() const {
+
 	if( IsDgf() )		return GetDgfData()->GetModule();
 	if( IsAdc() )		return GetAdcData()->GetModule();
 	if( IsFebex() )		return GetFebexData()->GetBoard();
@@ -186,8 +181,8 @@ unsigned char MiniballDataPackets::GetBoard(){
 	
 }
 
-unsigned char MiniballDataPackets::GetModule(){
-	
+unsigned char MiniballDataPackets::GetModule() const {
+
 	if( IsDgf() )		return GetDgfData()->GetModule();
 	if( IsAdc() )		return GetAdcData()->GetModule();
 	if( IsFebex() )		return GetFebexData()->GetBoard();
@@ -197,8 +192,8 @@ unsigned char MiniballDataPackets::GetModule(){
 	
 }
 
-unsigned char MiniballDataPackets::GetChannel(){
-	
+unsigned char MiniballDataPackets::GetChannel() const {
+
 	if( IsDgf() )		return GetDgfData()->GetChannel();
 	if( IsAdc() )		return GetAdcData()->GetChannel();
 	if( IsFebex() )		return GetFebexData()->GetChannel();

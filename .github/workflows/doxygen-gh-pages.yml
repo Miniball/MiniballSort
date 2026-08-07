@@ -2,10 +2,7 @@ name: Doxygen GitHub Pages Deploy Action
 
 on:
   push:
-    branches: [ "*" ]
-  pull_request:
     branches: [ "main" ]
-
 
 jobs:
   deploy:
@@ -13,6 +10,7 @@ jobs:
     permissions:
       contents: write
       pages: write
+      id-token: write
       pull-requests: write
     steps:
       - uses: DenverCoder1/doxygen-github-pages-action@v2.0.0

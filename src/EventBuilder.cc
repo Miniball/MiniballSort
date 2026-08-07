@@ -64,7 +64,13 @@ MiniballEventBuilder::MiniballEventBuilder( std::shared_ptr<MiniballSettings> my
 			febex_time_ch[i][j].resize( set->GetNumberOfFebexChannels(), 0 );
 			
 	}
-		
+
+	// Histogrammer options
+	//TH1::AddDirectory(kFALSE);
+
+	// Intialise the hist list
+	histlist = new TList();
+
 }
 
 void MiniballEventBuilder::StartFile(){
@@ -190,7 +196,7 @@ void MiniballEventBuilder::SetMBSInfoTree( TTree *user_tree ){
 
 }
 
-void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
+void MiniballEventBuilder::SetOutput( std::string output_file_name, bool cWrite ) {
 
 	// These are the branches we need
 	write_evts = std::make_unique<MiniballEvts>();
@@ -206,7 +212,7 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 	// ------------------------------------------------------------------------ //
 	output_file = new TFile( output_file_name.data(), "recreate" );
 	output_tree = new TTree( "evt_tree", "evt_tree" );
-	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get() );
+	output_tree->Branch( "MiniballEvts", "MiniballEvts", write_evts.get(), 256000, 0 );
 	output_tree->SetAutoFlush();
 
 	// Create log file.
@@ -216,7 +222,10 @@ void MiniballEventBuilder::SetOutput( std::string output_file_name ) {
 
 	// Hisograms in separate function
 	MakeEventHists();
-	
+
+	// Write once at the start
+	if( cWrite ) output_file->Write();
+
 }
 
 void MiniballEventBuilder::Initialise(){
@@ -228,25 +237,12 @@ void MiniballEventBuilder::Initialise(){
 
 	hit_ctr = 0;
 	
-	mb_en_list.clear();
-	mb_ts_list.clear();
-	mb_clu_list.clear();
-	mb_cry_list.clear();
-	mb_seg_list.clear();
-
 	std::vector<float>().swap(mb_en_list);
 	std::vector<unsigned long long>().swap(mb_ts_list);
 	std::vector<unsigned char>().swap(mb_clu_list);
 	std::vector<unsigned char>().swap(mb_cry_list);
 	std::vector<unsigned char>().swap(mb_seg_list);
 
-	cd_en_list.clear();
-	cd_ts_list.clear();
-	cd_det_list.clear();
-	cd_sec_list.clear();
-	cd_side_list.clear();
-	cd_strip_list.clear();
-	
 	std::vector<float>().swap(cd_en_list);
 	std::vector<unsigned long long>().swap(cd_ts_list);
 	std::vector<unsigned char>().swap(cd_det_list);
@@ -254,36 +250,19 @@ void MiniballEventBuilder::Initialise(){
 	std::vector<unsigned char>().swap(cd_side_list);
 	std::vector<unsigned char>().swap(cd_strip_list);
 	
-	pad_en_list.clear();
-	pad_ts_list.clear();
-	pad_det_list.clear();
-	pad_sec_list.clear();
-	
 	std::vector<float>().swap(pad_en_list);
 	std::vector<unsigned long long>().swap(pad_ts_list);
 	std::vector<unsigned char>().swap(pad_det_list);
 	std::vector<unsigned char>().swap(pad_sec_list);
 	
-	bd_en_list.clear();
-	bd_ts_list.clear();
-	bd_det_list.clear();
-	
 	std::vector<float>().swap(bd_en_list);
 	std::vector<unsigned long long>().swap(bd_ts_list);
 	std::vector<unsigned char>().swap(bd_det_list);
 
-	spede_en_list.clear();
-	spede_ts_list.clear();
-	spede_seg_list.clear();
-	
 	std::vector<float>().swap(spede_en_list);
 	std::vector<unsigned long long>().swap(spede_ts_list);
 	std::vector<unsigned char>().swap(spede_seg_list);
 
-	ic_en_list.clear();
-	ic_ts_list.clear();
-	ic_id_list.clear();
-	
 	std::vector<float>().swap(ic_en_list);
 	std::vector<unsigned long long>().swap(ic_ts_list);
 	std::vector<unsigned char>().swap(ic_id_list);
@@ -310,6 +289,8 @@ void MiniballEventBuilder::MakeEventHists(){
 
 	tdiff = new TH1F( "tdiff", "Time difference to first trigger;#Delta t [ns]", 1e3, -10, 1e5 );
 	tdiff_clean = new TH1F( "tdiff_clean", "Time difference to first trigger without noise;#Delta t [ns]", 1e3, -10, 1e5 );
+	histlist->Add(tdiff);
+	histlist->Add(tdiff_clean);
 
 	pulser_freq = new TProfile( "pulser_freq", "Frequency of pulser in FEBEX DAQ as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	pulser_period = new TH1F( "pulser_period", "Period of pulser in FEBEX DAQ;T [ns]", 10e3, 0, 10e9 );
@@ -323,6 +304,15 @@ void MiniballEventBuilder::MakeEventHists(){
 	t1_period = new TH1F( "t1_period", "Period of T1 events (p+ on ISOLDE target);T [ns]", 10e3, 0, 10e9 );
 	sc_freq = new TProfile( "sc_freq", "Frequency of SuperCycle events as a function of time;time [ns];f [Hz]", 10.8e4, 0, 10.8e12 );
 	sc_period = new TH1F( "sc_period", "Period of SuperCycle events;T [ns]", 10e3, 0, 10e9 );
+	histlist->Add(pulser_freq);
+	histlist->Add(pulser_period);
+	histlist->Add(pulser_tdiff);
+	histlist->Add(ebis_freq);
+	histlist->Add(ebis_period);
+	histlist->Add(t1_freq);
+	histlist->Add(t1_period);
+	histlist->Add(sc_freq);
+	histlist->Add(sc_period);
 
 	// ------------------- //
 	// Miniball histograms //
@@ -334,6 +324,8 @@ void MiniballEventBuilder::MakeEventHists(){
 	
 	mb_td_core_seg  = new TH1F( "mb_td_core_seg",  "Time difference between core and segment in same crystal;#Delta t [ns]", 499, -2495, 2495 );
 	mb_td_core_core = new TH1F( "mb_td_core_core", "Time difference between two cores in same cluster;#Delta t [ns]", 499, -2495, 2495 );
+	histlist->Add(mb_td_core_seg);
+	histlist->Add(mb_td_core_core);
 
 	mb_en_core_seg.resize( set->GetNumberOfMiniballClusters() );
 	mb_en_core_seg_ebis_on.resize( set->GetNumberOfMiniballClusters() );
@@ -350,20 +342,22 @@ void MiniballEventBuilder::MakeEventHists(){
 
 		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
 
-				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
-				hname += std::to_string(j);
-				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
-				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += " (multiplicity = 1 only);segment ID;Energy (keV)";
-				mb_en_core_seg[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
-				
-				hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
-				hname += std::to_string(j) + "_ebis_on";
-				htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
-				htitle += " core " + std::to_string(j) + ", gated by segment ";
-				htitle += " (multiplicity = 1 only) gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
-				mb_en_core_seg_ebis_on[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
-			
+			hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
+			hname += std::to_string(j);
+			htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
+			htitle += " core " + std::to_string(j) + ", gated by segment ";
+			htitle += " (multiplicity = 1 only);segment ID;Energy (keV)";
+			mb_en_core_seg[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
+			histlist->Add(mb_en_core_seg[i][j]);
+
+			hname  = "mb_en_core_seg_" + std::to_string(i) + "_";
+			hname += std::to_string(j) + "_ebis_on";
+			htitle  = "Gamma-ray spectrum from cluster " + std::to_string(i);
+			htitle += " core " + std::to_string(j) + ", gated by segment ";
+			htitle += " (multiplicity = 1 only) gated by EBIS time (1.5 ms);segment ID;Energy (keV)";
+			mb_en_core_seg_ebis_on[i][j] = new TH2F( hname.data(), htitle.data(), 7, -0.5, 6.5, 4096, -0.5, 4095.5 );
+			histlist->Add(mb_en_core_seg_ebis_on[i][j]);
+
 		} // j
 		
 	} // i
@@ -414,7 +408,8 @@ void MiniballEventBuilder::MakeEventHists(){
 			cd_pen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDPStrips(), -0.5, set->GetNumberOfCDPStrips() - 0.5,
 									   4000, 0, 2000e3 );
-			
+			histlist->Add(cd_pen_id[i][j]);
+
 			hname  = "cd_nen_id_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD n-side energy for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
@@ -422,77 +417,88 @@ void MiniballEventBuilder::MakeEventHists(){
 			cd_nen_id[i][j] = new TH2F( hname.data(), htitle.data(),
 									   set->GetNumberOfCDNStrips(), -0.5, set->GetNumberOfCDNStrips() - 0.5,
 									   4000, 0, 2000e3 );
-			
+			histlist->Add(cd_nen_id[i][j]);
+
 			hname  = "cd_pn_1v1_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 1v1";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_1v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_1v1[i][j]);
+
 			hname  = "cd_pn_1v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 1v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_1v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_1v2[i][j]);
+
 			hname  = "cd_pn_2v1_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v1";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_2v1[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_2v1[i][j]);
+
 			hname  = "cd_pn_2v2_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side energy, multiplicity 2v2";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side Energy (keV);n-side Energy (keV);Counts";
 			cd_pn_2v2[i][j] = new TH2F( hname.data(), htitle.data(), 4000, 0, 200e3, 400, 0, 200e3 );
-			
+			histlist->Add(cd_pn_2v2[i][j]);
+
 			hname  = "cd_pn_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_pn_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_pn_td[i][j]);
+
 			hname  = "cd_pp_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs p-side time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_pp_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_pp_td[i][j]);
+
 			hname  = "cd_nn_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD n-side vs n-side time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_nn_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_nn_td[i][j]);
+
 			hname  = "cd_ppad_td_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs pad time difference ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";time difference (ns);Counts per 10 ns";
 			cd_ppad_td[i][j] = new TH1F( hname.data(), htitle.data(), 800, -4e3, 4e3 );
-			
+			histlist->Add(cd_ppad_td[i][j]);
+
 			hname  = "cd_pn_mult_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD p-side vs n-side multiplicity ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";p-side multiplicity;n-side multiplicity";
 			cd_pn_mult[i][j] = new TH2F( hname.data(), htitle.data(), 10, -0.5, 9.5, 10, -0.5, 9.5 );
-			
+			histlist->Add(cd_pn_mult[i][j]);
+
 			hname  = "cd_ppad_mult_" + std::to_string(i) + "_" + std::to_string(j);
 			htitle  = "CD vs Pad multiplicity ";
 			htitle += "for detector " + std::to_string(i);
 			htitle += ", sector " + std::to_string(j);
 			htitle += ";CD multiplicity;Pad multiplicity";
 			cd_ppad_mult[i][j] = new TH2F( hname.data(), htitle.data(), 10, -0.5, 9.5, 10, -0.5, 9.5 );
-			
+			histlist->Add(cd_ppad_mult[i][j]);
+
 		} // j
 		
 		hname  = "pad_en_" + std::to_string(i);
@@ -501,7 +507,8 @@ void MiniballEventBuilder::MakeEventHists(){
 		pad_en_id[i] = new TH2F( hname.data(), htitle.data(),
 				set->GetNumberOfCDSectors(), -0.5, set->GetNumberOfCDSectors() - 0.5,
 								8000, 0, 200e3 );
-		
+		histlist->Add(pad_en_id[i]);
+
 	} // i
 	
 	
@@ -517,61 +524,35 @@ void MiniballEventBuilder::MakeEventHists(){
 	ic_dE = new TH1F( "ic_dE", "Ionisation chamber;Energy in first layer (Gas) (arb. units);Counts", 4096, 0, 10000 );
 	ic_E = new TH1F( "ic_E", "Ionisation chamber;Energy in final layer (Si) (arb. units);Counts", 4096, 0, 10000 );
 	ic_dE_E = new TH2F( "ic_dE_E", "Ionisation chamber;Rest energy, E (arb. units);Energy Loss, dE (arb. units);Counts", 4096, 0, 10000, 4096, 0, 10000 );
+	histlist->Add(ic_td);
+	histlist->Add(ic_dE);
+	histlist->Add(ic_E);
+	histlist->Add(ic_dE_E);
+
+
+	// flag to denote that hists are ready (used for spy)
+	hists_ready = true;
 
 	return;
 	
 }
 
+// Reset histograms in the DataSpy
 void MiniballEventBuilder::ResetHists(){
 
-	// Reset all histograms in the DataSpy
-	tdiff->Reset( "ICEMS" );
-	tdiff_clean->Reset( "ICEMS" );
-	pulser_period->Reset( "ICEMS" );
-	ebis_period->Reset( "ICEMS" );
-	t1_period->Reset( "ICEMS" );
-	sc_period->Reset( "ICEMS" );
-	pulser_freq->Reset( "ICEMS" );
-	ebis_freq->Reset( "ICEMS" );
-	t1_freq->Reset( "ICEMS" );
-	sc_freq->Reset( "ICEMS" );
-	pulser_tdiff->Reset( "ICEMS" );
+	// Loop over the hist list
+	TIter next( histlist->MakeIterator() );
+	while( TObject *obj = next() ) {
 
-	mb_td_core_seg->Reset( "ICEMS" );
-	mb_td_core_core->Reset( "ICEMS" );
-	
-	for( unsigned int i = 0; i < set->GetNumberOfMiniballClusters(); ++i ) {
-		for( unsigned int j = 0; j < set->GetNumberOfMiniballCrystals(); ++j ) {
-			mb_en_core_seg[i][j]->Reset( "ICEMS" );
-			mb_en_core_seg_ebis_on[i][j]->Reset( "ICEMS" );
-		}
-	}
+		if( obj->InheritsFrom( "TH2" ) )
+			( (TH2*)obj )->Reset("ICESM");
+		else if( obj->InheritsFrom( "TH1" ) )
+			( (TH1*)obj )->Reset("ICESM");
 
-	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
-		for( unsigned int j = 0; j < set->GetNumberOfCDSectors(); ++j ) {
-			cd_pen_id[i][j]->Reset( "ICEMS" );
-			cd_nen_id[i][j]->Reset( "ICEMS" );
-			cd_pn_1v1[i][j]->Reset( "ICEMS" );
-			cd_pn_1v2[i][j]->Reset( "ICEMS" );
-			cd_pn_2v1[i][j]->Reset( "ICEMS" );
-			cd_pn_2v2[i][j]->Reset( "ICEMS" );
-			cd_pn_td[i][j]->Reset( "ICEMS" );
-			cd_pp_td[i][j]->Reset( "ICEMS" );
-			cd_nn_td[i][j]->Reset( "ICEMS" );
-			cd_pn_mult[i][j]->Reset( "ICEMS" );
-			cd_ppad_td[i][j]->Reset( "ICEMS" );
-			cd_ppad_mult[i][j]->Reset( "ICEMS" );
-		}
-		pad_en_id[i]->Reset( "ICEMS" );
 	}
-	
-	ic_td->Reset( "ICEMS" );
-	ic_dE->Reset( "ICEMS" );
-	ic_E->Reset( "ICEMS" );
-	ic_dE_E->Reset( "ICEMS" );
 
 	return;
-	
+
 }
 
 
@@ -588,14 +569,16 @@ void MiniballEventBuilder::GammaRayFinder() {
 	unsigned char seg_mul; // segment multiplicity
 	unsigned char ab_mul; // addback multiplicity
 	std::vector<unsigned char> ab_index; // index of addback already used
-	bool skip_event; // has this event been used already
 	
 	// Loop over all the events in Miniball detectors
 	for( unsigned int i = 0; i < mb_en_list.size(); ++i ) {
 	
 		// Check if it's a core event
 		if( mb_seg_list.at(i) != 0 ) continue;
-		
+
+		// Segment veto start as false
+		bool segment_veto = false;
+
 		// Reset addback variables
 		MaxSegId = 0; // initialise as core (if no segment hit (dead), use core!)
 		MaxSegEnergy = 0.;
@@ -621,6 +604,14 @@ void MiniballEventBuilder::GammaRayFinder() {
 			if( mb_clu_list.at(i) != mb_clu_list.at(j) ||
 			    mb_cry_list.at(i) != mb_cry_list.at(j) ) continue;
 
+			// Check for a vetoed segment
+			if( set->IsMiniballSegmentVetoed( mb_clu_list.at(i), mb_cry_list.at(i), mb_seg_list.at(j) ) ) {
+
+				segment_veto = true;
+				break;
+
+			}
+
 			// Fill the time difference spectrum
 			mb_td_core_seg->Fill( (long long)mb_ts_list.at(i) - (long long)mb_ts_list.at(j) );
 			
@@ -641,7 +632,11 @@ void MiniballEventBuilder::GammaRayFinder() {
 			}
 			
 		} // j: matching segments
-		
+
+
+		// If any one of the segments that triggered are being vetoed, skip this gamma ray
+		if( segment_veto ) continue;
+
 		// Fill the segment spectra with core energies
 		mb_en_core_seg[mb_clu_list.at(i)][mb_cry_list.at(i)]->Fill( MaxSegId, mb_en_list.at(i) );
 		if( mb_ts_list.at(i) - ebis_time < 1.5e6 )
@@ -654,7 +649,10 @@ void MiniballEventBuilder::GammaRayFinder() {
 		// Build the single crystal gamma-ray event
 		gamma_ctr++;
 		gamma_evt->SetEnergy( mb_en_list.at(i) );
-		gamma_evt->SetSegmentEnergy( MaxSegEnergy );
+		gamma_evt->SetSegmentMaxEnergy( MaxSegEnergy );
+		gamma_evt->SetSegmentSumEnergy( SegSumEnergy );
+		gamma_evt->SetSegmentMultiplicity( seg_mul );
+		gamma_evt->SetAddbackMultiplicity( 1 );
 		gamma_evt->SetCluster( mb_clu_list.at(i) );
 		gamma_evt->SetCrystal( mb_cry_list.at(i) );
 		gamma_evt->SetSegment( MaxSegId );
@@ -667,21 +665,21 @@ void MiniballEventBuilder::GammaRayFinder() {
 	// Loop over all the gamma-ray singles for addback
 	for( unsigned int i = 0; i < write_evts->GetGammaRayMultiplicity(); ++i ) {
 
+		// Check we haven't already used this event
+		if( std::find( ab_index.begin(), ab_index.end(), i ) != ab_index.end() )
+			continue;
+
 		// Reset addback variables
 		AbSumEnergy = write_evts->GetGammaRayEvt(i)->GetEnergy();
 		MaxCryId = write_evts->GetGammaRayEvt(i)->GetCrystal();
 		MaxSegId = write_evts->GetGammaRayEvt(i)->GetSegment();
 		MaxEnergy = AbSumEnergy;
-		MaxSegEnergy = write_evts->GetGammaRayEvt(i)->GetSegmentEnergy();
+		MaxSegEnergy = write_evts->GetGammaRayEvt(i)->GetSegmentMaxEnergy();
+		SegSumEnergy = write_evts->GetGammaRayEvt(i)->GetSegmentSumEnergy();
 		MaxTime = write_evts->GetGammaRayEvt(i)->GetTime();
+		seg_mul = write_evts->GetGammaRayEvt(i)->GetSegmentMultiplicity();
 		ab_mul = 1;	// this is already the first event
 		
-		// Check we haven't already used this event
-		skip_event = false;
-		for( unsigned int k = 0; k < ab_index.size(); ++k )
-			if( ab_index.at(k) == i ) skip_event = true;
-		if( skip_event ) continue;
-
 		// Loop to find a matching event for addback
 		for( unsigned int j = i+1; j < write_evts->GetGammaRayMultiplicity(); ++j ) {
 
@@ -697,21 +695,21 @@ void MiniballEventBuilder::GammaRayFinder() {
 				> set->GetMiniballAddbackHitWindow() ) continue;
 
 			// Check we haven't already used this event
-			skip_event = false;
-			for( unsigned int k = 0; k < ab_index.size(); ++k )
-				if( ab_index.at(k) == j ) skip_event = true;
-			if( skip_event ) continue;
-			
+			if( std::find( ab_index.begin(), ab_index.end(), j ) != ab_index.end() )
+				continue;
+
 			// Then we can add them back
 			ab_mul++;
 			AbSumEnergy += write_evts->GetGammaRayEvt(j)->GetEnergy();
+			SegSumEnergy += write_evts->GetGammaRayEvt(j)->GetSegmentSumEnergy();
+			seg_mul += write_evts->GetGammaRayEvt(j)->GetSegmentMultiplicity();
 			ab_index.push_back(j);
 
 			// Is this bigger than the current maximum energy?
 			if( write_evts->GetGammaRayEvt(j)->GetEnergy() > MaxEnergy ){
 				
 				MaxEnergy = write_evts->GetGammaRayEvt(j)->GetEnergy();
-				MaxSegEnergy = write_evts->GetGammaRayEvt(j)->GetSegmentEnergy();
+				MaxSegEnergy = write_evts->GetGammaRayEvt(j)->GetSegmentMaxEnergy();
 				MaxCryId = write_evts->GetGammaRayEvt(j)->GetCrystal();
 				MaxSegId = write_evts->GetGammaRayEvt(j)->GetSegment();
 				MaxTime = write_evts->GetGammaRayEvt(j)->GetTime();
@@ -723,7 +721,10 @@ void MiniballEventBuilder::GammaRayFinder() {
 		// Build the single crystal gamma-ray event
 		gamma_ab_ctr++;
 		gamma_ab_evt->SetEnergy( AbSumEnergy );
-		gamma_ab_evt->SetSegmentEnergy( MaxSegEnergy );
+		gamma_ab_evt->SetSegmentMaxEnergy( MaxSegEnergy );
+		gamma_ab_evt->SetSegmentSumEnergy( SegSumEnergy );
+		gamma_ab_evt->SetSegmentMultiplicity( seg_mul );
+		gamma_ab_evt->SetAddbackMultiplicity( ab_mul );
 		gamma_ab_evt->SetCluster( write_evts->GetGammaRayEvt(i)->GetCluster() );
 		gamma_ab_evt->SetCrystal( MaxCryId );
 		gamma_ab_evt->SetSegment( MaxSegId );
@@ -807,9 +808,9 @@ void MiniballEventBuilder::ParticleFinder() {
 				
 				// The following is a hack because of the cabling of the Pad
 				// detector in September 2023 for the IS656 run
-				if( i != pad_det_list.at(k) ) continue;
-				if( ( j == 0 || j == 3 ) && pad_sec_list.at(k) != 0 ) continue;
-				if( ( j == 1 || j == 2 ) && pad_sec_list.at(k) != 1 ) continue;
+				//if( i != pad_det_list.at(k) ) continue;
+				//if( ( j == 0 || j == 3 ) && pad_sec_list.at(k) != 0 ) continue;
+				//if( ( j == 1 || j == 2 ) && pad_sec_list.at(k) != 1 ) continue;
 				
 				// Count the pad multiplicity (panic if it is >1)
 				padmult++;
@@ -830,7 +831,9 @@ void MiniballEventBuilder::ParticleFinder() {
 					
 						pad_coinc_en = pad_en_list.at(k);
 						pad_coinc_ts = pad_ts_list.at(k);
-					
+
+						pad_en_id[i]->Fill( j, pad_coinc_en );
+
 					}
 				
 				}
@@ -906,7 +909,7 @@ void MiniballEventBuilder::ParticleFinder() {
 									  cd_en_list.at( nindex[0] ) );
 				cd_pn_1v1[i][j]->Fill( cd_en_list.at( pindex[0] ),
 									  cd_en_list.at( nindex[0] ) );
-				cd_ppad_mult[i][i]->Fill( 1, padmult );
+				cd_ppad_mult[i][j]->Fill( 1, padmult );
 
 			} // 1 vs 1
 			
@@ -1450,14 +1453,13 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	/// Function to loop over the sort tree and build array and recoil events
 
 	// Load the full tree if possible
-	//output_tree->SetMaxVirtualSize(200e6);	// 200 MB
-	//input_tree->SetMaxVirtualSize(200e6); 	// 200 MB
-	//input_tree->LoadBaskets(200e6); 		// Load 200 MB of data to memory
+	//output_tree->SetMaxVirtualSize(1.0e9);	// 1.0 GB
+	//input_tree->SetMaxVirtualSize(2.2e9); 	// 2.2 GB
+	//input_tree->LoadBaskets(2.0e9); 		// Load 2.0 GB of data to memory
 
 	if( input_tree->LoadTree(0) < 0 ){
 		
 		std::cout << " Event Building: nothing to do" << std::endl;
-		output_file->Write( nullptr, TObject::kOverwrite );
 		return 0;
 		
 	}
@@ -1478,10 +1480,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 	// ------------------------------------------------------------------------ //
 	for( unsigned long i = 0; i < n_entries; ++i ) {
 		
-		// Current event data
-		//if( input_tree->MemoryFull(30e6) )
-		//	input_tree->DropBaskets();
-
 		// First event, yes please!
 		if( i == 0 ){
 
@@ -2288,11 +2286,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 				    write_evts->GetBeamDumpMultiplicity() )
 					output_tree->Fill();
 
-
-				// Clean up if the next event is going to make the tree full
-				//if( output_tree->MemoryFull(30e6) )
-				//	output_tree->DropBaskets();
-
 			}
 			
 			//--------------------------------------------------
@@ -2383,12 +2376,6 @@ unsigned long MiniballEventBuilder::BuildEvents() {
 
 	std::cout << ss_log.str();
 	if( log_file.is_open() && flag_input_file ) log_file << ss_log.str();
-
-	std::cout << "Writing output file...\r";
-	std::cout.flush();
-	output_file->Write( nullptr, TObject::kOverwrite );
-	
-	std::cout << "Writing output file... Done!" << std::endl << std::endl;
 
 	return n_entries;
 	

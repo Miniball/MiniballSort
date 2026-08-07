@@ -123,7 +123,7 @@ void MiniballGeometry::SetupCluster() {
 	}
   
 	// Shift Miniball so that target it as origin
-	mbzoffset.SetXYZ( -z, 0.0, 0.0 );
+	mbzoffset.SetXYZ( 0.0, 0.0, -z );
 	for( unsigned char i = 0; i < ncry; i++ ) {
 		for( unsigned char j = 0; j < nseg; j++ ) {
 			 seg_offset[i][j] += mbzoffset;

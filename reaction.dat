@@ -38,11 +38,17 @@
 #TargetOffset.Y: 0.0	# Beam spot offset with respect to the horizontal in mm (positive is right wrt beam direction)
 #TargetOffset.Z: 0.0	# Beam spot offset with respect to the lateral in mm (positive is in beam direction) (doesn't affect CD or SPEDE distance)
 
+# For plunger runs, need details of the degrader foil
+#DegraderThickness: -1.0	# in units of mg/cm2, a negative value means that it doesn't exist
+#DegraderMaterial: 197Au	# a string containing the material that matches the SRIM file for energy loss, usually an isotope name
+
 # Doppler mode, calculating the velocity for Doppler correction
 #DopplerMode: 1	# 0 = use angles and two-body kinematics at the centre of the target
 				# 1 = like 0, but corrected for energy loss though the back of the target (default)
 				# 2 = use energy of particle in the CD detector
 				# 3 = like 2, but corrected for energy loss in dead-layer
+				# 4 = like 1, but corrected for energy loss in degrader (plunger experiment: energy after degrader)
+				# 5 = like 3, but corrected for energy loss in degrader (plunger experiment: energy after target)
 
 # Plot laser ON/OFF data? (0 = OFF, 1 = ON, 2 = OFF or ON)
 #LaserMode: 2
@@ -130,9 +136,17 @@
 
 
 ## Read events
-#Events.ParticleGammaOnly: false	# only include events with particle-gamma coincidences when reading from events tree
+#Events.ParticleGammaOnly: false				# only include events with particle-gamma coincidences when reading from events tree
+#Events.CdPadCoincidence: false					# only include particle events with CD-Pad coincidences when reading from events tree
+#Events.CdPadVeto: false						# only include particle events without CD-Pad coincidences (veto) when reading from events tree
+#Events.GammaUseSegmentEnergy: false			# use the segment sum energy rather than the core energy for the gamma-rays
+#Events.GammaWithSegment: false					# only include gamma-ray events with a matching segment, i.e. reject core-only gammas
+#Events.GammaMaxSegmentMultiplicity: 99			# only include gamma-ray events with a segment multiplicty less than or equal to this (all segments of a cluster = 18)
+#Events.GammaCoreSegmentEnergyDifference: 9.9e9	# only include gamma-ray events with a segment-core energy difference less than this
 
 ## Histogram options
+#Histograms.WithoutAddback: true	# turn on/off the making of histograms for gamma-rays without addback (default true = on)
+#Histograms.WithAddback: false		# turn on/off the making of histograms for gamma-rays with addback (default false = off)
 #Histograms.SegmentPhi: false		# turn on/off the making of segment-by-sgement phi histograms (default false = off)
 #Histograms.ByCrystal: false		# turn on/off the individual crystal by crystal Doppler corrected spectra (default false = off)
 #Histograms.ByMultiplicity: false	# turn on/off the particle-gamma(-electron) spectra by multiplicity, i.e. 1p and 2p spectra (default false = off)

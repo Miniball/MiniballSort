@@ -1,3 +1,17 @@
+// ============================================================================================= //
+/*! \mainpage The Miniball Sort Code
+ * **Author**: Liam Gaffney [(liam.gaffney@liverpool.ac.uk)](mailto:liam.gaffney@liverpool.ac.uk), University of Liverpool
+ *
+ * See the [GitHub page](https://github.com/Miniball/MiniballSort) for installation
+ * instructions, to submit bug reports, and to understand the sorting philosophy. The documentation
+ * here focuses on the purpose of different variables and functions. N.B. it's not complete, but
+ * should become more complete over time.
+ *
+ * For information on how to use the code and what the variables mean in the different input files,
+ * see the [wiki pages on GitHub](https://github.com/Miniball/MiniballSort/wiki).
+ */
+// ============================================================================================= //
+
 // My code include.
 #include "mb_sort.hh"
 
@@ -57,6 +71,12 @@
 # include "MiniballAngleFitter.hh"
 #endif
 
+// MiniballCDCalibrator header
+#ifndef __CDCALIBRATOR_HH
+# include "CDCalibrator.hh"
+#endif
+
+
 // Command line interface
 #ifndef __COMMAND_LINE_INTERFACE_HH
 # include "CommandLineInterface.hh"
@@ -73,7 +93,7 @@ std::string name_react_file;
 std::string name_angle_file = "";
 std::vector<std::string> input_names;
 
-// a flag at the input to force the conversion
+// a flag at the input to force the conversion and other things
 bool flag_convert = false;
 bool flag_events = false;
 bool flag_source = false;
@@ -98,8 +118,15 @@ bool flag_med = false;
 // Do we want to fit the 22Ne angle data?
 bool flag_angle_fit = false;
 
+// Do we want to do the CD calibration
+bool flag_cdcal = false;
+std::string cdcal_strips;
+unsigned char cdcal_pid = 12;
+unsigned char cdcal_nid = 2;
+
 // DataSpy
 bool flag_spy = false;
+bool flag_alive = true;
 int open_spy_data = -1;
 
 // Monitoring input file
@@ -116,18 +143,25 @@ bool overwrite_cal = false;
 // Reaction file
 std::shared_ptr<MiniballReaction> myreact;
 
-// Struct for passing to the thread
-typedef struct thptr {
-	
-	std::shared_ptr<MiniballCalibration> mycal;
-	std::shared_ptr<MiniballSettings> myset;
-	std::shared_ptr<MiniballReaction> myreact;
-	
-} thread_data;
-
 // Server and controls for the GUI
 std::unique_ptr<THttpServer> serv;
 int port_num = 8030;
+std::string spy_hists_file;
+std::vector<std::vector<std::string>> physhists;
+short spylayout[2] = {2,2};
+
+// Struct for passing to the thread
+typedef struct thptr {
+
+	std::shared_ptr<MiniballCalibration> mycal;
+	std::shared_ptr<MiniballSettings> myset;
+	std::shared_ptr<MiniballReaction> myreact;
+	std::vector<std::vector<std::string>> physhists;
+	short spylayout[2];
+	bool flag_alive;
+
+} thread_data;
+
 
 // Pointers to the thread events TODO: sort out inhereted class stuff
 std::shared_ptr<MiniballConverter> conv_mon;
@@ -156,32 +190,36 @@ void start_monitor(){
 	bRunMon = kTRUE;
 }
 
+void signal_callback_handler( int signum ) {
+	std::cout << "Caught signal " << signum << endl;
+	flag_alive = false;
+}
+
 // Function to call the monitoring loop
 void* monitor_run( void* ptr ){
 	
 	// This doesn't make sense for MED data which is historical
 	if( flag_med ) return 0;
-	
+
 	// Get the settings, file etc.
-	thptr *calfiles = (thptr*)ptr;
-	
+	thptr *inputptr = (thptr*)ptr;
+
 	// Load macros in thread
 	std::string rootline = ".L " + std::string(CUR_DIR) + "include/MonitorMacros.hh";
 	gROOT->ProcessLine( rootline.data() );
 
 	// This function is called to run when monitoring
 	if( flag_mbs ){
-		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( calfiles->myset );
+		conv_mbs_mon = std::make_shared<MiniballMbsConverter>( inputptr->myset );
 		conv_mon.reset( conv_mbs_mon.get() );
 	}
 	else if( flag_midas ) {
-		conv_midas_mon = std::make_shared<MiniballMidasConverter>( calfiles->myset );
+		conv_midas_mon = std::make_shared<MiniballMidasConverter>( inputptr->myset );
 		conv_mon.reset( conv_midas_mon.get() );
 	}
-	eb_mon = std::make_shared<MiniballEventBuilder>( calfiles->myset );
-	hist_mon = std::make_shared<MiniballHistogrammer>( calfiles->myreact, calfiles->myset );
+	eb_mon = std::make_shared<MiniballEventBuilder>( inputptr->myset );
+	hist_mon = std::make_shared<MiniballHistogrammer>( inputptr->myreact, inputptr->myset );
 
-	
 	// Data blocks for Data spy
 	if( flag_spy && ( myset->GetBlockSize() != 0x10000 && flag_midas ) ) {
 	
@@ -200,21 +238,29 @@ void* monitor_run( void* ptr ){
 	
 	// GSI MBS EventServer
 	MBS mbs;
-	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8030 );
+	if( flag_spy && flag_mbs ) mbs.OpenEventServer( "localhost", 8020 );
 
 	// Data/Event counters
 	int start_block = 0, start_subevt = 0;
 	int nblocks = 0, nsubevts = 0;
 	unsigned long nbuild = 0;
 
+	// Filenames for spy
+	std::string spyname_singles = datadir_name + "/singles.root";
+	std::string spyname_events = datadir_name + "/events.root";
+	std::string spyname_hists = datadir_name + "/hists.root";
+
 	// Converter setup
 	if( !flag_spy ) curFileMon = input_names.at(0); // maybe change in GUI later?
 	if( flag_source ) conv_mon->SourceOnly();
 	if( flag_ebis ) conv_mon->EBISOnly();
-	conv_mon->AddCalibration( calfiles->mycal );
-	conv_mon->SetOutput( "monitor_singles.root" );
+	conv_mon->AddCalibration( inputptr->mycal );
+	conv_mon->SetOutput( spyname_singles );
 	conv_mon->MakeTree();
 	conv_mon->MakeHists();
+
+	// Add canvas and hists for spy
+	hist_mon->SetSpyHists( inputptr->physhists, inputptr->spylayout );
 
 	// Update server settings
 	// title of web page
@@ -226,8 +272,9 @@ void* monitor_run( void* ptr ){
 	serv->SetItemField("/", "_toptitle", toptitle.data() );
 
 	// While the sort is running
-	while( true ) {
-		
+	while( inputptr->flag_alive ) {
+	//while( true ) {
+
 		// bRunMon can be set by the GUI
 		while( bRunMon ) {
 			
@@ -253,10 +300,13 @@ void* monitor_run( void* ptr ){
 				// Clean up the trees before we start
 				conv_midas_mon->GetSortedTree()->Reset();
 				conv_midas_mon->GetMbsInfo()->Reset();
-				
+
+				// Empty the previous data vector and reset counters
+				conv_midas_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from DataSpy" << std::endl;
-				spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
+				spy_length = myspy.Read( file_id, (char*)buffer, inputptr->myset->GetBlockSize() );
 				if( spy_length == 0 && bFirstRun ) {
 					  std::cout << "No data yet on first pass" << std::endl;
 					  gSystem->Sleep( 2e3 );
@@ -265,27 +315,38 @@ void* monitor_run( void* ptr ){
 
 				// Keep reading until we have all the data
 				// This could be multi-threaded to process data and go back to read more
+				int wait_time = 50; // ms - between each read
 				int block_ctr = 0;
 				long byte_ctr = 0;
 				int poll_ctr = 0;
-				while( block_ctr < 200 && poll_ctr < 1000 ){
-				
-					//std::cout << "Got some data from DataSpy" << std::endl;
+				while( block_ctr < 1024 && poll_ctr < 1000 * mon_time / wait_time ){
+
+					//std::cout << "Got " << spy_length << " bytes of data from DataSpy" << std::endl;
 					if( spy_length > 0 ) {
 						nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
 						block_ctr += nblocks;
+						//gSystem->Sleep(1); // wait 1 ms before reading next block
+					}
+					else {
+						gSystem->Sleep( wait_time ); // wait for new data in buffer
+						poll_ctr++;
 					}
 
 					// Read a new block
-					gSystem->Sleep( 1 ); // wait 1 ms between each read
-					spy_length = myspy.Read( file_id, (char*)buffer, calfiles->myset->GetBlockSize() );
-					
+					spy_length = myspy.Read( file_id, (char*)buffer, inputptr->myset->GetBlockSize() );
 					byte_ctr += spy_length;
-					poll_ctr++;
+
+					//std::cout << block_ctr << " blocks in " << poll_ctr << " polls" << std::endl;
 
 				}
-				
-				std::cout << "Got " << byte_ctr << " bytes of data from DataSpy" << std::endl;
+
+				// Finish the last block
+				if( spy_length > 0 ) {
+					nblocks = conv_midas_mon->ConvertBlock( (char*)buffer, 0 );
+					block_ctr += nblocks;
+				}
+
+				std::cout << "Got " << byte_ctr << " bytes of data in " << block_ctr << " blocks from DataSpy" << std::endl;
 
 				// Sort the packets we just got, then do the rest of the analysis
 				conv_midas_mon->SortTree();
@@ -296,6 +357,9 @@ void* monitor_run( void* ptr ){
 			// Convert - from MBS event server
 			else if( flag_spy && flag_mbs ){
 				
+				// Empty the previous data vector and reset counters
+				conv_mbs_mon->StartFile();
+
 				// First check if we have data
 				std::cout << "Looking for data from MBSEventServer" << std::endl;
 				conv_mbs_mon->SetMBSEvent( mbs.GetNextEventFromStream() );
@@ -311,7 +375,7 @@ void* monitor_run( void* ptr ){
 			
 				// Event builder
 				if( bFirstRun ) {
-					eb_mon->SetOutput( "monitor_events.root" );
+					eb_mon->SetOutput( spyname_events, true );
 					eb_mon->StartFile();
 
 				}
@@ -328,7 +392,7 @@ void* monitor_run( void* ptr ){
 
 				// Histogrammer
 				if( bFirstRun ) {
-					hist_mon->SetOutput( "monitor_hists.root" );
+					hist_mon->SetOutput( spyname_hists, true );
 				}
 				if( nbuild ) {
 					// TODO: This could be done better with smart pointers
@@ -342,6 +406,8 @@ void* monitor_run( void* ptr ){
 				// If this was the first time we ran, do stuff?
 				if( bFirstRun ) {
 					
+					hist_mon->PlotDefaultHists();
+					hist_mon->PlotPhysicsHists();
 					bFirstRun = kFALSE;
 					
 				}
@@ -354,13 +420,13 @@ void* monitor_run( void* ptr ){
 
 		} // bRunMon
 		
-	} // always running
-	
+	} // always running until ctrl+c
+
 	// Close the dataSpy before exiting (no point really)
 	if( flag_spy && flag_midas ) myspy.Close( file_id );
 	if( flag_spy && flag_mbs ) mbs.CloseEventServer();
 
-	// Close all outputs (we never reach here anyway)
+	// Close all outputs
 	conv_mon->CloseOutput();
 	eb_mon->CloseOutput();
 	hist_mon->CloseOutput();
@@ -387,6 +453,7 @@ void start_http(){
 	// register simple start/stop commands
 	serv->RegisterCommand("/Start", "StartMonitor()");
 	serv->RegisterCommand("/Stop", "StopMonitor()");
+	serv->RegisterCommand("/ResetAll", "ResetAll()");
 	serv->RegisterCommand("/ResetSingles", "ResetConv()");
 	serv->RegisterCommand("/ResetEvents", "ResetEvnt()");
 	serv->RegisterCommand("/ResetHists", "ResetHist()");
@@ -398,6 +465,75 @@ void start_http(){
 
 	return;
 	
+}
+
+// Function to read histogram info from a file into a 2D vector
+void ReadSpyHistogramList() {
+
+	// Check if the user gave a file
+	if( spy_hists_file.length() == 0 ) {
+
+		std::cout << "Default spy hists" << std::endl;
+
+		// If not, just use some defaults
+		spylayout[0] = 2; // x
+		spylayout[1] = 3; // y
+		physhists.push_back( {"ParticleSpectra/pE_theta_coinc", "TH2", "colz"} );
+		physhists.push_back( {"ParticleSpectra/pE_dE0", "TH2", "colz"} );
+		physhists.push_back( {"GammaRaySingles/gE_singles_ebis", "TH1", "hist"} );
+		physhists.push_back( {"GammaRaySingles/gE_singles_dc_ebis", "TH1", "hist"} );
+		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_ejectile", "TH1", "hist"} );
+		physhists.push_back( {"GammaRayParticleCoincidences/gE_recoil_dc_recoil", "TH1", "hist"} );
+
+		return;
+
+	}
+
+	std::ifstream infile( spy_hists_file );
+	std::string line;
+
+	// Check it's open
+	if( !infile.is_open() ) {
+
+		std::cerr << "Error: Could not open file " << spy_hists_file << std::endl;
+		return;
+
+	}
+
+	// Check for comments first
+	std::getline( infile, line );
+	while( line.at(0) == '#' )
+		std::getline( infile, line );
+
+	// Read first line: number of histograms in x direction on canvas
+	std::istringstream iss(line);
+	iss >> spylayout[0];
+
+	// Read second line: number of histograms in y direction on canvas
+	std::getline( infile, line );
+	iss = std::istringstream(line);
+	iss >> spylayout[1];
+
+	// Read the file line by line
+	while( std::getline( infile, line ) ) {
+
+		// skip empty lines
+		if( line.length() == 0 ) continue;
+
+		// Stream the line and check for a new item
+		std::string name, classType = "TH1", drawOption = "hist";
+		iss = std::istringstream(line);
+		iss >> name >> classType >> drawOption;
+
+		// If we got something, add it to the list
+		if( name.length() > 0 )
+			physhists.push_back({name, classType, drawOption});
+
+	}
+
+	infile.close();
+	return;
+
 }
 
 void do_convert() {
@@ -450,6 +586,10 @@ void do_convert() {
 			ftest.close();
 			rtest = new TFile( name_output_file.data() );
 			if( rtest->IsZombie() ) force_convert.at(i) = true;
+			if( rtest->TestBit(TFile::kRecovered) ){
+				std::cout << name_output_file << " possibly corrupted, reconverting" << std::endl;
+				force_convert.at(i) = true;
+			}
 			if( !flag_convert && !force_convert.at(i) )
 				std::cout << name_output_file << " already converted" << std::endl;
 			rtest->Close();
@@ -475,7 +615,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_mbs.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_mbs.NoSortTree();
+						conv_mbs.SortTree(false);
 					else conv_mbs.SortTree();
 				}
 				conv_mbs.CloseOutput();
@@ -493,10 +633,7 @@ void do_convert() {
 				conv_midas.ConvertFile( name_input_file );
 
 				// Sort the tree before writing and closing
-				if( !flag_source ) {
-					conv_midas.SortTree();
-					//conv_midas.BodgeMidasSort();
-				}
+				if( !flag_source ) conv_midas.SortTree();
 				conv_midas.CloseOutput();
 				
 			}
@@ -515,7 +652,7 @@ void do_convert() {
 				if( !flag_source ){
 					conv_med.BuildMbsIndex();
 					if( myset->GetMbsEventMode() )
-						conv_med.NoSortTree();
+						conv_med.SortTree(false);
 					else conv_med.SortTree();
 				}
 				conv_med.CloseOutput();
@@ -588,6 +725,10 @@ bool do_build() {
 				ftest.close();
 				rtest = new TFile( name_output_file.data() );
 				if( rtest->IsZombie() ) force_events = true;
+				if( rtest->TestBit(TFile::kRecovered) ){
+					std::cout << name_output_file << " possibly corrupted, rebuilding" << std::endl;
+					force_events = true;
+				}
 				if( !force_events )
 					std::cout << name_output_file << " already built" << std::endl;
 				rtest->Close();
@@ -747,6 +888,68 @@ void do_angle_fit(){
 	
 }
 
+
+void do_cdcal(){
+
+	//-----------------------//
+	// Physics event builder //
+	//-----------------------//
+	MiniballCDCalibrator cdcal( myset );
+	std::cout << "\n +++ Miniball Analysis:: processing CD Calibrator +++" << std::endl;
+
+	std::ifstream ftest;
+	std::string name_input_file;
+	std::vector<std::string> name_hist_files;
+
+	// Update calibration file if given
+	if( overwrite_cal )
+		cdcal.AddCalibration( mycal );
+
+	else {
+
+		std::cout << "Please provide a calibration file to run cdcal... Exiting;" << std::endl;
+		return;
+
+	}
+
+	// We are going to chain all the event files now
+	for( unsigned int i = 0; i < input_names.size(); i++ ){
+
+		name_input_file = input_names.at(i).substr( input_names.at(i).find_last_of("/")+1,
+												   input_names.at(i).length() - input_names.at(i).find_last_of("/")-1 );
+		name_input_file = name_input_file.substr( 0,
+												 name_input_file.find_last_of(".") );
+		name_input_file = datadir_name + "/" + name_input_file + ".root";
+
+		ftest.open( name_input_file.data() );
+		if( !ftest.is_open() ) {
+
+			std::cerr << name_input_file << " does not exist" << std::endl;
+			continue;
+
+		}
+		else ftest.close();
+
+		name_hist_files.push_back( name_input_file );
+
+	}
+
+	// Only do something if there are valid files
+	if( name_hist_files.size() ) {
+
+		cdcal.SetPsideTagId( cdcal_pid );
+		cdcal.SetNsideTagId( cdcal_nid );
+		cdcal.SetOutput( output_name );
+		cdcal.SetInputFile( name_hist_files );
+		cdcal.FillHists();
+		cdcal.CloseOutput();
+
+	}
+
+	return;
+
+}
+
 int main( int argc, char *argv[] ){
 	
 	// Command line interface, stolen from MiniballCoulexSort
@@ -766,7 +969,9 @@ int main( int argc, char *argv[] ){
 	interface->Add("-med", "Flag to define input as MED data type (DGF and MADC)", &flag_med );
 	interface->Add("-anglefit", "Flag to run the angle fit", &flag_angle_fit );
 	interface->Add("-angledata", "File containing 22Ne segment energies", &name_angle_file );
+	interface->Add("-cdcal", "Make the CD calibration plots with pid and nid as the reference strips, given in the string format p<pid>n<nid>", &cdcal_strips );
 	interface->Add("-spy", "Flag to run the DataSpy", &flag_spy );
+	interface->Add("-spyhists", "File containing histograms for monitoring in the spy", &spy_hists_file );
 	interface->Add("-m", "Monitor input file every X seconds", &mon_time );
 	interface->Add("-p", "Port number for web server (default 8030)", &port_num );
 	interface->Add("-d", "Directory to put the sorted data default is /path/to/data/sorted", &datadir_name );
@@ -811,7 +1016,7 @@ int main( int argc, char *argv[] ){
 		}
 		
 	}
-	
+
 	// Check we have data files
 	else if( !input_names.size() && !flag_spy ) {
 			
@@ -819,7 +1024,24 @@ int main( int argc, char *argv[] ){
 		return 1;
 			
 	}
-	
+
+	// Check if we are doing the CD calibration
+	if( cdcal_strips.length() > 0 ) {
+
+		flag_cdcal = true;
+		std::stringstream ss(cdcal_strips);
+		unsigned char str1, str2;
+		unsigned int id1, id2;
+		ss >> str1 >> id1 >> str2 >> id2;
+
+		if( str1 == 'p' ) cdcal_pid = id1;
+		if( str2 == 'p' ) cdcal_pid = id2;
+		if( str1 == 'n' ) cdcal_nid = id1;
+		if( str2 == 'n' ) cdcal_nid = id2;
+
+	}
+
+
 	// Check if it should be MIDAS, MBS or MED format
 	if( !flag_midas && !flag_mbs && !flag_med && !flag_spy && !name_angle_file.length() ){
 
@@ -848,7 +1070,10 @@ int main( int argc, char *argv[] ){
 	
 	// Check if we should be monitoring the input
 	if( flag_spy ) {
-		
+
+		// Register signal and signal handler for DataSpy only
+		//std::signal( SIGINT, signal_callback_handler );
+
 		flag_monitor = true;
 		if( mon_time < 0 ) mon_time = 30;
 		std::cout << "Getting data from shared memory every " << mon_time;
@@ -899,10 +1124,10 @@ int main( int argc, char *argv[] ){
 			
 		}
 		
-		else if( flag_spy ) datadir_name = "dataspy";
-		else if( flag_angle_fit ) datadir_name = "positions";
-		else datadir_name = "mb_sort_outputs";
-				
+		else if( flag_spy ) datadir_name = "./dataspy";
+		else if( flag_angle_fit ) datadir_name = "./positions";
+		else datadir_name = "./mb_sort_outputs";
+
 	}
 	
 	// Create the directory if it doesn't exist (not Windows compliant)
@@ -910,7 +1135,6 @@ int main( int argc, char *argv[] ){
 	gSystem->Exec( cmd.data() );	
 	std::cout << "Sorted data files being saved to " << datadir_name << std::endl;
 
-	
 	// Check the ouput file name
 	if( output_name.length() == 0 ) {
 
@@ -922,18 +1146,24 @@ int main( int argc, char *argv[] ){
 													 name_input_file.find_last_of(".") );
 			
 			if( flag_angle_fit ) {
-				
+
 				output_name = datadir_name + "/" + name_input_file + "_results.root";
 
 			}
-			
+
+			else if( flag_cdcal ) {
+
+				output_name = datadir_name + "/" + name_input_file + "_cdcal.root";
+
+			}
+
 			else if( input_names.size() > 1 ) {
-				
+
 				output_name = datadir_name + "/" + name_input_file + "_hists_";
 				output_name += std::to_string(input_names.size()) + "_subruns.root";
-			
+
 			}
-			
+
 			else
 				output_name = datadir_name + "/" + name_input_file + "_hists.root";
 				
@@ -1065,32 +1295,40 @@ int main( int argc, char *argv[] ){
 			return 0;
 			
 		}
-		
+
+		// Read the histogram list from the file
+		ReadSpyHistogramList();
+
 		// Make some data for the thread
 		thread_data data;
 		data.mycal = mycal;
 		data.myset = myset;
 		data.myreact = myreact;
+		data.flag_alive = flag_alive;
+		data.physhists = physhists;
+		data.spylayout[0] = spylayout[0];
+		data.spylayout[1] = spylayout[1];
 
 		// Start the HTTP server from the main thread (should usually do this)
 		start_http();
 		gSystem->ProcessEvents();
 
 		// Thread for the monitor process
-		TThread *th0 = new TThread( "monitor", monitor_run, &data );
+		TThread *th0 = new TThread( "monitor", monitor_run, (void*)&data );
 		th0->Run();
 
 		// wait until we finish
-		while( true ){
-			
+		while( flag_alive ){
+
 			gSystem->Sleep(10);
 			gSystem->ProcessEvents();
-			
+
 		}
 		
 		return 0;
 		
 	}
+
 
 
 	//------------------//
@@ -1100,6 +1338,9 @@ int main( int argc, char *argv[] ){
 	if( flag_angle_fit ){
 		do_build();
 		do_angle_fit();
+	}
+	else if( flag_cdcal ) {
+		do_cdcal();
 	}
 	else if( !flag_source ) {
 		if( do_build() )

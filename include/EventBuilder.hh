@@ -19,6 +19,9 @@
 #include <TVector3.h>
 #include <TGProgressBar.h>
 #include <TSystem.h>
+#include <TKey.h>
+#include <TCanvas.h>
+#include <TROOT.h>
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -52,7 +55,7 @@ public:
 	void	SetInputFile( std::string input_file_name );
 	void	SetInputTree( TTree *user_tree );
 	void	SetMBSInfoTree( TTree *user_tree );
-	void	SetOutput( std::string output_file_name );
+	void	SetOutput( std::string output_file_name, bool cWrite = false );
 	void	StartFile();	///< called for every file
 	void	Initialise();	///< called for every event
 	void	MakeEventHists();
@@ -66,7 +69,7 @@ public:
 		prog = myprog;
 		_prog_ = true;
 	};
-	
+
 	unsigned long	BuildEvents();
 
 	// Resolve multiplicities and coincidences etc
@@ -79,6 +82,10 @@ public:
 	inline TFile* GetFile(){ return output_file; };
 	inline TTree* GetTree(){ return output_tree; };
 	inline void CloseOutput(){
+		std::cout << "Writing output file...\r";
+		std::cout.flush();
+		output_file->Write( nullptr, TObject::kOverwrite );
+		std::cout << "Writing output file... Done!" << std::endl << std::endl;
 		output_tree->ResetBranchAddresses();
 		PurgeOutput();
 		output_file->Close();
@@ -131,6 +138,12 @@ private:
 	bool _prog_;
 	std::shared_ptr<TGProgressBar> prog;
 	
+	// Check if histograms are made
+	bool hists_ready = false;
+
+	// List of histograms for reset later
+	TList *histlist;
+
 	// Log file
 	std::ofstream log_file; ///< Log file for recording the results of the MiniballEventBuilder
 	

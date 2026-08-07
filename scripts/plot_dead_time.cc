@@ -25,8 +25,8 @@ void plot_dead_time( std::string filename = "test/R4_13.root", unsigned char sfp
 	
 	// Histogram
 	std::string htitle = "Time difference between consecutive events in SFP ";
-	htitle += std::to_string(sfp) + ", board " << std::to_string(board);
-	htitle += ", channel " << std::to_string(channel) << ";#Deltat [ns]";
+	htitle += std::to_string(sfp) + ", board " + std::to_string(board);
+	htitle += ", channel " + std::to_string(channel) + ";#Deltat [ns]";
 	TH1F *h = new TH1F( "h", htitle.data(), 10000, -5, 99995 );
 	
 	// Loop

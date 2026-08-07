@@ -4,6 +4,14 @@
 
 #include <iostream>
 
+int ResetAll(){
+	reset_conv_hists();
+	reset_evnt_hists();
+	reset_phys_hists();
+	std::cout << "Reset ALL histograms" << std::endl;
+	return 0;
+}
+
 int ResetConv(){
 	reset_conv_hists();
 	std::cout << "Reset singles histograms" << std::endl;
@@ -12,7 +20,7 @@ int ResetConv(){
 
 int ResetEvnt(){
 	reset_evnt_hists();
-	std::cout << "Reset event builder stage histograms (not working yet)" << std::endl;
+	std::cout << "Reset event builder stage histograms" << std::endl;
 	return 0;
 }
 

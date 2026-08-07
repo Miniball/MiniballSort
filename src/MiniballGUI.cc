@@ -682,6 +682,9 @@ void MiniballGUI::gui_convert(){
 
 				if( flag_mbs ) {
 					conv_mbs.AddProgressBar( prog_sort );
+					conv_mbs.BuildMbsIndex();
+					if( myset->GetMbsEventMode() )
+						conv_mbs.SortTree(false);
 					conv_mbs.SortTree();
 				}
 				else {

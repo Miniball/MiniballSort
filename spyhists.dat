@@ -1,0 +1,18 @@
+## This file is an example input file for monitoring a list of histograms in DataSpy
+## The first lines of the file can be comments if you start them with a '#'
+## Please avoid using other comments in the file, the code doesn't know how to handle them yet
+## The format is as follows
+## Line 1 = <int>: number histograms in the x direction on the canvas
+## Line 2 = <int>: number histograms in the y direction on the canvas
+## Line 3 = <string> <string> <string>: histogram name, type and draw option
+##  ... continued for as many histograms as you want to draw on a single canvas
+## Line N = <string> <string> <string>: histogram name, type and draw option
+#
+2
+3
+ParticleSpectra/pE_theta_coinc						TH2		colz
+ParticleSpectra/pE_theta							TH2		colz
+GammaRaySingles/gE_singles_ebis						TH1		hist
+GammaRaySingles/gE_singles_ebis_dc					TH1		hist
+GammaRayParticleCoincidences/gE_recoil_dc_ejectile	TH1		hist
+GammaRayParticleCoincidences/gE_recoil_dc_recoil	TH1		hist

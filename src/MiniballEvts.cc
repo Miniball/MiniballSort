@@ -14,13 +14,6 @@ ClassImp(MiniballEvts)
 // --------------- //
 void MiniballEvts::ClearEvt() {
 	
-	gamma_event.clear();
-	gamma_ab_event.clear();
-	particle_event.clear();
-	bd_event.clear();
-	spede_event.clear();
-	ic_event.clear();
-
 	std::vector<GammaRayEvt>().swap(gamma_event);
 	std::vector<GammaRayAddbackEvt>().swap(gamma_ab_event);
 	std::vector<ParticleEvt>().swap(particle_event);
@@ -41,7 +34,10 @@ void MiniballEvts::AddEvt( std::shared_ptr<GammaRayEvt> event ) {
 	// Make a copy of the event and push it back
 	GammaRayEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
-	fill_evt.SetSegmentEnergy( event->GetEnergy() );
+	fill_evt.SetSegmentMaxEnergy( event->GetSegmentMaxEnergy() );
+	fill_evt.SetSegmentSumEnergy( event->GetSegmentSumEnergy() );
+	fill_evt.SetSegmentMultiplicity( event->GetSegmentMultiplicity() );
+	fill_evt.SetAddbackMultiplicity( event->GetAddbackMultiplicity() );
 	fill_evt.SetTime( event->GetTime() );
 	fill_evt.SetCluster( event->GetCluster() );
 	fill_evt.SetCrystal( event->GetCrystal() );
@@ -56,7 +52,10 @@ void MiniballEvts::AddEvt( std::shared_ptr<GammaRayAddbackEvt> event ) {
 	// Make a copy of the event and push it back
 	GammaRayAddbackEvt fill_evt;
 	fill_evt.SetEnergy( event->GetEnergy() );
-	fill_evt.SetSegmentEnergy( event->GetEnergy() );
+	fill_evt.SetSegmentMaxEnergy( event->GetSegmentMaxEnergy() );
+	fill_evt.SetSegmentSumEnergy( event->GetSegmentSumEnergy() );
+	fill_evt.SetSegmentMultiplicity( event->GetSegmentMultiplicity() );
+	fill_evt.SetAddbackMultiplicity( event->GetAddbackMultiplicity() );
 	fill_evt.SetTime( event->GetTime() );
 	fill_evt.SetCluster( event->GetCluster() );
 	fill_evt.SetCrystal( event->GetCrystal() );
@@ -125,9 +124,6 @@ void MiniballEvts::AddEvt( std::shared_ptr<IonChamberEvt> event ) {
 void IonChamberEvt::ClearEvt() {
 	
 	// Clear the ionisation chamber event ready for a new one
-	energy.clear();
-	id.clear();
-	
 	std::vector<float>().swap(energy);
 	std::vector<unsigned char>().swap(id);
 

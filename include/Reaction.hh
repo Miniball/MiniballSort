@@ -2,6 +2,7 @@
 #define __REACTION_HH
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -96,15 +97,19 @@ public:
 	inline double		GetBindingEnergy(){ return bindingE; };
 	inline double		GetEnergyTot(){ return GetEnergy() + GetMass(); };
 	inline double		GetBeta(){
-		double beta2 = 0.25 * GetMass() + 1.5 * GetEnergy();
-		beta2  = TMath::Sqrt( beta2 * GetMass() );
-		beta2 -= 0.5 * GetMass();
-		return TMath::Sqrt( beta2 / ( 0.75 * GetMass() ) );
+		return GetMomentum()/GetEnergyTot();
+	};
+	inline double		GetBetaCoM(){
+		return GetMomentum()/(GetEnergyTot() + GetMass()) ;
 	};
 	inline double		GetGamma(){
 		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
 	};
+	inline double		GetGammaCoM(){
+		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBetaCoM(), 2.0 ) );
+	};
 	inline double		GetEnergy(){ return Elab; };
+	inline double		GetEnergyCoM(){ return ECoM; };
 	inline double		GetEx(){ return Ex; };
 	inline double		GetTheta(){ return Theta; };
 	inline double		GetThetaCoM(){ return ThetaCoM; };
@@ -115,13 +120,19 @@ public:
 		vec.SetPhi( GetPhi() );
 		return vec;
 	};
-
+	inline double GetMomentum(){
+	/// Returns the Lab frame momentum of the particle.
+		double E = GetEnergyTot();
+		double m = GetMass();
+		return TMath::Sqrt(TMath::Power(E, 2.0) - TMath::Power(m, 2.0));
+	};
 
 	// Set properties
 	inline void		SetA( int myA ){ A = myA; };
 	inline void		SetZ( int myZ ){ Z = myZ; };
 	inline void		SetBindingEnergy( double myBE ){ bindingE = myBE; };
 	inline void		SetEnergy( double myElab ){ Elab = myElab; };
+	inline void		SetEnergyCoM( double myECoM ){ ECoM = myECoM; };	
 	inline void		SetEx( double myEx ){ Ex = myEx; };
 	inline void		SetTheta( double mytheta ){ Theta = mytheta; };
 	inline void		SetThetaCoM( double mytheta ){ ThetaCoM = mytheta; };
@@ -135,6 +146,7 @@ private:
 	int		Z; 			///< The Z of the particle, obviously
 	double	bindingE;	///< binding energy per nucleon in keV/c^2
 	double	Elab;		///< energy in the laboratory system
+	double	ECoM;		///< energy in the Center-of-Mass system	
 	double	Ex;			///< excitation energy of the nucleus
 	double	Theta;		///< theta in the laboratory system in radians
 	double	ThetaCoM;	///< theta in the centre-of-mass system in radians
@@ -158,6 +170,7 @@ public:
 	
 	// Main functions
 	void AddBindingEnergy( short Ai, short Zi, TString ame_be_str );
+	std::shared_ptr<TCutG> ReadCutFile( std::string cut_filename, std::string cut_name );
 	void ReadMassTables();
 	void ReadReaction();
 	void SetFile( std::string filename ){
@@ -315,6 +328,7 @@ public:
 	void	TransferProduct( std::shared_ptr<ParticleEvt> p, bool kinflag = false );
 
 
+
 	// Reaction calculations
 	inline double GetQvalue(){
 		return Beam.GetMass() + Target.GetMass() -
@@ -331,14 +345,16 @@ public:
 		return etot;
 	};
 	inline double GetBeta(){
-		double beta2 = 0.25 * Beam.GetMass() + 1.5 * Beam.GetEnergy();
-		beta2  = TMath::Sqrt( beta2 * Beam.GetMass() );
-		beta2 -= 0.5 * Beam.GetMass();
-		return TMath::Sqrt( beta2 / ( 0.75 * Beam.GetMass() ) );
-		//return TMath::Sqrt( 2.0 * Beam.GetEnergy() / Beam.GetMass() );
+		return Beam.GetBeta();
+	};
+	inline double GetBetaCoM(){
+		return Beam.GetMomentum()/(Beam.GetEnergyTot() + Target.GetMass());
 	};
 	inline double GetGamma(){
-		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBeta(), 2.0 ) );
+		return Beam.GetGamma();
+	};
+	inline double GetGammaCoM(){
+		return 1.0 / TMath::Sqrt( 1.0 - TMath::Power( GetBetaCoM(), 2.0 ) );
 	};
 	inline double GetTau(){
 		return Beam.GetMass() / Target.GetMass();
@@ -483,9 +499,9 @@ public:
 	inline double GetOffsetZ(){ return z_offset; };
 
 	// Get cuts
-	inline TCutG* GetEjectileCut(){ return ejectile_cut; };
-	inline TCutG* GetRecoilCut(){ return recoil_cut; };
-	inline TCutG* GetTransferCut(){ return transfer_cut; };
+	inline std::shared_ptr<TCutG> GetEjectileCut(){ return ejectile_cut; };
+	inline std::shared_ptr<TCutG> GetRecoilCut(){ return recoil_cut; };
+	inline std::shared_ptr<TCutG> GetTransferCut(){ return transfer_cut; };
 	inline std::string GetTransferX(){ return transfercut_x; };
 	inline std::string GetTransferY(){ return transfercut_y; };
 
@@ -509,8 +525,16 @@ public:
 
 	// Events tree options
 	inline bool EventsParticleGammaOnly(){ return events_particle_gamma; };
-	
+	inline bool EventsCdPadCoincidence(){ return events_particle_cdpad_coinc; };
+	inline bool EventsCdPadVeto(){ return events_particle_cdpad_veto; };
+	inline bool EventsGammaSegmentEnergy(){ return events_gamma_seg_energy; };
+	inline bool EventsGammaDemandSegment(){ return events_gamma_demand_seg; };
+	inline unsigned int EventsGammaMaxSegmentMultiplicity(){ return events_gamma_max_seg_mult; };
+	inline double EventsGammaCoreSegmentEnergyDifference(){ return events_gamma_seg_ediff; };
+
 	// Histogram options
+	inline bool HistWithoutAddback(){ return hist_wo_addback; };
+	inline bool HistWithAddback(){ return hist_w_addback; };
 	inline bool HistSegmentPhi(){ return hist_segment_phi; };
 	inline bool HistByCrystal(){ return hist_by_crystal; };
 	inline bool HistByMultiplicity(){ return hist_by_pmult; };
@@ -586,10 +610,14 @@ private:
 	double y_offset;			///< vertical offset of the target/beam position, with respect to the CD and Miniball in mm
 	double z_offset;			///< lateral offset of the target/beam position, with respect to the only Miniball in mm (cd_dist is independent)
 
+	// Degrader material and thickness
+	double degrader_thickness;		///< target thickness in units of mg/cm^2. Negative if degrader not present. SHM, RAB 12 June 2025
+	std::string degrader_material;	///< can be an isotope name, or some string that matches the material used and corresponding SRIM file
+
 	// CD detector things
 	std::vector<double> cd_dist;		///< distance from target to CD detector in mm
-	std::vector<double> cd_offset;	///< phi rotation of the CD in degrees
-	std::vector<double> dead_layer;	///< dead layer thickness in mm
+	std::vector<double> cd_offset;		///< phi rotation of the CD in degrees
+	std::vector<double> dead_layer;		///< dead layer thickness in mm
 
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;
@@ -605,6 +633,8 @@ private:
 									///< 1 = like 0, but corrected for energy loss through the back of the target
 									///< 2 = use energy of particle in the CD detector
 									///< 3 = like 2, but corrected for energy loss in dead-layer
+									///< 4 = like 1, but also corrected for energy loss through the degrader
+									///< 5 = like 3, but also corrected for energy loss through the degrader
 
 	
 	unsigned char laser_mode;		///< Laser status mode:
@@ -612,8 +642,16 @@ private:
 	
 	// Events tree options
 	bool events_particle_gamma;
-	
+	bool events_particle_cdpad_coinc;
+	bool events_particle_cdpad_veto;
+	bool events_gamma_seg_energy;
+	bool events_gamma_demand_seg;
+	unsigned int events_gamma_max_seg_mult;
+	double events_gamma_seg_ediff;
+
 	// Histogram options
+	bool hist_wo_addback;
+	bool hist_w_addback;
 	bool hist_segment_phi;
 	bool hist_by_crystal;
 	bool hist_by_pmult;
@@ -638,8 +676,10 @@ private:
 	std::string transfercutfile, transfercutname;
 	std::string transfercut_x, transfercut_y;
 	TFile *cut_file;
-	TCutG *ejectile_cut, *recoil_cut, *transfer_cut;
-	
+	std::shared_ptr<TCutG> ejectile_cut;
+	std::shared_ptr<TCutG> recoil_cut;
+	std::shared_ptr<TCutG> transfer_cut;
+
 	// Stopping powers
 	std::vector<std::unique_ptr<TGraph>> gStopping;
 	bool stopping;
