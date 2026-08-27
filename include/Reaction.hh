@@ -22,6 +22,8 @@
 #include "TSpline.h"
 #include "TCanvas.h"
 #include "TGraph.h"
+#include "TLorentzRotation.h"
+#include "TLorentzVector.h"
 
 // Settings header
 #ifndef __SETTINGS_HH
@@ -66,6 +68,9 @@ const std::vector<std::string> gElName = {
 };
 
 
+// Define density of Si, to reconstruct initial energy from DeltaE in CD, given the user-provided CD thickness in mm
+const double rho_Si = 2.3212; // g/cm^3
+
 /// A class to read in the reaction file in ROOT's TConfig format.
 /// And also to do the physics stuff for the reaction
 
@@ -87,7 +92,13 @@ public:
 		mass -= (double)GetA() * bindingE;
 		mass += GetEx();
 		return mass;
-	};		// returns mass in keV/c^2
+	};		// returns invariant mass in keV/c^2
+	inline double		GetRestMass(){
+		double restmass = (double)GetN() * n_mass;
+		restmass += (double)GetZ() * p_mass;
+		restmass -= (double)GetA() * bindingE;
+		return restmass;
+	};		// returns rest mass in keV/c^2
 	inline int			GetA(){ return A; };	// returns mass number
 	inline int			GetZ(){ return Z; };
 	inline int			GetN(){ return A-Z; };
@@ -197,6 +208,10 @@ public:
 	};
 	inline double			GetCDDeadLayer( unsigned char det ){
 		if( det < dead_layer.size() ) return dead_layer.at(det);
+		else return 0.0;
+	};
+	inline double			GetCDThickness( unsigned char det ){
+		if( det < cd_thickness.size() ) return cd_thickness.at(det);
 		else return 0.0;
 	};
 	inline unsigned int		GetNumberOfParticleThetas() {
@@ -402,7 +417,7 @@ public:
 		else return 0;
 	};
 	inline double GetParticleGammaTimeRatio(){
-		return ( pg_prompt[1] - pg_prompt[0] ) / ( pg_random[1] - pg_random[0] );
+		return double( pg_prompt[1] - pg_prompt[0] ) / double( pg_random[1] - pg_random[0] );
 	};
 	inline double GetParticleGammaFillRatio(){
 		return pg_ratio;
@@ -418,7 +433,7 @@ public:
 		else return 0;
 	};
 	inline double GetGammaGammaTimeRatio(){
-		return ( gg_prompt[1] - gg_prompt[0] ) / ( gg_random[1] - gg_random[0] );
+		return double( gg_prompt[1] - gg_prompt[0] ) / double( gg_random[1] - gg_random[0] );
 	};
 	inline double GetGammaGammaFillRatio(){
 		return gg_ratio;
@@ -434,7 +449,7 @@ public:
 		else return 0;
 	};
 	inline double GetParticleParticleTimeRatio(){
-		return ( pp_prompt[1] - pp_prompt[0] ) / ( pp_random[1] - pp_random[0] );
+		return double( pp_prompt[1] - pp_prompt[0] ) / double( pp_random[1] - pp_random[0] );
 	};
 	inline double GetParticleParticleFillRatio(){
 		return pp_ratio;
@@ -450,7 +465,7 @@ public:
 		else return 0;
 	};
 	inline double GetGammaElectronTimeRatio(){
-		return ( ge_prompt[1] - ge_prompt[0] ) / ( ge_random[1] - ge_random[0] );
+		return double( ge_prompt[1] - ge_prompt[0] ) / double( ge_random[1] - ge_random[0] );
 	};
 	inline double GetGammaElectronFillRatio(){
 		return ge_ratio;
@@ -466,7 +481,7 @@ public:
 		else return 0;
 	};
 	inline double GetElectronElectronTimeRatio(){
-		return ( ee_prompt[1] - ee_prompt[0] ) / ( ee_random[1] - ee_random[0] );
+		return double( ee_prompt[1] - ee_prompt[0] ) / double( ee_random[1] - ee_random[0] );
 	};
 	inline double GetElectronElectronFillRatio(){
 		return ee_ratio;
@@ -482,7 +497,7 @@ public:
 		else return 0;
 	};
 	inline double GetParticleElectronTimeRatio(){
-		return ( pe_prompt[1] - pe_prompt[0] ) / ( pe_random[1] - pe_random[0] );
+		return double( pe_prompt[1] - pe_prompt[0] ) / double( pe_random[1] - pe_random[0] );
 	};
 	inline double GetParticleElectronFillRatio(){
 		return pe_ratio;
@@ -490,6 +505,7 @@ public:
 
 	// Energy loss and stopping powers
 	double GetEnergyLoss( double Ei, double dist, std::unique_ptr<TGraph> &g );
+	double GetInitialEnergyFromDeltaE(double DeltaE, std::unique_ptr<TGraph> &g);
 	bool ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g );
 
 	
@@ -556,6 +572,15 @@ public:
 	inline unsigned int HistParticleBins(){ return particle_bins; }
 	inline double HistParticleMin(){ return particle_range[0]; }
 	inline double HistParticleMax(){ return particle_range[1]; }
+	inline double HistTransferEjectileMin(){ return transfer_ejectile_range[0]; }
+	inline double HistTransferEjectileMax(){ return transfer_ejectile_range[1]; }
+	inline double HistTransferEjectileExcitationMin(){ return transfer_ejectile_excitation_range[0]; }
+	inline double HistTransferEjectileExcitationMax(){ return transfer_ejectile_excitation_range[1]; }
+	inline double HistTransferEjectileBetaMin(){ return transfer_ejectile_beta_range[0]; }
+	inline double HistTransferEjectileBetaMax(){ return transfer_ejectile_beta_range[1]; }
+
+	// Choose between CD+PAD energy or CD energy (DeltaE) only for transfer reactions
+	inline bool TransferCDPadEnergy(){ return transfer_CdPadEnergy; }
 
 	ClassDef( MiniballReaction, 3 )
 
@@ -614,10 +639,14 @@ private:
 	double degrader_thickness;		///< target thickness in units of mg/cm^2. Negative if degrader not present. SHM, RAB 12 June 2025
 	std::string degrader_material;	///< can be an isotope name, or some string that matches the material used and corresponding SRIM file
 
+	// Al foil thickness (protecting CD detector)
+	double Al_foil_thickness;		///< target thickness in units of mg/cm^2. Negative if Al foil not present. 
+
 	// CD detector things
 	std::vector<double> cd_dist;		///< distance from target to CD detector in mm
 	std::vector<double> cd_offset;		///< phi rotation of the CD in degrees
 	std::vector<double> dead_layer;		///< dead layer thickness in mm
+	std::vector<double> cd_thickness;	///< thickness of CD detector in mm
 
 	// Miniball detector things
 	std::vector<MiniballGeometry> mb_geo;
@@ -665,7 +694,8 @@ private:
 	
 	// Histogram ranges
 	unsigned int gamma_bins, electron_bins, particle_bins;
-	double gamma_range[2], electron_range[2], particle_range[2];
+	double gamma_range[2], electron_range[2], particle_range[2], 
+	       transfer_ejectile_range[2], transfer_ejectile_excitation_range[2], transfer_ejectile_beta_range[2];
 
 	// Random numbers
 	TRandom rand;
@@ -683,7 +713,12 @@ private:
 	// Stopping powers
 	std::vector<std::unique_ptr<TGraph>> gStopping;
 	bool stopping;
+	std::vector<std::unique_ptr<TGraph>> gEloss_E;
+	std::vector<std::unique_ptr<TGraph>> gE_Eloss;
+	double transfer_recoil_range[2]; // Ranges for E vs Eloss graph of recoil in transfer reaction
 	
+	// Choose between CD+PAD energy or CD energy (DeltaE) only for transfer reactions
+	bool transfer_CdPadEnergy; 
 };
 
 #endif

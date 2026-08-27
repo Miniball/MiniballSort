@@ -1111,6 +1111,37 @@ void MiniballHistogrammer::MakeHists() {
 
 		}
 
+		// Transfer reaction kinematics histograms
+		hname = "ejectile_ex";
+		htitle = "Ejectile excitation energy;";
+		htitle += "Excitation Energy [keV]";
+		ejectile_ex = new TH1F( hname.data(), htitle.data(), 200, react->HistTransferEjectileExcitationMin(), react->HistTransferEjectileExcitationMax() );
+		histlist->Add(ejectile_ex);
+
+		hname = "ejectile_beta";
+		htitle = "Ejectile beta;";
+		htitle += "Beta";
+		ejectile_beta = new TH1F( hname.data(), htitle.data(), 100, react->HistTransferEjectileBetaMin(), react->HistTransferEjectileBetaMax() );
+		histlist->Add(ejectile_beta);
+
+		hname = "recoilE_theta";
+		htitle = "Reconstructed recoil energy at reaction point vs theta angle;";
+		htitle += "Angle [deg];Energy [keV]";
+		recoilE_theta = new TH2F( hname.data(), htitle.data(), react->GetNumberOfParticleThetas(), react->GetParticleThetas().data(), PBIN, PMIN, PMAX );
+		histlist->Add(recoilE_theta);
+
+		hname = "ejectileE_theta";
+		htitle = "Ejectile energy after target reconstructed from measured recoil (dependent on doppler_mode) vs theta angle;";
+		htitle += "Angle [deg];Energy [keV]";
+		ejectileE_theta = new TH2F( hname.data(), htitle.data(), 20, 0, 5, 1000, react->HistTransferEjectileMin(), react->HistTransferEjectileMax() ); // transfer reaction where ejectile goes almost straight along z-axis
+		histlist->Add(ejectileE_theta);
+
+		hname = "ejectile_ex_vs_gE_recoil_dc_ejectile";
+		htitle = "Ejectile excitation energy vs gamma-ray energy, gated on the recoil, Doppler corrected for the ejectile with random subtraction;";
+		htitle += "Gamma-Ray Energy [keV]; Excitation Energy [keV]";
+		ejectile_ex_vs_gE_recoil_dc_ejectile = new TH2F( hname.data(), htitle.data(), GBIN, GMIN, GMAX, 200, react->HistTransferEjectileExcitationMin(), react->HistTransferEjectileExcitationMax() );
+		histlist->Add(ejectile_ex_vs_gE_recoil_dc_ejectile);
+
 	}
 
 
@@ -2363,6 +2394,25 @@ void MiniballHistogrammer::FillParticleGammaHists( std::shared_ptr<GammaRayEvt> 
 
 		}
 
+		// For transfer reactions only
+		if( react->IsTransferDetected() ) {
+			// Reconstructed excitation energy of ejectile
+			ejectile_ex->Fill( react->GetEjectile()->GetEx(), weight );
+
+			// Reconstructed beta of ejectile
+			ejectile_beta->Fill( react->GetEjectile()->GetBeta(), weight );
+
+			// Reconstructed recoil energy vs Angle plot
+			recoilE_theta->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), react->GetRecoil()->GetEnergy(), weight );
+
+			// Reconstructed ejectile energy vs Angle plot
+			ejectileE_theta->Fill( react->GetEjectile()->GetTheta() * TMath::RadToDeg(), react->GetEjectile()->GetEnergy(), weight );
+
+			// Reconstructed excitation energy of ejectile vs gamma-ray energy gated on recoil and DC for ejectile
+			ejectile_ex_vs_gE_recoil_dc_ejectile->Fill( react->DopplerCorrection( g, true ), react->GetEjectile()->GetEx(), weight );
+		}
+
+
 		// T1 impact time
 		if( react->HistByT1() ) {
 
@@ -3192,6 +3242,9 @@ unsigned long MiniballHistogrammer::FillHists() {
 
 				if( react->HistBySector() )
 					pE_dE_cut_sec[particle_evt->GetDetector()][particle_evt->GetSector()]->Fill( particle_evt->GetEnergy(), particle_evt->GetDeltaEnergy() );
+
+				// assuming here that detected particle in transfer reaction is the recoil, so filling this plot as well:
+				pE_theta_recoil->Fill( react->GetParticleTheta( particle_evt ) * TMath::RadToDeg(), particle_evt->GetDeltaEnergy() );
 
 				// Got what we came for
 				// TODO: What if we have multiple particles in transfer?

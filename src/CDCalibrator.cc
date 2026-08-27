@@ -352,7 +352,7 @@ void MiniballCDCalibrator::CalibratePsides() {
 		oldDAQ = true;
 
 	// Create a TF1 for the linear fit
-	auto pfit = std::make_unique<TF1>( "pfit", "[0]+[1]*x", 0, 1e9 );
+	//auto pfit = std::make_unique<TF1>( "pfit", "[0]+[1]*x", 0, 1e9 );
 
 	// Some canvases to check fits
 	gErrorIgnoreLevel = kError;
@@ -370,12 +370,35 @@ void MiniballCDCalibrator::CalibratePsides() {
 			std::string cname = "cdcal_p_" + std::to_string(i) + "_" + std::to_string(j);
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
 
+			// Print to a file
+			std::string pdfname = cname + ".pdf";
+			canv[i][j]->Print( (pdfname + "[").c_str(), "pdf" );
+
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDPStrips(); ++k ) {
 
+				// Create a TF1 for the linear fit
+				//auto pfit = std::make_unique<TF1>( ("pfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), "[0]+[1]*x", 0, 1e9 );
+				auto pfit = std::make_unique<TF1>( ("pfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), 
+						"[0]+[1]*x", cd_nQ_pQ[i][j][k]->GetXaxis()->GetXmin(), cd_nQ_pQ[i][j][k]->GetXaxis()->GetXmax() );
+
 				// Get the right histogram to do the fit
-				auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QWL" );
-				if( res != 0 ) continue;
+				//auto res = cd_nQ_pQ[i][j][k]->Fit( pfit.get(), "QWL" );
+				auto prof = cd_nQ_pQ[i][j][k]->ProfileX( ("p_prof_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str() );
+				//auto res = prof->Fit( pfit.get(), "QW" ); // with W: ignores all error points in TProfile/TGraph
+				auto res = prof->Fit( pfit.get(), "QROB=0.7" ); // with ROB=0.7: robust fitting with 0.7 as fraction of good points
+				//if( res != 0 ) continue;
+				if( res != 0 ) { std::cout << "For p strip " << k << " the fit failed." << std::endl; }
+				canv[i][j]->cd();
+				cd_nQ_pQ[i][j][k]->Draw(); // to draw on the canvas that will be printed in the PDF file
+				//prof->Draw("same");
+				//cd_nQ_pQ[i][j][k]->ProfileX()->Draw("same");
+				pfit.get()->SetLineColor(kBlue);
+				pfit.get()->Draw("same");
+				canv[i][j]->Modified();
+				canv[i][j]->Update();
+				//cd_nQ_pQ[i][j][k]->GetListOfFunctions()->Add(pfit.get()); // to attach the fitted function to the TH2 written to the ROOT file
+				pfit.get()->Write(); // to write the TF1 function to the output ROOT file
 				double fit_gain = ngain / pfit->GetParameter(1);
 				double fit_offset = noffset - pfit->GetParameter(0) * fit_gain;
 
@@ -422,14 +445,17 @@ void MiniballCDCalibrator::CalibratePsides() {
 				output_cal << offsetstr << std::endl;
 
 				// Print to a file
-				std::string pdfname = cname + ".pdf";
-				if( k == 0 && set->GetNumberOfCDPStrips() != 1 )
-					pdfname += "(";
-				else if( k > 0 && k == set->GetNumberOfCDPStrips() - 1 )
-					pdfname += ")";
-				canv[i][j]->Print( pdfname.data(), "pdf" );
+				//std::string pdfname = cname + ".pdf";
+				//if( k == 0 && set->GetNumberOfCDPStrips() != 1 )
+				//	pdfname += "[";
+				//else if( k > 0 && k == set->GetNumberOfCDPStrips() - 1 )
+				//	pdfname += "]";
+				//canv[i][j]->Print( pdfname.data(), "pdf" );
+				canv[i][j]->Print( pdfname.c_str(), "pdf" );
 
 			} // k
+
+			canv[i][j]->Print( (pdfname + "]").c_str(), "pdf" );
 
 		} // j
 
@@ -450,7 +476,7 @@ void MiniballCDCalibrator::CalibrateNsides() {
 		oldDAQ = true;
 
 	// Create a TF1 for the linear fit
-	auto nfit = std::make_unique<TF1>( "nfit", "[0]+[1]*x", 0, 1e9 );
+	//auto nfit = std::make_unique<TF1>( "nfit", "[0]+[1]*x", 0, 1e9 );
 
 	// Some canvases to check fits
 	gErrorIgnoreLevel = kError;
@@ -468,12 +494,34 @@ void MiniballCDCalibrator::CalibrateNsides() {
 			std::string cname = "cdcal_n_" + std::to_string(i) + "_" + std::to_string(j);
 			canv[i][j] = std::make_unique<TCanvas>( cname.data(), cname.data(), 800, 1000 );
 
+			// Print to a file
+			std::string pdfname = cname + ".pdf";
+			canv[i][j]->Print( (pdfname + "[").c_str(), "pdf" );
+
 			// Loop over all the strips
 			for( unsigned int k = 0; k < set->GetNumberOfCDNStrips(); ++k ) {
 
+				// Create a TF1 for the linear fit
+				//auto nfit = std::make_unique<TF1>( ("nfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), "[0]+[1]*x", 0, 1e9 );
+				auto nfit = std::make_unique<TF1>( ("nfit" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str(), 
+						"[0]+[1]*x", cd_pen_nQ[i][j][k]->GetXaxis()->GetXmin(), cd_pen_nQ[i][j][k]->GetXaxis()->GetXmax() );
+
 				// Get the right histogram to do the fit
-				auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QWL" );
-				if( res != 0 ) continue;
+				//auto res = cd_pen_nQ[i][j][k]->Fit( nfit.get(), "QWL" );
+				auto prof = cd_pen_nQ[i][j][k]->ProfileX( ("n_prof_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k)).c_str() );
+				auto res = prof->Fit( nfit.get(), "QROB=0.7" ); // with ROB=0.7: robust fitting with 0.7 as fraction of good points
+				//if( res != 0 ) continue;
+				if( res != 0 ) { std::cout << "For n strip " << k << " the fit failed." << std::endl; }
+				canv[i][j]->cd();
+				cd_pen_nQ[i][j][k]->Draw(); // to draw on the canvas that will be printed in the PDF file
+				//prof->Draw("same");
+				//cd_pen_nQ[i][j][k]->ProfileX()->Draw("same");
+				nfit.get()->SetLineColor(kBlue);
+				nfit.get()->Draw("same");
+				canv[i][j]->Modified();
+				canv[i][j]->Update();
+				//cd_pen_nQ[i][j][k]->GetListOfFunctions()->Add(nfit.get()); // to attach the fitted function to the TH2 written to the ROOT file
+				nfit.get()->Write(); // to write the TF1 function to the output ROOT file
 				double fit_gain = 1.0 / nfit->GetParameter(1);
 				double fit_offset = -1.0 * nfit->GetParameter(0) * fit_gain;
 				//double fit_gain = 1.0;
@@ -521,14 +569,17 @@ void MiniballCDCalibrator::CalibrateNsides() {
 				output_cal << offsetstr << std::endl;
 
 				// Print to a file
-				std::string pdfname = cname + ".pdf";
-				if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
-					pdfname += "(";
-				else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
-					pdfname += ")";
-				canv[i][j]->Print( pdfname.data(), "pdf" );
+				//std::string pdfname = cname + ".pdf";
+				//if( k == 0 && set->GetNumberOfCDNStrips() != 1 )
+				//	pdfname += "[";
+				//else if( k > 0 && k == set->GetNumberOfCDNStrips() - 1 )
+				//	pdfname += "]";
+				//canv[i][j]->Print( pdfname.data(), "pdf" );
+				canv[i][j]->Print( pdfname.c_str(), "pdf" );
 
 			} // k
+
+			canv[i][j]->Print( (pdfname + "]").c_str(), "pdf" );
 
 		} // j
 

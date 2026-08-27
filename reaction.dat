@@ -42,13 +42,20 @@
 #DegraderThickness: -1.0	# in units of mg/cm2, a negative value means that it doesn't exist
 #DegraderMaterial: 197Au	# a string containing the material that matches the SRIM file for energy loss, usually an isotope name
 
+# Definition of Al foil thickness, if experiment uses an aluminum protector foil in front of the CD. Used for transfer reactions only (to stop heavy ion scattering into CD)
+#AlFoilThickness: -1.0        # in units of mm, a negative value means that it doesn't exist
+
 # Doppler mode, calculating the velocity for Doppler correction
+# Modes relevant for Coulex experiments:
 #DopplerMode: 1	# 0 = use angles and two-body kinematics at the centre of the target
 				# 1 = like 0, but corrected for energy loss though the back of the target (default)
 				# 2 = use energy of particle in the CD detector
 				# 3 = like 2, but corrected for energy loss in dead-layer
 				# 4 = like 1, but corrected for energy loss in degrader (plunger experiment: energy after degrader)
 				# 5 = like 3, but corrected for energy loss in degrader (plunger experiment: energy after target)
+# Modes relevant for transfer reaction experiments (where you measure recoil and reconstruct ejectile kinematics):
+# 6 = reconstruct ejectile energy after target (plunger experiment: energy after target)
+# 7 = if degrader is defined, reconstruct ejectile energy after degrader, correcting for energy loss in degrader (plunger experiment: energy after degrader)
 
 # Plot laser ON/OFF data? (0 = OFF, 1 = ON, 2 = OFF or ON)
 #LaserMode: 2
@@ -73,6 +80,8 @@
 #CD_1.PhiOffset: 0.0		# Phi rotation of CD with sector 0 strip 0 vertical, anti-clockwise wrt beam direction because theta > 90 deg (in deg)
 #CD_0.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
 #CD_1.DeadLayer: 0.0007		# Dead layer effectiveness thickness in mm of Si
+#CD_0.Thickness: 0.140		# CD thickness in mm (default value is 0.140 mm)
+#CD_1.Thickness: 0.140		# CD thickness in mm (default value is 0.140 mm)
 
 # SPEDE Detector geometry
 #Spede.Distance: -30.0	# Target to SPEDE distance in mm (backwards direction, so negative)
@@ -166,3 +175,18 @@
 #Histograms.Particle.Bins: 2000		# number of bins in particle spectra
 #Histograms.Particle.Min: 0			# lower energy limit of particle spectra (keV)
 #Histograms.Particle.Max: 2.0e6		# upper energy limit of particle spectra (keV) - default depends on reaction...
+#Histograms.Transfer.Ejectile.Min: 800e3          # lower energy limit of ejectile spectrum for transfer reaction (keV)
+#Histograms.Transfer.Ejectile.Max: 1300e3         # upper energy limit of ejectile spectrum for transfer reaction (keV)
+#Histograms.Transfer.EjectileExcitation.Min: 0.   # lower limit of ejectile excitation energy for transfer reaction (keV)
+#Histograms.Transfer.EjectileExcitation.Max: 50e3 # upper limit of ejectile excitation energy for transfer reaction (keV)
+#Histograms.Transfer.EjectileBeta.Min: 0.09       # lower limit of ejectile beta for transfer reaction (keV)
+#Histograms.Transfer.EjectileBeta.Max: 0.11       # upper limit of ejectile beta for transfer reaction (keV)
+
+
+## Recoil energy loss for transfer reactions
+# Following values are to be chosen so that E vs Eloss graph (outputted by sort code) is MONOTONIC
+#Transfer.InitialRecoilEnergy.Min: 15e3   # lower limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
+#Transfer.InitialRecoilEnergy.Max: 150e3  # upper limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
+
+## Choose between CD+PAD energy or CD energy (DeltaE) only for recoil (light ion) in transfer reactions
+#Transfer.CdPadEnergy: true	# use CD+PAD energy for recoil in TransferProduct if TRUE; use CD energy (DeltaE) only if FALSE 

@@ -246,6 +246,12 @@ void MiniballReaction::ReadReaction() {
 	particle_bins = config->GetValue( "Histograms.Particle.Bins", 2000 );		// number of bins in particle spectra
 	particle_range[0] = config->GetValue( "Histograms.Particle.Min", 0.0 );		// lower energy limit of particle spectra (keV)
 	particle_range[1] = config->GetValue( "Histograms.Particle.Max", pmax_default );	// upper energy limit of particle spectra (keV)
+	transfer_ejectile_range[0] = config->GetValue( "Histograms.Transfer.Ejectile.Min", 800e3 ); // lower energy limit of ejectile spectrum for transfer reaction (keV)
+	transfer_ejectile_range[1] = config->GetValue( "Histograms.Transfer.Ejectile.Max", 1300e3 ); // upper energy limit of ejectile spectrum for transfer reaction (keV)
+	transfer_ejectile_excitation_range[0] = config->GetValue( "Histograms.Transfer.EjectileExcitation.Min", 0. ); // lower limit of ejectile excitation energy for transfer reaction (keV)
+	transfer_ejectile_excitation_range[1] = config->GetValue( "Histograms.Transfer.EjectileExcitation.Max", 50e3 ); // upper limit of ejectile excitation energy for transfer reaction (keV)
+	transfer_ejectile_beta_range[0] = config->GetValue( "Histograms.Transfer.EjectileBeta.Min", 0.09 ); // lower limit of ejectile beta for transfer reaction (keV)
+	transfer_ejectile_beta_range[1] = config->GetValue( "Histograms.Transfer.EjectileBeta.Max", 0.11 ); // upper limit of ejectile beta for transfer reaction (keV)
 
 	// Particle-Gamma time windows
 	pg_prompt[0] = config->GetValue( "ParticleGamma_PromptTime.Min", -300 );	// lower limit for particle-gamma prompt time difference
@@ -285,6 +291,7 @@ void MiniballReaction::ReadReaction() {
 	cd_dist.resize( set->GetNumberOfCDDetectors() );
 	cd_offset.resize( set->GetNumberOfCDDetectors() );
 	dead_layer.resize( set->GetNumberOfCDDetectors() );
+	cd_thickness.resize( set->GetNumberOfCDDetectors() );
 	double d_tmp = 0;
 	for( unsigned int i = 0; i < set->GetNumberOfCDDetectors(); ++i ) {
 
@@ -293,6 +300,7 @@ void MiniballReaction::ReadReaction() {
 		cd_dist[i] = config->GetValue( Form( "CD_%d.Distance", i ), d_tmp );		// distance to target in mm
 		cd_offset[i] = config->GetValue( Form( "CD_%d.PhiOffset", i ), 0.0 );		// phi rotation in degrees
 		dead_layer[i] = config->GetValue( Form( "CD_%d.DeadLayer", i ), 0.0007 );	// dead layer thickness in mm of Si
+		cd_thickness[i] = config->GetValue( Form( "CD_%d.Thickness", i ), 0.140 ); 	// CD thickness in mm
 
 	}
 
@@ -310,6 +318,9 @@ void MiniballReaction::ReadReaction() {
 			break;
 		else degrader_material += degrader_material_tmp[i];
 	}
+
+	// Al foil thickness (protection in front of CD detector)
+	Al_foil_thickness = config->GetValue( "AlFoilThickness", -1.0 ); 	// units of mg/cm^2 - negative means it doesn't exist 
 
 	// Read in Miniball geometry
 	mb_type = config->GetValue( "MiniballGeometry.Type", 1 ); // default = 1
@@ -337,7 +348,7 @@ void MiniballReaction::ReadReaction() {
 	
 	// Get the stopping powers
 	stopping = true;
-	for( unsigned int i = 0; i < 7; ++i )
+	for( unsigned int i = 0; i < 9; ++i )
 		gStopping.push_back( std::make_unique<TGraph>() );
 	stopping &= ReadStoppingPowers( Beam.GetIsotope(), Target.GetIsotope(), gStopping[0] );
 	stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), Target.GetIsotope(), gStopping[1] );
@@ -348,8 +359,51 @@ void MiniballReaction::ReadReaction() {
 		stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), degrader_material, gStopping[5] );
 		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), degrader_material, gStopping[6] );
 	}
-
+	if( Al_foil_thickness > 0 ) {
+		stopping &= ReadStoppingPowers( Ejectile.GetIsotope(), "Al", gStopping[7] );
+		stopping &= ReadStoppingPowers( Recoil.GetIsotope(), "Al", gStopping[8] );
+	}
 	
+	// Prepare the Eloss vs E graphs and E vs Eloss graphs for all CD strips (as Si effective thickness will vary strip by strip).
+	// These will be used by the function TransferProduct(), in case you are doing a transfer reaction.
+	transfer_recoil_range[0] = config->GetValue( "Transfer.InitialRecoilEnergy.Min", 15e3 ); // lower limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
+	transfer_recoil_range[1] = config->GetValue( "Transfer.InitialRecoilEnergy.Max", 150e3 ); // upper limit of recoil energy in transfer reaction (keV) to calculate E vs Eloss graph
+	for( unsigned int i = 0; i < set->GetNumberOfCDPStrips(); ++i ) { // loop over CD strips
+		gEloss_E.push_back( std::make_unique<TGraph>() );
+		gE_Eloss.push_back( std::make_unique<TGraph>() );
+		double cd_eff_thick = GetCDThickness( 0 ) / TMath::Abs( TMath::Cos( GetParticleTheta( 0, 0, i, 0 ) ) ); // we are using just one CD at the moment, so #0. Also just assuming we have sector = 0 and nid = 0.
+		//std::cout << "Strip #" << i << ": average angle = " << ( GetParticleThetas()[16-i]+GetParticleThetas()[15-i] ) / 2. << "; eff_thick = " << cd_eff_thick << std::endl;
+		double dE;
+		for( double E = transfer_recoil_range[0]; E <= transfer_recoil_range[1]; E += 500 ){ // sampling over user-defined energy range (default 15e3-150e3 keV), where Eloss vs E is monotonic, so can be inverted
+			dE = GetEnergyLoss(E, cd_eff_thick, gStopping[4]);
+			gEloss_E[i]->SetPoint(gEloss_E[i]->GetN(), E, dE);
+			// Filling out Einitial vs Eloss value only if dE < E, namely only if the particle punches through the CD
+			const double epsilon = 1.0; // in keV
+			if ( dE < E - epsilon ) { gE_Eloss[i]->SetPoint(gE_Eloss[i]->GetN(), dE, E); }
+		}
+		gE_Eloss[i]->Sort();
+
+		// Draw the plot and save it somewhere
+		TCanvas *c = new TCanvas();
+		c->Divide(1,2);
+		c->cd(1);
+		gEloss_E[i]->SetTitle( ("Energy Loss vs Initial Energy of alpha particle in CD strip "
+				       	+ std::to_string(i) + ";Initial Energy (keV);E_{loss} (keV)").c_str() );
+		gEloss_E[i]->Draw("A*");
+		c->cd(2);
+		gE_Eloss[i]->SetTitle( ("Initial Energy vs Energy Loss of alpha particle in CD strip "
+				       	+ std::to_string(i) + ";E_{loss} (keV);Initial Energy (keV)").c_str() ) ;
+		gE_Eloss[i]->Draw("A*");
+		std::string pdfname = "gEloss_E_strip" + std::to_string(i) + ".pdf";
+		c->SaveAs( pdfname.c_str() );
+		
+		delete c;
+	
+	}
+		
+	// Use CD+PAD energy or CD energy only for recoil energy determination in transfer reactions (called in TransferProduct function)
+	transfer_CdPadEnergy  = config->GetValue( "Transfer.CdPadEnergy", true );	// use CD+PAD energy for recoil in TransferProduct if TRUE; use CD energy (DeltaE) only if FALSE 
+
 	// Some diagnostics and info
 	std::cout << std::endl << " +++  ";
 	std::cout << Target.GetIsotope() << "(" << Beam.GetIsotope() << ",";
@@ -379,12 +433,20 @@ void MiniballReaction::ReadReaction() {
 
 		std::cout << "A " << degrader_material << " degrader of " << degrader_thickness;
 		std::cout << " mg/cm2 has been included. Doppler correction will be performed";
-		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 )
+		if( doppler_mode == 0 || doppler_mode == 1 || doppler_mode == 5 || doppler_mode == 6 )
 			std::cout << " BEFORE the degrader";
-		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 )
+		else if( doppler_mode == 2 || doppler_mode == 3 || doppler_mode == 4 || doppler_mode == 7 )
 			std::cout << " AFTER the degrader";
 		else
 			std::cout << " with unknown DopplerMode = " << doppler_mode;
+		std::cout << std::endl;
+
+	}
+
+	if( Al_foil_thickness > 0 ) {
+
+		std::cout << "An Al protector foil of " << Al_foil_thickness;
+		std::cout << " mg/cm2 has been included.";
 		std::cout << std::endl;
 
 	}
@@ -1069,106 +1131,107 @@ void MiniballReaction::CalculateRecoil(){
 
 void MiniballReaction::TransferProduct( std::shared_ptr<ParticleEvt> p, bool /* kinflag */ ){
 
-	/// Set the ejectile particle and calculate the centre of mass angle too
-	/// @param kinflag kinematics flag such that true is the backwards solution (i.e. CoM > 90 deg)
 
-	//this assumes the reaction product is emitted at the centre of the target
-	double En = p->GetEnergy(); //get energy of the reaction product
-	double eloss = 0.0;
-	double after_target_recoil_energy = p->GetEnergy();
-	double after_degrader_recoil_energy = p->GetEnergy();
+	/// Reconstructs ejectile (heavy ion) kinematics based on measured recoil (light ion) information
+	/// @param kinflag is no longer used
+	
+	/// The following is strongly inspired by the NPReaction.cxx code of NPTool:
+	/// https://gitlab.in2p3.fr/np/nptool/-/blob/NPTool.2.dev/NPLib/Physics/NPReaction.cxx
+	
+	// Lorentz Vector
+	TLorentzVector EnergyMomentumLab_1; // beam
+	TLorentzVector EnergyMomentumLab_2; // target
+	TLorentzVector EnergyMomentumLab_3; // recoil (light ion/target-like particle)
+	TLorentzVector EnergyMomentumLab_4; // ejectile (heavy ion/beam-like particle)
+	TLorentzVector TotalEnergyMomentumLab;
+	
+	// Impulsion Vector3
+	TVector3 MomentumLab_1; // beam
+	TVector3 MomentumLab_2; // target
+	TVector3 MomentumLab_3; // recoil (light ion/target-like particle)
+	TVector3 MomentumLab_4; // ejectile (heavy ion/beam-like particle)
 
-	// Correcting energy loss in CD dead layer
-	if( stopping && ( doppler_mode == 3 || doppler_mode == 5 ) ) {
-		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
-		En -= eloss;
-		after_target_recoil_energy = En;
-		after_degrader_recoil_energy = En;
+	MomentumLab_1 = TVector3(0, 0, sqrt( Beam.GetEnergyTot() * Beam.GetEnergyTot() - Beam.GetMass() * Beam.GetMass())); // beam
+	MomentumLab_2 = TVector3(0, 0, 0); // target
+	
+	EnergyMomentumLab_1 = TLorentzVector(MomentumLab_1, Beam.GetEnergyTot()); // beam
+	EnergyMomentumLab_2 = TLorentzVector(MomentumLab_2, Target.GetMass()); // target
+	
+	TotalEnergyMomentumLab = EnergyMomentumLab_1 + EnergyMomentumLab_2;
+	
+	// get energy of the reaction product prior entering the CD (after the dead layer)
+	double EnergyLab3;
+	if( transfer_CdPadEnergy ) { EnergyLab3 = p->GetEnergy(); }
+	else {
+		int pstrip = static_cast<int>(p->GetStripP());
+		EnergyLab3 = GetInitialEnergyFromDeltaE(p->GetEnergyP(), gE_Eloss[pstrip]);  
 	}
 
-	// Correction for energy loss in the degrader
+	double eloss = 0.0;
+
+	// Correcting energy loss of recoil in CD dead layer
+	if( stopping ) {
+		double eff_thick = dead_layer[p->GetDetector()] / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[4] ); // recoil in dead layer
+		EnergyLab3 -= eloss;
+	}
+	
+	// Correction for energy loss of recoil in the Al protector foil, if Al protector foil is defined (Al foil thickness > 0)
+	if( stopping && Al_foil_thickness > 0 ) {
+		double eff_thick = Al_foil_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
+		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[8] ); // recoil in Al
+		EnergyLab3 -= eloss;
+	}
+
+	// Correction for energy loss of recoil in the degrader if degrader is defined (degrader thickness > 0)
 	if( stopping && degrader_thickness > 0 ) {
 		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
-		En -= eloss;
-		after_target_recoil_energy = En;
+		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[6] ); // recoil in degrader
+		EnergyLab3 -= eloss;
 	}
-
-	// Correction for energy loss through half of the target material
+	
+	// Correction for energy loss of recoil through half of the target material
 	if( stopping ) {
 		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos( GetParticleTheta(p) ) );
-		eloss = GetEnergyLoss( En, -1.0 * eff_thick, gStopping[2] ); // recoil in target
-		En -= eloss;
+		eloss = GetEnergyLoss( EnergyLab3, -1.0 * eff_thick, gStopping[2] ); // recoil in target
+		EnergyLab3 -= eloss;
 	}
 
-	// Set observables
-	Recoil.SetEnergy( En );
+	// Set recoil observables 
+	Recoil.SetEnergy( EnergyLab3 );
 	Recoil.SetTheta( GetParticleTheta(p) );
 	Recoil.SetPhi( GetParticlePhi(p) );
 
-	// Kinematics calculations assuming this energy
-	double p4x = Recoil.GetMomentum() * TMath::Cos(Recoil.GetTheta());
-	double p4y = Recoil.GetMomentum() * TMath::Sin(Recoil.GetTheta());
-	double p3x = Beam.GetMomentum() - p4x;
-	double p3y = p4y;
-	double theta3 = TMath::ATan2(p3y, p3x);
-	//double E3 = GetEnergyTotLab() - Recoil.GetEnergyTot();
-	double E3 = Beam.GetEnergyTot() + Target.GetEnergyTot() - Recoil.GetEnergyTot(); // Total energy of ejectile
+	// write four-vector recoil
+	double p_Lab_3 = sqrt(Recoil.GetEnergyTot() * Recoil.GetEnergyTot() - Recoil.GetMass() * Recoil.GetMass()); // amplitude of impulsion of recoil
+	MomentumLab_3.SetMagThetaPhi(p_Lab_3, Recoil.GetTheta(), Recoil.GetPhi() );
+	EnergyMomentumLab_3.SetVect(MomentumLab_3);
+	EnergyMomentumLab_3.SetE(Recoil.GetEnergyTot()); // this assumes that invariant mass = rest mass for the recoil (namely the recoil is in its ground state)
 
-	// Kinetic energy at the reaction position in the centre of the target
-	double beam_kinetic_energy = E3 - Ejectile.GetMass();
-
-	// Calculate the centre-of-mass energy and angle
-	// Vili's version
-	double E3_CoM = GetGammaCoM()*(E3 - GetBetaCoM() * p3x);
-	double p3x_CoM = GetGammaCoM()*(p3x - GetBetaCoM() * E3);
-	double p3y_CoM = p3y;
-	// double p_CoM = TMath::Sqrt(TMath::Power(p3x_CoM, 2.0) + TMath::Power(p3y_CoM, 2.0));
-	double theta3_CoM = TMath::ATan2(p3y_CoM, p3x_CoM);
-
-	// Lets check E4_CoM also with lorentz transfrom
-	//double E4_CoM = Recoil.GetEnergyTotCM(); This is only calculated from projectile = target -> bad
-	double E4_CoM = GetGammaCoM()*(Recoil.GetEnergyTot() - GetBetaCoM() * p4x);
-//	double p4x_CoM = GetGammaCoM()*(p4x - GetBetaCoM() * Recoil.GetEnergyTot());
-//	double p4y_CoM = p4y;
-//	double theta4_CoM = TMath::ATan2(p4y_CoM, p4x_CoM);
-
-	Ejectile.SetEnergyCoM(E3_CoM - Ejectile.GetMass() ); // Energy of the ejectile in CoM frame
-	Ejectile.SetThetaCoM(theta3_CoM); // theta of ejectile in CoM frame in radians
-	Recoil.SetEnergyCoM(E4_CoM - Recoil.GetMass()); // Set Recoil energy in CoM
-	Recoil.SetThetaCoM( TMath::Pi() - theta3_CoM ); // theta of recoil in CoM frame in radians
-
-	// Calculate the ejectile stopping
-	if( stopping && doppler_mode > 0 ) {
-
-		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos(theta3) );
-		eloss = GetEnergyLoss( beam_kinetic_energy, eff_thick, gStopping[1] );
-		beam_kinetic_energy -= eloss;
-
-		// Do energy loss through the full degrader if requested
-		if( doppler_mode >= 2 && doppler_mode <= 4 && degrader_thickness > 0 ) {
-
-			eff_thick = degrader_thickness / TMath::Abs( TMath::Cos(theta3) );
-			eloss = GetEnergyLoss( beam_kinetic_energy, eff_thick, gStopping[5] );
-			beam_kinetic_energy -= eloss;
-
-		}
-
+	// write four-vector and kinetic energy ejectile
+	EnergyMomentumLab_4 = TotalEnergyMomentumLab - EnergyMomentumLab_3; 
+	double EnergyLab4 = EnergyMomentumLab_4.E() - EnergyMomentumLab_4.M(); // kinetic energy = total energy - invariant mass 
+	
+	// Factor in energy loss of ejectile in second half of the target
+	if( stopping ) {
+		double eff_thick = 0.5 * target_thickness / TMath::Abs( TMath::Cos( EnergyMomentumLab_4.Theta() ) );
+		eloss = GetEnergyLoss( EnergyLab4, eff_thick, gStopping[1] ); // ejectile in target
+		EnergyLab4 -= eloss;
+	}
+	
+	// Factor in energy loss of ejectile into degrader, if degrader is defined (degrader thickness > 0)
+	// and if doppler_mode == 7 (velocity of ejectile after degrader)
+	if( stopping && degrader_thickness > 0 && doppler_mode == 7 ) {
+		double eff_thick = degrader_thickness / TMath::Abs( TMath::Cos( EnergyMomentumLab_4.Theta() ) );
+		eloss = GetEnergyLoss( EnergyLab4, eff_thick, gStopping[5] ); // ejectile in degrader
+		EnergyLab4 -= eloss;
 	}
 
-	// Set the ejectile energy
-	Ejectile.SetEnergy( beam_kinetic_energy );  // Kinetic energy of ejectile
-	Ejectile.SetTheta( theta3 ); // Calculates ejectile theta angle from recoil information
-	Ejectile.SetPhi( TMath::Pi() + Recoil.GetPhi() );
-
-	// Calculate also the energy loss of the recoil as requested
-	if( doppler_mode == 2 )
-		Recoil.SetEnergy( p->GetEnergy() );
-	else if( doppler_mode == 1 || doppler_mode == 3 )
-		Recoil.SetEnergy( after_target_recoil_energy );
-	else if( doppler_mode == 4 )
-		Recoil.SetEnergy( after_degrader_recoil_energy );
+	// Set ejectile observables
+	Ejectile.SetEx( EnergyMomentumLab_4.M() - Ejectile.GetRestMass() ); 	// invariant mass - rest mass
+	Ejectile.SetEnergy( EnergyLab4 ); // kinetic energy
+	Ejectile.SetTheta( EnergyMomentumLab_4.Theta() );
+	Ejectile.SetPhi( EnergyMomentumLab_4.Phi() );
 
 	// Flag that we have a transfer product
 	transfer_detected = true;
@@ -1204,6 +1267,20 @@ double MiniballReaction::GetEnergyLoss( double Ei, double dist, std::unique_ptr<
 
 }
 
+
+double MiniballReaction::GetInitialEnergyFromDeltaE(double DeltaE, std::unique_ptr<TGraph> &g){
+
+	/// Returns the initial energy of a particle that deposited a given energy DeltaE 
+	/// in a given material thickness.
+	/// User should provide a sensible energy range for the search of the initial energy,
+	/// where Eloss vs E is MONOTONIC.
+
+	return g->Eval(DeltaE);
+
+}
+
+
+
 bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string isotope2, std::unique_ptr<TGraph> &g ) {
 	
 	// Convert deuterium to CD2, and others
@@ -1217,6 +1294,7 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 	title += ";" + isotope1 + " energy [keV];";
 	title += "Energy loss in " + isotope2;
 	if( isotope2 == "Si" ) title += " [keV/mm]";
+	else if( isotope2 == "Al" ) title += " [keV/mm]";
 	else title += " [keV/(mg/cm^{2})]";
 	
 	// Initialise an empty TGraph
@@ -1317,6 +1395,7 @@ bool MiniballReaction::ReadStoppingPowers( std::string isotope1, std::string iso
 	
 	// Now convert all the points in the plot
 	if( isotope2 == "Si" ) conv = conv_keVum * 1E3; // silicon thickness in mm, energy in keV
+	else if( isotope2 == "Al" ) conv = conv_keVum * 1E3; // Al foil thickness in mm, energy in keV
 	else conv = conv_MeVmgcm2 * 1E3; // target thickness in mg/cm2, energy in keV
 	for( Int_t i = 0; i < g->GetN(); ++i ){
 		
