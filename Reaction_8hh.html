@@ -117,6 +117,8 @@ $(function(){ initResizable(false); });
 <code>#include &quot;TSpline.h&quot;</code><br />
 <code>#include &quot;TCanvas.h&quot;</code><br />
 <code>#include &quot;TGraph.h&quot;</code><br />
+<code>#include &quot;TLorentzRotation.h&quot;</code><br />
+<code>#include &quot;TLorentzVector.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="Settings_8hh_source.html">Settings.hh</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="MiniballEvts_8hh_source.html">MiniballEvts.hh</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="MiniballGeometry_8hh_source.html">MiniballGeometry.hh</a>&quot;</code><br />
@@ -153,6 +155,8 @@ Variables</h2></td></tr>
 <tr class="separator:ad5648fdcf44241812b891a446b935c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35cdfd07c72746ef0de43531a2eff02b" id="r_a35cdfd07c72746ef0de43531a2eff02b"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a35cdfd07c72746ef0de43531a2eff02b">gElName</a></td></tr>
 <tr class="separator:a35cdfd07c72746ef0de43531a2eff02b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a590f14b35d68de250665146cc134919d" id="r_a590f14b35d68de250665146cc134919d"><td class="memItemLeft" align="right" valign="top">const double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a590f14b35d68de250665146cc134919d">rho_Si</a> = 2.3212</td></tr>
+<tr class="separator:a590f14b35d68de250665146cc134919d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="af7b227b46086539a512daa3acc327be3" name="af7b227b46086539a512daa3acc327be3"></a>
@@ -167,7 +171,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00043">43</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00045">45</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l00042">MiniballReaction::ReadMassTables()</a>.</p>
 
@@ -185,9 +189,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00046">46</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00048">48</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l01207">MiniballReaction::ReadStoppingPowers()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l01284">MiniballReaction::ReadStoppingPowers()</a>.</p>
 
 </div>
 </div>
@@ -206,9 +210,9 @@ Variables</h2></td></tr>
 
 <p>mass of the electron in keV/c^2 </p>
 
-<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00052">52</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00054">54</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l00770">MiniballReaction::DopplerCorrection()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l00832">MiniballReaction::DopplerCorrection()</a>.</p>
 
 </div>
 </div>
@@ -236,9 +240,9 @@ Variables</h2></td></tr>
 <div class="line">    <span class="stringliteral">&quot;Mt&quot;</span>,<span class="stringliteral">&quot;Ds&quot;</span>,<span class="stringliteral">&quot;Rg&quot;</span>,<span class="stringliteral">&quot;Cn&quot;</span>,<span class="stringliteral">&quot;Nh&quot;</span>,<span class="stringliteral">&quot;Fl&quot;</span>,<span class="stringliteral">&quot;Ms&quot;</span>,<span class="stringliteral">&quot;Lv&quot;</span>,<span class="stringliteral">&quot;Ts&quot;</span>,<span class="stringliteral">&quot;Og&quot;</span>,<span class="stringliteral">&quot;Uue&quot;</span>,<span class="stringliteral">&quot;Ubn&quot;</span></div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00055">55</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00057">57</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l00020">MiniballReaction::AddBindingEnergy()</a>, <a class="el" href="Reaction_8hh_source.html#l00094">MiniballParticle::GetIsotope()</a>, and <a class="el" href="Reaction_8cc_source.html#l00108">MiniballReaction::ReadReaction()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="Reaction_8cc_source.html#l00020">MiniballReaction::AddBindingEnergy()</a>, <a class="el" href="Reaction_8hh_source.html#l00105">MiniballParticle::GetIsotope()</a>, and <a class="el" href="Reaction_8cc_source.html#l00108">MiniballReaction::ReadReaction()</a>.</p>
 
 </div>
 </div>
@@ -256,9 +260,9 @@ Variables</h2></td></tr>
 
 <p>mass of the neutron in keV/c^2 </p>
 
-<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00050">50</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00052">52</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Reaction_8hh_source.html#l00084">MiniballParticle::GetMass()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="Reaction_8hh_source.html#l00089">MiniballParticle::GetMass()</a>, and <a class="el" href="Reaction_8hh_source.html#l00096">MiniballParticle::GetRestMass()</a>.</p>
 
 </div>
 </div>
@@ -276,9 +280,25 @@ Variables</h2></td></tr>
 
 <p>mass of the proton in keV/c^2 </p>
 
-<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00049">49</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00051">51</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Reaction_8hh_source.html#l00084">MiniballParticle::GetMass()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="Reaction_8hh_source.html#l00089">MiniballParticle::GetMass()</a>, and <a class="el" href="Reaction_8hh_source.html#l00096">MiniballParticle::GetRestMass()</a>.</p>
+
+</div>
+</div>
+<a id="a590f14b35d68de250665146cc134919d" name="a590f14b35d68de250665146cc134919d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a590f14b35d68de250665146cc134919d">&#9670;&#160;</a></span>rho_Si</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const double rho_Si = 2.3212</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00072">72</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
 </div>
 </div>
@@ -296,9 +316,9 @@ Variables</h2></td></tr>
 
 <p>atomic mass unit in keV/c^2 </p>
 
-<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00051">51</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
+<p class="definition">Definition at line <a class="el" href="Reaction_8hh_source.html#l00053">53</a> of file <a class="el" href="Reaction_8hh_source.html">Reaction.hh</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="Reaction_8hh_source.html#l00081">MiniballParticle::GetMass_u()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="Reaction_8hh_source.html#l00086">MiniballParticle::GetMass_u()</a>.</p>
 
 </div>
 </div>

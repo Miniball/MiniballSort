@@ -21,6 +21,12 @@ var searchData=
   ['histparticlemax_18',['HistParticleMax',['../classMiniballReaction.html#acc9e19d8bfe5b5c3231e96ed3c3bbd2f',1,'MiniballReaction']]],
   ['histparticlemin_19',['HistParticleMin',['../classMiniballReaction.html#a675023f898d69bde27b86779f77ead8c',1,'MiniballReaction']]],
   ['histsegmentphi_20',['HistSegmentPhi',['../classMiniballReaction.html#a4ea2dbb49347ea4685343f39f743af2a',1,'MiniballReaction']]],
-  ['histwithaddback_21',['HistWithAddback',['../classMiniballReaction.html#af75da10b3ac8a6aba2436272ed096cba',1,'MiniballReaction']]],
-  ['histwithoutaddback_22',['HistWithoutAddback',['../classMiniballReaction.html#a2fe3118726d0ef8f85bbcf08e4159905',1,'MiniballReaction']]]
+  ['histtransferejectilebetamax_21',['HistTransferEjectileBetaMax',['../classMiniballReaction.html#afeb48419d2b7a057bde5cc3ae4bd5085',1,'MiniballReaction']]],
+  ['histtransferejectilebetamin_22',['HistTransferEjectileBetaMin',['../classMiniballReaction.html#a745f469a7c21af726874f8b11cef306f',1,'MiniballReaction']]],
+  ['histtransferejectileexcitationmax_23',['HistTransferEjectileExcitationMax',['../classMiniballReaction.html#ac13387be5f5cfb2cc41c770002a95965',1,'MiniballReaction']]],
+  ['histtransferejectileexcitationmin_24',['HistTransferEjectileExcitationMin',['../classMiniballReaction.html#a8052e4797596d2b5f970fe8a386d0feb',1,'MiniballReaction']]],
+  ['histtransferejectilemax_25',['HistTransferEjectileMax',['../classMiniballReaction.html#ac7d2bd0eebdcb7ca2b168530a6a5e9d8',1,'MiniballReaction']]],
+  ['histtransferejectilemin_26',['HistTransferEjectileMin',['../classMiniballReaction.html#a5b3934b48c201bcc0b0b24494d8800a1',1,'MiniballReaction']]],
+  ['histwithaddback_27',['HistWithAddback',['../classMiniballReaction.html#af75da10b3ac8a6aba2436272ed096cba',1,'MiniballReaction']]],
+  ['histwithoutaddback_28',['HistWithoutAddback',['../classMiniballReaction.html#a2fe3118726d0ef8f85bbcf08e4159905',1,'MiniballReaction']]]
 ];

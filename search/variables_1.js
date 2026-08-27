@@ -98,7 +98,8 @@ var searchData=
   ['ae_5fvs_5ftheta_5frecoil_5fdc_5fejectile_95',['aE_vs_theta_recoil_dc_ejectile',['../classMiniballHistogrammer.html#a0c0624cf4f246387c21e595d400cb417',1,'MiniballHistogrammer']]],
   ['ae_5fvs_5ftheta_5frecoil_5fdc_5fnone_96',['aE_vs_theta_recoil_dc_none',['../classMiniballHistogrammer.html#add7e4e6b22c6776fb1e25640db1d84ff',1,'MiniballHistogrammer']]],
   ['ae_5fvs_5ftheta_5frecoil_5fdc_5frecoil_97',['aE_vs_theta_recoil_dc_recoil',['../classMiniballHistogrammer.html#a21929dab9dce32479934396dde267e16',1,'MiniballHistogrammer']]],
-  ['alpha_98',['alpha',['../classMiniballGeometry.html#a67557b5cdb23c377e1e39d89d4c937c0',1,'MiniballGeometry']]],
-  ['ame_5fbe_99',['ame_be',['../classMiniballReaction.html#ae13f479ea97f3a306efa821b3fdbbe27',1,'MiniballReaction']]],
-  ['answer_100',['answer',['../classMyDialog.html#abaa6e5be3e29010af18c4aadccff074b',1,'MyDialog']]]
+  ['al_5ffoil_5fthickness_98',['Al_foil_thickness',['../classMiniballReaction.html#adf541fbc367f8e24b9812e569facc0db',1,'MiniballReaction']]],
+  ['alpha_99',['alpha',['../classMiniballGeometry.html#a67557b5cdb23c377e1e39d89d4c937c0',1,'MiniballGeometry']]],
+  ['ame_5fbe_100',['ame_be',['../classMiniballReaction.html#ae13f479ea97f3a306efa821b3fdbbe27',1,'MiniballReaction']]],
+  ['answer_101',['answer',['../classMyDialog.html#abaa6e5be3e29010af18c4aadccff074b',1,'MyDialog']]]
 ];
