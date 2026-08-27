@@ -88,108 +88,118 @@ void MiniballHistogrammer::MakeHists() {
 
 	}
 
-	hname = "gamma_gamma_td";
-	htitle = "Gamma-ray - Gamma-ray time difference;#Deltat [ns];Counts";
-	gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
-							  TBIN, TMIN, TMAX );
-	histlist->Add(gamma_gamma_td);
+	// Time-difference histograms
+	hname = "particle_particle_td_prompt";
+	htitle = "Particle - Particle time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+	particle_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
+									TBIN, TMIN, TMAX );
+	histlist->Add(particle_particle_td_prompt);
 
-	hname = "gamma_electron_td";
-	htitle = "Electron - Gamma-ray time difference;#Deltat (e-#gamma) [ns];Counts per 10 ns";
-	gamma_electron_td = new TH1F( hname.data(), htitle.data(),
+	hname = "gamma_particle_td_random";
+	htitle = "Particle - Gamma-ray time difference in random time window;#Deltat (p-#gamma) [ns];Counts";
+	gamma_particle_td_random = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
-	histlist->Add(gamma_electron_td);
+	histlist->Add(gamma_particle_td_random);
 
-	hname = "electron_electron_td";
-	htitle = "Electron - Electron time difference;#Deltat [ns];Counts per 10 ns";
-	electron_electron_td = new TH1F( hname.data(), htitle.data(),
+	hname = "particle_particle_td_random";
+	htitle = "Particle - Particle time difference in random time window;#Deltat [ns];Counts per 10 ns";
+	particle_particle_td_random = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
-	histlist->Add(electron_electron_td);
-
-	hname = "electron_particle_td";
-	htitle = "Particle - Electron time difference;#Deltat (p-e) [ns];Counts per 10 ns";
-	electron_particle_td = new TH1F( hname.data(), htitle.data(),
-									TBIN, TMIN, TMAX );
-	histlist->Add(electron_particle_td);
+	histlist->Add(particle_particle_td_random);
 
 	hname = "particle_particle_td";
 	htitle = "Particle - Particle time difference;#Deltat [ns];Counts per 10 ns";
 	particle_particle_td = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
 	histlist->Add(particle_particle_td);
-	
+
 	hname = "gamma_particle_td_prompt";
 	htitle = "Particle - Gamma-ray time difference in prompt time window;#Deltat (p-#gamma) [ns];Counts";
 	gamma_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
 								 TBIN, TMIN, TMAX );
 	histlist->Add(gamma_particle_td_prompt);
-	
-	hname = "gamma_gamma_td_prompt";
-	htitle = "Gamma-ray - Gamma-ray time difference in prompt time window;#Deltat [ns];Counts";
-	gamma_gamma_td_prompt = new TH1F( hname.data(), htitle.data(),
-							  TBIN, TMIN, TMAX );
-	histlist->Add(gamma_gamma_td_prompt);
-	
-	hname = "gamma_electron_td_prompt";
-	htitle = "Electron - Gamma-ray time difference in prompt time window;#Deltat (e-#gamma) [ns];Counts per 10 ns";
-	gamma_electron_td_prompt = new TH1F( hname.data(), htitle.data(),
-								 TBIN, TMIN, TMAX );
-	histlist->Add(gamma_electron_td_prompt);
-	
-	hname = "electron_electron_td_prompt";
-	htitle = "Electron - Electron time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
-	electron_electron_td_prompt = new TH1F( hname.data(), htitle.data(),
+
+	if ( react->HistGammaGamma() ) {
+		hname = "gamma_gamma_td";
+		htitle = "Gamma-ray - Gamma-ray time difference;#Deltat [ns];Counts";
+		gamma_gamma_td = new TH1F( hname.data(), htitle.data(),
+								TBIN, TMIN, TMAX );
+		histlist->Add(gamma_gamma_td);
+
+		hname = "gamma_gamma_td_prompt";
+		htitle = "Gamma-ray - Gamma-ray time difference in prompt time window;#Deltat [ns];Counts";
+		gamma_gamma_td_prompt = new TH1F( hname.data(), htitle.data(),
+								TBIN, TMIN, TMAX );
+		histlist->Add(gamma_gamma_td_prompt);
+
+		hname = "gamma_gamma_td_random";
+		htitle = "Gamma-ray - Gamma-ray time difference in random time window;#Deltat [ns];Counts";
+		gamma_gamma_td_random = new TH1F( hname.data(), htitle.data(),
+								TBIN, TMIN, TMAX );
+		histlist->Add(gamma_gamma_td_random);
+	}
+
+	if ( react->HistElectronGamma() ) {
+		hname = "gamma_electron_td";
+		htitle = "Electron - Gamma-ray time difference;#Deltat (e-#gamma) [ns];Counts per 10 ns";
+		gamma_electron_td = new TH1F( hname.data(), htitle.data(),
+								TBIN, TMIN, TMAX );
+		histlist->Add(gamma_electron_td);
+	}
+
+	if ( react->HistElectron() ) {
+		hname = "electron_electron_td";
+		htitle = "Electron - Electron time difference;#Deltat [ns];Counts per 10 ns";
+		electron_electron_td = new TH1F( hname.data(), htitle.data(),
+										TBIN, TMIN, TMAX );
+		histlist->Add(electron_electron_td);
+
+		hname = "electron_particle_td";
+		htitle = "Particle - Electron time difference;#Deltat (p-e) [ns];Counts per 10 ns";
+		electron_particle_td = new TH1F( hname.data(), htitle.data(),
+										TBIN, TMIN, TMAX );
+		histlist->Add(electron_particle_td);
+
+		hname = "electron_electron_td_prompt";
+		htitle = "Electron - Electron time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
+		electron_electron_td_prompt = new TH1F( hname.data(), htitle.data(),
+										TBIN, TMIN, TMAX );
+		histlist->Add(electron_electron_td_prompt);
+
+		hname = "electron_particle_td_prompt";
+		htitle = "Particle - Electron time difference in prompt time window;#Deltat (p-e) [ns];Counts per 10 ns";
+		electron_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
+										TBIN, TMIN, TMAX );
+		histlist->Add(electron_particle_td_prompt);
+
+		hname = "electron_electron_td_random";
+		htitle = "Electron - Electron time difference in random time window;#Deltat [ns];Counts per 10 ns";
+		electron_electron_td_random = new TH1F( hname.data(), htitle.data(),
+										TBIN, TMIN, TMAX );
+		histlist->Add(electron_electron_td_random);
+
+		hname = "electron_particle_td_random";
+		htitle = "Particle - Electron time difference in random time window;#Deltat (p-e) [ns];Counts per 10 ns";
+		electron_particle_td_random = new TH1F( hname.data(), htitle.data(),
+										TBIN, TMIN, TMAX );
+		histlist->Add(electron_particle_td_random);
+	}
+
+	if ( react->HistElectronGamma() ) {
+		hname = "gamma_electron_td_prompt";
+		htitle = "Electron - Gamma-ray time difference in prompt time window;#Deltat (e-#gamma) [ns];Counts per 10 ns";
+		gamma_electron_td_prompt = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
-	histlist->Add(electron_electron_td_prompt);
-	
-	hname = "electron_particle_td_prompt";
-	htitle = "Particle - Electron time difference in prompt time window;#Deltat (p-e) [ns];Counts per 10 ns";
-	electron_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
+		histlist->Add(gamma_electron_td_prompt);
+
+		hname = "gamma_electron_td_random";
+		htitle = "Electron - Gamma-ray time difference in random time window;#Deltat (e-#gamma) [ns];Counts per 10 ns";
+		gamma_electron_td_random = new TH1F( hname.data(), htitle.data(),
 									TBIN, TMIN, TMAX );
-	histlist->Add(electron_particle_td_prompt);
-	
-	hname = "particle_particle_td_prompt";
-	htitle = "Particle - Particle time difference in prompt time window;#Deltat [ns];Counts per 10 ns";
-	particle_particle_td_prompt = new TH1F( hname.data(), htitle.data(),
-									TBIN, TMIN, TMAX );
-	histlist->Add(particle_particle_td_prompt);
-	
-	hname = "gamma_particle_td_random";
-	htitle = "Particle - Gamma-ray time difference in random time window;#Deltat (p-#gamma) [ns];Counts";
-	gamma_particle_td_random = new TH1F( hname.data(), htitle.data(),
-								 TBIN, TMIN, TMAX );
-	histlist->Add(gamma_particle_td_random);
-	
-	hname = "gamma_gamma_td_random";
-	htitle = "Gamma-ray - Gamma-ray time difference in random time window;#Deltat [ns];Counts";
-	gamma_gamma_td_random = new TH1F( hname.data(), htitle.data(),
-							  TBIN, TMIN, TMAX );
-	histlist->Add(gamma_gamma_td_random);
-	
-	hname = "gamma_electron_td_random";
-	htitle = "Electron - Gamma-ray time difference in random time window;#Deltat (e-#gamma) [ns];Counts per 10 ns";
-	gamma_electron_td_random = new TH1F( hname.data(), htitle.data(),
-								 TBIN, TMIN, TMAX );
-	histlist->Add(gamma_electron_td_random);
-	
-	hname = "electron_electron_td_random";
-	htitle = "Electron - Electron time difference in random time window;#Deltat [ns];Counts per 10 ns";
-	electron_electron_td_random = new TH1F( hname.data(), htitle.data(),
-									TBIN, TMIN, TMAX );
-	histlist->Add(electron_electron_td_random);
-	
-	hname = "electron_particle_td_random";
-	htitle = "Particle - Electron time difference in random time window;#Deltat (p-e) [ns];Counts per 10 ns";
-	electron_particle_td_random = new TH1F( hname.data(), htitle.data(),
-									TBIN, TMIN, TMAX );
-	histlist->Add(electron_particle_td_random);
-	
-	hname = "particle_particle_td_random";
-	htitle = "Particle - Particle time difference in random time window;#Deltat [ns];Counts per 10 ns";
-	particle_particle_td_random = new TH1F( hname.data(), htitle.data(),
-									TBIN, TMIN, TMAX );
-	histlist->Add(particle_particle_td_random);
-	
+		histlist->Add(gamma_electron_td_random);
+	}
+
+
 	// Gamma-ray singles histograms
 	if( react->HistWithoutAddback() ) {
 
