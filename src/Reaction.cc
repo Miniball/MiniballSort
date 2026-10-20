@@ -279,6 +279,16 @@ void MiniballReaction::ReadReaction() {
 	pe_random[0] = config->GetValue( "ParticleElectron_RandomTime.Min", 400 );	// lower limit for particle-electron random time difference
 	pe_random[1] = config->GetValue( "ParticleElectron_RandomTime.Max", 800 );	// upper limit for particle-electron random time difference
 
+	// Warnings about gamma-gamma and particle-gamma time windows
+	if( TMath::Abs(gg_prompt[0]) != TMath::Abs(gg_prompt[1]) ) {
+	    std::cout << "\nWARNING! The gamma-gamma prompt window is not symmetric." << std::endl;
+	    std::cout << "Change this to a symmetric window if you are interested in particle-gamma-gamma coincidences.\n" << std::endl;
+	}
+	if( !( pg_random[1] <= gg_random[0] || gg_random[1] <= pg_random[0] ) ) {
+	    std::cout << "\nWARNING! The gamma-gamma and particle-gamma random windows overlap." << std::endl;
+	    std::cout << "Change them not to overlap if you are interested in particle-gamma-gamma coincidences.\n" << std::endl;
+	}
+
 	// Particle-Gamma fill ratios
 	pg_ratio = config->GetValue( "ParticleGamma_FillRatio", GetParticleGammaTimeRatio() );
 	gg_ratio = config->GetValue( "GammaGamma_FillRatio", GetGammaGammaTimeRatio() );

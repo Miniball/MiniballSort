@@ -136,8 +136,8 @@ public:
 		else return false;
 	};
 	inline bool	RandomCoincidence( std::shared_ptr<GammaRayEvt> g1, std::shared_ptr<GammaRayEvt> g2 ){
-		if( (double)g1->GetTime() - (double)g2->GetTime() > react->GetGammaGammaRandomTime(0) &&
-			(double)g1->GetTime() - (double)g2->GetTime() < react->GetGammaGammaRandomTime(1) )
+		if(  (double)g2->GetTime() - (double)g1->GetTime()  > react->GetGammaGammaRandomTime(0) &&
+			 (double)g2->GetTime() - (double)g1->GetTime()  < react->GetGammaGammaRandomTime(1) )
 			return true;
 		else return false;
 	};

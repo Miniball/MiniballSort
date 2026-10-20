@@ -533,6 +533,7 @@ public:
 		ejectile_detected = false;
 		recoil_detected = false;
 		transfer_detected = false;
+		particle_time = 0;
 	};
 	inline void SetParticleTime( unsigned long long t ){ particle_time = t; };
 	inline bool IsEjectileDetected(){ return ejectile_detected; };
